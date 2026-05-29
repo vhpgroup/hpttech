@@ -144,11 +144,28 @@ export function FloatingContactDock() {
     setLeadErrors(errors);
     if (Object.keys(errors).length) return;
 
+    const leadData = {
+      name: leadForm.name.trim(),
+      phone: phone.replace(/\s+/g, ""),
+      service: leadForm.service.trim(),
+    };
+
     setLeadCaptured(true);
     setLeadFormOpen(false);
+    void fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: leadData.name,
+        phone: leadData.phone,
+        service: leadData.service,
+        message: pendingInitialMessage || "",
+        page: typeof window !== "undefined" ? window.location.pathname : "",
+      }),
+    }).catch(() => {});
     appendMessage({
       role: "bot",
-      text: `Cảm ơn anh/chị ${leadForm.name.trim()}. Em đã nhận thông tin và sẽ tiếp tục hỗ trợ ngay ạ.`,
+      text: `Cảm ơn anh/chị ${leadData.name}. Em đã nhận thông tin và sẽ tiếp tục hỗ trợ ngay ạ.`,
     });
 
     if (pendingInitialMessage) {

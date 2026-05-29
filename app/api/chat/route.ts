@@ -1,4 +1,19 @@
 import { NextResponse } from "next/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+const hasUpstash =
+  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+const ratelimit = hasUpstash
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, "60 s"),
+      prefix: "hpt-chat",
+    })
+  : null;
+
+const MAX_MESSAGE_LEN = 2000;
+const MAX_TURNS = 12;
 
 const friendlyServiceError =
   "Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline 0876 645 432 hoặc Zalo/Facebook để được hỗ trợ ngay.";
@@ -23,6 +38,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: friendlyServiceError }, { status: 500 });
   }
 
+  const allowed = process.env.ALLOWED_ORIGIN;
+  if (allowed && process.env.NODE_ENV === "production") {
+    const origin =
+      request.headers.get("origin") || request.headers.get("referer") || "";
+    if (!origin.startsWith(allowed)) {
+      return NextResponse.json({ error: "Yêu cầu không hợp lệ." }, { status: 403 });
+    }
+  }
+
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+  if (ratelimit) {
+    const { success } = await ratelimit.limit(ip);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Bạn thao tác hơi nhanh, vui lòng thử lại sau giây lát." },
+        { status: 429 },
+      );
+    }
+  }
+
   const body = await request.json().catch(() => ({}));
   const {
     message = "",
@@ -39,6 +75,18 @@ export async function POST(request: Request) {
   if (!String(message).trim()) {
     return NextResponse.json({ error: "Thiếu nội dung câu hỏi." }, { status: 400 });
   }
+
+  if (String(message).length > MAX_MESSAGE_LEN) {
+    return NextResponse.json({ error: "Nội dung quá dài." }, { status: 400 });
+  }
+
+  const safeConversation = (Array.isArray(conversation) ? conversation : [])
+    .slice(-MAX_TURNS)
+    .filter((item) => item && typeof item.content === "string" && item.content.trim())
+    .map((item) => ({
+      role: item.role === "assistant" ? "assistant" : "user",
+      content: String(item.content).slice(0, MAX_MESSAGE_LEN),
+    }));
 
   const productContext =
     Array.isArray(relevantProducts) && relevantProducts.length
@@ -65,12 +113,7 @@ export async function POST(request: Request) {
       role: "system",
       content: systemPrompt,
     },
-    ...conversation
-      .filter((item) => item && typeof item.content === "string" && item.content.trim())
-      .map((item) => ({
-        role: item.role === "assistant" ? "assistant" : "user",
-        content: item.content,
-      })),
+    ...safeConversation,
     {
       role: "user",
       content: String(message),
