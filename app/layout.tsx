@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Header from "@/components/layout/Header";
+import Navbar from "@/components/layout/Navbar";
+import FloatingContactDock from "@/components/FloatingContactDock";
 
 export const metadata: Metadata = {
-  title: "HPT Tech Design System",
-  description: "Bo component va design tokens cho HPT Tech"
+  title: "HPT Tech - Giao diện mới",
+  description: "Bản dựng giao diện HPT Tech mới với dữ liệu sản phẩm, danh mục và bài viết mẫu."
 };
 
 export default function RootLayout({
@@ -13,8 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className="min-h-screen bg-surface font-sans text-ink antialiased">
+      <body className="site-shell">
+        <Header />
+        <Navbar />
         {children}
+        <FloatingContactDock />
       </body>
     </html>
   );

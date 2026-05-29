@@ -1,189 +1,310 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { Bot, Menu, SendHorizontal, X } from "lucide-react";
+import { FormEvent, useMemo, useRef, useState } from "react";
+import { HPT_DATA } from "@/lib/data";
 
-type FloatingContactDockProps = {
-  zaloHref?: string;
-  messengerHref?: string;
-  aiHref?: string;
-  className?: string;
-  zaloLogoSrc?: string;
-  messengerLogoSrc?: string;
-  aiLogoSrc?: string;
+type ChatMessage = {
+  role: "bot" | "user";
+  text: string;
 };
 
-type DockItem = {
-  id: "zalo" | "messenger" | "ai";
-  label: string;
-  href: string;
-  glowClass: string;
-  surfaceClass: string;
-  icon: React.ReactNode;
-  prominent?: boolean;
+type LeadForm = {
+  name: string;
+  phone: string;
+  service: string;
 };
 
-function cn(...values: Array<string | false | null | undefined>) {
-  return values.filter(Boolean).join(" ");
+const SUPPORT_FALLBACK_MESSAGE =
+  "Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline 0876 645 432 hoặc Zalo/Facebook để được hỗ trợ ngay.";
+const SUPPORT_INTRO_MESSAGE =
+  "Em đang online ạ. Anh/chị vui lòng để lại nội dung cần hỗ trợ, em sẽ phản hồi ngay.";
+const SUPPORT_LEAD_PROMPT = "Cho em xin thông tin anh/chị để tiện hỗ trợ.";
+
+const defaultLeadForm = (): LeadForm => ({
+  name: "",
+  phone: "",
+  service: "",
+});
+
+function getRelevantProducts(message: string) {
+  const keywords = message
+    .toLowerCase()
+    .split(/[\s,.;:!?()]+/)
+    .map((part) => part.trim())
+    .filter((part) => part.length >= 3);
+
+  if (!keywords.length) return [];
+
+  return HPT_DATA.products
+    .map((product) => {
+      const haystack = [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase();
+      const score = keywords.reduce((total, keyword) => total + (haystack.includes(keyword) ? 1 : 0), 0);
+      return { product, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4)
+    .map((item) => item.product);
 }
 
-function BrandIcon({
-  src,
-  alt,
-  size = 28,
-}: {
-  src: string;
-  alt: string;
-  size?: number;
-}) {
-  return (
-    <Image src={src} alt={alt} width={size} height={size} className="h-7 w-7 object-contain" />
+function getFriendlyChatError(message: unknown) {
+  const text = String(message || "").toLowerCase();
+  if (!text) return SUPPORT_FALLBACK_MESSAGE;
+
+  return ["openai_api_key", "api key", "openai", "server", "network", "fetch"].some((marker) =>
+    text.includes(marker)
+  )
+    ? SUPPORT_FALLBACK_MESSAGE
+    : String(message);
+}
+
+export function FloatingContactDock() {
+  const [chatbotOpen, setChatbotOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [leadFormOpen, setLeadFormOpen] = useState(false);
+  const [leadCaptured, setLeadCaptured] = useState(false);
+  const [pendingInitialMessage, setPendingInitialMessage] = useState("");
+  const [leadForm, setLeadForm] = useState<LeadForm>(defaultLeadForm);
+  const [leadErrors, setLeadErrors] = useState<Partial<Record<keyof LeadForm, string>>>({});
+  const [messages, setMessages] = useState<ChatMessage[]>([{ role: "bot", text: SUPPORT_INTRO_MESSAGE }]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const recentConversation = useMemo(
+    () =>
+      messages.slice(-8).map((message) => ({
+        role: message.role === "bot" ? "assistant" : "user",
+        content: message.text,
+      })),
+    [messages]
   );
-}
 
-function DockButton({
-  item,
-  isActive,
-  onHoverChange,
-}: {
-  item: DockItem;
-  isActive: boolean;
-  onHoverChange: (active: boolean) => void;
-}) {
-  const isExternal = /^https?:\/\//.test(item.href);
+  const appendMessage = (message: ChatMessage) => {
+    setMessages((prev) => [...prev, message]);
+  };
+
+  const requestBotReply = async (message: string, conversation = recentConversation) => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          conversation,
+          relevantProducts: getRelevantProducts(message),
+          page: window.location.pathname,
+          customerInfo: leadForm,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(getFriendlyChatError(payload.error));
+      if (!payload.reply) throw new Error("Hiện chưa nhận được phản hồi từ hệ thống chat.");
+      appendMessage({ role: "bot", text: payload.reply });
+    } catch (error) {
+      appendMessage({ role: "bot", text: getFriendlyChatError(error instanceof Error ? error.message : error) });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitSupportMessage = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const input = inputRef.current;
+    const message = input?.value.trim() || "";
+    if (!message || loading || leadFormOpen) return;
+
+    if (input) input.value = "";
+    appendMessage({ role: "user", text: message });
+
+    if (!leadCaptured && messages.filter((item) => item.role === "user").length === 0) {
+      setPendingInitialMessage(message);
+      setLeadFormOpen(true);
+      setLeadErrors({});
+      setLeadForm({ ...defaultLeadForm(), service: "Tư vấn giải pháp" });
+      appendMessage({ role: "bot", text: SUPPORT_LEAD_PROMPT });
+      return;
+    }
+
+    await requestBotReply(message);
+  };
+
+  const submitLeadForm = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const errors: Partial<Record<keyof LeadForm, string>> = {};
+    const phone = leadForm.phone.trim();
+
+    if (!leadForm.name.trim()) errors.name = "Tên chưa được nhập.";
+    if (!phone) errors.phone = "Số điện thoại chưa được nhập.";
+    else if (!/^(0|\+84)[0-9]{8,10}$/.test(phone.replace(/\s+/g, ""))) {
+      errors.phone = "Số điện thoại không hợp lệ.";
+    }
+
+    setLeadErrors(errors);
+    if (Object.keys(errors).length) return;
+
+    setLeadCaptured(true);
+    setLeadFormOpen(false);
+    appendMessage({
+      role: "bot",
+      text: `Cảm ơn anh/chị ${leadForm.name.trim()}. Em đã nhận thông tin và sẽ tiếp tục hỗ trợ ngay ạ.`,
+    });
+
+    if (pendingInitialMessage) {
+      const pending = pendingInitialMessage;
+      setPendingInitialMessage("");
+      await requestBotReply(pending, [{ role: "assistant", content: SUPPORT_INTRO_MESSAGE }]);
+    }
+  };
 
   return (
-    <motion.div
-      initial={false}
-      animate={{ scale: isActive ? 1.035 : 1 }}
-      transition={{ type: "spring", stiffness: 420, damping: 28 }}
-      className="relative"
-      onHoverStart={() => onHoverChange(true)}
-      onHoverEnd={() => onHoverChange(false)}
-      onFocusCapture={() => onHoverChange(true)}
-      onBlurCapture={() => onHoverChange(false)}
-    >
-      <AnimatePresence>
-        {isActive ? (
-          <motion.div
-            key={`${item.id}-tooltip`}
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 8 }}
-            transition={{ duration: 0.18, ease: "easeOut" }}
-            className="pointer-events-none absolute right-[calc(100%+12px)] top-1/2 -translate-y-1/2"
-          >
-            <div className="rounded-full border border-white/15 bg-slate-950/88 px-3 py-1.5 text-xs font-medium text-white shadow-2xl shadow-slate-950/30 backdrop-blur-xl dark:bg-white/92 dark:text-slate-900">
-              {item.label}
+    <div id="supportWidgetShell">
+      <div className="support-widget">
+        <div className="support-stack open">
+          <a className="support-card zalo" href="https://zalo.me/0876645432" target="_blank" rel="noreferrer">
+            <span className="support-card-icon zalo">
+              <img className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" />
+            </span>
+            <span className="support-card-copy">
+              <strong>Tư vấn Zalo</strong>
+              <small>(8:30 - 21:00)</small>
+            </span>
+          </a>
+
+          <a className="support-card facebook" href="https://www.facebook.com/solarangelx9/" target="_blank" rel="noreferrer">
+            <span className="support-card-icon facebook">
+              <img className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" />
+            </span>
+            <span className="support-card-copy">
+              <strong>Chat Facebook</strong>
+              <small>(8:30 - 21:00)</small>
+            </span>
+          </a>
+
+          <button className="support-card chatbot" type="button" onClick={() => setChatbotOpen(true)}>
+            <img
+              className="support-card-chatbot-banner"
+              src="/assets/icons/bot.png"
+              alt="Hỗ trợ Online"
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+                const fallback = event.currentTarget.nextElementSibling;
+                if (fallback instanceof HTMLElement) fallback.style.display = "flex";
+              }}
+            />
+            <span className="support-card-chatbot-fallback" style={{ display: "none" }}>
+              <Bot />
+              <strong>Hỗ trợ Online</strong>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className={`support-chatbot ${chatbotOpen ? "open" : ""}`}>
+        <div className="support-chatbot-head">
+          <button type="button" className="support-chatbot-menu" aria-label="Mở menu">
+            <Menu size={18} />
+          </button>
+          <div className="support-chatbot-brand">
+            <div className="support-chatbot-logo">
+              <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
             </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+            <div>
+              <strong>HPT Tech</strong>
+              <small>Agent online</small>
+            </div>
+          </div>
+          <button type="button" className="support-chatbot-close" aria-label="Đóng chatbot" onClick={() => setChatbotOpen(false)}>
+            <X size={18} />
+          </button>
+        </div>
 
-      <Link
-        href={item.href}
-        target={isExternal ? "_blank" : undefined}
-        rel={isExternal ? "noreferrer" : undefined}
-        aria-label={item.label}
-        className={cn(
-          "group relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/50 text-slate-900 shadow-[0_14px_40px_rgba(15,23,42,0.14)] backdrop-blur-2xl transition-all duration-300",
-          "dark:border-white/10 dark:text-white dark:shadow-[0_18px_40px_rgba(2,6,23,0.45)]",
-          item.surfaceClass,
-          item.prominent && "h-16 w-16 rounded-[1.35rem]"
-        )}
-      >
-        <span
-          className={cn(
-            "pointer-events-none absolute inset-0 opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100",
-            item.glowClass
-          )}
-        />
-        {item.prominent ? (
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-0 rounded-[inherit] border border-cyan-300/25"
-            animate={{ scale: [1, 1.06, 1] }}
-            transition={{ duration: 2.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-          />
-        ) : null}
-        <span className="relative z-10">{item.icon}</span>
-      </Link>
-    </motion.div>
-  );
-}
+        <div className="support-chatbot-body">
+          <div className="support-chatbot-messages" id="supportChatMessages">
+            {messages.map((message, index) => (
+              <div className={`support-chat-message ${message.role}`} key={`${message.role}-${index}`}>
+                {message.role === "bot" ? (
+                  <div className="support-chat-avatar" aria-hidden="true">
+                    <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+                  </div>
+                ) : null}
+                <div className="support-chat-content">
+                  <div className="support-chat-bubble">{message.text}</div>
+                </div>
+              </div>
+            ))}
+            {loading ? (
+              <div className="support-chat-message bot loading">
+                <div className="support-chat-avatar" aria-hidden="true">
+                  <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+                </div>
+                <div className="support-chat-content">
+                  <div className="support-chat-bubble support-chat-typing">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
 
-export function FloatingContactDock({
-  zaloHref = "https://zalo.me/0876645432",
-  messengerHref = "https://m.me/your-page-id",
-  aiHref = "/chat",
-  className,
-  zaloLogoSrc = "/icons/zalo-official.svg",
-  messengerLogoSrc = "/icons/messenger-official.svg",
-  aiLogoSrc = "/icons/hpt-ai-official.svg",
-}: FloatingContactDockProps) {
-  const [activeId, setActiveId] = useState<DockItem["id"] | null>(null);
+          {leadFormOpen ? (
+            <form className="support-lead-form" onSubmit={submitLeadForm}>
+              <h3>Thông tin cơ bản</h3>
+              <label className="support-lead-field">
+                <input
+                  name="name"
+                  type="text"
+                  placeholder="Nhập tên của bạn *"
+                  value={leadForm.name}
+                  onChange={(event) => setLeadForm((prev) => ({ ...prev, name: event.target.value }))}
+                />
+                {leadErrors.name ? <small>{leadErrors.name}</small> : null}
+              </label>
+              <label className="support-lead-field">
+                <input
+                  name="phone"
+                  type="tel"
+                  placeholder="Nhập số điện thoại của bạn *"
+                  value={leadForm.phone}
+                  onChange={(event) => setLeadForm((prev) => ({ ...prev, phone: event.target.value }))}
+                />
+                {leadErrors.phone ? <small>{leadErrors.phone}</small> : null}
+              </label>
+              <label className="support-lead-field">
+                <select
+                  name="service"
+                  value={leadForm.service}
+                  onChange={(event) => setLeadForm((prev) => ({ ...prev, service: event.target.value }))}
+                >
+                  <option value="">--- Chọn 1 dịch vụ hỗ trợ ---</option>
+                  <option value="Báo giá sản phẩm">Báo giá sản phẩm</option>
+                  <option value="Tư vấn giải pháp">Tư vấn giải pháp</option>
+                  <option value="Hỗ trợ kỹ thuật">Hỗ trợ kỹ thuật</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </label>
+              <button type="submit" className="support-lead-submit">
+                Bắt đầu trò chuyện
+              </button>
+            </form>
+          ) : null}
 
-  const items: DockItem[] = [
-    {
-      id: "zalo",
-      label: "Chat Zalo",
-      href: zaloHref,
-      glowClass: "bg-[radial-gradient(circle_at_center,rgba(0,106,255,0.28),transparent_70%)]",
-      surfaceClass:
-        "bg-white/88 hover:border-[#0068FF]/25 hover:bg-white dark:bg-slate-900/88 dark:hover:border-[#4EA1FF]/30",
-      icon: <BrandIcon src={zaloLogoSrc} alt="Zalo official logo" />,
-    },
-    {
-      id: "messenger",
-      label: "Messenger",
-      href: messengerHref,
-      glowClass: "bg-[radial-gradient(circle_at_center,rgba(122,97,255,0.3),transparent_70%)]",
-      surfaceClass:
-        "bg-white/88 hover:border-fuchsia-400/20 hover:bg-white dark:bg-slate-900/88 dark:hover:border-fuchsia-300/20",
-      icon: <BrandIcon src={messengerLogoSrc} alt="Messenger official logo" />,
-    },
-    {
-      id: "ai",
-      label: "AI Hỗ trợ",
-      href: aiHref,
-      glowClass: "bg-[radial-gradient(circle_at_center,rgba(45,91,255,0.34),transparent_72%)]",
-      surfaceClass:
-        "bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(237,244,255,0.92))] hover:border-[#4D63FF]/30 dark:bg-[linear-gradient(180deg,rgba(22,36,71,0.94),rgba(13,24,49,0.96))] dark:hover:border-cyan-300/20",
-      icon: <BrandIcon src={aiLogoSrc} alt="HPT AI official logo" />,
-      prominent: true,
-    },
-  ];
-
-  return (
-    <div
-      className={cn(
-        "pointer-events-none fixed right-4 top-1/2 z-50 -translate-y-1/2 sm:right-5",
-        "max-sm:top-auto max-sm:bottom-5 max-sm:translate-y-0",
-        className
-      )}
-    >
-      <motion.div
-        initial={{ opacity: 0, x: 18 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.32, ease: "easeOut" }}
-        className={cn(
-          "pointer-events-auto flex flex-col items-center gap-3 rounded-[2rem] border border-white/45 bg-white/26 px-2.5 py-3 shadow-[0_16px_50px_rgba(15,23,42,0.14)] backdrop-blur-2xl",
-          "dark:border-white/10 dark:bg-slate-950/28 dark:shadow-[0_18px_60px_rgba(2,6,23,0.5)]",
-          "sm:gap-3.5 sm:px-3 sm:py-3.5",
-          "max-sm:flex-row max-sm:rounded-full max-sm:px-3 max-sm:py-2.5"
-        )}
-      >
-        {items.map((item) => (
-          <DockButton
-            key={item.id}
-            item={item}
-            isActive={activeId === item.id}
-            onHoverChange={(active) => setActiveId(active ? item.id : null)}
-          />
-        ))}
-      </motion.div>
+          <form className="support-chatbot-form" onSubmit={submitSupportMessage}>
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder={leadFormOpen ? "Vui lòng hoàn tất thông tin trước..." : "Nhập nội dung cần hỗ trợ..."}
+              disabled={loading || leadFormOpen}
+            />
+            <button type="submit" aria-label="Gửi tin nhắn" disabled={loading || leadFormOpen}>
+              <SendHorizontal size={18} />
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
