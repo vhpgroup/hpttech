@@ -1,6 +1,8 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowRight, Mail, PhoneCall } from "lucide-react";
+import { getProductBySlug, getPostBySlug } from "@/lib/catalog";
 import {
   getBrands,
   getCatalogProducts,
@@ -14,6 +16,38 @@ type PageProps = {
     slug: string;
   }>;
 };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const page = getSitePage(slug);
+  const product = getProductBySlug(slug);
+  const post = getPostBySlug(slug);
+
+  if (page) {
+    return {
+      title: page.title,
+      description: page.description,
+      openGraph: { title: page.title, description: page.description },
+    };
+  }
+
+  if (product) {
+    return {
+      title: product.title,
+      description: product.detail,
+      openGraph: { title: product.title, description: product.detail, images: product.image ? [product.image] : [] },
+    };
+  }
+
+  if (post) {
+    return {
+      title: post.title,
+      openGraph: { title: post.title, images: post.image ? [post.image] : [] },
+    };
+  }
+
+  return { title: "Không tìm thấy" };
+}
 
 export default async function ContentPage({ params }: PageProps) {
   const { slug } = await params;

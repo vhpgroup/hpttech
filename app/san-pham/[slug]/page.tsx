@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Mail, ShieldCheck, Truck } from "lucide-react";
 import { getProductBySlug, getProducts } from "@/lib/catalog";
@@ -14,6 +15,23 @@ export function generateStaticParams() {
   return getProducts().map((product) => ({ slug: product.slug }));
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product = getProductBySlug(slug);
+
+  if (!product) return { title: "Không tìm thấy" };
+
+  return {
+    title: product.title,
+    description: product.detail,
+    openGraph: {
+      title: product.title,
+      description: product.detail,
+      images: product.image ? [product.image] : [],
+    },
+  };
+}
+
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const product = getProductBySlug(slug);
@@ -21,9 +39,32 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!product) notFound();
 
   const specs = HPT_PRODUCT_SPECS[product.href] || {};
+  const numericPrice = parsePrice(product.price);
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    image: product.image ? [product.image] : [],
+    description: product.detail,
+    brand: {
+      "@type": "Brand",
+      name: product.brand,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `https://hpttech.vercel.app/san-pham/${slug}`,
+      priceCurrency: "VND",
+      ...(numericPrice !== null ? { price: numericPrice } : {}),
+      availability: "https://schema.org/InStock",
+    },
+  };
 
   return (
     <main className="subpage-main">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <Link className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700" href="/san-pham">
         <ArrowLeft size={16} />
         Quay lại catalog
@@ -72,6 +113,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </section>
     </main>
   );
+}
+
+function parsePrice(price: string) {
+  const digits = price.replace(/\D/g, "");
+  return digits ? Number(digits) : null;
 }
 
 function SpecRow({ label, value }: { label: string; value: string }) {
