@@ -117,7 +117,7 @@ function renderSharedHeader() {
     <button class="icon-btn mobile-only" type="button" aria-label="Mở menu">
       <i data-lucide="menu"></i>
     </button>
-    <a class="brand" href="index.html" aria-label="HPT Tech">
+    <a class="brand" href="/" aria-label="HPT Tech">
       <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
     </a>
     <form class="search desktop-only" role="search">
@@ -144,7 +144,7 @@ function renderSharedHeader() {
     document.body.insertAdjacentHTML(
       "beforeend",
       `<nav class="mobile-nav">
-        <a href="index.html"><i data-lucide="home"></i><span>Trang chủ</span></a>
+        <a href="/"><i data-lucide="home"></i><span>Trang chủ</span></a>
         <a href="san-pham.html"><i data-lucide="list"></i><span>Danh mục</span></a>
         <a class="quote" href="lien-he.html"><i data-lucide="shopping-bag"></i><span>Báo giá nhanh</span></a>
         <a href="tin-tuc.html"><i data-lucide="newspaper"></i><span>Tin tức</span></a>

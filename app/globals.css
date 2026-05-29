@@ -2,6 +2,13 @@
 @import "../styles.css";
 
 @theme {
+  --color-ink: #07142f;
+  --color-header: #07142f;
+  --color-primary: #0f7cff;
+  --color-primary-2: #22a7ff;
+  --color-accent: #f97316;
+  --color-sale: #e4002b;
+  --color-bg: #f4f7fb;
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -25,9 +32,7 @@
   --color-danger: #b91c1c;
   --color-info: #0369a1;
   --color-surface: #f8fafc;
-  --color-ink: #0f172a;
   --color-border: #dbe3f0;
   --font-sans: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --shadow-soft: 0 20px 45px -24px rgba(15, 23, 42, 0.35);
 }
-

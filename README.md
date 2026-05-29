@@ -1,64 +1,24 @@
-# HPT Tech Interface Clone
+# HPT Tech Next.js
 
-Prototype giao diện mới cho `hpttech.vn`, dựng dạng static site để dễ kiểm thử và chuyển tiếp sang React/Vue/Next sau này.
+Next 15 App Router prototype for HPT Tech, using React 19, TypeScript strict, and Tailwind v4. The active app lives in `app/`, `components/`, and `lib/data.ts`.
 
-## Bản đồ file
-
-- `index.html`: khung trang, header, hero, danh mục, sản phẩm, giải pháp, bài viết, footer.
-- `styles.css`: toàn bộ responsive layout theo mockup desktop/mobile.
-- `data.js`: dữ liệu seed trích từ `https://hpttech.vn/`.
-- `app.js`: render dữ liệu và xử lý tương tác trang chủ.
-- `compare.js`: khối so sánh sản phẩm nổi.
-- `compare.html` + `compare-page.js`: trang so sánh riêng.
-- `support-widget.js`: widget hỗ trợ nổi gồm chatbot, Zalo, Facebook.
-- `api/chat.js`: serverless function gọi OpenAI cho chatbot.
-- `tmp/static-server.cjs`: static server local có hỗ trợ `/api/chat`.
-
-## Nguồn dữ liệu
-
-- Logo và ảnh sản phẩm/bài viết dùng URL gốc từ `hpttech.vn`.
-- Footer và thông tin công ty lấy từ site gốc.
-- Sản phẩm hiện là dữ liệu seed để dựng UI và thử nghiệm chatbot/compare.
-
-## Chạy local
-
-Mở trực tiếp `index.html` trong trình duyệt, hoặc chạy static server:
+## Local Development
 
 ```powershell
-node tmp/static-server.cjs e:\Claude\HPTTech 8080
+npm install
+npm run dev
 ```
 
-## Chatbot OpenAI
-
-Chatbot không dùng API key ở frontend. Key được đọc ở server-side qua:
-
-- `api/chat.js` khi deploy lên Vercel
-- `tmp/static-server.cjs` khi chạy local
-
-Tạo biến môi trường theo file `.env.example`:
-
-```env
-OPENAI_API_KEY=sk-your_openai_api_key_here
-OPENAI_MODEL=gpt-4.1-mini
-```
-
-## Chạy local với chatbot
-
-Trong PowerShell:
+## Build
 
 ```powershell
-$env:OPENAI_API_KEY="sk-..."
-$env:OPENAI_MODEL="gpt-4.1-mini"
-node tmp/static-server.cjs e:\Claude\HPTTech 8080
+npm run build
 ```
 
-## Deploy Vercel
+## Data And APIs
 
-1. Import project lên Vercel.
-2. Vào `Project Settings` -> `Environment Variables`.
-3. Thêm:
+- `lib/data.ts` is the current seed data source before WordPress integration.
+- `app/api/chat/route.ts` handles chatbot requests server-side.
+- `app/api/lead/route.ts` accepts lead form submissions and can notify via Resend.
 
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL` = `gpt-4.1-mini` (tùy chọn, code đã có mặc định)
-
-Sau khi deploy, chatbot frontend sẽ gọi cùng domain qua endpoint `/api/chat`, nên không cần sửa URL nào thêm.
+Create environment variables from `.env.example`. Do not expose API keys in client components.

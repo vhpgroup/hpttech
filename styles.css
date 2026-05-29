@@ -71,7 +71,7 @@ main {
   justify-content: space-between;
   gap: 18px;
   padding: 0 18px;
-  background: #06132c;
+  background: var(--color-header);
   color: #b8c7df;
   font-size: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -106,7 +106,7 @@ main {
   display: flex;
   align-items: center;
   gap: 22px;
-  background: #020a1c;
+  background: var(--color-header);
   color: white;
 }
 
@@ -127,7 +127,7 @@ main {
   display: grid;
   grid-template-columns: 1fr 160px 52px;
   overflow: hidden;
-  background: #07142f;
+  background: var(--color-header);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
 }
 
@@ -458,7 +458,7 @@ main {
   display: flex;
   align-items: stretch;
   padding: 0;
-  background: #06132c;
+  background: var(--color-header);
   color: white;
 }
 
@@ -918,7 +918,7 @@ main {
 .commercial-tile.scanner .commercial-products,
 .commercial-tile.solution .commercial-products {
   background: rgba(255, 242, 0, 0.14);
-  color: #fff200;
+  color: #fff;
 }
 
 .commercial-tile.scanner strong,
@@ -957,7 +957,7 @@ main {
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%, #fff 0 18%, transparent 19%),
-    conic-gradient(from 22deg, #0f7cff, #22a7ff, #fff200, #0f7cff);
+    conic-gradient(from 22deg, #0f7cff, #22a7ff, var(--color-accent), #0f7cff);
 }
 
 .commercial-tile:hover {
@@ -976,7 +976,7 @@ main {
   align-items: center;
   border-radius: 0 0 8px 8px;
   background: linear-gradient(135deg, #4059d0 0%, #2f48c1 100%);
-  color: #fff200;
+  color: #fff;
   box-shadow: 0 14px 28px rgba(28, 48, 120, 0.2);
 }
 
@@ -1225,6 +1225,22 @@ main {
   background: #edf5ff;
   color: var(--blue);
   cursor: pointer;
+}
+
+.product-price {
+  color: var(--color-sale);
+  font-weight: 800;
+}
+
+.btn-action.primary-btn {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.btn-action.primary-btn:hover {
+  background: #ea580c;
+  border-color: #ea580c;
 }
 
 .product-actions {
@@ -1956,7 +1972,7 @@ main {
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 32px;
-  background: #020a1c;
+  background: var(--color-header);
   color: #dce8fa;
 }
 
@@ -2732,7 +2748,7 @@ svg {
   }
 
   body {
-    background: #020a1c;
+    background: var(--color-header);
   }
 
   .desktop-only {
@@ -2769,7 +2785,7 @@ svg {
   }
 
   main {
-    background: #020a1c;
+    background: var(--color-header);
   }
 
   .hero-section {
@@ -3095,7 +3111,7 @@ svg {
     height: 68px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    background: #06132c;
+    background: var(--color-header);
     color: #d8e7fb;
     border-top: 1px solid #16345f;
   }
