@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Mail, ShieldCheck, Truck } from "lucide-react";
 import { getProductBySlug, getProducts } from "@/lib/catalog";
+import { formatPrice } from "@/lib/data";
 import { HPT_PRODUCT_SPECS } from "@/lib/specs";
 
 type PageProps = {
@@ -39,7 +40,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (!product) notFound();
 
   const specs = HPT_PRODUCT_SPECS[product.href] || {};
-  const numericPrice = parsePrice(product.price);
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -54,7 +54,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       "@type": "Offer",
       url: `https://hpttech.vercel.app/san-pham/${slug}`,
       priceCurrency: "VND",
-      ...(numericPrice !== null ? { price: numericPrice } : {}),
+      ...(product.price !== null ? { price: product.price } : {}),
       availability: "https://schema.org/InStock",
     },
   };
@@ -78,7 +78,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
           <h1 className="mt-3 text-3xl font-bold leading-tight text-slate-950">{product.title}</h1>
           <p className="mt-4 text-base leading-7 text-slate-600">{product.detail}</p>
-          <div className="mt-5 text-2xl font-bold text-orange-600">{product.price}</div>
+          <div className="mt-5 text-2xl font-bold text-orange-600">{formatPrice(product.price)}</div>
           <div className="mt-6 flex flex-wrap gap-3">
             <a className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800" href={`mailto:lienhe@hpttech.vn?subject=Yêu cầu báo giá ${product.title}`}>
               <Mail size={16} />
@@ -113,11 +113,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </section>
     </main>
   );
-}
-
-function parsePrice(price: string) {
-  const digits = price.replace(/\D/g, "");
-  return digits ? Number(digits) : null;
 }
 
 function SpecRow({ label, value }: { label: string; value: string }) {

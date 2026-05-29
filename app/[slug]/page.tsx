@@ -10,6 +10,7 @@ import {
   getSitePage,
   getSolutions,
 } from "@/lib/content";
+import { formatPrice } from "@/lib/data";
 
 type PageProps = {
   params: Promise<{
@@ -107,7 +108,7 @@ function ProductCatalog() {
             </h2>
             <p className="mt-2 line-clamp-2 min-h-10 text-sm text-slate-600">{product.detail}</p>
             <div className="mt-4 flex items-center justify-between gap-3">
-              <strong className="text-sm text-orange-600">{product.price}</strong>
+              <strong className="text-sm text-orange-600">{formatPrice(product.price)}</strong>
               <a className="text-sm font-semibold text-blue-700 hover:text-blue-900" href={product.href} target="_blank" rel="noreferrer">
                 Chi tiết
               </a>

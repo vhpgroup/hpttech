@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Filter, Search } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { getProductBrands, getProductCategories, getProducts } from "@/lib/catalog";
+import { formatPrice } from "@/lib/data";
 
 const PAGE_SIZE = 12;
 
@@ -128,7 +129,7 @@ function ProductsContent() {
               </h2>
               <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{product.detail}</p>
               <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-                <strong className="text-sm text-orange-600">{product.price}</strong>
+                <strong className="text-sm text-orange-600">{formatPrice(product.price)}</strong>
                 <Link className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" href={`/san-pham/${product.slug}`}>
                   Chi tiết
                 </Link>

@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { HPT_DATA, Product } from "@/lib/data";
+import { formatPrice, HPT_DATA, Product } from "@/lib/data";
 import { HPT_PRODUCT_SPECS } from "@/lib/specs";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
@@ -30,8 +30,8 @@ function CompareContent() {
   useEffect(() => {
     const productsParam = searchParams.get("products");
     if (productsParam) {
-      const titles = productsParam.split(",");
-      const matched = HPT_DATA.products.filter(p => titles.includes(p.title));
+      const ids = productsParam.split(",");
+      const matched = HPT_DATA.products.filter((product) => ids.includes(product.id) || ids.includes(product.title));
       setItems(matched);
     }
   }, [searchParams]);
@@ -83,7 +83,7 @@ function CompareContent() {
     rows.push(["Mô tả", items.map((item) => item.detail || "Đang cập nhật")]);
   }
 
-  rows.push(["Giá", items.map((item) => item.price || "Liên hệ")]);
+  rows.push(["Giá", items.map((item) => formatPrice(item.price))]);
 
   return (
     <div className="compare-page-content">

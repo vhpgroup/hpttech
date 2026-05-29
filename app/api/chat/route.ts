@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { formatPrice } from "@/lib/data";
 
 const hasUpstash =
   !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -27,7 +28,7 @@ type RelevantProduct = {
   title?: string;
   brand?: string;
   category?: string;
-  price?: string;
+  price?: number | null;
   detail?: string;
   href?: string;
 };
@@ -93,7 +94,7 @@ export async function POST(request: Request) {
       ? relevantProducts
           .map(
             (product, index) =>
-              `${index + 1}. ${product.title} | Thương hiệu: ${product.brand} | Danh mục: ${product.category} | Giá: ${product.price} | Mô tả: ${product.detail} | Link: ${product.href}`
+              `${index + 1}. ${product.title} | Thương hiệu: ${product.brand} | Danh mục: ${product.category} | Giá: ${formatPrice(product.price ?? null)} | Mô tả: ${product.detail} | Link: ${product.href}`
           )
           .join("\n")
       : "Không có sản phẩm liên quan rõ ràng trong dữ liệu cục bộ.";

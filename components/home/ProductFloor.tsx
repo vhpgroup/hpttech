@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ArrowRight, Printer, ScanLine } from "lucide-react";
-import { Product } from "@/lib/data";
+import { formatPrice, Product } from "@/lib/data";
 
 interface ProductFloorProps {
   id: string;
@@ -104,9 +104,9 @@ export default function ProductFloor({
 
         <div className="floor-products">
           {floorProducts.map((product) => {
-            const comparing = compareList.some((p) => p.title === product.title);
+            const comparing = compareList.some((p) => p.id === product.id);
             return (
-              <article key={product.title} className="product-card floor-card">
+              <article key={product.id} className="product-card floor-card">
                 {product.tag ? <span className="product-tag">{product.tag}</span> : null}
                 <a href={product.href} target="_blank" rel="noreferrer">
                   <img src={product.image} alt={product.title} />
@@ -121,7 +121,7 @@ export default function ProductFloor({
                     </a>
                   </h3>
                   <p>{product.detail}</p>
-                  <div className="product-price">{product.price}</div>
+                  <div className="product-price">{formatPrice(product.price)}</div>
                   <div className="product-actions">
                     <button
                       type="button"

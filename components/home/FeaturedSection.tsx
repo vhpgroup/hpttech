@@ -2,7 +2,7 @@
 
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
-import { HPT_DATA, Product } from "@/lib/data";
+import { formatPrice, HPT_DATA, Product } from "@/lib/data";
 import CompareDock from "@/components/home/CompareDock";
 
 const COMPARE_LIMIT = 4;
@@ -35,8 +35,8 @@ export default function FeaturedSection() {
 
   const toggleCompare = (product: Product) => {
     setActiveCompareList((prev) => {
-      const exists = prev.some((p) => p.title === product.title);
-      if (exists) return prev.filter((p) => p.title !== product.title);
+      const exists = prev.some((p) => p.id === product.id);
+      if (exists) return prev.filter((p) => p.id !== product.id);
       if (prev.length >= COMPARE_LIMIT) return [...prev.slice(1), product];
       return [...prev, product];
     });
@@ -44,7 +44,7 @@ export default function FeaturedSection() {
 
   const addCompareProduct = (product: Product) => {
     setActiveCompareList((prev) => {
-      const exists = prev.some((p) => p.title === product.title);
+      const exists = prev.some((p) => p.id === product.id);
       if (exists) return prev;
       if (prev.length >= COMPARE_LIMIT) return [...prev.slice(1), product];
       return [...prev, product];
@@ -84,9 +84,9 @@ export default function FeaturedSection() {
 
         <div className="product-grid" id="productGrid">
           {filteredProducts.slice(0, 10).map((product) => {
-            const comparing = activeCompareList.some((p) => p.title === product.title);
+            const comparing = activeCompareList.some((p) => p.id === product.id);
             return (
-              <article key={product.title} className="product-card">
+              <article key={product.id} className="product-card">
                 {product.tag ? <span className="product-tag">{product.tag}</span> : null}
                 <a href={product.href} target="_blank" rel="noreferrer">
                   <img src={product.image} alt={product.title} />
@@ -99,7 +99,7 @@ export default function FeaturedSection() {
                     </a>
                   </h3>
                   <p>{product.detail}</p>
-                  <div className="product-price">{product.price}</div>
+                  <div className="product-price">{formatPrice(product.price)}</div>
                   <div className="product-actions">
                     <button
                       type="button"
