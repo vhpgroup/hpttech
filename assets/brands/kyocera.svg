@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="70" viewBox="0 0 180 70" role="img" aria-label="Kyocera">
+  <rect width="180" height="70" fill="#fff"/>
+  <path d="M33 25 L48 18 L48 32 L33 39 Z M51 18 L63 25 L51 32 Z" fill="#e30613"/>
+  <text x="108" y="42" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" fill="#111">KYOCERA</text>
+</svg>

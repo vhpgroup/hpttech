@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="70" viewBox="0 0 180 70" role="img" aria-label="Fujitsu">
+  <rect width="180" height="70" fill="#fff"/>
+  <text x="90" y="42" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800" fill="#e31b23">FUJITSU</text>
+  <path d="M106 22 C121 11 132 28 115 34 C101 39 92 24 106 22 Z" fill="none" stroke="#e31b23" stroke-width="3"/>
+</svg>

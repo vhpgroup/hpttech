@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="70" viewBox="0 0 180 70" role="img" aria-label="Minolta">
+  <rect width="180" height="70" fill="#fff"/>
+  <circle cx="90" cy="25" r="17" fill="#00a0df"/>
+  <path d="M73 25 H107 M75 18 H105 M75 32 H105" stroke="#fff" stroke-width="3"/>
+  <text x="90" y="55" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#111">MINOLTA</text>
+</svg>
