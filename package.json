@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "smoke": "node test-urls.js",
     "lint": "next lint"
   },
   "dependencies": {
