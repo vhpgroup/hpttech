@@ -2,7 +2,7 @@ import { ArrowRight, BadgeCheck, ShieldCheck, ShoppingCart, Sparkles, Truck } fr
 import { HPT_DATA } from "@/lib/data";
 import BannerSlider from "@/components/home/BannerSlider";
 import CategoryPanel from "@/components/home/CategoryPanel";
-import FeaturedSection from "@/components/home/FeaturedSection";
+import { HomeFloors } from "@/components/home/HomeFloors";
 
 export default function HomePage() {
   return (
@@ -103,7 +103,7 @@ export default function HomePage() {
         </article>
       </section>
 
-      <FeaturedSection />
+      <HomeFloors />
 
       <section className="brand-strip" id="brands">
         <h2>Đối tác công nghệ hàng đầu</h2>

@@ -3,13 +3,14 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { formatPrice, HPT_DATA, Product } from "@/lib/data";
-import CompareDock from "@/components/home/CompareDock";
 
-const COMPARE_LIMIT = 4;
+type FeaturedSectionProps = {
+  onToggleCompare: (product: Product) => void;
+  isComparing: (id: string) => boolean;
+};
 
-export default function FeaturedSection() {
+export default function FeaturedSection({ onToggleCompare, isComparing }: FeaturedSectionProps) {
   const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
-  const [activeCompareList, setActiveCompareList] = useState<Product[]>([]);
   const [productSearch, setProductSearch] = useState("");
 
   const filteredProducts = useMemo(() => {
@@ -33,27 +34,8 @@ export default function FeaturedSection() {
     );
   }, [activeProductTab, productSearch]);
 
-  const toggleCompare = (product: Product) => {
-    setActiveCompareList((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
-      if (exists) return prev.filter((p) => p.id !== product.id);
-      if (prev.length >= COMPARE_LIMIT) return [...prev.slice(1), product];
-      return [...prev, product];
-    });
-  };
-
-  const addCompareProduct = (product: Product) => {
-    setActiveCompareList((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
-      if (exists) return prev;
-      if (prev.length >= COMPARE_LIMIT) return [...prev.slice(1), product];
-      return [...prev, product];
-    });
-  };
-
   return (
-    <>
-      <section className="products" id="products">
+    <section className="products" id="products">
         <div className="section-head">
           <h2>Sản phẩm nổi bật</h2>
           <div className="tabs" id="productTabs">
@@ -84,7 +66,7 @@ export default function FeaturedSection() {
 
         <div className="product-grid" id="productGrid">
           {filteredProducts.slice(0, 10).map((product) => {
-            const comparing = activeCompareList.some((p) => p.id === product.id);
+            const comparing = isComparing(product.id);
             return (
               <article key={product.id} className="product-card">
                 {product.tag ? <span className="product-tag">{product.tag}</span> : null}
@@ -104,7 +86,7 @@ export default function FeaturedSection() {
                     <button
                       type="button"
                       className={`compare-card-btn ${comparing ? "active" : ""}`}
-                      onClick={() => toggleCompare(product)}
+                      onClick={() => onToggleCompare(product)}
                     >
                       <span className="compare-card-label">{comparing ? "Đã chọn" : "So sánh"}</span>
                     </button>
@@ -118,14 +100,5 @@ export default function FeaturedSection() {
           })}
         </div>
       </section>
-
-      <CompareDock
-        items={activeCompareList}
-        products={HPT_DATA.products}
-        onAdd={addCompareProduct}
-        onRemove={toggleCompare}
-        onClear={() => setActiveCompareList([])}
-      />
-    </>
   );
 }
