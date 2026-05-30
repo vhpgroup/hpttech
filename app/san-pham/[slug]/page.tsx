@@ -71,14 +71,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </Link>
 
       <section className="grid gap-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[430px_1fr]">
-        <div className="grid min-h-[360px] place-items-center rounded-lg bg-slate-50 p-6">
+        <div className="grid min-h-[360px] place-items-center rounded-lg bg-gradient-to-br from-slate-50 to-blue-50/60 p-6">
           <img className="max-h-[320px] object-contain" src={product.image} alt={product.title} />
         </div>
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
           <h1 className="mt-3 text-3xl font-bold leading-tight text-slate-950">{product.title}</h1>
           <p className="mt-4 text-base leading-7 text-slate-600">{product.detail}</p>
-          <div className="mt-5 text-2xl font-bold text-orange-600">{formatPrice(product.price)}</div>
+          <div className="mt-5 text-3xl font-extrabold text-red-600">{formatPrice(product.price)}</div>
           <div className="mt-6 flex flex-wrap gap-3">
             <a className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800" href={`mailto:lienhe@hpttech.vn?subject=Yêu cầu báo giá ${product.title}`}>
               <Mail size={16} />

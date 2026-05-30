@@ -36,7 +36,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           <h1 className="mt-4 max-w-4xl text-3xl font-bold leading-tight text-slate-950 sm:text-4xl">
             {post.title}
           </h1>
-          <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-slate-700">
+          <div className="mt-6 max-w-3xl border-l-4 border-blue-100 pl-5 text-base leading-8 text-slate-700">
             <p>
               Đây là bản xem trước nội dung từ dữ liệu seed. Khi nối WordPress, phần thân bài sẽ lấy từ REST API hoặc GraphQL và render tại route này.
             </p>

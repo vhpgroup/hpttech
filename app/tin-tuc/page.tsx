@@ -1,25 +1,22 @@
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { getPosts } from "@/lib/catalog";
+import SubpageHero from "@/components/layout/SubpageHero";
 
 export default function NewsPage() {
   const posts = getPosts();
 
   return (
     <main className="subpage-main">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Bài viết và tiêu điểm</p>
-        <div className="max-w-3xl">
-          <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Tin tức</h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ. Hiện dùng seed data, sau này thay bằng WordPress posts.
-          </p>
-        </div>
-      </section>
+      <SubpageHero
+        eyebrow="Bài viết và tiêu điểm"
+        title="Tin tức"
+        description="Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ. Hiện dùng seed data, sau này thay bằng WordPress posts."
+      />
 
       <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {posts.map((post) => (
-          <article key={post.slug} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+          <article key={post.slug} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
             <Link href={`/tin-tuc/${post.slug}`}>
               <img className="h-44 w-full object-cover" src={post.image} alt={post.title} />
             </Link>

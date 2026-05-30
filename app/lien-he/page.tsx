@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Mail, MapPin, PhoneCall, Send } from "lucide-react";
+import SubpageHero from "@/components/layout/SubpageHero";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -13,15 +14,11 @@ export default function ContactPage() {
 
   return (
     <main className="subpage-main">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Tư vấn nhanh</p>
-        <div className="max-w-3xl">
-          <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Liên hệ HPT Tech</h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Gửi nhu cầu báo giá, tư vấn thiết bị hoặc triển khai giải pháp. Form hiện xử lý client-side, sẵn sàng nối email/CRM/API ở bước sau.
-          </p>
-        </div>
-      </section>
+      <SubpageHero
+        eyebrow="Tư vấn nhanh"
+        title="Liên hệ HPT Tech"
+        description="Gửi nhu cầu báo giá, tư vấn thiết bị hoặc triển khai giải pháp. Form hiện xử lý client-side, sẵn sàng nối email/CRM/API ở bước sau."
+      />
 
       <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
         <form className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" onSubmit={submit}>

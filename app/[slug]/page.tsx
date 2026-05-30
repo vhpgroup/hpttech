@@ -11,6 +11,7 @@ import {
   getSolutions,
 } from "@/lib/content";
 import { formatPrice } from "@/lib/data";
+import SubpageHero from "@/components/layout/SubpageHero";
 
 type PageProps = {
   params: Promise<{
@@ -60,16 +61,12 @@ export default async function ContentPage({ params }: PageProps) {
 
   return (
     <main className="subpage-main">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">
-          {page.eyebrow}
-        </p>
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">{page.title}</h1>
-            <p className="mt-3 text-base leading-7 text-slate-600">{page.description}</p>
-          </div>
-          {page.ctaHref ? (
+      <SubpageHero
+        eyebrow={page.eyebrow}
+        title={page.title}
+        description={page.description}
+        actions={
+          page.ctaHref ? (
             <Link
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white transition hover:bg-blue-800"
               href={page.ctaHref}
@@ -77,9 +74,9 @@ export default async function ContentPage({ params }: PageProps) {
               {page.ctaLabel}
               <ArrowRight size={16} />
             </Link>
-          ) : null}
-        </div>
-      </section>
+          ) : null
+        }
+      />
 
       {slug === "san-pham" ? <ProductCatalog /> : null}
       {slug === "giai-phap" || slug === "dich-vu" ? <SolutionList /> : null}
