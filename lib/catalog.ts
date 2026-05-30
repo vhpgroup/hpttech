@@ -1,4 +1,6 @@
-import { HPT_DATA, type Post, type Product } from "@/lib/data";
+import type { Post, Product } from "@/lib/data";
+import { createSeedPostSource } from "@/lib/posts";
+import { createSeedProductSource } from "@/lib/products";
 
 export function slugify(value: string) {
   return value
@@ -29,32 +31,29 @@ export function getPostSlug(post: Post) {
   return slugFromHref(post.href) || slugify(post.title);
 }
 
+const productSource = createSeedProductSource(getProductSlug);
+const postSource = createSeedPostSource(getPostSlug);
+
 export function getProducts() {
-  return HPT_DATA.products.map((product) => ({
-    ...product,
-    slug: getProductSlug(product),
-  }));
+  return productSource.getProducts();
 }
 
 export function getProductBySlug(slug: string) {
-  return getProducts().find((product) => product.slug === slug) ?? null;
+  return productSource.getProductBySlug(slug);
 }
 
 export function getPosts() {
-  return HPT_DATA.posts.map((post) => ({
-    ...post,
-    slug: getPostSlug(post),
-  }));
+  return postSource.getPosts();
 }
 
 export function getPostBySlug(slug: string) {
-  return getPosts().find((post) => post.slug === slug) ?? null;
+  return postSource.getPostBySlug(slug);
 }
 
 export function getProductCategories() {
-  return Array.from(new Set(HPT_DATA.products.map((product) => product.category))).sort();
+  return productSource.getProductCategories();
 }
 
 export function getProductBrands() {
-  return Array.from(new Set(HPT_DATA.products.map((product) => product.brand))).sort();
+  return productSource.getProductBrands();
 }
