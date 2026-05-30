@@ -9,33 +9,58 @@ type BannerSliderProps = {
 
 export default function BannerSlider({ banners }: BannerSliderProps) {
   const [activeBanner, setActiveBanner] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (banners.length <= 1) return;
+    if (banners.length <= 1 || paused) return;
 
     const timer = window.setInterval(() => {
       setActiveBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
     }, 5000);
 
     return () => window.clearInterval(timer);
-  }, [banners.length]);
+  }, [banners.length, paused]);
 
   const prevBanner = () => setActiveBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
   const nextBanner = () => setActiveBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+  const goToBanner = (index: number) => setActiveBanner(index);
 
   if (!banners.length) return null;
 
   return (
-    <section className="hero hero-banner" aria-label="Banner HPT Tech">
-      <button className="slider-btn prev" onClick={prevBanner} aria-label="Slide trước">
+    <section
+      className="hero hero-banner"
+      aria-label="Banner HPT Tech"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <button type="button" className="slider-btn prev" onClick={prevBanner} aria-label="Slide trước">
         <ChevronLeft size={24} />
       </button>
 
-      <a className="hero-slide-link" href="https://hpttech.vn/" target="_blank" rel="noreferrer">
-        <img id="heroBannerImage" src={banners[activeBanner]} alt="HPT Tech banner" />
-      </a>
+      <div className="hero-slider-track">
+        {banners.map((banner, index) => (
+          <a
+            key={banner}
+            className={`hero-slide-link ${index === activeBanner ? "active" : ""}`}
+            href="https://hpttech.vn/"
+            target="_blank"
+            rel="noreferrer"
+            aria-hidden={index === activeBanner ? undefined : true}
+            tabIndex={index === activeBanner ? 0 : -1}
+          >
+            <img
+              id={index === activeBanner ? "heroBannerImage" : undefined}
+              src={banner}
+              alt={index === activeBanner ? "HPT Tech banner" : ""}
+            />
+          </a>
+        ))}
+      </div>
 
-      <button className="slider-btn next" onClick={nextBanner} aria-label="Slide sau">
+      <button type="button" className="slider-btn next" onClick={nextBanner} aria-label="Slide sau">
         <ChevronRight size={24} />
       </button>
 
@@ -43,8 +68,9 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
         {banners.map((_, index) => (
           <button
             key={index}
+            type="button"
             className={`dot ${index === activeBanner ? "active" : ""}`}
-            onClick={() => setActiveBanner(index)}
+            onClick={() => goToBanner(index)}
             aria-label={`Đi tới slide ${index + 1}`}
           />
         ))}
