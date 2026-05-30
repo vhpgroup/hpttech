@@ -10,6 +10,7 @@ import {
   getPosts,
   getSitePage,
   getSolutions,
+  SITE_PAGES,
 } from "@/lib/content";
 import { formatPrice } from "@/lib/data";
 import SubpageHero from "@/components/layout/SubpageHero";
@@ -19,6 +20,10 @@ type PageProps = {
     slug: string;
   }>;
 };
+
+export function generateStaticParams() {
+  return Object.keys(SITE_PAGES).map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;

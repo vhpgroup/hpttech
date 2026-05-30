@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type BannerSliderProps = {
@@ -21,10 +20,6 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
     return () => window.clearInterval(timer);
   }, [banners.length, paused]);
 
-  const prevBanner = () => setActiveBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
-  const nextBanner = () => setActiveBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-  const goToBanner = (index: number) => setActiveBanner(index);
-
   if (!banners.length) return null;
 
   return (
@@ -36,10 +31,6 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <button type="button" className="slider-btn prev" onClick={prevBanner} aria-label="Slide trước">
-        <ChevronLeft size={24} />
-      </button>
-
       <div className="hero-slider-track">
         {banners.map((banner, index) => (
           <a
@@ -60,17 +51,13 @@ export default function BannerSlider({ banners }: BannerSliderProps) {
         ))}
       </div>
 
-      <button type="button" className="slider-btn next" onClick={nextBanner} aria-label="Slide sau">
-        <ChevronRight size={24} />
-      </button>
-
       <div className="dots">
         {banners.map((_, index) => (
           <button
             key={index}
             type="button"
             className={`dot ${index === activeBanner ? "active" : ""}`}
-            onClick={() => goToBanner(index)}
+            onClick={() => setActiveBanner(index)}
             aria-label={`Đi tới slide ${index + 1}`}
           />
         ))}
