@@ -1,20 +1,16 @@
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { getPosts } from "@/lib/catalog";
-import SubpageHero from "@/components/layout/SubpageHero";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 export default function NewsPage() {
   const posts = getPosts();
 
   return (
     <main className="subpage-main">
-      <SubpageHero
-        eyebrow="Bài viết và tiêu điểm"
-        title="Tin tức"
-        description="Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ. Hiện dùng seed data, sau này thay bằng WordPress posts."
-      />
+      <Breadcrumb items={[{ label: "Tin tức" }]} />
 
-      <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {posts.map((post) => (
           <article key={post.slug} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
             <Link href={`/tin-tuc/${post.slug}`}>

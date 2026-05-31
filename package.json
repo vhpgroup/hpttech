@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/guard-no-next-dev.cjs && next build",
     "start": "next start",
     "smoke": "node test-urls.js",
     "lint": "next lint"

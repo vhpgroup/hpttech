@@ -64,6 +64,45 @@ main {
   padding: 34px 0 52px;
 }
 
+.subpage-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 12px;
+  color: #a7adb7;
+  font-size: 14px;
+}
+
+.subpage-breadcrumb a,
+.subpage-breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subpage-breadcrumb a {
+  color: #4b5563;
+  transition: color 0.16s ease;
+}
+
+.subpage-breadcrumb-item > span {
+  max-width: min(520px, calc(100vw - 80px));
+  overflow: hidden;
+  color: #a7adb7;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.subpage-breadcrumb a:hover {
+  color: #0f7cff;
+}
+
+.subpage-breadcrumb svg {
+  width: 15px;
+  height: 15px;
+}
+
 .utility-topbar {
   height: 32px;
   display: flex;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowRight, BadgeCheck, Building2, Mail, MapPin, PhoneCall, Target } from "lucide-react";
+import { BadgeCheck, Building2, Mail, MapPin, PhoneCall, Target } from "lucide-react";
 import { getProductBySlug, getPostBySlug } from "@/lib/catalog";
 import { HPT_ABOUT } from "@/lib/about";
 import {
@@ -13,7 +13,7 @@ import {
   SITE_PAGES,
 } from "@/lib/content";
 import { formatPrice } from "@/lib/data";
-import SubpageHero from "@/components/layout/SubpageHero";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 type PageProps = {
   params: Promise<{
@@ -67,22 +67,7 @@ export default async function ContentPage({ params }: PageProps) {
 
   return (
     <main className="subpage-main">
-      <SubpageHero
-        eyebrow={page.eyebrow}
-        title={page.title}
-        description={page.description}
-        actions={
-          page.ctaHref ? (
-            <Link
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white transition hover:bg-blue-800"
-              href={page.ctaHref}
-            >
-              {page.ctaLabel}
-              <ArrowRight size={16} />
-            </Link>
-          ) : null
-        }
-      />
+      <Breadcrumb items={[{ label: page.title }]} />
 
       {slug === "san-pham" ? <ProductCatalog /> : null}
       {slug === "giai-phap" || slug === "dich-vu" ? <SolutionList /> : null}

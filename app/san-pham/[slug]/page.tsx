@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Mail, ShieldCheck, Truck } from "lucide-react";
+import { Mail, ShieldCheck, Truck } from "lucide-react";
 import { getProductBySlug, getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/data";
 import { HPT_PRODUCT_SPECS } from "@/lib/specs";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 type PageProps = {
   params: Promise<{
@@ -65,10 +66,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
       />
-      <Link className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700" href="/san-pham">
-        <ArrowLeft size={16} />
-        Quay lại catalog
-      </Link>
+      <Breadcrumb items={[{ label: "Sản phẩm", href: "/san-pham" }, { label: product.title }]} />
 
       <section className="grid gap-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[430px_1fr]">
         <div className="grid min-h-[360px] place-items-center rounded-lg bg-gradient-to-br from-slate-50 to-blue-50/60 p-6">

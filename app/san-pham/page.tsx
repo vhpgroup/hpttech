@@ -6,6 +6,7 @@ import { Filter, Search } from "lucide-react";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { getProductBrands, getProductCategories, getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/data";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 const PAGE_SIZE = 12;
 
@@ -59,20 +60,9 @@ function ProductsContent() {
 
   return (
     <main className="subpage-main">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Catalog thiết bị</p>
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Sản phẩm</h1>
-            <p className="mt-3 text-base leading-7 text-slate-600">
-              Danh mục máy scan, máy in và thiết bị văn phòng. Hiện dùng dữ liệu seed, sẵn sàng đổi sang WordPress.
-            </p>
-          </div>
-          <div className="text-sm font-semibold text-slate-600">{filtered.length} sản phẩm</div>
-        </div>
-      </section>
+      <Breadcrumb items={[{ label: "Sản phẩm" }]} />
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid gap-3 md:grid-cols-[1fr_220px_220px]">
           <label className="flex h-11 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3">
             <Search size={18} className="text-slate-500" />

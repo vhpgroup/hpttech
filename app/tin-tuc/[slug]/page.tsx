@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { getPostBySlug, getPosts } from "@/lib/catalog";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 type PageProps = {
   params: Promise<{
@@ -21,10 +22,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <main className="subpage-main">
-      <Link className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700" href="/tin-tuc">
-        <ArrowLeft size={16} />
-        Quay lại tin tức
-      </Link>
+      <Breadcrumb items={[{ label: "Tin tức", href: "/tin-tuc" }, { label: post.title }]} />
 
       <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
         <img className="h-[360px] w-full object-cover" src={post.image} alt={post.title} />

@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { Mail, MapPin, PhoneCall, Send } from "lucide-react";
-import SubpageHero from "@/components/layout/SubpageHero";
+import Breadcrumb from "@/components/layout/Breadcrumb";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
@@ -14,13 +14,9 @@ export default function ContactPage() {
 
   return (
     <main className="subpage-main">
-      <SubpageHero
-        eyebrow="Tư vấn nhanh"
-        title="Liên hệ HPT Tech"
-        description="Gửi nhu cầu báo giá, tư vấn thiết bị hoặc triển khai giải pháp. Form hiện xử lý client-side, sẵn sàng nối email/CRM/API ở bước sau."
-      />
+      <Breadcrumb items={[{ label: "Liên hệ" }]} />
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
+      <section className="grid gap-6 lg:grid-cols-[1fr_420px]">
         <form className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" onSubmit={submit}>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
