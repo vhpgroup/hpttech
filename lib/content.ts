@@ -67,7 +67,7 @@ export const SITE_PAGES: Record<SitePageSlug, SitePage> = {
   },
   "ve-hpt": {
     slug: "ve-hpt",
-    title: "Về HPT",
+    title: "Giới thiệu",
     eyebrow: "Hồ sơ doanh nghiệp",
     description:
       "Thông tin giới thiệu, năng lực tư vấn và định vị dịch vụ của HPT Tech.",

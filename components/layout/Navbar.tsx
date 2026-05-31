@@ -9,12 +9,13 @@ export default function Navbar() {
       <Link className="catalog-trigger" href="/san-pham">
         <List size={18} /> Danh mục sản phẩm
       </Link>
+      <Link href="/">Trang chủ</Link>
       <Link href="/giai-phap">Giải pháp</Link>
       <Link href="/thuong-hieu">Thương hiệu</Link>
       <Link href="/du-an">Dự án</Link>
       <Link href="/dich-vu">Dịch vụ</Link>
       <Link href="/tin-tuc">Tin tức</Link>
-      <Link href="/ve-hpt">Về HPT</Link>
+      <Link href="/ve-hpt">Giới thiệu</Link>
       <Link href="/lien-he">Liên hệ</Link>
     </nav>
   );

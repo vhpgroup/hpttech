@@ -289,9 +289,19 @@ main {
 
 .catalog-trigger {
   width: 260px;
-  background: var(--blue);
+  background: var(--color-header);
   border-radius: var(--radius) var(--radius) 0 0;
   justify-content: flex-start;
+}
+
+.catalog-trigger:hover {
+  background: var(--color-header);
+  box-shadow: none;
+}
+
+.catalog-trigger::after,
+.catalog-trigger:hover::after {
+  content: none;
 }
 
 main {
@@ -299,7 +309,7 @@ main {
 }
 
 .hero-section {
-  --hero-gap: 10px;
+  --hero-gap: 4px;
   --hero-card-gap: 10px;
   --hero-side-gap: 0px;
   --hero-top-height: 480px;
@@ -515,7 +525,7 @@ main {
   max-width: none;
   max-height: none;
   object-fit: contain;
-  object-position: top center;
+  object-position: top left;
 }
 
 .hero-banner .slider-btn {
