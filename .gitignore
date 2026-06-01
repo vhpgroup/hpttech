@@ -2,3 +2,7 @@
 node_modules
 .next
 tmp/*.log
+.env
+.env*.local
+!.env.example
+*.tsbuildinfo

@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { Product } from "@/lib/data";
+import type { CatalogProduct } from "@/lib/catalog";
 
 const COMPARE_LIMIT = 4;
 
 type CompareDockProps = {
-  items: Product[];
-  products: Product[];
-  onAdd: (product: Product) => void;
-  onRemove: (product: Product) => void;
+  items: CatalogProduct[];
+  products: CatalogProduct[];
+  onAdd: (product: CatalogProduct) => void;
+  onRemove: (product: CatalogProduct) => void;
   onClear: () => void;
 };
 

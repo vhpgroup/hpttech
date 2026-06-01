@@ -5,19 +5,29 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "payload": "payload",
+    
+    "payload:create-first-user": "tsx scripts/create-first-payload-user.ts",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@payloadcms/db-postgres": "^3.85.0",
+    "@payloadcms/next": "^3.85.0",
+    "@payloadcms/richtext-lexical": "^3.85.0",
+    "@payloadcms/storage-s3": "^3.85.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.40.0",
+    "graphql": "^16.14.0",
     "lucide-react": "^1.17.0",
-    "next": "^15.3.3",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "next": "^15.3.9",
+    "payload": "^3.85.0",
+    "react": "^19.1.2",
+    "react-dom": "^19.1.2",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {

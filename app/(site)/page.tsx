@@ -15,13 +15,14 @@ import {
   Sparkles,
   Truck,
 } from "lucide-react";
-import { HPT_DATA, Product } from "@/lib/data";
+import { HPT_DATA } from "@/lib/data";
+import { getProducts, type CatalogProduct } from "@/lib/catalog";
 import CompareDock from "@/components/home/CompareDock";
 import CategoryPanel from "@/components/home/CategoryPanel";
 
 const COMPARE_LIMIT = 4;
 
-function getProductIcon(product: Product) {
+function getProductIcon(product: CatalogProduct) {
   if (product.category === "Máy in") return <Printer size={16} />;
   if (product.category === "Máy scan") return <ScanLine size={16} />;
   return <Package size={16} />;
@@ -30,18 +31,19 @@ function getProductIcon(product: Product) {
 export default function HomePage() {
   const [activeBanner, setActiveBanner] = useState(0);
   const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
-  const [activeCompareList, setActiveCompareList] = useState<Product[]>([]);
+  const [activeCompareList, setActiveCompareList] = useState<CatalogProduct[]>([]);
   const [productSearch, setProductSearch] = useState("");
+  const products = useMemo(() => getProducts(), []);
 
   const filteredProducts = useMemo(() => {
     const tabFiltered = (() => {
-      if (activeProductTab === "Nổi bật") return HPT_DATA.products.filter((p) => p.tag);
-      if (activeProductTab === "Máy scan") return HPT_DATA.products.filter((p) => p.category === "Máy scan");
-      if (activeProductTab === "Máy in") return HPT_DATA.products.filter((p) => p.category === "Máy in");
-      if (activeProductTab === "Thiết bị văn phòng") return HPT_DATA.products.filter((p) => p.category === "Máy in" || p.category === "Máy scan");
-      if (activeProductTab === "HP") return HPT_DATA.products.filter((p) => p.brand === "HP");
-      if (activeProductTab === "Brother") return HPT_DATA.products.filter((p) => p.brand === "Brother");
-      return HPT_DATA.products;
+      if (activeProductTab === "Nổi bật") return products.filter((p) => p.tag);
+      if (activeProductTab === "Máy scan") return products.filter((p) => p.category === "Máy scan");
+      if (activeProductTab === "Máy in") return products.filter((p) => p.category === "Máy in");
+      if (activeProductTab === "Thiết bị văn phòng") return products.filter((p) => p.category === "Máy in" || p.category === "Máy scan");
+      if (activeProductTab === "HP") return products.filter((p) => p.brand === "HP");
+      if (activeProductTab === "Brother") return products.filter((p) => p.brand === "Brother");
+      return products;
     })();
 
     const q = productSearch.trim().toLowerCase();
@@ -50,12 +52,12 @@ export default function HomePage() {
     return tabFiltered.filter((p) =>
       [p.title, p.detail, p.brand, p.category].join(" ").toLowerCase().includes(q)
     );
-  }, [activeProductTab, productSearch]);
+  }, [activeProductTab, productSearch, products]);
 
   const prevBanner = () => setActiveBanner((prev) => (prev === 0 ? HPT_DATA.banners.length - 1 : prev - 1));
   const nextBanner = () => setActiveBanner((prev) => (prev === HPT_DATA.banners.length - 1 ? 0 : prev + 1));
 
-  const toggleCompare = (product: Product) => {
+  const toggleCompare = (product: CatalogProduct) => {
     setActiveCompareList((prev) => {
       const exists = prev.some((p) => p.title === product.title);
       if (exists) return prev.filter((p) => p.title !== product.title);
@@ -66,7 +68,7 @@ export default function HomePage() {
     });
   };
 
-  const addCompareProduct = (product: Product) => {
+  const addCompareProduct = (product: CatalogProduct) => {
     setActiveCompareList((prev) => {
       const exists = prev.some((p) => p.title === product.title);
       if (exists) return prev;
@@ -345,7 +347,7 @@ export default function HomePage() {
 
       <CompareDock
         items={activeCompareList}
-        products={HPT_DATA.products}
+        products={products}
         onAdd={addCompareProduct}
         onRemove={toggleCompare}
         onClear={() => setActiveCompareList([])}

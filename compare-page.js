@@ -33,15 +33,10 @@ function loadCompareItems() {
   }
 }
 
-function getSpecsMap() {
-  return window.HPT_PRODUCT_SPECS || {};
-}
-
 function enrichItems(items) {
-  const specsMap = getSpecsMap();
   return items.map((item) => ({
     ...item,
-    specs: specsMap[item.href] || item.specs || {},
+    specs: item.specs || {},
   }));
 }
 

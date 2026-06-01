@@ -2,8 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { HPT_DATA, Product } from "@/lib/data";
-import { HPT_PRODUCT_SPECS } from "@/lib/specs";
+import { getProducts, type CatalogProduct } from "@/lib/catalog";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
 
@@ -25,13 +24,13 @@ const SPEC_FALLBACK_ORDER = [
 
 function CompareContent() {
   const searchParams = useSearchParams();
-  const [items, setItems] = useState<Product[]>([]);
+  const [items, setItems] = useState<CatalogProduct[]>([]);
 
   useEffect(() => {
     const productsParam = searchParams.get("products");
     if (productsParam) {
       const titles = productsParam.split(",");
-      const matched = HPT_DATA.products.filter(p => titles.includes(p.title));
+      const matched = getProducts().filter(p => titles.includes(p.title));
       setItems(matched);
     }
   }, [searchParams]);
@@ -54,8 +53,8 @@ function CompareContent() {
   // Gather unique spec labels across all items
   const labels = new Set<string>();
   items.forEach((item) => {
-    const specs = HPT_PRODUCT_SPECS[item.href] || {};
-    Object.keys(specs).forEach((label) => labels.add(label));
+    const specsObj = (item.specs && Object.fromEntries((item.specs as Array<{ label: string; value: string }>).map(({ label, value }) => [label, value]))) || {};
+    Object.keys(specsObj).forEach((label) => labels.add(label));
   });
 
   const orderedLabels = [
@@ -74,8 +73,8 @@ function CompareContent() {
       rows.push([
         label,
         items.map((item) => {
-          const specs = HPT_PRODUCT_SPECS[item.href] || {};
-          return specs[label] || "Đang cập nhật";
+          const specsObj = (item.specs && Object.fromEntries((item.specs as Array<{ label: string; value: string }>).map(({ label, value }) => [label, value]))) || {};
+          return specsObj[label] || "Đang cập nhật";
         }),
       ]);
     });
@@ -94,10 +93,7 @@ function CompareContent() {
             <th>Thuộc tính</th>
             {items.map((item, idx) => (
               <th key={idx}>
-                <img
-                  src={item.image || ""}
-                  alt={item.title || "Sản phẩm"}
-                />
+                    <img src={(item.images && item.images[0]?.url) || (item.image as string) || ""} alt={item.title || "Sản phẩm"} />
                 <strong>{item.title || "Sản phẩm"}</strong>
               </th>
             ))}

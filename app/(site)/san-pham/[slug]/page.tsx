@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Mail, ShieldCheck, Truck } from "lucide-react";
-import { getProductBySlug, getProducts } from "@/lib/catalog";
-import { HPT_PRODUCT_SPECS } from "@/lib/specs";
+import { getProductBySlugFromPayload } from "@/lib/catalog-payload";
+
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 type PageProps = {
   params: Promise<{
@@ -10,17 +12,17 @@ type PageProps = {
   }>;
 };
 
-export function generateStaticParams() {
-  return getProducts().map((product) => ({ slug: product.slug }));
+export async function generateStaticParams() {
+  return [];
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlugFromPayload(slug);
 
   if (!product) notFound();
 
-  const specs = HPT_PRODUCT_SPECS[product.href] || {};
+  const specs = (product.specs && Object.fromEntries((product.specs as Array<{ label: string; value: string }>).map(({ label, value }) => [label, value]))) || {};
 
   return (
     <main className="subpage-main">
@@ -31,7 +33,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
       <section className="grid gap-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[430px_1fr]">
         <div className="grid min-h-[360px] place-items-center rounded-lg bg-slate-50 p-6">
-          <img className="max-h-[320px] object-contain" src={product.image} alt={product.title} />
+          <img className="max-h-[320px] object-contain" src={(product.images && product.images[0]?.url) || (product.image as string) || ''} alt={product.title} />
         </div>
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
@@ -43,9 +45,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <Mail size={16} />
               Nhận báo giá
             </a>
-            <a className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:border-blue-600 hover:text-blue-700" href={product.href} target="_blank" rel="noreferrer">
-              Xem nguồn HPT
-            </a>
+            {product.href ? (
+              <a className="inline-flex h-11 items-center justify-center rounded-md border border-slate-300 px-5 text-sm font-semibold text-slate-700 hover:border-blue-600 hover:text-blue-700" href={product.href} target="_blank" rel="noreferrer">
+                Xem nguồn HPT
+              </a>
+            ) : null}
           </div>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <div className="flex items-center gap-3 rounded-md bg-slate-50 p-3 text-sm font-medium text-slate-700">
@@ -63,8 +67,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <section className="mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-xl font-bold text-slate-950">Thông số chính</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <SpecRow label="Thương hiệu" value={product.brand} />
-          <SpecRow label="Danh mục" value={product.category} />
+          <SpecRow label="Thương hiệu" value={product.brand || "Đang cập nhật"} />
+          <SpecRow label="Danh mục" value={product.category || "Đang cập nhật"} />
           {Object.entries(specs).map(([label, value]) => (
             <SpecRow key={label} label={label} value={value} />
           ))}

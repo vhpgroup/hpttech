@@ -24,6 +24,7 @@ import {
   Workflow,
 } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
+import { getProductCategories } from "@/lib/catalog";
 
 type MegaColumn = {
   title: string;
@@ -139,7 +140,7 @@ function catalogBrand(label: string) {
 }
 
 function categoryLandingHref(label: string) {
-  const hasMatchingProducts = HPT_DATA.products.some((product) => product.category === label);
+  const hasMatchingProducts = getProductCategories().includes(label);
   return hasMatchingProducts ? `/san-pham?category=${encodeURIComponent(label)}` : `/san-pham?search=${encodeURIComponent(label)}`;
 }
 

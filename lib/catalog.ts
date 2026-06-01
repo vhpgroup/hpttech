@@ -1,4 +1,30 @@
-import { HPT_DATA, type Post, type Product } from "@/lib/data";
+export type CatalogProduct = {
+  id?: string | number;
+  title: string;
+  slug: string;
+  brand?: string;
+  category?: string;
+  price?: string;
+  detail?: string;
+  images?: Array<{ id?: string | number; url?: string }>;
+  specs?: Array<{ label: string; value: string }>;
+  href?: string;
+  image?: string;
+  tag?: string;
+};
+
+export type CatalogPost = {
+  title: string;
+  slug: string;
+  image?: string;
+  date?: string;
+  href?: string;
+};
+
+type Sluggable = {
+  href?: string;
+  title: string;
+};
 
 export function slugify(value: string) {
   return value
@@ -11,9 +37,11 @@ export function slugify(value: string) {
     .replace(/(^-|-$)+/g, "");
 }
 
-function slugFromHref(href: string) {
+function slugFromHref(href?: string) {
+  if (!href) return "";
+
   try {
-    const url = new URL(href);
+    const url = new URL(href, "https://hpttech.vn");
     const path = url.pathname.replace(/^\/|\/$/g, "");
     return path || "";
   } catch {
@@ -21,40 +49,34 @@ function slugFromHref(href: string) {
   }
 }
 
-export function getProductSlug(product: Product) {
+export function getProductSlug(product: Sluggable) {
   return slugFromHref(product.href) || slugify(product.title);
 }
 
-export function getPostSlug(post: Post) {
+export function getPostSlug(post: Sluggable) {
   return slugFromHref(post.href) || slugify(post.title);
 }
 
-export function getProducts() {
-  return HPT_DATA.products.map((product) => ({
-    ...product,
-    slug: getProductSlug(product),
-  }));
+export function getProducts(): CatalogProduct[] {
+  return [];
 }
 
 export function getProductBySlug(slug: string) {
   return getProducts().find((product) => product.slug === slug) ?? null;
 }
 
-export function getPosts() {
-  return HPT_DATA.posts.map((post) => ({
-    ...post,
-    slug: getPostSlug(post),
-  }));
+export function getPosts(): CatalogPost[] {
+  return [];
 }
 
 export function getPostBySlug(slug: string) {
   return getPosts().find((post) => post.slug === slug) ?? null;
 }
 
-export function getProductCategories() {
-  return Array.from(new Set(HPT_DATA.products.map((product) => product.category))).sort();
+export function getProductCategories(): string[] {
+  return [];
 }
 
-export function getProductBrands() {
-  return Array.from(new Set(HPT_DATA.products.map((product) => product.brand))).sort();
+export function getProductBrands(): string[] {
+  return [];
 }

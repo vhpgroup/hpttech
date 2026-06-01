@@ -1,4 +1,5 @@
 import { HPT_DATA } from "@/lib/data";
+import { getProducts } from "@/lib/catalog";
 
 export type SitePageSlug =
   | "san-pham"
@@ -97,7 +98,7 @@ export function getSitePage(slug: string) {
 }
 
 export function getCatalogProducts() {
-  return HPT_DATA.products;
+  return getProducts();
 }
 
 export function getBrands() {

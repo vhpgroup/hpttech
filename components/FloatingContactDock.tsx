@@ -2,7 +2,7 @@
 
 import { Bot, Menu, SendHorizontal, X } from "lucide-react";
 import { FormEvent, useMemo, useRef, useState } from "react";
-import { HPT_DATA } from "@/lib/data";
+import { getProducts } from "@/lib/catalog";
 
 type ChatMessage = {
   role: "bot" | "user";
@@ -36,7 +36,7 @@ function getRelevantProducts(message: string) {
 
   if (!keywords.length) return [];
 
-  return HPT_DATA.products
+  return getProducts()
     .map((product) => {
       const haystack = [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase();
       const score = keywords.reduce((total, keyword) => total + (haystack.includes(keyword) ? 1 : 0), 0);
