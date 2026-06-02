@@ -5,6 +5,7 @@ tmp
 media
 app/(payload)/admin/importMap.js
 .env
+.env*
 .env*.local
 !.env.example
 *.tsbuildinfo

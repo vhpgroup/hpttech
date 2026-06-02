@@ -9,9 +9,13 @@
   --bg: #f4f7fb;
   --card: #ffffff;
   --radius: 8px;
-  --shell-pad: 18px;
-  --shell-pad-mobile: 20px;
-  --shell-width: min(1500px, calc(100% - (var(--shell-pad) * 2)));
+  --shell-pad: 16px;
+  --shell-pad-mobile: 12px;
+  --shell-width: min(1440px, calc(100vw - (var(--shell-pad) * 2)));
+}
+
+html {
+  overflow-x: hidden;
 }
 
 * {
@@ -23,6 +27,7 @@ body {
   font-family: "Work Sans", Arial, sans-serif;
   background: var(--bg);
   color: var(--ink);
+  overflow-x: hidden;
 }
 
 a {
@@ -105,9 +110,13 @@ main {
   padding: 0 18px;
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: clamp(12px, 1.5vw, 22px);
   background: #020a1c;
   color: white;
+}
+
+.brand {
+  flex: 0 0 auto;
 }
 
 .brand img {
@@ -119,7 +128,7 @@ main {
 
 .search {
   flex: 1;
-  max-width: 720px;
+  max-width: 760px;
   min-width: 0;
   height: 48px;
   border: 1px solid rgba(72, 111, 178, 0.72);
@@ -174,6 +183,7 @@ main {
 
 .quick a {
   display: grid;
+  min-width: 150px;
   min-height: 48px;
   grid-template-columns: 30px auto;
   column-gap: 10px;
@@ -460,6 +470,12 @@ main {
   padding: 0;
   background: #06132c;
   color: white;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
 }
 
 .nav a,
@@ -468,7 +484,7 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 24px;
+  padding: 0 clamp(12px, 1.5vw, 24px);
   border: 0;
   background: transparent;
   color: white;
@@ -509,6 +525,7 @@ main {
 
 .catalog-trigger {
   width: 260px;
+  flex: 0 0 260px;
   background: var(--blue);
   border-radius: var(--radius) var(--radius) 0 0;
   justify-content: flex-start;
@@ -522,15 +539,15 @@ main {
   --hero-gap: 10px;
   --hero-card-gap: 10px;
   --hero-side-gap: 0px;
-  --hero-top-height: 480px;
-  --hero-bottom-height: 210px;
+  --hero-top-height: clamp(350px, 29vw, 470px);
+  --hero-bottom-height: clamp(135px, 11.5vw, 190px);
   --hero-shell-height: calc(var(--hero-top-height) + var(--hero-gap) + var(--hero-bottom-height));
   width: var(--shell-width);
   height: auto;
   min-height: var(--hero-shell-height);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: clamp(220px, 18vw, 260px) minmax(0, 1fr);
   background: var(--bg);
   padding: 0;
   align-items: start;
@@ -687,7 +704,7 @@ main {
 .hero-commerce-area {
   height: var(--hero-shell-height);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) clamp(280px, 24vw, 360px);
   grid-template-rows: var(--hero-top-height) var(--hero-bottom-height);
   gap: var(--hero-gap);
   padding-left: 0;
@@ -894,7 +911,7 @@ main {
   font-size: 19px;
   font-weight: 900;
   line-height: 1.08;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
 }
 
 .commercial-tile small {
@@ -2069,7 +2086,7 @@ main {
   color: #1977ff;
   font-size: 18px;
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
 }
 
 .support-card-icon-zalo-image {
@@ -2446,15 +2463,34 @@ svg {
   stroke-width: 2;
 }
 
+@media (max-width: 1280px) {
+  .quick a {
+    min-width: 132px;
+    padding: 0 12px;
+  }
+
+  .quick b {
+    font-size: 12px;
+  }
+
+  .quick small {
+    font-size: 10px;
+  }
+
+  .search {
+    grid-template-columns: 1fr 138px 48px;
+  }
+}
+
 @media (max-width: 1100px) {
   .quick {
     display: none;
   }
 
   .hero-section {
-    --hero-top-height: 400px;
-    --hero-bottom-height: 145px;
-    grid-template-columns: 220px 1fr;
+    --hero-top-height: clamp(320px, 37vw, 410px);
+    --hero-bottom-height: clamp(122px, 15vw, 150px);
+    grid-template-columns: 220px minmax(0, 1fr);
     padding: 0;
   }
 
@@ -2481,7 +2517,7 @@ svg {
   }
 
   .hero-commerce-area {
-    grid-template-columns: minmax(0, 1fr) 270px;
+    grid-template-columns: minmax(0, 1fr) clamp(240px, 30vw, 270px);
   }
 
   .commercial-tile strong {
@@ -2494,6 +2530,55 @@ svg {
 
   .solutions {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .category-panel {
+    display: none;
+  }
+
+  .hero-section {
+    --hero-top-height: clamp(310px, 48vw, 420px);
+    --hero-bottom-height: auto;
+    --hero-shell-height: auto;
+    display: block;
+    min-height: 0;
+  }
+
+  .hero-commerce-area {
+    height: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .hero-commerce-area .hero {
+    grid-column: auto;
+    grid-row: auto;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .commercial-stack,
+  .commercial-row {
+    grid-column: auto;
+    grid-row: auto;
+    height: auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    gap: 10px;
+  }
+
+  .commercial-row {
+    margin-top: 0;
+  }
+
+  .commercial-tile {
+    min-height: 150px;
+    aspect-ratio: 16 / 7;
   }
 }
 
@@ -2518,6 +2603,7 @@ svg {
     position: sticky;
     top: 0;
     z-index: 10;
+    width: 100%;
     height: 64px;
     padding: 0 12px;
     gap: 14px;
@@ -2545,6 +2631,7 @@ svg {
 
   .hero-section {
     --hero-shell-height: auto;
+    width: 100%;
     height: auto;
     min-height: 0;
     display: block;
@@ -2552,6 +2639,8 @@ svg {
   }
 
   .hero-commerce-area {
+    width: var(--shell-width);
+    margin: 0 auto;
     padding-left: 0;
     display: grid;
     grid-template-columns: 1fr;
@@ -2570,6 +2659,9 @@ svg {
     grid-column: auto;
     grid-row: auto;
     min-height: auto;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 0 0 12px 12px;
   }
 
   .commercial-stack,
@@ -2577,9 +2669,11 @@ svg {
     grid-column: auto;
     grid-row: auto;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     grid-template-rows: auto;
     gap: 10px;
+    width: 100%;
+    height: auto;
   }
 
   .commercial-stack {
@@ -2588,17 +2682,18 @@ svg {
 
   .commercial-row {
     grid-column: auto;
-    width: var(--shell-width);
+    width: 100%;
     height: auto;
     margin: 10px auto 0;
   }
 
   .commercial-row .commercial-tile:first-child {
-    grid-column: 1 / -1;
+    grid-column: auto;
   }
 
   .commercial-tile {
     min-height: 118px;
+    aspect-ratio: 16 / 7;
     padding: 14px;
     border-radius: 14px;
   }
@@ -2753,7 +2848,7 @@ svg {
 
   .compare-fab {
     left: 12px;
-    bottom: 104px;
+    bottom: 84px;
     min-height: 40px;
     padding: 0 14px;
     font-size: 13px;
@@ -2838,23 +2933,30 @@ svg {
   }
 
   #supportWidgetShell {
-    right: 6px;
-    bottom: 28px;
+    right: 10px;
+    bottom: 84px;
+  }
+
+  .support-card.zalo,
+  .support-card.facebook {
+    display: none;
   }
 
   .support-card {
-    width: min(248px, calc(100vw - 24px));
+    width: min(160px, calc(100vw - 24px));
   }
 
   .support-chatbot {
     right: 12px;
-    bottom: 154px;
+    bottom: 84px;
     width: min(340px, calc(100vw - 24px));
-    height: 620px;
+    height: min(620px, calc(100vh - 108px));
   }
 
   .support-card.chatbot {
-    margin-right: -12px;
+    width: 156px;
+    min-height: 46px;
+    margin-right: 0;
   }
 
   .mobile-nav {
