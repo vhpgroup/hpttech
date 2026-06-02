@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/vercel-init-payload-schema.cjs && next build",
     "payload": "payload",
-    
     "payload:create-first-user": "tsx scripts/create-first-payload-user.ts",
     "start": "next start",
     "lint": "next lint"
@@ -20,6 +19,8 @@
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.40.0",
     "graphql": "^16.14.0",
     "lucide-react": "^1.17.0",

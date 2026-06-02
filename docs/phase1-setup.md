@@ -20,7 +20,7 @@ npm run dev
 
 The Docker PostgreSQL service maps host port `5433` to container port `5432` to avoid conflicts with any PostgreSQL already installed on Windows.
 
-Create `.env` from `.env.example` and set real values before production use:
+Create `.env` from `.env.example` for local development:
 
 ```powershell
 copy .env.example .env
@@ -81,9 +81,25 @@ Then check:
 - `http://localhost:3000/san-pham/<new-product-slug>`
 - `http://localhost:3000/compare`
 
+## Vercel Production
+
+The Phase 1 production target is:
+
+- Vercel for the Next.js site and Payload admin/API.
+- Neon PostgreSQL for Payload data.
+- Cloudflare R2 for Media uploads.
+
+Detailed steps are in [`docs/vercel-neon-r2-deploy.md`](./vercel-neon-r2-deploy.md).
+
+Vercel must not use the local Docker database string. Set a Neon connection string instead:
+
+```text
+DATABASE_URI=postgresql://USER:PASSWORD@HOST.neon.tech/DB?sslmode=require
+```
+
 ## R2 Media
 
-Local development can use local uploads. Production media should use Cloudflare R2 by setting:
+Local development can use local uploads. Vercel production must use Cloudflare R2 by setting:
 
 ```text
 R2_BUCKET=

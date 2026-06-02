@@ -70,6 +70,7 @@ Pending:
 - Create at least one category, brand, media item, and published product.
 - Verify `/san-pham` lists published Payload products.
 - Verify `/san-pham/[slug]` renders a new Payload product.
+- Configure Neon PostgreSQL for production database.
 - Configure real R2 credentials for production media.
 - Upload product images through Payload Media.
 - Run production build and HTTP smoke tests.
@@ -143,15 +144,15 @@ Requirements:
 
 ## Deployment Target
 
-Recommended production shape:
+Recommended Phase 1 production shape:
 
 - Next.js 15 app with Payload 3.
-- PostgreSQL 17 container or managed PostgreSQL.
+- Vercel for the Next.js website and Payload admin/API.
+- Neon PostgreSQL for Payload data.
 - Cloudflare R2 for media.
-- Docker on VPS.
-- Caddy or Nginx reverse proxy.
-- TLS enabled.
-- Separate staging and production env files.
+- Separate Vercel preview and production environment variables.
+
+The older Docker/VPS shape remains a later option if the project outgrows Vercel/Neon or needs self-hosted operations.
 
 ## Backup And Monitoring
 
@@ -176,9 +177,11 @@ A backup that has not been restored successfully should not be treated as proven
 6. Create new products manually in Payload.
 7. Publish selected products.
 8. Verify `/san-pham` and detail pages.
-9. Configure R2 credentials.
-10. Run production build and route smoke tests.
-11. Document backup and restore commands.
+9. Configure Neon `DATABASE_URI`.
+10. Configure R2 credentials.
+11. Deploy to Vercel.
+12. Run production route smoke tests.
+13. Document backup and restore commands.
 
 ## Done Criteria For Phase 1
 

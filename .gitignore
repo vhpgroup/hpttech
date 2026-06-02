@@ -1,7 +1,9 @@
 .vercel
 node_modules
 .next
-tmp/*.log
+tmp
+media
+app/(payload)/admin/importMap.js
 .env
 .env*.local
 !.env.example

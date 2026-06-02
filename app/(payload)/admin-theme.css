@@ -94,12 +94,15 @@ body {
   display: flex;
   align-items: center;
   min-height: 44px;
-  margin: 0 2px 22px;
+  margin: 0 42px 22px 0;
+  padding-left: 8px;
   color: #ffffff;
-  font-size: 26px;
+  font-size: 24px;
   font-style: italic;
   font-weight: 800;
   letter-spacing: 0;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .nav-group {
@@ -430,6 +433,59 @@ body {
 .collections__wrap,
 .dashboard__wrap {
   padding: 24px;
+}
+
+.dashboard__wrap h1,
+.dashboard__wrap h2,
+.dashboard__wrap h3,
+.collections__wrap h1,
+.collections__wrap h2,
+.collections__wrap h3 {
+  color: var(--hpt-admin-text);
+}
+
+.collections__card-list {
+  gap: 12px;
+}
+
+.collections__card-list > li > .card {
+  border: 1px solid var(--hpt-admin-border) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: var(--hpt-admin-text) !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06) !important;
+}
+
+.collections__card-list > li > .card .card__title {
+  position: relative;
+  z-index: 2;
+  margin: 2px 0;
+  color: var(--hpt-admin-text) !important;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.collections__card-list > li > .card .card__click {
+  background: transparent !important;
+}
+
+.collections__card-list > li > .card:hover,
+.collections__card-list > li > .card:focus-within {
+  border-color: #b7c9e2 !important;
+  background: #f8fbff !important;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1) !important;
+}
+
+.collections__card-list > li > .card .card__actions {
+  position: relative;
+  z-index: 3;
+}
+
+.collections__card-list > li > .card .card__actions .btn__icon {
+  border-color: #c8d6e8 !important;
+  background: #ffffff !important;
+  color: var(--hpt-admin-primary) !important;
 }
 
 .login,

@@ -13,11 +13,24 @@ import { Users } from "./collections/Users.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const isProduction = process.env.NODE_ENV === "production";
+const isVercel = Boolean(process.env.VERCEL);
 
 const databaseURL =
   process.env.DATABASE_URI ||
   process.env.POSTGRES_URL ||
-  "postgres://payload:payload@127.0.0.1:5432/hpttech_payload";
+  (!isProduction ? "postgres://payload:payload@127.0.0.1:5432/hpttech_payload" : undefined);
+
+if (!databaseURL) {
+  throw new Error("Missing DATABASE_URI. Use a Neon PostgreSQL connection string in production.");
+}
+
+const payloadSecret =
+  process.env.PAYLOAD_SECRET || (!isProduction ? "dev-payload-secret-change-me" : undefined);
+
+if (!payloadSecret) {
+  throw new Error("Missing PAYLOAD_SECRET. Set a strong secret before deploying Payload.");
+}
 
 const r2Enabled = Boolean(
   process.env.R2_BUCKET &&
@@ -25,6 +38,12 @@ const r2Enabled = Boolean(
     process.env.R2_SECRET_ACCESS_KEY &&
     process.env.R2_ENDPOINT,
 );
+
+if (isVercel && !r2Enabled) {
+  throw new Error(
+    "Missing Cloudflare R2 env vars. Vercel deployments must use R2 for Payload media uploads.",
+  );
+}
 
 export default buildConfig({
   admin: {
@@ -38,6 +57,7 @@ export default buildConfig({
     pool: {
       connectionString: databaseURL,
     },
+    push: process.env.PAYLOAD_DB_PUSH === "true",
   }),
   editor: lexicalEditor(),
   i18n: {
@@ -67,7 +87,7 @@ export default buildConfig({
       enabled: r2Enabled,
     }),
   ],
-  secret: process.env.PAYLOAD_SECRET || "dev-payload-secret-change-me",
+  secret: payloadSecret,
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },

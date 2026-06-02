@@ -1,0 +1,7 @@
+.env
+.env*.local
+.next
+node_modules
+tmp
+media
+app/(payload)/admin/importMap.js
