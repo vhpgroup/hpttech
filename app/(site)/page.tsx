@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import { getProducts, type CatalogProduct } from "@/lib/catalog";
+import type { PublicBanner, PublicSolution } from "@/lib/content-payload";
+import { defaultSiteSettings, quoteMailHref } from "@/lib/site-settings";
 import CompareDock from "@/components/home/CompareDock";
 import CategoryPanel from "@/components/home/CategoryPanel";
 
@@ -33,7 +35,37 @@ export default function HomePage() {
   const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
   const [activeCompareList, setActiveCompareList] = useState<CatalogProduct[]>([]);
   const [productSearch, setProductSearch] = useState("");
-  const products = useMemo(() => getProducts(), []);
+  const [products, setProducts] = useState<CatalogProduct[]>(() => getProducts());
+  const [banners, setBanners] = useState<PublicBanner[]>(
+    () => HPT_DATA.banners.map((image) => ({ image, link: "https://hpttech.vn/" })),
+  );
+  const [solutions, setSolutions] = useState<PublicSolution[]>(
+    () => HPT_DATA.solutions.map((solution) => ({
+      title: solution.title,
+      description: solution.description,
+      icon: solution.icon,
+    })),
+  );
+  const [quoteEmail, setQuoteEmail] = useState(defaultSiteSettings.email);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetch("/api/home-content")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!mounted || !data) return;
+        if (Array.isArray(data.products) && data.products.length) setProducts(data.products);
+        if (Array.isArray(data.banners) && data.banners.length) setBanners(data.banners);
+        if (Array.isArray(data.solutions) && data.solutions.length) setSolutions(data.solutions);
+        if (data.settings?.email) setQuoteEmail(data.settings.email);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const filteredProducts = useMemo(() => {
     const tabFiltered = (() => {
@@ -54,8 +86,8 @@ export default function HomePage() {
     );
   }, [activeProductTab, productSearch, products]);
 
-  const prevBanner = () => setActiveBanner((prev) => (prev === 0 ? HPT_DATA.banners.length - 1 : prev - 1));
-  const nextBanner = () => setActiveBanner((prev) => (prev === HPT_DATA.banners.length - 1 ? 0 : prev + 1));
+  const prevBanner = () => setActiveBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+  const nextBanner = () => setActiveBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
 
   const toggleCompare = (product: CatalogProduct) => {
     setActiveCompareList((prev) => {
@@ -89,8 +121,8 @@ export default function HomePage() {
                 <ChevronLeft size={24} />
               </button>
 
-              <a className="hero-slide-link" href="https://hpttech.vn/" target="_blank" rel="noreferrer">
-                <img id="heroBannerImage" src={HPT_DATA.banners[activeBanner]} alt="HPT Tech banner" />
+              <a className="hero-slide-link" href={banners[activeBanner]?.link || "/"} target="_blank" rel="noreferrer">
+                <img id="heroBannerImage" src={banners[activeBanner]?.image} alt={banners[activeBanner]?.title || "HPT Tech banner"} />
               </a>
 
               <button className="slider-btn next" onClick={nextBanner} aria-label="Slide sau">
@@ -98,7 +130,7 @@ export default function HomePage() {
               </button>
 
               <div className="dots">
-                {HPT_DATA.banners.map((_, index) => (
+                {banners.map((_, index) => (
                   <button
                     key={index}
                     className={`dot ${index === activeBanner ? "active" : ""}`}
@@ -271,7 +303,7 @@ export default function HomePage() {
                       >
                         <span className="compare-card-label">{comparing ? "Đã chọn" : "So sánh"}</span>
                       </button>
-                      <a className="btn-action primary-btn" href={`mailto:lienhe@hpttech.vn?subject=Yêu cầu báo giá ${product.title}`}>
+                      <a className="btn-action primary-btn" href={quoteMailHref(quoteEmail, `Yêu cầu báo giá ${product.title}`)}>
                         Nhận báo giá
                       </a>
                     </div>
@@ -304,7 +336,7 @@ export default function HomePage() {
           </div>
 
           <div className="solution-grid" id="solutionGrid">
-            {HPT_DATA.solutions.map((sol) => (
+            {solutions.map((sol) => (
               <article key={sol.title} className="solution-card">
                 <i data-lucide={sol.icon} />
                 <h3>{sol.title}</h3>

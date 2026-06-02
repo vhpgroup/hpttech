@@ -114,3 +114,32 @@ When R2 credentials are present, Payload stores Media uploads in R2 instead of r
 ## Runtime Note
 
 The first request to `/admin` in development can take a few minutes because Next.js compiles the Payload admin bundle and Payload pulls/pushes the database schema. After the schema exists and the server is warm, production startup and route checks are much faster.
+
+## Payload Admin Dev Cache Issue
+
+If `/admin` renders as broken plain HTML, oversized arrows, missing styling, or an unusable left panel, check the dev server log for stale Next static assets:
+
+```text
+GET /_next/static/... 404
+```
+
+This usually means the browser is still holding an old Payload admin bundle after Next.js recompiled. It is not a database schema error.
+
+Fix locally:
+
+1. Stop the dev server process on port `3000`.
+2. Delete the local `.next` cache.
+3. Start the dev server again:
+
+```powershell
+npm run dev -- --hostname 127.0.0.1 --port 3000
+```
+
+4. Wait for `/admin` to finish compiling. The first compile can take several minutes.
+5. In the browser, hard refresh:
+
+```text
+Ctrl + Shift + R
+```
+
+If it still renders broken, open DevTools, enable `Disable cache` in the Network tab, then refresh `/admin` again.

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Mail, ShieldCheck, Truck } from "lucide-react";
 import { getProductBySlugFromPayload } from "@/lib/catalog-payload";
+import { getSiteSettingsFromPayload } from "@/lib/content-payload";
+import { normalizeSiteSettings, quoteMailHref } from "@/lib/site-settings";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -18,14 +20,39 @@ export async function generateStaticParams() {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = await getProductBySlugFromPayload(slug);
+  const [product, rawSettings] = await Promise.all([
+    getProductBySlugFromPayload(slug),
+    getSiteSettingsFromPayload(),
+  ]);
 
   if (!product) notFound();
+  const settings = normalizeSiteSettings(rawSettings);
 
   const specs = (product.specs && Object.fromEntries((product.specs as Array<{ label: string; value: string }>).map(({ label, value }) => [label, value]))) || {};
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    image: product.images?.map((image) => image.url).filter(Boolean),
+    description: product.detail,
+    brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
+    category: product.category,
+    sku: product.slug,
+  };
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Trang chủ", item: "/" },
+      { "@type": "ListItem", position: 2, name: "Sản phẩm", item: "/san-pham" },
+      { "@type": "ListItem", position: 3, name: product.title, item: `/san-pham/${product.slug}` },
+    ],
+  };
 
   return (
     <main className="subpage-main">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       <Link className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700" href="/san-pham">
         <ArrowLeft size={16} />
         Quay lại catalog
@@ -41,7 +68,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <p className="mt-4 text-base leading-7 text-slate-600">{product.detail}</p>
           <div className="mt-5 text-2xl font-bold text-orange-600">{product.price}</div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <a className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800" href={`mailto:lienhe@hpttech.vn?subject=Yêu cầu báo giá ${product.title}`}>
+            <a className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800" href={quoteMailHref(settings.email, `Yêu cầu báo giá ${product.title}`)}>
               <Mail size={16} />
               Nhận báo giá
             </a>

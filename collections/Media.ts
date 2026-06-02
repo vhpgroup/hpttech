@@ -36,5 +36,13 @@ export const Media: CollectionConfig = {
         description: "Tên thư mục logic, không phải đường dẫn trên máy chủ.",
       },
     },
+    {
+      name: "tags",
+      label: "Tags",
+      type: "text",
+      admin: {
+        description: "Ví dụ: banner, product, logo",
+      },
+    },
   ],
 };

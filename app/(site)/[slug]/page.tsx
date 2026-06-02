@@ -4,10 +4,19 @@ import { ArrowRight, Mail, PhoneCall } from "lucide-react";
 import {
   getBrands,
   getCatalogProducts,
-  getPosts,
   getSitePage,
-  getSolutions,
 } from "@/lib/content";
+import {
+  getFAQsFromPayload,
+  getPostsFromPayload,
+  getProjectsFromPayload,
+  getSiteSettingsFromPayload,
+  getSolutionsFromPayload,
+  getStaticPageFromPayload,
+} from "@/lib/content-payload";
+import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
+
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{
@@ -17,7 +26,22 @@ type PageProps = {
 
 export default async function ContentPage({ params }: PageProps) {
   const { slug } = await params;
-  const page = getSitePage(slug);
+  const [payloadPage, rawSettings] = await Promise.all([
+    getStaticPageFromPayload(slug),
+    getSiteSettingsFromPayload(),
+  ]);
+  const settings = normalizeSiteSettings(rawSettings);
+  const fallbackPage = getSitePage(slug);
+  const page = payloadPage
+    ? {
+        slug: payloadPage.slug,
+        title: payloadPage.title,
+        eyebrow: payloadPage.eyebrow || fallbackPage?.eyebrow || "HPT Tech",
+        description: payloadPage.summary || fallbackPage?.description || "",
+        ctaHref: fallbackPage?.ctaHref,
+        ctaLabel: fallbackPage?.ctaLabel,
+      }
+    : fallbackPage;
 
   if (!page) {
     notFound();
@@ -50,8 +74,10 @@ export default async function ContentPage({ params }: PageProps) {
       {slug === "giai-phap" || slug === "dich-vu" ? <SolutionList /> : null}
       {slug === "thuong-hieu" ? <BrandList /> : null}
       {slug === "tin-tuc" ? <PostList /> : null}
-      {slug === "lien-he" || slug === "chat" ? <ContactPanel /> : null}
-      {slug === "du-an" || slug === "ve-hpt" ? <PlaceholderPanel slug={slug} /> : null}
+      {slug === "lien-he" || slug === "chat" ? <ContactPanel settings={settings} /> : null}
+      {slug === "du-an" ? <ProjectList /> : null}
+      {slug === "ve-hpt" && !payloadPage ? <PlaceholderPanel slug={slug} /> : null}
+      {slug === "dich-vu" ? <FAQList /> : null}
     </main>
   );
 }
@@ -85,10 +111,12 @@ function ProductCatalog() {
   );
 }
 
-function SolutionList() {
+async function SolutionList() {
+  const solutions = await getSolutionsFromPayload();
+
   return (
     <section className="mt-8 grid gap-4 md:grid-cols-2">
-      {getSolutions().map((solution) => (
+      {solutions.map((solution) => (
         <article key={solution.title} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-950">{solution.title}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">{solution.description}</p>
@@ -111,13 +139,15 @@ function BrandList() {
   );
 }
 
-function PostList() {
+async function PostList() {
+  const posts = await getPostsFromPayload();
+
   return (
     <section className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {getPosts().map((post) => (
+      {posts.map((post) => (
         <article key={post.title} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <a href={post.href} target="_blank" rel="noreferrer">
-            <img className="h-40 w-full object-cover" src={post.image} alt={post.title} />
+          <a href={post.href}>
+            {post.image ? <img className="h-40 w-full object-cover" src={post.image} alt={post.title} /> : null}
           </a>
           <div className="p-4">
             <p className="text-xs font-semibold text-slate-500">{post.date}</p>
@@ -131,21 +161,57 @@ function PostList() {
   );
 }
 
-function ContactPanel() {
+async function ProjectList() {
+  const projects = await getProjectsFromPayload();
+  if (!projects.length) return <PlaceholderPanel slug="du-an" />;
+
   return (
     <section className="mt-8 grid gap-4 md:grid-cols-2">
-      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300" href="tel:0876645432">
+      {projects.map((project) => (
+        <article key={project.slug} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{project.industry}</p>
+          <h2 className="mt-2 text-lg font-semibold text-slate-950">{project.title}</h2>
+          {project.client ? <p className="mt-1 text-sm font-medium text-slate-500">{project.client}</p> : null}
+          {project.summary ? <p className="mt-3 text-sm leading-6 text-slate-600">{project.summary}</p> : null}
+        </article>
+      ))}
+    </section>
+  );
+}
+
+async function FAQList() {
+  const faqs = await getFAQsFromPayload();
+  if (!faqs.length) return null;
+
+  return (
+    <section className="mt-8 grid gap-3">
+      {faqs.map((faq) => (
+        <article key={faq.question} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          {faq.category ? <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{faq.category}</p> : null}
+          <h2 className="mt-1 text-base font-semibold text-slate-950">{faq.question}</h2>
+        </article>
+      ))}
+    </section>
+  );
+}
+
+function ContactPanel({ settings }: { settings: ReturnType<typeof normalizeSiteSettings> }) {
+  const phone = settings.hotline || settings.phone;
+
+  return (
+    <section className="mt-8 grid gap-4 md:grid-cols-2">
+      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300" href={phoneHref(phone)}>
         <PhoneCall className="text-blue-700" size={24} />
         <div>
           <h2 className="font-semibold text-slate-950">Hotline</h2>
-          <p className="text-sm text-slate-600">0876 645 432</p>
+          <p className="text-sm text-slate-600">{phone}</p>
         </div>
       </a>
-      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300" href="mailto:lienhe@hpttech.vn">
+      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300" href={`mailto:${settings.email}`}>
         <Mail className="text-blue-700" size={24} />
         <div>
           <h2 className="font-semibold text-slate-950">Email báo giá</h2>
-          <p className="text-sm text-slate-600">lienhe@hpttech.vn</p>
+          <p className="text-sm text-slate-600">{settings.email}</p>
         </div>
       </a>
     </section>

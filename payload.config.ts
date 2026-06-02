@@ -6,10 +6,19 @@ import { s3Storage } from "@payloadcms/storage-s3";
 import { vi } from "@payloadcms/translations/languages/vi";
 import { buildConfig } from "payload";
 import { Brands } from "./collections/Brands.ts";
+import { Banners } from "./collections/Banners.ts";
 import { Categories } from "./collections/Categories.ts";
+import { FAQ } from "./collections/FAQ.ts";
 import { Media } from "./collections/Media.ts";
+import { PostCategories } from "./collections/PostCategories.ts";
+import { Posts } from "./collections/Posts.ts";
 import { Products } from "./collections/Products.ts";
+import { Projects } from "./collections/Projects.ts";
+import { Solutions } from "./collections/Solutions.ts";
+import { StaticPages } from "./collections/StaticPages.ts";
+import { Testimonials } from "./collections/Testimonials.ts";
 import { Users } from "./collections/Users.ts";
+import { SiteSettings } from "./globals/SiteSettings.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -52,7 +61,21 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Media, Categories, Brands, Products],
+  collections: [
+    Users,
+    Media,
+    Categories,
+    Brands,
+    Products,
+    Banners,
+    Solutions,
+    PostCategories,
+    Posts,
+    Projects,
+    FAQ,
+    Testimonials,
+    StaticPages,
+  ],
   db: postgresAdapter({
     pool: {
       connectionString: databaseURL,
@@ -66,6 +89,7 @@ export default buildConfig({
       vi,
     },
   },
+  globals: [SiteSettings],
   plugins: [
     s3Storage({
       acl: "public-read",

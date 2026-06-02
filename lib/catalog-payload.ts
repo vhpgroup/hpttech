@@ -43,7 +43,7 @@ function normalizeProduct(doc: any): CatalogProduct {
     image: images[0]?.url,
     specs: Array.isArray(doc.specs) ? doc.specs.map((s: any) => ({ label: s.label, value: s.value })) : [],
     href: doc.slug ? `/san-pham/${doc.slug}` : undefined,
-    tag: doc.featured ? "Noi bat" : undefined,
+    tag: doc.tag || (doc.featured ? "Nổi bật" : undefined),
   };
 }
 

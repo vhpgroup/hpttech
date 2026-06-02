@@ -3,6 +3,7 @@
 import { Bot, Menu, SendHorizontal, X } from "lucide-react";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { getProducts } from "@/lib/catalog";
+import type { PublicSiteSettings } from "@/lib/content-payload";
 
 type ChatMessage = {
   role: "bot" | "user";
@@ -15,8 +16,6 @@ type LeadForm = {
   service: string;
 };
 
-const SUPPORT_FALLBACK_MESSAGE =
-  "Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline 0876 645 432 hoặc Zalo/Facebook để được hỗ trợ ngay.";
 const SUPPORT_INTRO_MESSAGE =
   "Em đang online ạ. Anh/chị vui lòng để lại nội dung cần hỗ trợ, em sẽ phản hồi ngay.";
 const SUPPORT_LEAD_PROMPT = "Cho em xin thông tin anh/chị để tiện hỗ trợ.";
@@ -48,18 +47,19 @@ function getRelevantProducts(message: string) {
     .map((item) => item.product);
 }
 
-function getFriendlyChatError(message: unknown) {
+function getFriendlyChatError(message: unknown, hotline: string) {
+  const fallbackMessage = `Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline ${hotline} hoặc Zalo/Facebook để được hỗ trợ ngay.`;
   const text = String(message || "").toLowerCase();
-  if (!text) return SUPPORT_FALLBACK_MESSAGE;
+  if (!text) return fallbackMessage;
 
   return ["openai_api_key", "api key", "openai", "server", "network", "fetch"].some((marker) =>
     text.includes(marker)
   )
-    ? SUPPORT_FALLBACK_MESSAGE
+    ? fallbackMessage
     : String(message);
 }
 
-export function FloatingContactDock() {
+export function FloatingContactDock({ settings }: { settings: Required<PublicSiteSettings> }) {
   const [chatbotOpen, setChatbotOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [leadFormOpen, setLeadFormOpen] = useState(false);
@@ -99,11 +99,11 @@ export function FloatingContactDock() {
       });
 
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(getFriendlyChatError(payload.error));
+      if (!response.ok) throw new Error(getFriendlyChatError(payload.error, settings.hotline));
       if (!payload.reply) throw new Error("Hiện chưa nhận được phản hồi từ hệ thống chat.");
       appendMessage({ role: "bot", text: payload.reply });
     } catch (error) {
-      appendMessage({ role: "bot", text: getFriendlyChatError(error instanceof Error ? error.message : error) });
+      appendMessage({ role: "bot", text: getFriendlyChatError(error instanceof Error ? error.message : error, settings.hotline) });
     } finally {
       setLoading(false);
     }
@@ -162,7 +162,7 @@ export function FloatingContactDock() {
     <div id="supportWidgetShell">
       <div className="support-widget">
         <div className="support-stack open">
-          <a className="support-card zalo" href="https://zalo.me/0876645432" target="_blank" rel="noreferrer">
+          <a className="support-card zalo" href={settings.zalo} target="_blank" rel="noreferrer">
             <span className="support-card-icon zalo">
               <img className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" />
             </span>
@@ -172,7 +172,7 @@ export function FloatingContactDock() {
             </span>
           </a>
 
-          <a className="support-card facebook" href="https://www.facebook.com/solarangelx9/" target="_blank" rel="noreferrer">
+          <a className="support-card facebook" href={settings.facebook} target="_blank" rel="noreferrer">
             <span className="support-card-icon facebook">
               <img className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" />
             </span>
@@ -211,7 +211,7 @@ export function FloatingContactDock() {
               <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
             </div>
             <div>
-              <strong>HPT Tech</strong>
+              <strong>{settings.companyName}</strong>
               <small>Agent online</small>
             </div>
           </div>
@@ -226,7 +226,7 @@ export function FloatingContactDock() {
               <div className={`support-chat-message ${message.role}`} key={`${message.role}-${index}`}>
                 {message.role === "bot" ? (
                   <div className="support-chat-avatar" aria-hidden="true">
-                    <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+                    <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt={settings.companyName} />
                   </div>
                 ) : null}
                 <div className="support-chat-content">

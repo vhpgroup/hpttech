@@ -1,19 +1,18 @@
 import type { CollectionConfig } from "payload";
-import { seoField } from "../lib/payload/fields/seo.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
 
-export const Categories: CollectionConfig = {
-  slug: "categories",
+export const PostCategories: CollectionConfig = {
+  slug: "post-categories",
   labels: {
-    singular: "Danh mục",
-    plural: "Danh mục",
+    singular: "Danh mục bài viết",
+    plural: "Danh mục bài viết",
   },
   access: {
     read: () => true,
   },
   admin: {
-    defaultColumns: ["name", "slug", "parent", "sortOrder"],
-    group: "Danh mục sản phẩm",
+    defaultColumns: ["name", "slug", "sortOrder"],
+    group: "Nội dung",
     useAsTitle: "name",
   },
   fields: [
@@ -36,29 +35,9 @@ export const Categories: CollectionConfig = {
       },
     },
     {
-      name: "parent",
-      label: "Danh mục cha",
-      type: "relationship",
-      relationTo: "categories",
-    },
-    {
       name: "description",
       label: "Mô tả",
       type: "textarea",
-    },
-    {
-      name: "icon",
-      label: "Icon Lucide",
-      type: "text",
-      admin: {
-        description: "Ví dụ: printer, scan-line, hard-drive",
-      },
-    },
-    {
-      name: "image",
-      label: "Hình ảnh",
-      type: "upload",
-      relationTo: "media",
     },
     {
       name: "sortOrder",
@@ -66,6 +45,5 @@ export const Categories: CollectionConfig = {
       type: "number",
       defaultValue: 0,
     },
-    seoField,
   ],
 };

@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { seoField } from "../lib/payload/fields/seo.ts";
+import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
 
 export const Products: CollectionConfig = {
@@ -22,6 +23,10 @@ export const Products: CollectionConfig = {
     defaultColumns: ["title", "sku", "brand", "category", "price", "status", "featured"],
     group: "Danh mục sản phẩm",
     useAsTitle: "title",
+  },
+  hooks: {
+    afterChange: [revalidateCollection],
+    afterDelete: [revalidateCollectionDelete],
   },
   versions: {
     drafts: true,
@@ -160,6 +165,24 @@ export const Products: CollectionConfig = {
               admin: {
                 description: "Hiển thị ở danh sách và phần đầu trang sản phẩm.",
               },
+            },
+            {
+              name: "tag",
+              label: "Nhãn nổi bật",
+              type: "select",
+              options: [
+                { label: "Mới", value: "Mới" },
+                { label: "Bán chạy", value: "Bán chạy" },
+                { label: "Cao cấp", value: "Cao cấp" },
+                { label: "Khuyến mãi", value: "Khuyến mãi" },
+              ],
+            },
+            {
+              name: "relatedProducts",
+              label: "Sản phẩm liên quan",
+              type: "relationship",
+              relationTo: "products",
+              hasMany: true,
             },
             {
               name: "description",

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
-import { getPosts } from "@/lib/catalog";
+import { getPostsFromPayload } from "@/lib/content-payload";
 
-export default function NewsPage() {
-  const posts = getPosts();
+export const dynamic = "force-dynamic";
+
+export default async function NewsPage() {
+  const posts = await getPostsFromPayload();
 
   return (
     <main className="subpage-main">
@@ -12,7 +14,7 @@ export default function NewsPage() {
         <div className="max-w-3xl">
           <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Tin tức</h1>
           <p className="mt-3 text-base leading-7 text-slate-600">
-            Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ. Hiện dùng seed data, sau này thay bằng WordPress posts.
+            Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ được quản lý trong Payload CMS.
           </p>
         </div>
       </section>

@@ -1,16 +1,13 @@
-"use client";
-
-import { FormEvent, useState } from "react";
 import { Mail, MapPin, PhoneCall, Send } from "lucide-react";
+import ContactForm from "@/components/ContactForm";
+import { getSiteSettingsFromPayload } from "@/lib/content-payload";
+import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
 
-export default function ContactPage() {
-  const [sent, setSent] = useState(false);
+export const dynamic = "force-dynamic";
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSent(true);
-  };
-
+export default async function ContactPage() {
+  const settings = normalizeSiteSettings(await getSiteSettingsFromPayload());
+  const phone = settings.hotline || settings.phone;
   return (
     <main className="subpage-main">
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -24,45 +21,12 @@ export default function ContactPage() {
       </section>
 
       <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
-        <form className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" onSubmit={submit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              Họ tên
-              <input required className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-blue-600" placeholder="Nhập họ tên" />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              Số điện thoại
-              <input required className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-blue-600" placeholder="0876..." type="tel" />
-            </label>
-          </div>
-          <label className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
-            Nhu cầu
-            <select className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-blue-600">
-              <option>Báo giá sản phẩm</option>
-              <option>Tư vấn giải pháp</option>
-              <option>Hỗ trợ kỹ thuật</option>
-              <option>Khác</option>
-            </select>
-          </label>
-          <label className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
-            Nội dung
-            <textarea required className="min-h-32 rounded-md border border-slate-200 p-3 font-normal outline-none focus:border-blue-600" placeholder="Mô tả sản phẩm, số lượng, khu vực triển khai..." />
-          </label>
-          <button className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800" type="submit">
-            <Send size={16} />
-            Gửi yêu cầu
-          </button>
-          {sent ? (
-            <p className="mt-4 rounded-md bg-green-50 p-3 text-sm font-medium text-green-700">
-              Đã ghi nhận yêu cầu trên giao diện. Bước sau sẽ nối endpoint gửi email/CRM thật.
-            </p>
-          ) : null}
-        </form>
+        <ContactForm icon={<Send size={16} />} />
 
         <aside className="grid gap-4">
-          <ContactCard icon={<PhoneCall size={22} />} title="Hotline" value="0876 645 432" href="tel:0876645432" />
-          <ContactCard icon={<Mail size={22} />} title="Email" value="lienhe@hpttech.vn" href="mailto:lienhe@hpttech.vn" />
-          <ContactCard icon={<MapPin size={22} />} title="Khu vực hỗ trợ" value="Tư vấn và triển khai cho doanh nghiệp" />
+          <ContactCard icon={<PhoneCall size={22} />} title="Hotline" value={phone} href={phoneHref(phone)} />
+          <ContactCard icon={<Mail size={22} />} title="Email" value={settings.email} href={`mailto:${settings.email}`} />
+          <ContactCard icon={<MapPin size={22} />} title="Khu vực hỗ trợ" value={settings.address} />
         </aside>
       </section>
     </main>

@@ -11,26 +11,29 @@ import {
   PhoneCall, 
   ShoppingCart 
 } from "lucide-react";
+import type { PublicSiteSettings } from "@/lib/content-payload";
+import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
-export default function Header() {
+export default function Header({ settings }: { settings: Required<PublicSiteSettings> }) {
   const [cartCount, setCartCount] = useState(0);
+  const phone = settings.hotline || settings.phone;
 
   return (
     <>
       <div className="utility-topbar desktop-only">
-        <p>HPT Tech - Thiết bị văn phòng & giải pháp số hóa</p>
+        <p>{settings.companyName} - Thiết bị văn phòng & giải pháp số hóa</p>
         <div>
-          <a href="mailto:lienhe@hpttech.vn">
+          <a href={`mailto:${settings.email}`}>
             <Mail size={14} />
-            lienhe@hpttech.vn
+            {settings.email}
           </a>
           <span>
             <Clock size={14} />
             8:30 - 21:00
           </span>
-          <a href="tel:0876645432">
+          <a href={phoneHref(phone)}>
             <PhoneCall size={14} />
-            0876 645 432
+            {phone}
           </a>
         </div>
       </div>
@@ -44,10 +47,10 @@ export default function Header() {
           <Menu size={24} />
         </button>
 
-        <Link href="/" className="brand" aria-label="HPT Tech">
+        <Link href="/" className="brand" aria-label={settings.companyName}>
           <img 
             src="https://hpttech.vn/media/32/content/HPT-Logo.png" 
-            alt="HPT Tech" 
+            alt={settings.companyName} 
           />
         </Link>
 
@@ -69,18 +72,18 @@ export default function Header() {
         </form>
 
         <div className="quick desktop-only">
-          <a href="mailto:lienhe@hpttech.vn?subject=Yêu cầu báo giá HPT Tech">
+          <a href={quoteMailHref(settings.email)}>
             <BadgeCheck size={20} />
             <div>
               <b>Báo giá nhanh</b>
               <small>Phản hồi trong 15p</small>
             </div>
           </a>
-          <a href="tel:0876645432">
+          <a href={phoneHref(phone)}>
             <PhoneCall size={20} />
             <div>
               <b>Hotline</b>
-              <small>0876 645 432</small>
+              <small>{phone}</small>
             </div>
           </a>
         </div>
