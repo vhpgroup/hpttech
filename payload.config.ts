@@ -59,6 +59,18 @@ export default buildConfig({
     importMap: {
       baseDir: dirname,
     },
+    components: {
+      afterNavLinks: ["@/components/payload/AfterNavLinks"],
+      graphics: {
+        Icon: "@/components/payload/NavLogo",
+        Logo: "@/components/payload/NavLogo",
+      },
+      views: {
+        dashboard: {
+          Component: "@/components/payload/Dashboard",
+        },
+      },
+    },
     user: Users.slug,
   },
   collections: [

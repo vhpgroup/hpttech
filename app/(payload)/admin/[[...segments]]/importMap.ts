@@ -1,4 +1,7 @@
 import { CollectionCards as CollectionCards_f937fd27 } from "@payloadcms/next/rsc";
+import AfterNavLinks from "@/components/payload/AfterNavLinks";
+import Dashboard from "@/components/payload/Dashboard";
+import NavLogo from "@/components/payload/NavLogo";
 import {
   LexicalDiffComponent as LexicalDiffComponent_10877c26,
   RscEntryLexicalCell as RscEntryLexicalCell_10877c26,
@@ -8,6 +11,9 @@ import { S3ClientUploadHandler as S3ClientUploadHandler_9f25f5a3 } from "@payloa
 import type { ImportMap } from "payload";
 
 export const importMap: ImportMap = {
+  "@/components/payload/AfterNavLinks#default": AfterNavLinks,
+  "@/components/payload/Dashboard#default": Dashboard,
+  "@/components/payload/NavLogo#default": NavLogo,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f937fd27,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_10877c26,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_10877c26,
