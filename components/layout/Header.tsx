@@ -16,6 +16,7 @@ import {
   PhoneCall, 
   X,
 } from "lucide-react";
+import HeaderCartButton from "@/components/cart/HeaderCartButton";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
@@ -112,6 +113,7 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
         <Link className="cart" href="/compare" aria-label="So sánh sản phẩm">
           <Scale size={22} />
         </Link>
+        <HeaderCartButton />
       </header>
 
       <button

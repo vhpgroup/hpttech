@@ -11,6 +11,16 @@ function textField(doc: PayloadProductDoc, key: string) {
   return typeof value === "string" ? value : undefined;
 }
 
+function numberField(doc: PayloadProductDoc, key: string) {
+  const value = doc[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function booleanField(doc: PayloadProductDoc, key: string) {
+  const value = doc[key];
+  return typeof value === "boolean" ? value : undefined;
+}
+
 function relationName(value: unknown) {
   if (value && typeof value === "object" && "name" in value && typeof value.name === "string") {
     return value.name;
@@ -48,7 +58,15 @@ function normalizeDatasheets(value: unknown) {
     .filter(Boolean) as Array<{ id?: string | number; url: string; filename?: string; mimeType?: string }>;
 }
 
-function normalizeProduct(doc: PayloadProductDoc): CatalogProduct {
+function normalizeRelatedProducts(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is PayloadProductDoc => Boolean(item) && typeof item === "object")
+    .map((item) => normalizeProduct(item, false))
+    .filter((product) => product.title && product.slug);
+}
+
+function normalizeProduct(doc: PayloadProductDoc, includeRelated = true): CatalogProduct {
   const images = Array.isArray(doc.images)
     ? doc.images
         .map((image: unknown) => ({
@@ -68,6 +86,14 @@ function normalizeProduct(doc: PayloadProductDoc): CatalogProduct {
     category: relationName(doc.category),
     price: textField(doc, "price"),
     compareAtPrice: textField(doc, "compareAtPrice"),
+    rating: numberField(doc, "rating"),
+    reviewCount: numberField(doc, "reviewCount"),
+    viewCount: numberField(doc, "viewCount"),
+    vatIncluded: booleanField(doc, "vatIncluded"),
+    discountBadge: textField(doc, "discountBadge"),
+    promoText: textField(doc, "promoText"),
+    promoStart: textField(doc, "promoStart"),
+    promoEnd: textField(doc, "promoEnd"),
     stockStatus: textField(doc, "stockStatus"),
     detail: textField(doc, "summary"),
     description: typeof doc.description === "string" ? doc.description : undefined,
@@ -81,6 +107,7 @@ function normalizeProduct(doc: PayloadProductDoc): CatalogProduct {
           .filter((spec): spec is PayloadProductDoc => Boolean(spec) && typeof spec === "object")
           .map((spec) => ({ label: textField(spec, "label") || "", value: textField(spec, "value") || "" }))
       : [],
+    relatedProducts: includeRelated ? normalizeRelatedProducts(doc.relatedProducts) : [],
     href: textField(doc, "slug") ? `/san-pham/${textField(doc, "slug")}` : undefined,
     tag: textField(doc, "tag") || (doc.featured ? "Nổi bật" : undefined),
   };
@@ -101,7 +128,7 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
       },
     });
 
-    return (res.docs as unknown as PayloadProductDoc[]).map(normalizeProduct);
+    return (res.docs as unknown as PayloadProductDoc[]).map((doc) => normalizeProduct(doc));
   } catch (error) {
     handlePayloadReadError("products", error);
     return [];

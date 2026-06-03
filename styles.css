@@ -102,7 +102,7 @@ textarea {
 
   .hero-section {
     --hero-top-height: 470px;
-    --hero-bottom-height: 190px;
+    --hero-bottom-height: 230px;
     --hero-gap: 16px;
     --hero-card-gap: 16px;
     grid-template-columns: 260px 1180px;
@@ -603,7 +603,7 @@ main {
   --hero-card-gap: 10px;
   --hero-side-gap: 0px;
   --hero-top-height: clamp(350px, 31.8vw, 470px);
-  --hero-bottom-height: clamp(142px, 12.9vw, 190px);
+  --hero-bottom-height: clamp(172px, 15.6vw, 230px);
   --hero-shell-height: calc(var(--hero-top-height) + var(--hero-gap) + var(--hero-bottom-height));
   width: var(--shell-width);
   height: auto;
@@ -796,8 +796,8 @@ main {
   height: 100%;
   max-width: none;
   max-height: none;
-  object-fit: contain;
-  object-position: top center;
+  object-fit: cover;
+  object-position: center;
 }
 
 .hero-banner .slider-btn {
@@ -888,7 +888,6 @@ main {
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: var(--hero-card-gap);
   gap: var(--hero-card-gap);
 }
 

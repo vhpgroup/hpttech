@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 interface ProductImageGalleryProps {
@@ -13,9 +13,32 @@ interface ProductImageGalleryProps {
 export function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const hasMultiple = images.length > 1;
   const activeImage = images[activeIndex];
+
+  const goTo = useCallback((index: number) => {
+    const next = (index + images.length) % images.length;
+    setActiveIndex(next);
+  }, [images.length]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightboxOpen(false);
+      if (event.key === "ArrowLeft") goTo(activeIndex - 1);
+      if (event.key === "ArrowRight") goTo(activeIndex + 1);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [activeIndex, goTo, lightboxOpen]);
 
   if (!activeImage) {
     return (
@@ -31,7 +54,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row">
-      {hasMultiple ? (
+      {images.length ? (
         <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:max-h-[560px] lg:w-[84px] lg:flex-col lg:overflow-y-auto lg:pb-0">
           {images.map((img, idx) => (
             <button
@@ -59,28 +82,90 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
       ) : null}
 
       <div
-        className="group relative order-1 flex-1 overflow-hidden rounded-[20px] bg-slate-50"
-        style={{ aspectRatio: "1 / 1" }}
+        className="group relative order-1 h-[360px] flex-1 overflow-hidden rounded-[20px] bg-slate-50 sm:h-[400px] xl:h-[460px]"
         onMouseEnter={() => setIsZoomed(true)}
         onMouseLeave={() => setIsZoomed(false)}
       >
+        <button type="button" className="absolute inset-0 z-10" aria-label="Mở ảnh lớn" onClick={() => setLightboxOpen(true)} />
         <Image
           src={activeImage.url}
           alt={activeImage.alt || productName}
           fill
-          className={cn("object-contain p-8 transition-transform duration-500 ease-out", isZoomed && "scale-110")}
-          sizes="(max-width: 1024px) 100vw, 640px"
+          className={cn("object-contain p-5 transition-transform duration-500 ease-out sm:p-6", isZoomed && "scale-105")}
+          sizes="(max-width: 1024px) 100vw, 520px"
           priority
         />
-        <div className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-slate-500 opacity-0 shadow-sm backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+        <button
+          type="button"
+          className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 text-slate-500 shadow-sm backdrop-blur-sm transition-colors duration-200 hover:bg-white"
+          aria-label="Phóng to ảnh"
+          onClick={() => setLightboxOpen(true)}
+        >
           <ZoomIn size={16} />
-        </div>
+        </button>
         {hasMultiple ? (
           <div className="absolute bottom-3 right-3 rounded-full bg-black/45 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
             {activeIndex + 1} / {images.length}
           </div>
         ) : null}
       </div>
+
+      {lightboxOpen ? (
+        <div className="fixed inset-0 z-[80] bg-slate-950/92 p-4 text-white sm:p-6" role="dialog" aria-modal="true" aria-label={`Ảnh sản phẩm ${productName}`}>
+          <button type="button" className="absolute inset-0" aria-label="Đóng ảnh lớn" onClick={() => setLightboxOpen(false)} />
+          <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col">
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{productName}</p>
+                <p className="text-xs text-white/60">{activeIndex + 1} / {images.length}</p>
+              </div>
+              <button type="button" className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Đóng" onClick={() => setLightboxOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg bg-white/5">
+              <Image
+                src={activeImage.url}
+                alt={activeImage.alt || productName}
+                fill
+                className="object-contain p-4 sm:p-8"
+                sizes="100vw"
+                priority
+              />
+              {hasMultiple ? (
+                <>
+                  <button type="button" className="absolute left-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/12 text-white hover:bg-white/24" aria-label="Ảnh trước" onClick={() => goTo(activeIndex - 1)}>
+                    <ChevronLeft size={24} />
+                  </button>
+                  <button type="button" className="absolute right-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white/12 text-white hover:bg-white/24" aria-label="Ảnh sau" onClick={() => goTo(activeIndex + 1)}>
+                    <ChevronRight size={24} />
+                  </button>
+                </>
+              ) : null}
+            </div>
+
+            {hasMultiple ? (
+              <div className="mt-3 flex justify-center gap-2 overflow-x-auto pb-1">
+                {images.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    aria-label={`Xem ảnh ${idx + 1}`}
+                    onClick={() => setActiveIndex(idx)}
+                    className={cn(
+                      "relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md bg-white/10",
+                      activeIndex === idx ? "ring-2 ring-white" : "opacity-70 hover:opacity-100",
+                    )}
+                  >
+                    <Image src={img.url} alt={img.alt || `${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="56px" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

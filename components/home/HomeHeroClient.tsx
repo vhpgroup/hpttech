@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PublicBanner } from "@/lib/content-payload";
 import CategoryPanel from "@/components/home/CategoryPanel";
 
@@ -13,46 +12,61 @@ type HomeHeroClientProps = {
 export default function HomeHeroClient({ banners }: HomeHeroClientProps) {
   const [activeBanner, setActiveBanner] = useState(0);
   const activeBannerData = banners[activeBanner] || banners[0];
-  const prevBanner = () => setActiveBanner((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
-  const nextBanner = () => setActiveBanner((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveBanner((prev) => (prev + 1) % banners.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [banners.length]);
 
   return (
     <section className="hero-section">
       <CategoryPanel />
 
       <div className="hero-commerce-area">
-        <section className="hero hero-banner" aria-label="Banner HPT Tech">
-          <button className="slider-btn prev" onClick={prevBanner} aria-label="Slide trước">
-            <ChevronLeft size={24} />
-          </button>
+        <section className="hero hero-banner" aria-label="Banner HPT Tech" style={{ position: "relative" }}>
+          {banners.map((banner, index) => (
+            <a
+              key={index}
+              className="hero-slide-link"
+              href={banner?.link || "/"}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                position: "absolute",
+                inset: 0,
+                opacity: index === activeBanner ? 1 : 0,
+                transition: "opacity 0.6s ease-in-out",
+                zIndex: index === activeBanner ? 1 : 0,
+                pointerEvents: index === activeBanner ? "auto" : "none",
+              }}
+            >
+              {banner?.image ? (
+                <Image
+                  src={banner.image}
+                  alt={banner.title || "HPT Tech banner"}
+                  width={804}
+                  height={470}
+                  priority={index === 0}
+                />
+              ) : null}
+            </a>
+          ))}
 
-          <a className="hero-slide-link" href={activeBannerData?.link || "/"} target="_blank" rel="noreferrer">
-            {activeBannerData?.image ? (
-              <Image
-                id="heroBannerImage"
-                src={activeBannerData.image}
-                alt={activeBannerData.title || "HPT Tech banner"}
-                width={804}
-                height={470}
-                priority
-              />
-            ) : null}
-          </a>
-
-          <button className="slider-btn next" onClick={nextBanner} aria-label="Slide sau">
-            <ChevronRight size={24} />
-          </button>
-
-          <div className="dots">
-            {banners.map((_, index) => (
-              <button
-                key={index}
-                className={`dot ${index === activeBanner ? "active" : ""}`}
-                onClick={() => setActiveBanner(index)}
-                aria-label={`Đi tới slide ${index + 1}`}
-              />
-            ))}
-          </div>
+          {banners.length > 1 ? (
+            <div className="dots">
+              {banners.map((_, index) => (
+                <button
+                  key={index}
+                  className={`dot ${index === activeBanner ? "active" : ""}`}
+                  onClick={() => setActiveBanner(index)}
+                  aria-label={`Đi tới slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          ) : null}
         </section>
 
         <aside className="commercial-stack" aria-label="Ưu đãi nhanh">

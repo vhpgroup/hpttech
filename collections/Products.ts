@@ -140,6 +140,99 @@ export const Products: CollectionConfig = {
               type: "row",
               fields: [
                 {
+                  name: "vatIncluded",
+                  label: "Giá đã gồm VAT",
+                  type: "checkbox",
+                  defaultValue: true,
+                  admin: {
+                    width: "33%",
+                  },
+                },
+                {
+                  name: "rating",
+                  label: "Điểm đánh giá",
+                  type: "number",
+                  min: 0,
+                  max: 5,
+                  admin: {
+                    width: "33%",
+                    description: "Từ 0 đến 5 sao.",
+                  },
+                },
+                {
+                  name: "reviewCount",
+                  label: "Số đánh giá",
+                  type: "number",
+                  min: 0,
+                  defaultValue: 0,
+                  admin: {
+                    width: "34%",
+                  },
+                },
+              ],
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "viewCount",
+                  label: "Lượt xem",
+                  type: "number",
+                  min: 0,
+                  admin: {
+                    width: "33%",
+                  },
+                },
+                {
+                  name: "discountBadge",
+                  label: "Nhãn giảm giá",
+                  type: "text",
+                  admin: {
+                    width: "33%",
+                    description: "Ví dụ: Giảm 15%, Quà tặng, Hot deal.",
+                  },
+                },
+                {
+                  name: "promoText",
+                  label: "Nội dung khuyến mãi",
+                  type: "text",
+                  admin: {
+                    width: "34%",
+                  },
+                },
+              ],
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "promoStart",
+                  label: "Ngày bắt đầu khuyến mãi",
+                  type: "date",
+                  admin: {
+                    date: {
+                      pickerAppearance: "dayOnly",
+                    },
+                    width: "50%",
+                  },
+                },
+                {
+                  name: "promoEnd",
+                  label: "Ngày kết thúc khuyến mãi",
+                  type: "date",
+                  admin: {
+                    date: {
+                      pickerAppearance: "dayOnly",
+                    },
+                    width: "50%",
+                  },
+                },
+              ],
+            },
+            {
+              type: "row",
+              fields: [
+                {
                   name: "warranty",
                   label: "Bảo hành",
                   type: "text",

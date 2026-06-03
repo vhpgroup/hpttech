@@ -10,6 +10,7 @@ import { Banners } from "./collections/Banners.ts";
 import { Categories } from "./collections/Categories.ts";
 import { FAQ } from "./collections/FAQ.ts";
 import { Media } from "./collections/Media.ts";
+import { Orders } from "./collections/Orders.ts";
 import { PostCategories } from "./collections/PostCategories.ts";
 import { Posts } from "./collections/Posts.ts";
 import { Products } from "./collections/Products.ts";
@@ -80,6 +81,7 @@ export default buildConfig({
     Categories,
     Brands,
     Products,
+    Orders,
     Banners,
     Solutions,
     PostCategories,

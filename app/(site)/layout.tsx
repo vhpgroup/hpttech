@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
 import FloatingContactDockLoader from "@/components/FloatingContactDockLoader";
+import { CartProvider } from "@/components/cart/CartProvider";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
@@ -49,13 +50,15 @@ export default async function SiteLayout({
         <DesktopStageScript />
       </head>
       <body className="site-shell">
-        <DesktopStage>
-          <Header settings={settings} />
-          <Navbar />
-          {children}
-          <Footer settings={settings} />
-        </DesktopStage>
-        <FloatingContactDockLoader settings={settings} />
+        <CartProvider>
+          <DesktopStage>
+            <Header settings={settings} />
+            <Navbar />
+            {children}
+            <Footer settings={settings} />
+          </DesktopStage>
+          <FloatingContactDockLoader settings={settings} />
+        </CartProvider>
       </body>
     </html>
   );

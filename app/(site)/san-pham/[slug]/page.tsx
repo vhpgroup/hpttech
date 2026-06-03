@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -10,25 +11,22 @@ import {
   Gauge,
   Headset,
   Network,
-  Printer,
   Receipt,
   RefreshCw,
-  ScanLine,
   Send,
   ShieldCheck,
-  Wifi,
 } from "lucide-react";
-import { getProductBySlugFromPayload } from "@/lib/catalog-payload";
+import { getProductBySlugFromPayload, getProductsFromPayload } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
-import type { CatalogProduct } from "@/lib/catalog";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref, quoteMailHref } from "@/lib/site-settings";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ProductDetailTabs, type ProductDetailTab } from "@/components/product/ProductDetailTabs";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
+import ProductPricingSection from "@/components/product/ProductPricingSection";
 import { ProductSpecTable } from "@/components/product/ProductSpecTable";
 import { ProductStickyBar } from "@/components/product/ProductStickyBar";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -68,13 +66,6 @@ function stockLabel(stockStatus?: string) {
   if (stockStatus === "out_of_stock") return { label: "Hết hàng", variant: "danger" as const };
   if (stockStatus === "preorder") return { label: "Đặt trước", variant: "warning" as const };
   return { label: "Còn hàng", variant: "success" as const };
-}
-
-function tagVariant(tag?: string) {
-  if (tag === "Mới") return "new" as const;
-  if (tag === "Bán chạy") return "bestseller" as const;
-  if (tag === "Cao cấp") return "premium" as const;
-  return "neutral" as const;
 }
 
 function normalizeText(value?: string) {
@@ -139,6 +130,14 @@ function pickQuickSpecs(specs: ProductSpec[], category?: string) {
   return selected;
 }
 
+function EmptyProductSection({ message }: { message: string }) {
+  return (
+    <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-6 text-slate-500">
+      {message}
+    </div>
+  );
+}
+
 function inferDocumentType(filename?: string) {
   const normalized = normalizeText(filename);
   if (!normalized) return "Tài liệu";
@@ -147,46 +146,6 @@ function inferDocumentType(filename?: string) {
   if (normalized.includes("manual") || normalized.includes("huong dan")) return "User Manual";
   if (normalized.includes("datasheet") || normalized.includes("catalog")) return "Datasheet";
   return "Tài liệu";
-}
-
-function deriveCapabilities(product: CatalogProduct) {
-  const signals = [
-    product.title,
-    product.category,
-    product.detail,
-    ...(product.specs ?? []).flatMap((spec) => [spec.label, spec.value]),
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const haystack = normalizeText(signals);
-  const capabilities = [
-    {
-      key: "print",
-      label: "In",
-      icon: Printer,
-      visible: /(^|\s)(print|printer|laserjet|may in|in mau|in den trang)/.test(haystack),
-    },
-    {
-      key: "copy",
-      label: "Copy",
-      icon: Copy,
-      visible: /(^|\s)(copy|sao chep|da nang|mfp)/.test(haystack),
-    },
-    {
-      key: "scan",
-      label: "Scan",
-      icon: ScanLine,
-      visible: /(^|\s)(scan|scanner|so hoa)/.test(haystack),
-    },
-    {
-      key: "wifi",
-      label: "WiFi",
-      icon: Wifi,
-      visible: /(^|\s)(wifi|wi-fi|wireless)/.test(haystack),
-    },
-  ];
-
-  return capabilities.filter((item) => item.visible).slice(0, 4);
 }
 
 export async function generateStaticParams() {
@@ -215,9 +174,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [product, rawSettings] = await Promise.all([
+  const [product, rawSettings, allProducts] = await Promise.all([
     getProductBySlugFromPayload(slug),
     getSiteSettingsFromPayload(),
+    getProductsFromPayload(),
   ]);
 
   if (!product) notFound();
@@ -232,10 +192,28 @@ export default async function ProductDetailPage({ params }: PageProps) {
     (spec) => spec.label?.trim() && spec.value?.trim(),
   );
   const quickSpecs = pickQuickSpecs(specs, product.category);
-  const capabilities = deriveCapabilities(product);
+  const fallbackQuickSpecs = [
+    { label: "Thương hiệu", value: product.brand },
+    { label: "Danh mục", value: product.category },
+    { label: "Bảo hành", value: product.warranty || "Liên hệ xác nhận" },
+    { label: "Tình trạng", value: stockLabel(product.stockStatus).label },
+  ].filter((item): item is ProductSpec => Boolean(item.value));
+  const displayedQuickSpecs = quickSpecs.length ? quickSpecs : fallbackQuickSpecs;
   const schemaPrice = parseVNDPrice(product.price);
-  const stock = stockLabel(product.stockStatus);
   const productDescription = product.description || product.detail;
+  const assignedRelatedProducts = (product.relatedProducts ?? []).filter((item) => item.slug !== product.slug);
+  const fallbackRelatedProducts = allProducts
+    .filter((item) => item.slug !== product.slug)
+    .filter((item) => item.category === product.category || item.brand === product.brand)
+    .slice(0, 4);
+  const broadRelatedProducts = allProducts.filter((item) => item.slug !== product.slug).slice(0, 4);
+  const relatedProducts = (
+    assignedRelatedProducts.length
+      ? assignedRelatedProducts
+      : fallbackRelatedProducts.length
+        ? fallbackRelatedProducts
+        : broadRelatedProducts
+  ).slice(0, 4);
   const documents = (product.datasheets as
     | Array<{ id?: string | number; url?: string; filename?: string; mimeType?: string }>
     | undefined
@@ -300,7 +278,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </aside>
           <ProductSpecTable specs={specs} />
         </div>
-      ) : null,
+      ) : (
+        <EmptyProductSection message="Sản phẩm này chưa có bảng thông số kỹ thuật chi tiết trong CMS." />
+      ),
     },
     {
       id: "description",
@@ -313,7 +293,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <p>{product.detail}</p>
           )}
         </div>
-      ) : null,
+      ) : (
+        <EmptyProductSection message="Sản phẩm này chưa có mô tả chi tiết. Vui lòng bổ sung nội dung trong Payload CMS." />
+      ),
     },
     {
       id: "documents",
@@ -351,7 +333,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
             ) : null,
           )}
         </div>
-      ) : null,
+      ) : (
+        <EmptyProductSection message="Chưa có driver, catalogue hoặc tài liệu kỹ thuật được đính kèm." />
+      ),
     },
   ];
 
@@ -380,89 +364,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <span className="truncate font-medium text-slate-900">{product.title}</span>
       </nav>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(0,1.45fr)_minmax(280px,0.75fr)] xl:items-start">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1.45fr)_minmax(280px,0.8fr)] xl:items-start">
         <div className="rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-5">
           <ProductImageGallery images={productImages} productName={product.title} />
         </div>
 
         <div className="space-y-5">
-          <div className="rounded-[20px] bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
-            <div className="flex flex-wrap items-center gap-2">
-              {product.category ? (
-                <span className="rounded-full bg-[#0057FF]/8 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#0057FF]">
-                  {product.category}
-                </span>
-              ) : null}
-              {product.tag ? <Badge variant={tagVariant(product.tag)}>{product.tag}</Badge> : null}
-              <Badge variant={stock.variant}>{stock.label}</Badge>
-            </div>
-
-            <div className="mt-4">
-              <h1 className="text-3xl font-semibold leading-tight text-slate-950">
-                {product.title}
-              </h1>
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
-                {product.sku ? (
-                  <p>
-                    Mã sản phẩm: <span className="font-medium text-slate-900">{product.sku}</span>
-                  </p>
-                ) : null}
-                {product.brand ? (
-                  <p>
-                    Thương hiệu: <span className="font-medium text-slate-900">{product.brand}</span>
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            {capabilities.length ? (
-              <div className="mt-5 flex flex-wrap gap-3 border-t border-slate-100 pt-5">
-                {capabilities.map(({ key, label, icon: Icon }) => (
-                  <div
-                    key={key}
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700"
-                  >
-                    <Icon size={16} className="text-[#0057FF]" />
-                    {label}
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="rounded-[20px] bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
-            <p className="text-sm text-slate-400">Giá bán</p>
-            <div className="mt-2 flex flex-wrap items-end gap-3">
-              <p className="text-3xl font-semibold text-slate-950">{product.price || "Liên hệ"}</p>
-              {product.compareAtPrice ? (
-                <p className="text-base text-slate-400 line-through">{product.compareAtPrice}</p>
-              ) : null}
-            </div>
-
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <Button
-                asChild
-                size="lg"
-                className="flex-1 rounded-xl bg-[#0057FF] hover:bg-[#0049d8]"
-                leftIcon={<FileText size={20} className="text-white" />}
-              >
-                <a href={quoteHref}>
-                  Nhận báo giá
-                </a>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="flex-1 rounded-xl border-slate-200 bg-white text-slate-800 hover:border-[#2563EB]/45 hover:bg-[#2563EB]/5 hover:text-[#2563EB]"
-                leftIcon={<Headset size={20} className="text-[#2563EB]" />}
-              >
-                <a href={phoneHref(phone)}>
-                  Tư vấn ngay
-                </a>
-              </Button>
-            </div>
-          </div>
+          <ProductPricingSection
+            product={product}
+            quoteHref={quoteHref}
+            phoneHref={phoneHref(phone)}
+            schemaPrice={schemaPrice}
+          />
         </div>
 
         <aside className="xl:sticky xl:top-24">
@@ -500,7 +413,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 size="md"
                 variant="outline"
                 className="justify-center rounded-xl border-slate-200"
-                leftIcon={<img src="/assets/icons/zalo.svg" alt="" className="h-5 w-5 object-contain" aria-hidden="true" />}
+                leftIcon={<Image src="/assets/icons/zalo.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" aria-hidden="true" />}
               >
                 <a href={settings.zalo || phoneHref(phone)} target="_blank" rel="noreferrer">
                   Chat Zalo
@@ -521,10 +434,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </aside>
       </section>
 
-      {quickSpecs.length ? (
-        <section className="mt-5 rounded-[20px] bg-white px-5 py-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:px-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {quickSpecs.map((spec) => {
+      <section className="mt-5 rounded-[20px] bg-white px-5 py-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:px-6">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {displayedQuickSpecs.map((spec) => {
               const Icon = pickQuickSpecIcon(spec.label);
 
               return (
@@ -539,11 +451,58 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 </div>
               );
             })}
-          </div>
-        </section>
-      ) : null}
+        </div>
+      </section>
 
       <div id="product-hero-sentinel" />
+
+      <section className="mt-6 rounded-[20px] bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0057FF]">Gợi ý phù hợp</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-950">Sản phẩm liên quan</h2>
+            </div>
+            <Link href="/san-pham" className="text-sm font-semibold text-slate-500 transition-colors hover:text-[#0057FF]">
+              Xem toàn bộ sản phẩm
+            </Link>
+          </div>
+          {relatedProducts.length ? (
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {relatedProducts.map((item) => {
+              const image = item.images?.[0]?.url || item.image;
+
+              return (
+                <article key={item.slug} className="flex min-h-[300px] flex-col rounded-lg border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md">
+                  <Link href={`/san-pham/${item.slug}`} className="grid h-36 place-items-center rounded-md bg-slate-50">
+                    {image ? <Image src={image} alt={item.title} width={180} height={132} className="max-h-32 object-contain" /> : null}
+                  </Link>
+                  <div className="mt-4 flex flex-1 flex-col">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{item.brand}</p>
+                    <h3 className="mt-2 line-clamp-2 text-sm font-semibold leading-5 text-slate-950">
+                      <Link href={`/san-pham/${item.slug}`}>{item.title}</Link>
+                    </h3>
+                    <p className="mt-2 text-sm font-semibold text-orange-600">{item.price || "Liên hệ"}</p>
+                    <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
+                      <AddToCartButton
+                        product={item}
+                        label="Thêm"
+                        className="inline-flex items-center justify-center gap-1 rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                      />
+                      <Link className="rounded-md bg-blue-700 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-800" href={`/san-pham/${item.slug}`}>
+                        Chi tiết
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+            </div>
+          ) : (
+            <div className="mt-5">
+              <EmptyProductSection message="Chưa có sản phẩm liên quan hoặc sản phẩm thay thế trong catalog." />
+            </div>
+          )}
+        </section>
 
       <div className="mt-6">
         <ProductDetailTabs sections={tabSections} />

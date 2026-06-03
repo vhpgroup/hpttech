@@ -7,6 +7,14 @@ export type CatalogProduct = {
   category?: string;
   price?: string;
   compareAtPrice?: string;
+  rating?: number;
+  reviewCount?: number;
+  viewCount?: number;
+  vatIncluded?: boolean;
+  discountBadge?: string;
+  promoText?: string;
+  promoStart?: string;
+  promoEnd?: string;
   stockStatus?: string;
   detail?: string;
   description?: string;
@@ -15,6 +23,7 @@ export type CatalogProduct = {
   images?: Array<{ id?: string | number; url?: string; alt?: string }>;
   datasheets?: Array<{ id?: string | number; url?: string; filename?: string; mimeType?: string }>;
   specs?: Array<{ label: string; value: string }>;
+  relatedProducts?: CatalogProduct[];
   href?: string;
   image?: string;
   tag?: string;

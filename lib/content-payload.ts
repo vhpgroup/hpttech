@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { HPT_DATA } from "@/lib/data";
 import { defaultAboutPage } from "@/globals/AboutPage";
 import { getPayloadClient } from "@/lib/payload";
@@ -158,6 +160,26 @@ type PayloadDoc = Record<string, unknown>;
 type PayloadFindResult = {
   docs: PayloadDoc[];
 };
+
+const HERO_BANNER_DIR = path.join(process.cwd(), "public", "assets", "herobanner");
+const HERO_BANNER_PUBLIC_PATH = "/assets/herobanner";
+const HERO_BANNER_EXTENSIONS = new Set([".avif", ".gif", ".jpeg", ".jpg", ".png", ".webp"]);
+
+function getLocalHeroBanners(): PublicBanner[] {
+  try {
+    return fs
+      .readdirSync(HERO_BANNER_DIR, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && HERO_BANNER_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
+      .sort((a, b) => a.name.localeCompare(b.name, "vi", { numeric: true }))
+      .map((entry) => ({
+        image: `${HERO_BANNER_PUBLIC_PATH}/${encodeURIComponent(entry.name)}`,
+        link: "/",
+        title: path.basename(entry.name, path.extname(entry.name)),
+      }));
+  } catch {
+    return [];
+  }
+}
 type PublicCollectionSlug = "banners" | "solutions" | "posts" | "projects" | "faq" | "static-pages";
 
 function textField(doc: PayloadDoc, key: string) {
@@ -337,9 +359,12 @@ export async function getBannersFromPayload(): Promise<PublicBanner[]> {
       return [{ image, title: textField(doc, "title"), subtitle: textField(doc, "subtitle"), link: textField(doc, "link") }];
     });
 
-  return banners.length
-    ? banners
-    : HPT_DATA.banners.map((image) => ({ image, link: "https://hpttech.vn/" }));
+  if (banners.length) return banners;
+
+  const localBanners = getLocalHeroBanners();
+  return localBanners.length
+    ? localBanners
+    : HPT_DATA.banners.map((image) => ({ image, link: "/" }));
 }
 
 export async function getSolutionsFromPayload(): Promise<PublicSolution[]> {

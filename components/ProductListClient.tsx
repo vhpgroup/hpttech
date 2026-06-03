@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { CatalogProduct } from "@/lib/catalog";
 
 const PAGE_SIZE = 12;
@@ -138,7 +139,14 @@ function ProductListInner({
               <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{product.detail}</p>
               <div className="mt-auto flex items-center justify-between gap-3 pt-4">
                 <strong className="text-sm text-orange-600">{product.price}</strong>
-                <Link className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" href={`/san-pham/${product.slug}`}>Chi tiết</Link>
+                <div className="flex gap-2">
+                  <AddToCartButton
+                    product={product}
+                    label="Thêm"
+                    className="inline-flex items-center justify-center gap-1 rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                  />
+                  <Link className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" href={`/san-pham/${product.slug}`}>Chi tiết</Link>
+                </div>
               </div>
             </div>
           </article>
