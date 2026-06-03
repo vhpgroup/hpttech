@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
   if (collection === "posts" && slug) paths.add(`/tin-tuc/${slug}`);
   if (collection === "static-pages" && slug) paths.add(`/${slug}`);
   if (body.global === "site-settings") paths.add("/");
+  if (body.global === "about-page") paths.add("/ve-hpt");
 
   for (const path of paths) revalidatePath(path);
 

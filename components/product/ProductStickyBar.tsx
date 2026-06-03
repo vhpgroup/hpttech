@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button";
 interface ProductStickyBarProps {
   productName: string;
   price?: string;
-  email: string;
   phone: string;
   quoteHref: string;
   phoneHref: string;
@@ -17,7 +16,6 @@ interface ProductStickyBarProps {
 export function ProductStickyBar({
   productName,
   price,
-  email,
   phone,
   quoteHref,
   phoneHref,
@@ -31,7 +29,7 @@ export function ProductStickyBar({
 
     const observer = new IntersectionObserver(
       ([entry]) => setVisible(!entry.isIntersecting),
-      { rootMargin: "-80px 0px 0px 0px" }
+      { rootMargin: "-80px 0px 0px 0px" },
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
@@ -39,22 +37,18 @@ export function ProductStickyBar({
 
   return (
     <>
-      {/* Invisible sentinel — placed after the hero CTA section */}
       <div ref={sentinelRef} className="h-px" />
 
-      {/* Sticky bar */}
       <div
         className={cn(
           "fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md transition-all duration-300",
-          visible ? "translate-y-0 shadow-md opacity-100" : "-translate-y-full opacity-0"
+          visible ? "translate-y-0 shadow-md opacity-100" : "-translate-y-full opacity-0",
         )}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-slate-900">{productName}</p>
-            {price && (
-              <p className="text-sm font-bold text-accent-600">{price}</p>
-            )}
+            {price ? <p className="text-sm font-bold text-accent-600">{price}</p> : null}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <a

@@ -1,12 +1,26 @@
 import type { Metadata } from "next";
+import { Geist, Inter } from "next/font/google";
 import "../globals.css";
 import DesktopStage, { DesktopStageScript } from "@/components/layout/DesktopStage";
+import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
 import FloatingContactDockLoader from "@/components/FloatingContactDockLoader";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteURL()),
@@ -25,7 +39,12 @@ export default async function SiteLayout({
   const settings = normalizeSiteSettings(await getSiteSettingsFromPayload());
 
   return (
-    <html lang="vi" suppressHydrationWarning style={{ "--desktop-scale": "1" } as React.CSSProperties}>
+    <html
+      lang="vi"
+      suppressHydrationWarning
+      className={`${inter.variable} ${geist.variable}`}
+      style={{ "--desktop-scale": "1" } as React.CSSProperties}
+    >
       <head>
         <DesktopStageScript />
       </head>
@@ -34,8 +53,9 @@ export default async function SiteLayout({
           <Header settings={settings} />
           <Navbar />
           {children}
-          <FloatingContactDockLoader settings={settings} />
+          <Footer settings={settings} />
         </DesktopStage>
+        <FloatingContactDockLoader settings={settings} />
       </body>
     </html>
   );

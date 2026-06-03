@@ -14,10 +14,12 @@ const desktopScaleScript = `
   function setDesktopScale() {
     var width = readViewportWidth();
     var scale = width >= DESKTOP_BREAKPOINT ? Math.min(1, width / REFERENCE_VIEWPORT) : 1;
+    var scaledStageWidth = DESIGN_WIDTH * scale;
     var stage = document.querySelector(".desktop-stage");
     var shell = document.querySelector(".desktop-shell");
 
     document.documentElement.style.setProperty("--desktop-scale", scale.toFixed(4));
+    document.documentElement.style.setProperty("--desktop-stage-width", Math.ceil(scaledStageWidth) + "px");
 
     if (stage && shell && width >= DESKTOP_BREAKPOINT) {
       shell.style.minHeight = Math.ceil(stage.scrollHeight * scale) + "px";

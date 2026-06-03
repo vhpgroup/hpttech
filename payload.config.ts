@@ -18,6 +18,7 @@ import { Solutions } from "./collections/Solutions.ts";
 import { StaticPages } from "./collections/StaticPages.ts";
 import { Testimonials } from "./collections/Testimonials.ts";
 import { Users } from "./collections/Users.ts";
+import { AboutPage } from "./globals/AboutPage.ts";
 import { SiteSettings } from "./globals/SiteSettings.ts";
 
 const filename = fileURLToPath(import.meta.url);
@@ -101,7 +102,7 @@ export default buildConfig({
       vi,
     },
   },
-  globals: [SiteSettings],
+  globals: [SiteSettings, AboutPage],
   plugins: [
     s3Storage({
       acl: "public-read",

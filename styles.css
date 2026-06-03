@@ -13,6 +13,7 @@
   --shell-pad-mobile: 12px;
   --design-width: 1440px;
   --desktop-scale: 1;
+  --desktop-stage-width: var(--design-width);
   --shell-width: min(1440px, calc(100vw - (var(--shell-pad) * 2)));
   --catalog-width: clamp(220px, 18vw, 260px);
 }
@@ -27,10 +28,19 @@ html {
 
 body {
   margin: 0;
-  font-family: "Work Sans", Arial, sans-serif;
+  font-family: var(--font-body), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   background: var(--bg);
   color: var(--ink);
   overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 a {
@@ -45,7 +55,8 @@ img {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -2222,6 +2233,69 @@ main {
   z-index: 46;
 }
 
+@media (min-width: 1200px) {
+  #supportWidgetShell {
+    left: calc((100vw + var(--desktop-stage-width)) / 2 + 10px);
+    right: auto;
+    width: clamp(150px, calc((100vw - var(--desktop-stage-width)) / 2 - 20px), 248px);
+  }
+
+  #supportWidgetShell .support-card {
+    width: 100%;
+    min-height: 54px;
+    padding: 0 10px;
+    gap: 8px;
+    border-radius: 16px;
+  }
+
+  #supportWidgetShell .support-card-icon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  #supportWidgetShell .support-card-icon-zalo-image {
+    width: 58px;
+    height: 58px;
+  }
+
+  #supportWidgetShell .support-card-icon-messenger-image {
+    width: 54px;
+    height: 54px;
+  }
+
+  #supportWidgetShell .support-card-copy {
+    display: block;
+    min-width: 0;
+  }
+
+  #supportWidgetShell .support-card-copy strong,
+  #supportWidgetShell .support-card-copy small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #supportWidgetShell .support-card-copy strong {
+    font-size: 14px;
+  }
+
+  #supportWidgetShell .support-card-copy small {
+    font-size: 11px;
+  }
+
+  #supportWidgetShell .support-card.chatbot {
+    width: 100%;
+    min-height: 52px;
+    margin-right: 0;
+  }
+
+  .support-chatbot {
+    right: max(20px, calc((100vw - var(--desktop-stage-width)) / 2 + 20px));
+  }
+}
+
 .support-chatbot.open {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -3144,5 +3218,226 @@ svg {
     margin-top: -20px;
     border-radius: 50%;
     background: var(--blue);
+  }
+}
+
+@keyframes aboutMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes aboutReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.about-logo-marquee {
+  width: max-content;
+  animation: aboutMarquee 34s linear infinite;
+}
+
+.about-logo-marquee:hover {
+  animation-play-state: paused;
+}
+
+.about-reveal {
+  animation: aboutReveal 640ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-logo-marquee,
+  .about-reveal {
+    animation: none;
+  }
+}
+
+.footer-heading {
+  position: relative;
+  display: inline-flex;
+  padding-bottom: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.footer-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 42px;
+  height: 2px;
+  border-radius: 999px;
+  background: #1681ff;
+}
+
+.footer-link {
+  position: relative;
+  color: rgb(203 213 225);
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+}
+
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: #38bdf8;
+  transition: width 180ms ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.footer-reveal {
+  animation: aboutReveal 720ms ease both;
+}
+
+@media (max-width: 1199px) {
+  footer .lg\:grid-cols-\[1\.7fr_repeat\(5\,1fr\)\] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  footer .lg\:grid-cols-\[1\.7fr_repeat\(5\,1fr\)\] {
+    grid-template-columns: 1fr;
+  }
+
+  footer .sm\:grid-cols-2,
+  footer .xl\:grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+body:has(.about-page) .utility-topbar,
+body:has(.about-page) .main-header,
+body:has(.about-page) .desktop-stage > .nav {
+  display: none;
+}
+
+body:has(.about-page) .desktop-stage {
+  background: #f5f8fc;
+}
+
+body:has(.about-page) #supportWidgetShell,
+body:has(.about-page) #compareShell {
+  display: none;
+}
+
+@media (max-width: 1199px) {
+  .about-page .about-header nav {
+    display: none;
+  }
+
+  .about-page .about-header button[aria-label="Mở menu"] {
+    display: inline-flex;
+  }
+
+  .about-page > section:first-of-type > div:last-child {
+    min-height: 520px;
+  }
+
+  .about-page section,
+  .about-page header > div,
+  .about-page > div,
+  .about-page .mx-auto {
+    max-width: 100%;
+  }
+
+  .about-page .grid.grid-cols-4,
+  .about-page .grid.grid-cols-5,
+  .about-page .grid.grid-cols-6,
+  .about-page .grid.grid-cols-8 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .about-page article {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .about-page .about-header > div {
+    height: 62px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .about-page .about-header a[aria-label="HPT Tech"] {
+    font-size: 26px;
+  }
+
+  .about-page .about-header a[href^="tel"] {
+    display: none;
+  }
+
+  .about-page > section:first-of-type {
+    min-height: auto;
+  }
+
+  .about-page > section:first-of-type > div:last-child {
+    min-height: 520px;
+    padding: 48px 20px;
+  }
+
+  .about-page h1 {
+    font-size: 38px;
+  }
+
+  .about-page .px-10 {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .about-page .grid.grid-cols-4,
+  .about-page .grid.grid-cols-5,
+  .about-page .grid.grid-cols-6,
+  .about-page .grid.grid-cols-8,
+  .about-page .lg\:grid-cols-3,
+  .about-page .lg\:grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .about-page .-mt-\[84px\] {
+    margin-top: -42px;
+  }
+
+  .about-page .flex.items-center.justify-between.rounded-\[12px\] {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 28px 22px;
+  }
+
+  .about-page .flex.gap-5 {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .about-page .min-w-\[190px\],
+  .about-page .min-w-\[230px\] {
+    width: 100%;
   }
 }

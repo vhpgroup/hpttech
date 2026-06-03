@@ -2,12 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowRight, Mail, PhoneCall } from "lucide-react";
+import { AboutEnterprisePage } from "@/components/about/AboutEnterprisePage";
 import {
   getBrands,
   getCatalogProducts,
   getSitePage,
 } from "@/lib/content";
 import {
+  getAboutPageFromPayload,
   getFAQsFromPayload,
   getPostsFromPayload,
   getProjectsFromPayload,
@@ -28,11 +30,17 @@ type PageProps = {
 
 export default async function ContentPage({ params }: PageProps) {
   const { slug } = await params;
-  const [payloadPage, rawSettings] = await Promise.all([
+  const [payloadPage, rawSettings, aboutPage] = await Promise.all([
     getStaticPageFromPayload(slug),
     getSiteSettingsFromPayload(),
+    slug === "ve-hpt" ? getAboutPageFromPayload() : Promise.resolve(null),
   ]);
   const settings = normalizeSiteSettings(rawSettings);
+
+  if (slug === "ve-hpt" && aboutPage) {
+    return <AboutEnterprisePage content={aboutPage} settings={settings} />;
+  }
+
   const fallbackPage = getSitePage(slug);
   const page = payloadPage
     ? {
@@ -78,7 +86,6 @@ export default async function ContentPage({ params }: PageProps) {
       {slug === "tin-tuc" ? <PostList /> : null}
       {slug === "lien-he" || slug === "chat" ? <ContactPanel settings={settings} /> : null}
       {slug === "du-an" ? <ProjectList /> : null}
-      {slug === "ve-hpt" && !payloadPage ? <PlaceholderPanel slug={slug} /> : null}
       {slug === "dich-vu" ? <FAQList /> : null}
     </main>
   );
@@ -86,6 +93,15 @@ export default async function ContentPage({ params }: PageProps) {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
+  if (slug === "ve-hpt") {
+    const aboutPage = await getAboutPageFromPayload();
+    return pageMetadata({
+      title: aboutPage.hero.title,
+      description: aboutPage.hero.description,
+      path: "/ve-hpt",
+    });
+  }
+
   const [payloadPage, fallbackPage] = await Promise.all([
     getStaticPageFromPayload(slug),
     Promise.resolve(getSitePage(slug)),

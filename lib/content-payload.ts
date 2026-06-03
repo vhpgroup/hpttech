@@ -1,4 +1,5 @@
 import { HPT_DATA } from "@/lib/data";
+import { defaultAboutPage } from "@/globals/AboutPage";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 
@@ -62,6 +63,97 @@ export type PublicSiteSettings = {
   footerNote?: string;
 };
 
+export type PublicAboutImage = {
+  url?: string;
+  alt?: string;
+};
+
+export type PublicAboutLink = {
+  label?: string;
+  href?: string;
+};
+
+export type PublicAboutHero = {
+  title: string;
+  description: string;
+  backgroundImage?: PublicAboutImage;
+  primaryCta?: PublicAboutLink;
+  secondaryCta?: PublicAboutLink;
+};
+
+export type PublicAboutStat = {
+  value: string;
+  label: string;
+  description?: string;
+};
+
+export type PublicAboutSections = {
+  capabilitiesEyebrow: string;
+  capabilitiesTitle: string;
+  capabilitiesDescription: string;
+  processEyebrow: string;
+  processTitle: string;
+  processDescription: string;
+  partnersEyebrow: string;
+  partnersTitle: string;
+  partnersDescription: string;
+  advantagesEyebrow: string;
+  advantagesTitle: string;
+  advantagesDescription: string;
+  caseStudiesEyebrow: string;
+  caseStudiesTitle: string;
+  caseStudiesDescription: string;
+};
+
+export type PublicAboutCapability = {
+  title: string;
+  description?: string;
+  image?: PublicAboutImage;
+  items: string[];
+};
+
+export type PublicAboutProcessStep = {
+  title: string;
+  description?: string;
+};
+
+export type PublicAboutPartner = {
+  name: string;
+  logo?: PublicAboutImage;
+  url?: string;
+};
+
+export type PublicAboutAdvantage = {
+  title: string;
+  description?: string;
+};
+
+export type PublicAboutCaseStudy = {
+  segment: string;
+  title: string;
+  summary?: string;
+  image?: PublicAboutImage;
+};
+
+export type PublicAboutCTA = {
+  title: string;
+  description?: string;
+  primaryCta?: PublicAboutLink;
+  secondaryCta?: PublicAboutLink;
+};
+
+export type PublicAboutPage = {
+  hero: PublicAboutHero;
+  stats: PublicAboutStat[];
+  sections: PublicAboutSections;
+  capabilities: PublicAboutCapability[];
+  process: PublicAboutProcessStep[];
+  partners: PublicAboutPartner[];
+  advantages: PublicAboutAdvantage[];
+  caseStudies: PublicAboutCaseStudy[];
+  cta: PublicAboutCTA;
+};
+
 type PayloadDoc = Record<string, unknown>;
 type PayloadFindResult = {
   docs: PayloadDoc[];
@@ -77,6 +169,136 @@ function mediaURL(value: unknown) {
   if (!value || typeof value !== "object") return undefined;
   if ("url" in value && typeof value.url === "string") return value.url;
   return undefined;
+}
+
+function mediaImage(value: unknown): PublicAboutImage | undefined {
+  const url = mediaURL(value);
+  if (!url || !value || typeof value !== "object") return undefined;
+  const alt =
+    "alt" in value && typeof value.alt === "string"
+      ? value.alt
+      : "filename" in value && typeof value.filename === "string"
+        ? value.filename
+        : undefined;
+  return { url, alt };
+}
+
+function objectField(doc: PayloadDoc, key: string): PayloadDoc {
+  const value = doc[key];
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as PayloadDoc) : {};
+}
+
+function arrayField(doc: PayloadDoc, key: string): PayloadDoc[] {
+  const value = doc[key];
+  return Array.isArray(value) ? value.filter((item): item is PayloadDoc => Boolean(item) && typeof item === "object") : [];
+}
+
+function aboutLink(doc: PayloadDoc, labelKey: string, hrefKey: string): PublicAboutLink | undefined {
+  const label = textField(doc, labelKey);
+  const href = textField(doc, hrefKey);
+  if (!label || !href) return undefined;
+  return { label, href };
+}
+
+function normalizeAboutPage(doc: PayloadDoc | null | undefined): PublicAboutPage {
+  const source = doc || {};
+  const hero = { ...defaultAboutPage.hero, ...objectField(source, "hero") } as PayloadDoc;
+  const cta = { ...defaultAboutPage.cta, ...objectField(source, "cta") } as PayloadDoc;
+  const sections = { ...defaultAboutPage.sections, ...objectField(source, "sections") } as PayloadDoc;
+  const statsSource = arrayField(source, "stats");
+  const capabilitiesSource = arrayField(source, "capabilities");
+  const processSource = arrayField(source, "process");
+  const partnersSource = arrayField(source, "partners");
+  const advantagesSource = arrayField(source, "advantages");
+  const caseStudiesSource = arrayField(source, "caseStudies");
+
+  return {
+    hero: {
+      title: textField(hero, "title") || defaultAboutPage.hero.title,
+      description: textField(hero, "description") || defaultAboutPage.hero.description,
+      backgroundImage: mediaImage(hero["backgroundImage"]),
+      primaryCta: aboutLink(hero, "primaryCtaLabel", "primaryCtaHref"),
+      secondaryCta: aboutLink(hero, "secondaryCtaLabel", "secondaryCtaHref"),
+    },
+    stats: (statsSource.length ? statsSource : defaultAboutPage.stats).map((item, index) => {
+      const fallback = defaultAboutPage.stats[index] || defaultAboutPage.stats[0];
+      return {
+        value: textField(item, "value") || fallback.value,
+        label: textField(item, "label") || fallback.label,
+        description: textField(item, "description") || fallback.description,
+      };
+    }),
+    sections: {
+      capabilitiesEyebrow: textField(sections, "capabilitiesEyebrow") || defaultAboutPage.sections.capabilitiesEyebrow,
+      capabilitiesTitle: textField(sections, "capabilitiesTitle") || defaultAboutPage.sections.capabilitiesTitle,
+      capabilitiesDescription:
+        textField(sections, "capabilitiesDescription") || defaultAboutPage.sections.capabilitiesDescription,
+      processEyebrow: textField(sections, "processEyebrow") || defaultAboutPage.sections.processEyebrow,
+      processTitle: textField(sections, "processTitle") || defaultAboutPage.sections.processTitle,
+      processDescription: textField(sections, "processDescription") || defaultAboutPage.sections.processDescription,
+      partnersEyebrow: textField(sections, "partnersEyebrow") || defaultAboutPage.sections.partnersEyebrow,
+      partnersTitle: textField(sections, "partnersTitle") || defaultAboutPage.sections.partnersTitle,
+      partnersDescription: textField(sections, "partnersDescription") || defaultAboutPage.sections.partnersDescription,
+      advantagesEyebrow: textField(sections, "advantagesEyebrow") || defaultAboutPage.sections.advantagesEyebrow,
+      advantagesTitle: textField(sections, "advantagesTitle") || defaultAboutPage.sections.advantagesTitle,
+      advantagesDescription:
+        textField(sections, "advantagesDescription") || defaultAboutPage.sections.advantagesDescription,
+      caseStudiesEyebrow: textField(sections, "caseStudiesEyebrow") || defaultAboutPage.sections.caseStudiesEyebrow,
+      caseStudiesTitle: textField(sections, "caseStudiesTitle") || defaultAboutPage.sections.caseStudiesTitle,
+      caseStudiesDescription:
+        textField(sections, "caseStudiesDescription") || defaultAboutPage.sections.caseStudiesDescription,
+    },
+    capabilities: (capabilitiesSource.length ? capabilitiesSource : defaultAboutPage.capabilities).map((item, index) => {
+      const itemDoc = item as PayloadDoc;
+      const fallback = defaultAboutPage.capabilities[index] || defaultAboutPage.capabilities[0];
+      const items = arrayField(itemDoc, "items").map((entry) => textField(entry, "label")).filter(Boolean) as string[];
+      return {
+        title: textField(itemDoc, "title") || fallback.title,
+        description: textField(itemDoc, "description") || fallback.description,
+        image: mediaImage(itemDoc["image"]),
+        items: items.length ? items : fallback.items.map((entry) => entry.label),
+      };
+    }),
+    process: (processSource.length ? processSource : defaultAboutPage.process).map((item, index) => {
+      const fallback = defaultAboutPage.process[index] || defaultAboutPage.process[0];
+      return {
+        title: textField(item, "title") || fallback.title,
+        description: textField(item, "description") || fallback.description,
+      };
+    }),
+    partners: (partnersSource.length ? partnersSource : defaultAboutPage.partners).map((item, index) => {
+      const itemDoc = item as PayloadDoc;
+      const fallback = defaultAboutPage.partners[index] || defaultAboutPage.partners[0];
+      return {
+        name: textField(itemDoc, "name") || fallback.name,
+        logo: mediaImage(itemDoc["logo"]),
+        url: textField(itemDoc, "url"),
+      };
+    }),
+    advantages: (advantagesSource.length ? advantagesSource : defaultAboutPage.advantages).map((item, index) => {
+      const fallback = defaultAboutPage.advantages[index] || defaultAboutPage.advantages[0];
+      return {
+        title: textField(item, "title") || fallback.title,
+        description: textField(item, "description") || fallback.description,
+      };
+    }),
+    caseStudies: (caseStudiesSource.length ? caseStudiesSource : defaultAboutPage.caseStudies).map((item, index) => {
+      const itemDoc = item as PayloadDoc;
+      const fallback = defaultAboutPage.caseStudies[index] || defaultAboutPage.caseStudies[0];
+      return {
+        segment: textField(itemDoc, "segment") || fallback.segment,
+        title: textField(itemDoc, "title") || fallback.title,
+        summary: textField(itemDoc, "summary") || fallback.summary,
+        image: mediaImage(itemDoc["image"]),
+      };
+    }),
+    cta: {
+      title: textField(cta, "title") || defaultAboutPage.cta.title,
+      description: textField(cta, "description") || defaultAboutPage.cta.description,
+      primaryCta: aboutLink(cta, "primaryCtaLabel", "primaryCtaHref"),
+      secondaryCta: aboutLink(cta, "secondaryCtaLabel", "secondaryCtaHref"),
+    },
+  };
 }
 
 function formatDate(value: unknown) {
@@ -223,5 +445,16 @@ export async function getSiteSettingsFromPayload(): Promise<PublicSiteSettings |
   } catch (error) {
     handlePayloadReadError("site-settings", error);
     return null;
+  }
+}
+
+export async function getAboutPageFromPayload(): Promise<PublicAboutPage> {
+  try {
+    const payload = await getPayloadClient();
+    const page = (await payload.findGlobal({ slug: "about-page", depth: 2 })) as PayloadDoc;
+    return normalizeAboutPage(page);
+  } catch (error) {
+    handlePayloadReadError("about-page", error);
+    return normalizeAboutPage(null);
   }
 }

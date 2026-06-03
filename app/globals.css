@@ -27,7 +27,7 @@
   --color-surface: #f8fafc;
   --color-ink: #0f172a;
   --color-border: #dbe3f0;
-  --font-sans: "Manrope", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-body), "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --shadow-soft: 0 20px 45px -24px rgba(15, 23, 42, 0.35);
 }
 
