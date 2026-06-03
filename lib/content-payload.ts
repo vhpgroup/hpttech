@@ -1,5 +1,6 @@
 import { HPT_DATA } from "@/lib/data";
 import { getPayloadClient } from "@/lib/payload";
+import { handlePayloadReadError } from "@/lib/payload-read-policy";
 
 export type PublicBanner = {
   image: string;
@@ -21,6 +22,7 @@ export type PublicPost = {
   slug: string;
   image?: string;
   date?: string;
+  publishedAt?: string;
   href?: string;
   summary?: string;
 };
@@ -60,6 +62,17 @@ export type PublicSiteSettings = {
   footerNote?: string;
 };
 
+type PayloadDoc = Record<string, unknown>;
+type PayloadFindResult = {
+  docs: PayloadDoc[];
+};
+type PublicCollectionSlug = "banners" | "solutions" | "posts" | "projects" | "faq" | "static-pages";
+
+function textField(doc: PayloadDoc, key: string) {
+  const value = doc[key];
+  return typeof value === "string" ? value : undefined;
+}
+
 function mediaURL(value: unknown) {
   if (!value || typeof value !== "object") return undefined;
   if ("url" in value && typeof value.url === "string") return value.url;
@@ -75,14 +88,19 @@ function formatDate(value: unknown) {
   }).format(new Date(value));
 }
 
-async function findDocs(collection: string, options: Record<string, unknown> = {}) {
-  const payload = await getPayloadClient();
-  return payload.find({
-    collection: collection as any,
-    depth: 2,
-    limit: 1000,
-    ...options,
-  } as any);
+async function findDocs(collection: PublicCollectionSlug, options: Record<string, unknown> = {}): Promise<PayloadFindResult> {
+  try {
+    const payload = await getPayloadClient();
+    return (await payload.find({
+      collection,
+      depth: 2,
+      limit: 1000,
+      ...options,
+    })) as unknown as PayloadFindResult;
+  } catch (error) {
+    handlePayloadReadError(collection, error);
+    return { docs: [] };
+  }
 }
 
 export async function getBannersFromPayload(): Promise<PublicBanner[]> {
@@ -91,10 +109,10 @@ export async function getBannersFromPayload(): Promise<PublicBanner[]> {
     where: { active: { equals: true } },
   });
   const banners = res.docs
-    .flatMap((doc: any) => {
+    .flatMap((doc) => {
       const image = mediaURL(doc.image);
       if (!image) return [];
-      return [{ image, title: doc.title, subtitle: doc.subtitle, link: doc.link }];
+      return [{ image, title: textField(doc, "title"), subtitle: textField(doc, "subtitle"), link: textField(doc, "link") }];
     });
 
   return banners.length
@@ -104,11 +122,11 @@ export async function getBannersFromPayload(): Promise<PublicBanner[]> {
 
 export async function getSolutionsFromPayload(): Promise<PublicSolution[]> {
   const res = await findDocs("solutions", { sort: "sortOrder" });
-  const solutions = res.docs.map((doc: any) => ({
-    title: doc.name,
-    slug: doc.slug,
-    description: doc.summary,
-    icon: doc.icon,
+  const solutions = res.docs.map((doc) => ({
+    title: textField(doc, "name") || "",
+    slug: textField(doc, "slug"),
+    description: textField(doc, "summary"),
+    icon: textField(doc, "icon"),
     image: mediaURL(doc.image),
   }));
 
@@ -127,13 +145,14 @@ export async function getPostsFromPayload(): Promise<PublicPost[]> {
     where: { status: { equals: "published" } },
   });
 
-  return res.docs.map((doc: any) => ({
-    title: doc.title,
-    slug: doc.slug,
+  return res.docs.map((doc) => ({
+    title: textField(doc, "title") || "",
+    slug: textField(doc, "slug") || "",
     image: mediaURL(doc.thumbnail),
     date: formatDate(doc.publishedAt),
-    href: `/tin-tuc/${doc.slug}`,
-    summary: doc.summary,
+    publishedAt: textField(doc, "publishedAt"),
+    href: `/tin-tuc/${textField(doc, "slug") || ""}`,
+    summary: textField(doc, "summary"),
   }));
 }
 
@@ -144,36 +163,38 @@ export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost
       and: [{ slug: { equals: slug } }, { status: { equals: "published" } }],
     },
   });
-  const doc: any = res.docs[0];
+  const doc = res.docs[0];
   if (!doc) return null;
+  const slugValue = textField(doc, "slug") || "";
 
   return {
-    title: doc.title,
-    slug: doc.slug,
+    title: textField(doc, "title") || "",
+    slug: slugValue,
     image: mediaURL(doc.thumbnail),
     date: formatDate(doc.publishedAt),
-    href: `/tin-tuc/${doc.slug}`,
-    summary: doc.summary,
+    publishedAt: textField(doc, "publishedAt"),
+    href: `/tin-tuc/${slugValue}`,
+    summary: textField(doc, "summary"),
   };
 }
 
 export async function getProjectsFromPayload(): Promise<PublicProject[]> {
   const res = await findDocs("projects", { sort: "-completedAt" });
-  return res.docs.map((doc: any) => ({
-    title: doc.name,
-    slug: doc.slug,
-    client: doc.client,
-    industry: doc.industry,
-    summary: doc.summary,
+  return res.docs.map((doc) => ({
+    title: textField(doc, "name") || "",
+    slug: textField(doc, "slug") || "",
+    client: textField(doc, "client"),
+    industry: textField(doc, "industry"),
+    summary: textField(doc, "summary"),
     image: Array.isArray(doc.gallery) ? mediaURL(doc.gallery[0]) : undefined,
   }));
 }
 
 export async function getFAQsFromPayload(): Promise<PublicFAQ[]> {
   const res = await findDocs("faq", { sort: "sortOrder" });
-  return res.docs.map((doc: any) => ({
-    question: doc.question,
-    category: doc.category,
+  return res.docs.map((doc) => ({
+    question: textField(doc, "question") || "",
+    category: textField(doc, "category"),
   }));
 }
 
@@ -184,22 +205,23 @@ export async function getStaticPageFromPayload(slug: string): Promise<PublicStat
       and: [{ slug: { equals: slug } }, { status: { equals: "published" } }],
     },
   });
-  const doc: any = res.docs[0];
+  const doc = res.docs[0];
   if (!doc) return null;
 
   return {
-    title: doc.title,
-    slug: doc.slug,
-    eyebrow: doc.eyebrow,
-    summary: doc.summary,
+    title: textField(doc, "title") || "",
+    slug: textField(doc, "slug") || "",
+    eyebrow: textField(doc, "eyebrow"),
+    summary: textField(doc, "summary"),
   };
 }
 
 export async function getSiteSettingsFromPayload(): Promise<PublicSiteSettings | null> {
-  const payload = await getPayloadClient();
   try {
-    return (await payload.findGlobal({ slug: "site-settings" as any })) as PublicSiteSettings;
-  } catch {
+    const payload = await getPayloadClient();
+    return (await payload.findGlobal({ slug: "site-settings" })) as PublicSiteSettings;
+  } catch (error) {
+    handlePayloadReadError("site-settings", error);
     return null;
   }
 }

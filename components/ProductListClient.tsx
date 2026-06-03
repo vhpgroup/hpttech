@@ -1,22 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import type { CatalogProduct } from "@/lib/catalog";
 
 const PAGE_SIZE = 12;
 
-export default function ProductListClient({ products }: { products: any[] }) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("all");
-  const [brand, setBrand] = useState("all");
+type ProductListClientProps = {
+  products: CatalogProduct[];
+};
+
+function initialSelectValue(value: string | undefined, options: string[]) {
+  return value && options.includes(value) ? value : "all";
+}
+
+function cleanFilterValue(value: unknown) {
+  return typeof value === "string" ? value.trim().slice(0, 120) : "";
+}
+
+export default function ProductListClient({ products }: ProductListClientProps) {
+  const searchParams = useSearchParams();
+  const queryKey = searchParams.toString();
+  const initialFilters = {
+    search: cleanFilterValue(searchParams.get("search")),
+    category: cleanFilterValue(searchParams.get("category")),
+    brand: cleanFilterValue(searchParams.get("brand")),
+  };
+
+  return <ProductListInner key={queryKey} products={products} initialFilters={initialFilters} />;
+}
+
+function ProductListInner({
+  products,
+  initialFilters,
+}: ProductListClientProps & {
+  initialFilters: {
+    search: string;
+    category: string;
+    brand: string;
+  };
+}) {
+  const categories = useMemo(
+    () => Array.from(new Set(products.map((p) => p.category).filter((item): item is string => Boolean(item)))).sort(),
+    [products],
+  );
+  const brands = useMemo(
+    () => Array.from(new Set(products.map((p) => p.brand).filter((item): item is string => Boolean(item)))).sort(),
+    [products],
+  );
+  const [query, setQuery] = useState(initialFilters?.search || "");
+  const [category, setCategory] = useState(() => initialSelectValue(initialFilters?.category, categories));
+  const [brand, setBrand] = useState(() => initialSelectValue(initialFilters?.brand, brands));
   const [page, setPage] = useState(1);
-
-  const categories = useMemo(() => Array.from(new Set(products.map(p => p.category))).sort(), [products]);
-  const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand))).sort(), [products]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [query, category, brand]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -30,8 +67,15 @@ export default function ProductListClient({ products }: { products: any[] }) {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visibleProducts = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const hasActiveFilters = Boolean(query.trim() || category !== "all" || brand !== "all");
 
   const updateFilter = (fn: () => void) => { fn(); setPage(1); };
+  const clearFilters = () => {
+    setQuery("");
+    setCategory("all");
+    setBrand("all");
+    setPage(1);
+  };
 
   return (
     <main className="subpage-main">
@@ -64,13 +108,29 @@ export default function ProductListClient({ products }: { products: any[] }) {
             </select>
           </label>
         </div>
+        {hasActiveFilters ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <span>Đang lọc:</span>
+            {query.trim() ? <b className="rounded-md bg-blue-50 px-2 py-1 text-blue-700">Từ khóa: {query.trim()}</b> : null}
+            {category !== "all" ? <b className="rounded-md bg-blue-50 px-2 py-1 text-blue-700">Danh mục: {category}</b> : null}
+            {brand !== "all" ? <b className="rounded-md bg-blue-50 px-2 py-1 text-blue-700">Thương hiệu: {brand}</b> : null}
+            <button className="rounded-md border border-slate-200 px-2 py-1 font-semibold text-slate-700" type="button" onClick={clearFilters}>
+              Xóa lọc
+            </button>
+          </div>
+        ) : null}
       </section>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {visibleProducts.map((product) => (
+        {visibleProducts.length ? visibleProducts.map((product) => {
+          const productImage = product.images?.[0]?.url || product.image;
+
+          return (
           <article key={product.slug} className="flex min-h-[360px] flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             <Link href={`/san-pham/${product.slug}`} className="grid h-40 place-items-center rounded-md bg-slate-50">
-              <img className="max-h-36 object-contain" src={(product.images && product.images[0]?.url) || ''} alt={product.title} />
+              {productImage ? (
+                <Image className="max-h-36 object-contain" src={productImage} alt={product.title} width={220} height={160} />
+              ) : null}
             </Link>
             <div className="mt-4 flex flex-1 flex-col">
               <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
@@ -82,14 +142,19 @@ export default function ProductListClient({ products }: { products: any[] }) {
               </div>
             </div>
           </article>
-        ))}
+          );
+        }) : (
+          <div className="col-span-full rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">
+            Không tìm thấy sản phẩm phù hợp. Hãy thử từ khóa hoặc bộ lọc khác.
+          </div>
+        )}
       </section>
 
       <div className="mt-6 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 text-sm shadow-sm">
-        <span className="font-medium text-slate-600">Trang {page}/{Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))}</span>
+        <span className="font-medium text-slate-600">Trang {page}/{totalPages}</span>
         <div className="flex gap-2">
           <button className="rounded-md border border-slate-200 px-3 py-2 font-semibold disabled:opacity-40" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Trước</button>
-          <button className="rounded-md border border-slate-200 px-3 py-2 font-semibold disabled:opacity-40" disabled={page >= Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))} onClick={() => setPage(p => Math.min(Math.max(1, Math.ceil(filtered.length / PAGE_SIZE)), p + 1))}>Sau</button>
+          <button className="rounded-md border border-slate-200 px-3 py-2 font-semibold disabled:opacity-40" disabled={page >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>Sau</button>
         </div>
       </div>
     </main>

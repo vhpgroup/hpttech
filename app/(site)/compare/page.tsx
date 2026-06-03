@@ -1,10 +1,17 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
-import { getProducts, type CatalogProduct } from "@/lib/catalog";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
+import { getProductsFromPayload } from "@/lib/catalog-payload";
+import type { CatalogProduct } from "@/lib/catalog";
+import { pageMetadata } from "@/lib/seo";
+
+export const revalidate = 300;
+
+export const metadata = pageMetadata({
+  title: "So sánh sản phẩm",
+  description: "So sánh nhanh thông số, giá và danh mục sản phẩm thiết bị văn phòng tại HPT Tech.",
+  path: "/compare",
+});
 
 const SPEC_FALLBACK_ORDER = [
   "Loại máy",
@@ -22,39 +29,20 @@ const SPEC_FALLBACK_ORDER = [
   "Bộ nhớ",
 ];
 
-function CompareContent() {
-  const searchParams = useSearchParams();
-  const [items, setItems] = useState<CatalogProduct[]>([]);
+type ComparePageProps = {
+  searchParams?: Promise<{
+    products?: string;
+  }>;
+};
 
-  useEffect(() => {
-    const productsParam = searchParams.get("products");
-    if (productsParam) {
-      const titles = productsParam.split(",");
-      const matched = getProducts().filter(p => titles.includes(p.title));
-      setItems(matched);
-    }
-  }, [searchParams]);
+function specsObject(item: CatalogProduct) {
+  return Object.fromEntries((item.specs || []).map(({ label, value }) => [label, value]));
+}
 
-  if (items.length < 2) {
-    return (
-      <div className="compare-page-empty">
-        <div className="compare-empty-icon">
-          <Scale size={28} />
-        </div>
-        <h2>Chưa đủ sản phẩm để so sánh</h2>
-        <p>Hãy chọn ít nhất 2 sản phẩm từ trang chủ hoặc trang danh mục.</p>
-        <Link className="compare-page-back primary" href="/">
-          Quay lại trang chủ
-        </Link>
-      </div>
-    );
-  }
-
-  // Gather unique spec labels across all items
+function getCompareRows(items: CatalogProduct[]) {
   const labels = new Set<string>();
   items.forEach((item) => {
-    const specsObj = (item.specs && Object.fromEntries((item.specs as Array<{ label: string; value: string }>).map(({ label, value }) => [label, value]))) || {};
-    Object.keys(specsObj).forEach((label) => labels.add(label));
+    Object.keys(specsObject(item)).forEach((label) => labels.add(label));
   });
 
   const orderedLabels = [
@@ -62,7 +50,6 @@ function CompareContent() {
     ...Array.from(labels).filter((label) => !SPEC_FALLBACK_ORDER.includes(label)).sort(),
   ];
 
-  // Construct table rows
   const rows: [string, string[]][] = [
     ["Thương hiệu", items.map((item) => item.brand || "Đang cập nhật")],
     ["Danh mục", items.map((item) => item.category || "Đang cập nhật")],
@@ -72,10 +59,7 @@ function CompareContent() {
     orderedLabels.forEach((label) => {
       rows.push([
         label,
-        items.map((item) => {
-          const specsObj = (item.specs && Object.fromEntries((item.specs as Array<{ label: string; value: string }>).map(({ label, value }) => [label, value]))) || {};
-          return specsObj[label] || "Đang cập nhật";
-        }),
+        items.map((item) => specsObject(item)[label] || "Đang cập nhật"),
       ]);
     });
   } else {
@@ -83,56 +67,35 @@ function CompareContent() {
   }
 
   rows.push(["Giá", items.map((item) => item.price || "Liên hệ")]);
+  return rows;
+}
 
+function EmptyCompare() {
   return (
-    <div className="compare-page-content">
-      <div className="compare-page-table-wrap">
-      <table className="compare-page-table">
-        <thead>
-          <tr>
-            <th>Thuộc tính</th>
-            {items.map((item, idx) => (
-              <th key={idx}>
-                    <img src={(item.images && item.images[0]?.url) || (item.image as string) || ""} alt={item.title || "Sản phẩm"} />
-                <strong>{item.title || "Sản phẩm"}</strong>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(([label, values], rowIdx) => (
-            <tr key={rowIdx}>
-              <td>{label}</td>
-              {values.map((val, valIdx) => (
-                <td key={valIdx}>
-                  {val}
-                </td>
-              ))}
-            </tr>
-          ))}
-          <tr>
-            <td>Liên kết</td>
-            {items.map((item, idx) => (
-              <td key={idx}>
-                <a
-                  href={item.href || "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="compare-product-link"
-                >
-                  Xem sản phẩm <ExternalLink size={14} />
-                </a>
-              </td>
-            ))}
-          </tr>
-        </tbody>
-      </table>
+    <div className="compare-page-empty">
+      <div className="compare-empty-icon">
+        <Scale size={28} />
       </div>
+      <h2>Chưa đủ sản phẩm để so sánh</h2>
+      <p>Hãy chọn ít nhất 2 sản phẩm từ trang chủ hoặc trang danh mục.</p>
+      <Link className="compare-page-back primary" href="/">
+        Quay lại trang chủ
+      </Link>
     </div>
   );
 }
 
-export default function ComparePage() {
+export default async function ComparePage({ searchParams }: ComparePageProps) {
+  const params = await searchParams;
+  const requestedKeys = params?.products
+    ? params.products.split(",").map((key) => key.trim()).filter(Boolean)
+    : [];
+  const products = await getProductsFromPayload();
+  const items = requestedKeys.length
+    ? products.filter((product) => requestedKeys.includes(product.slug || product.title))
+    : [];
+  const rows = getCompareRows(items);
+
   return (
     <main className="compare-page-main">
       <section className="compare-page-hero">
@@ -145,9 +108,52 @@ export default function ComparePage() {
           Về trang chủ
         </Link>
       </section>
-      <Suspense fallback={<div className="compare-page-empty">Đang tải bảng so sánh...</div>}>
-        <CompareContent />
-      </Suspense>
+
+      {items.length < 2 ? (
+        <EmptyCompare />
+      ) : (
+        <div className="compare-page-content">
+          <div className="compare-page-table-wrap">
+            <table className="compare-page-table">
+              <thead>
+                <tr>
+                  <th>Thuộc tính</th>
+                  {items.map((item) => {
+                    const image = item.images?.[0]?.url || item.image;
+
+                    return (
+                      <th key={item.slug || item.title}>
+                        {image ? <Image src={image} alt={item.title || "Sản phẩm"} width={120} height={90} /> : null}
+                        <strong>{item.title || "Sản phẩm"}</strong>
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(([label, values]) => (
+                  <tr key={label}>
+                    <td>{label}</td>
+                    {values.map((value, index) => (
+                      <td key={`${label}-${index}`}>{value}</td>
+                    ))}
+                  </tr>
+                ))}
+                <tr>
+                  <td>Liên kết</td>
+                  {items.map((item) => (
+                    <td key={item.slug || item.title}>
+                      <Link href={item.href || `/san-pham/${item.slug}`} className="compare-product-link">
+                        Xem sản phẩm <ExternalLink size={14} />
+                      </Link>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

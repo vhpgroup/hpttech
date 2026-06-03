@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowRight, Mail, PhoneCall } from "lucide-react";
 import {
@@ -14,9 +15,10 @@ import {
   getSolutionsFromPayload,
   getStaticPageFromPayload,
 } from "@/lib/content-payload";
+import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{
@@ -82,6 +84,22 @@ export default async function ContentPage({ params }: PageProps) {
   );
 }
 
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const [payloadPage, fallbackPage] = await Promise.all([
+    getStaticPageFromPayload(slug),
+    Promise.resolve(getSitePage(slug)),
+  ]);
+  const title = payloadPage?.title || fallbackPage?.title || "HPT Tech";
+  const description = payloadPage?.summary || fallbackPage?.description || "Thông tin từ HPT Tech.";
+
+  return pageMetadata({
+    title,
+    description,
+    path: `/${slug}`,
+  });
+}
+
 function ProductCatalog() {
   const products = getCatalogProducts();
 
@@ -90,7 +108,9 @@ function ProductCatalog() {
       {products.slice(0, 24).map((product) => (
         <article key={product.title} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <a href={product.href} target="_blank" rel="noreferrer">
-            <img className="h-40 w-full object-contain" src={product.image} alt={product.title} />
+            {product.image ? (
+              <Image className="h-40 w-full object-contain" src={product.image} alt={product.title} width={260} height={160} />
+            ) : null}
           </a>
           <div className="mt-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
@@ -131,7 +151,7 @@ function BrandList() {
     <section className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
       {getBrands().map((brand) => (
         <article key={brand.name} className="flex min-h-28 flex-col items-center justify-center rounded-lg border border-slate-200 bg-white p-4 text-center shadow-sm">
-          <img className="max-h-10 max-w-28 object-contain" src={`/${brand.logo}`} alt={brand.name} />
+          <Image className="max-h-10 max-w-28 object-contain" src={`/${brand.logo}`} alt={brand.name} width={112} height={40} />
           <h2 className="mt-3 text-sm font-semibold text-slate-800">{brand.name}</h2>
         </article>
       ))}
@@ -147,7 +167,9 @@ async function PostList() {
       {posts.map((post) => (
         <article key={post.title} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <a href={post.href}>
-            {post.image ? <img className="h-40 w-full object-cover" src={post.image} alt={post.title} /> : null}
+            {post.image ? (
+              <Image className="h-40 w-full object-cover" src={post.image} alt={post.title} width={360} height={160} />
+            ) : null}
           </a>
           <div className="p-4">
             <p className="text-xs font-semibold text-slate-500">{post.date}</p>

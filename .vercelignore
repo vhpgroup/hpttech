@@ -4,4 +4,5 @@
 node_modules
 tmp
 media
+legacy
 app/(payload)/admin/importMap.js

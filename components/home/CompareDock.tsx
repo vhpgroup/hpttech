@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { CatalogProduct } from "@/lib/catalog";
 
 const COMPARE_LIMIT = 4;
+
+function productKey(product: CatalogProduct) {
+  return product.slug || product.title;
+}
 
 type CompareDockProps = {
   items: CatalogProduct[];
@@ -28,12 +33,12 @@ export default function CompareDock({
 
   const slots = Array.from({ length: COMPARE_LIMIT }, (_, index) => items[index] || null);
   const canCompare = items.length >= 2;
-  const compareHref = `/compare?products=${encodeURIComponent(items.map((p) => p.title).join(","))}`;
+  const compareHref = `/compare?products=${encodeURIComponent(items.map(productKey).join(","))}`;
   const pickerResults = useMemo(() => {
     const q = pickerQuery.trim().toLowerCase();
     if (q.length < 3) return [];
     return products
-      .filter((product) => !items.some((item) => item.title === product.title))
+      .filter((product) => !items.some((item) => productKey(item) === productKey(product)))
       .filter((product) =>
         [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase().includes(q)
       )
@@ -60,11 +65,11 @@ export default function CompareDock({
           <div className="compare-slot-grid">
             {slots.map((item, index) =>
               item ? (
-                <article className="compare-slot filled" key={item.title}>
+                <article className="compare-slot filled" key={productKey(item)}>
                   <button className="compare-remove" type="button" aria-label={`Xóa ${item.title}`} onClick={() => onRemove(item)}>
                     ×
                   </button>
-                  <img src={item.image} alt={item.title} />
+                  {item.image ? <Image src={item.image} alt={item.title} width={96} height={72} /> : null}
                   <h3>{item.title}</h3>
                   <p>{item.price}</p>
                 </article>
@@ -120,11 +125,11 @@ export default function CompareDock({
               ) : pickerResults.length ? (
                 <div className="compare-picker-results">
                   {pickerResults.map((product) => (
-                    <button className="compare-picker-item" type="button" key={product.title} onClick={() => {
+                    <button className="compare-picker-item" type="button" key={productKey(product)} onClick={() => {
                       onAdd(product);
                       setPickerOpen(false);
                     }}>
-                      <img src={product.image} alt={product.title} />
+                      {product.image ? <Image src={product.image} alt={product.title} width={72} height={56} /> : null}
                       <span>
                         <strong>{product.title}</strong>
                         <small>{product.brand}{product.category ? ` - ${product.category}` : ""}</small>

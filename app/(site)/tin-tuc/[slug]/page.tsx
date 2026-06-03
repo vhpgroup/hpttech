@@ -1,9 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays } from "lucide-react";
 import { getPostBySlugFromPayload } from "@/lib/content-payload";
+import { absoluteURL, pageMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 export const dynamicParams = true;
 
 type PageProps = {
@@ -16,6 +18,28 @@ export function generateStaticParams() {
   return [];
 }
 
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const post = await getPostBySlugFromPayload(slug);
+
+  if (!post) {
+    return pageMetadata({
+      title: "Tin tức",
+      description: "Tin tức và bài viết từ HPT Tech.",
+      path: `/tin-tuc/${slug}`,
+      type: "article",
+    });
+  }
+
+  return pageMetadata({
+    title: post.title,
+    description: post.summary || "Tin tức và bài viết từ HPT Tech.",
+    path: `/tin-tuc/${post.slug}`,
+    image: post.image,
+    type: "article",
+  });
+}
+
 export default async function NewsDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const post = await getPostBySlugFromPayload(slug);
@@ -25,17 +49,17 @@ export default async function NewsDetailPage({ params }: PageProps) {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
-    image: post.image ? [post.image] : undefined,
-    datePublished: post.date,
+    image: post.image ? [absoluteURL(post.image)] : undefined,
+    datePublished: post.publishedAt,
     description: post.summary,
   };
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Trang chủ", item: "/" },
-      { "@type": "ListItem", position: 2, name: "Tin tức", item: "/tin-tuc" },
-      { "@type": "ListItem", position: 3, name: post.title, item: `/tin-tuc/${post.slug}` },
+      { "@type": "ListItem", position: 1, name: "Trang chủ", item: absoluteURL("/") },
+      { "@type": "ListItem", position: 2, name: "Tin tức", item: absoluteURL("/tin-tuc") },
+      { "@type": "ListItem", position: 3, name: post.title, item: absoluteURL(`/tin-tuc/${post.slug}`) },
     ],
   };
 
@@ -49,7 +73,9 @@ export default async function NewsDetailPage({ params }: PageProps) {
       </Link>
 
       <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        {post.image ? <img className="h-[360px] w-full object-cover" src={post.image} alt={post.title} /> : null}
+        {post.image ? (
+          <Image className="h-[360px] w-full object-cover" src={post.image} alt={post.title} width={1200} height={360} priority />
+        ) : null}
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
             <CalendarDays size={16} />

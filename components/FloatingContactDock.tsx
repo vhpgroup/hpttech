@@ -1,6 +1,7 @@
 "use client";
 
 import { Bot, Menu, SendHorizontal, X } from "lucide-react";
+import Image from "next/image";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { getProducts } from "@/lib/catalog";
 import type { PublicSiteSettings } from "@/lib/content-payload";
@@ -164,7 +165,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
         <div className="support-stack open">
           <a className="support-card zalo" href={settings.zalo} target="_blank" rel="noreferrer">
             <span className="support-card-icon zalo">
-              <img className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" />
+              <Image className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" width={36} height={36} />
             </span>
             <span className="support-card-copy">
               <strong>Tư vấn Zalo</strong>
@@ -174,7 +175,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
 
           <a className="support-card facebook" href={settings.facebook} target="_blank" rel="noreferrer">
             <span className="support-card-icon facebook">
-              <img className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" />
+              <Image className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" width={36} height={36} />
             </span>
             <span className="support-card-copy">
               <strong>Chat Facebook</strong>
@@ -183,10 +184,12 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
           </a>
 
           <button className="support-card chatbot" type="button" onClick={() => setChatbotOpen(true)}>
-            <img
+            <Image
               className="support-card-chatbot-banner"
               src="/assets/icons/bot.png"
               alt="Hỗ trợ Online"
+              width={220}
+              height={64}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
                 const fallback = event.currentTarget.nextElementSibling;
@@ -208,7 +211,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
           </button>
           <div className="support-chatbot-brand">
             <div className="support-chatbot-logo">
-              <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+              <Image src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" width={48} height={32} />
             </div>
             <div>
               <strong>{settings.companyName}</strong>
@@ -226,7 +229,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
               <div className={`support-chat-message ${message.role}`} key={`${message.role}-${index}`}>
                 {message.role === "bot" ? (
                   <div className="support-chat-avatar" aria-hidden="true">
-                    <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt={settings.companyName} />
+                    <Image src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt={settings.companyName} width={28} height={28} />
                   </div>
                 ) : null}
                 <div className="support-chat-content">
@@ -237,7 +240,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
             {loading ? (
               <div className="support-chat-message bot loading">
                 <div className="support-chat-avatar" aria-hidden="true">
-                  <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+                  <Image src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" width={28} height={28} />
                 </div>
                 <div className="support-chat-content">
                   <div className="support-chat-bubble support-chat-typing">

@@ -6,10 +6,18 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**"
-      }
+        hostname: "hpttech.vn",
+      },
+      {
+        protocol: "https",
+        hostname: "**.r2.dev",
+      },
+      {
+        protocol: "https",
+        hostname: "**.cloudflarestorage.com",
+      },
     ]
-  }
+  },
 };
 
 export default withPayload(nextConfig);

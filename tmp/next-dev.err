@@ -1,6 +1,83 @@
-'wmic' is not recognized as an internal or external command,
-operable program or batch file.
-'wmic' is not recognized as an internal or external command,
-operable program or batch file.
-'wmic' is not recognized as an internal or external command,
-operable program or batch file.
+ ⨯ ./lib/catalog-payload.ts
+Error:   [31mx[0m Return statement is not allowed here
+    ,-[[36;1;4mE:\Claude\HPTTech\lib\catalog-payload.ts[0m:27:1]
+ [2m24[0m | }
+ [2m25[0m | 
+ [2m26[0m |   if (value && typeof value === "object" && "name" in value && typeof value.name === "string") {
+ [2m27[0m |     return value.name;
+    : [35;1m    ^^^^^^^^^^^^^^^^^^[0m
+ [2m28[0m |   }
+ [2m29[0m | 
+ [2m30[0m |   return typeof value === "string" ? value : undefined;
+    `----
+  [31mx[0m Return statement is not allowed here
+    ,-[[36;1;4mE:\Claude\HPTTech\lib\catalog-payload.ts[0m:30:1]
+ [2m27[0m |     return value.name;
+ [2m28[0m |   }
+ [2m29[0m | 
+ [2m30[0m |   return typeof value === "string" ? value : undefined;
+    : [35;1m  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+ [2m31[0m | }
+ [2m32[0m | 
+ [2m33[0m | function mediaURL(value: unknown) {
+    `----
+  [31mx[0m Expression expected
+    ,-[[36;1;4mE:\Claude\HPTTech\lib\catalog-payload.ts[0m:31:1]
+ [2m28[0m |   }
+ [2m29[0m | 
+ [2m30[0m |   return typeof value === "string" ? value : undefined;
+ [2m31[0m | }
+    : [35;1m^[0m
+ [2m32[0m | 
+ [2m33[0m | function mediaURL(value: unknown) {
+ [2m34[0m |   if (!value || typeof value !== "object") return undefined;
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/catalog-payload.ts
+./app/(site)/page.tsx
+ ⨯ ./lib/catalog-payload.ts
+Error:   [31mx[0m Return statement is not allowed here
+    ,-[[36;1;4mE:\Claude\HPTTech\lib\catalog-payload.ts[0m:27:1]
+ [2m24[0m | }
+ [2m25[0m | 
+ [2m26[0m |   if (value && typeof value === "object" && "name" in value && typeof value.name === "string") {
+ [2m27[0m |     return value.name;
+    : [35;1m    ^^^^^^^^^^^^^^^^^^[0m
+ [2m28[0m |   }
+ [2m29[0m | 
+ [2m30[0m |   return typeof value === "string" ? value : undefined;
+    `----
+  [31mx[0m Return statement is not allowed here
+    ,-[[36;1;4mE:\Claude\HPTTech\lib\catalog-payload.ts[0m:30:1]
+ [2m27[0m |     return value.name;
+ [2m28[0m |   }
+ [2m29[0m | 
+ [2m30[0m |   return typeof value === "string" ? value : undefined;
+    : [35;1m  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+ [2m31[0m | }
+ [2m32[0m | 
+ [2m33[0m | function mediaURL(value: unknown) {
+    `----
+  [31mx[0m Expression expected
+    ,-[[36;1;4mE:\Claude\HPTTech\lib\catalog-payload.ts[0m:31:1]
+ [2m28[0m |   }
+ [2m29[0m | 
+ [2m30[0m |   return typeof value === "string" ? value : undefined;
+ [2m31[0m | }
+    : [35;1m^[0m
+ [2m32[0m | 
+ [2m33[0m | function mediaURL(value: unknown) {
+ [2m34[0m |   if (!value || typeof value !== "object") return undefined;
+    `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/catalog-payload.ts
+./app/(site)/page.tsx
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.

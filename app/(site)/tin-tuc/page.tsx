@@ -1,8 +1,16 @@
 import Link from "next/link";
+import Image from "next/image";
 import { CalendarDays } from "lucide-react";
 import { getPostsFromPayload } from "@/lib/content-payload";
+import { pageMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+export const metadata = pageMetadata({
+  title: "Tin tức",
+  description: "Tin tức sản phẩm, hướng dẫn chọn thiết bị văn phòng và nội dung số hóa tài liệu từ HPT Tech.",
+  path: "/tin-tuc",
+});
 
 export default async function NewsPage() {
   const posts = await getPostsFromPayload();
@@ -23,7 +31,9 @@ export default async function NewsPage() {
         {posts.map((post) => (
           <article key={post.slug} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             <Link href={`/tin-tuc/${post.slug}`}>
-              <img className="h-44 w-full object-cover" src={post.image} alt={post.title} />
+              {post.image ? (
+                <Image className="h-44 w-full object-cover" src={post.image} alt={post.title} width={360} height={176} />
+              ) : null}
             </Link>
             <div className="p-5">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">

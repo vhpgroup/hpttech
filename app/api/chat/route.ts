@@ -16,13 +16,45 @@ type RelevantProduct = {
   href?: string;
 };
 
+const MAX_MESSAGE_LENGTH = 1000;
+const MAX_CONVERSATION_ITEMS = 12;
+const MAX_RELEVANT_PRODUCTS = 8;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 12;
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+function clientKey(request: Request) {
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "local"
+  );
+}
+
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const current = rateLimitStore.get(key);
+
+  for (const [entryKey, entry] of rateLimitStore.entries()) {
+    if (entry.resetAt <= now) rateLimitStore.delete(entryKey);
+  }
+
+  if (!current || current.resetAt <= now) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  current.count += 1;
+  return current.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+function truncate(value: unknown, maxLength: number) {
+  return String(value || "").trim().slice(0, maxLength);
+}
+
 export async function POST(request: Request) {
-  const settings = normalizeSiteSettings(await getSiteSettingsFromPayload());
-  const friendlyServiceError =
-    `Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline ${settings.hotline} hoặc Zalo/Facebook để được hỗ trợ ngay.`;
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: friendlyServiceError }, { status: 500 });
+  if (isRateLimited(clientKey(request))) {
+    return NextResponse.json({ error: "Bạn gửi hơi nhanh. Vui lòng thử lại sau ít phút." }, { status: 429 });
   }
 
   const body = await request.json().catch(() => ({}));
@@ -38,16 +70,34 @@ export async function POST(request: Request) {
     page?: string;
   } = body || {};
 
-  if (!String(message).trim()) {
+  const safeMessage = truncate(message, MAX_MESSAGE_LENGTH);
+  const safeConversation = Array.isArray(conversation)
+    ? conversation
+        .filter((item) => item && typeof item.content === "string" && item.content.trim())
+        .slice(-MAX_CONVERSATION_ITEMS)
+    : [];
+  const safeRelevantProducts = Array.isArray(relevantProducts)
+    ? relevantProducts.slice(0, MAX_RELEVANT_PRODUCTS)
+    : [];
+
+  if (!safeMessage) {
     return NextResponse.json({ error: "Thiếu nội dung câu hỏi." }, { status: 400 });
   }
 
+  const settings = normalizeSiteSettings(await getSiteSettingsFromPayload());
+  const friendlyServiceError =
+    `Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline ${settings.hotline} hoặc Zalo/Facebook để được hỗ trợ ngay.`;
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: friendlyServiceError }, { status: 500 });
+  }
+
   const productContext =
-    Array.isArray(relevantProducts) && relevantProducts.length
-      ? relevantProducts
+    safeRelevantProducts.length
+      ? safeRelevantProducts
           .map(
             (product, index) =>
-              `${index + 1}. ${product.title} | Thương hiệu: ${product.brand} | Danh mục: ${product.category} | Giá: ${product.price} | Mô tả: ${product.detail} | Link: ${product.href}`
+              `${index + 1}. ${truncate(product.title, 120)} | Thương hiệu: ${truncate(product.brand, 60)} | Danh mục: ${truncate(product.category, 60)} | Giá: ${truncate(product.price, 60)} | Mô tả: ${truncate(product.detail, 240)} | Link: ${truncate(product.href, 160)}`
           )
           .join("\n")
       : "Không có sản phẩm liên quan rõ ràng trong dữ liệu cục bộ.";
@@ -67,15 +117,14 @@ export async function POST(request: Request) {
       role: "system",
       content: systemPrompt,
     },
-    ...conversation
-      .filter((item) => item && typeof item.content === "string" && item.content.trim())
+    ...safeConversation
       .map((item) => ({
         role: item.role === "assistant" ? "assistant" : "user",
-        content: item.content,
+        content: truncate(item.content, MAX_MESSAGE_LENGTH),
       })),
     {
       role: "user",
-      content: String(message),
+      content: safeMessage,
     },
   ];
 
@@ -93,7 +142,7 @@ export async function POST(request: Request) {
       }),
     });
 
-    const payload = await response.json();
+    const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
       return NextResponse.json({ error: friendlyServiceError }, { status: response.status });
     }
