@@ -63,6 +63,7 @@ const partnerLogoMap: Record<string, string> = {
 
 export function AboutEnterprisePage({ content, settings }: AboutEnterprisePageProps) {
   const phone = settings.hotline || settings.phone;
+  const heroBackground = "/assets/banner/congty.jpg";
 
   return (
     <main className="about-page bg-[#f5f8fc] text-[#0f172a]">
@@ -70,7 +71,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
       <section className="relative overflow-hidden bg-[#041222] text-white">
         <div className="absolute inset-0">
           <Image
-            src={content.hero.backgroundImage?.url || "/assets/commercial-blocks/service.jpg"}
+            src={heroBackground}
             alt={content.hero.backgroundImage?.alt || content.hero.title}
             fill
             priority
@@ -107,7 +108,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
         </div>
       </section>
 
-      <div className="relative z-10 mx-auto -mt-[84px] max-w-[1280px] px-10">
+      <div className="relative z-10 mx-auto -mt-9 max-w-[1280px] px-10">
         <section className="grid grid-cols-4 rounded-[14px] bg-white px-7 py-7 shadow-[0_18px_46px_rgba(15,23,42,0.16)] about-reveal">
           {content.stats.slice(0, 4).map((stat, index) => {
             const Icon = statIcons[index % statIcons.length];

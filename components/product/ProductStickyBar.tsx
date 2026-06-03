@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mail, PhoneCall } from "lucide-react";
+import { FileText, Headset } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
 
@@ -53,14 +53,18 @@ export function ProductStickyBar({
           <div className="flex shrink-0 items-center gap-2">
             <a
               href={phoneHref}
-              className="hidden items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-primary-400 hover:text-primary-600 sm:flex"
+              className="group hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-[#2563EB]/45 hover:bg-[#2563EB]/5 hover:text-[#2563EB] sm:flex"
             >
-              <PhoneCall size={14} />
+              <Headset size={15} className="text-[#2563EB] transition-transform group-hover:scale-110" />
               {phone}
             </a>
-            <Button asChild size="sm" variant="primary">
+            <Button
+              asChild
+              size="sm"
+              variant="primary"
+              leftIcon={<FileText size={16} className="text-white" />}
+            >
               <a href={quoteHref}>
-                <Mail size={14} />
                 Nhận báo giá
               </a>
             </Button>

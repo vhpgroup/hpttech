@@ -4,6 +4,8 @@ import type { CatalogProduct } from "@/lib/catalog";
 
 type PayloadProductDoc = Record<string, unknown>;
 
+
+
 function textField(doc: PayloadProductDoc, key: string) {
   const value = doc[key];
   return typeof value === "string" ? value : undefined;
@@ -85,6 +87,7 @@ function normalizeProduct(doc: PayloadProductDoc): CatalogProduct {
 }
 
 export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
+
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -106,6 +109,7 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
 }
 
 export async function getProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
+
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({

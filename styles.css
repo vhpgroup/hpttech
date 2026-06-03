@@ -3331,12 +3331,6 @@ svg {
   }
 }
 
-body:has(.about-page) .utility-topbar,
-body:has(.about-page) .main-header,
-body:has(.about-page) .desktop-stage > .nav {
-  display: none;
-}
-
 body:has(.about-page) .desktop-stage {
   background: #f5f8fc;
 }
@@ -3420,8 +3414,8 @@ body:has(.about-page) #compareShell {
     grid-template-columns: 1fr;
   }
 
-  .about-page .-mt-\[84px\] {
-    margin-top: -42px;
+  .about-page .\-mt-9 {
+    margin-top: -24px;
   }
 
   .about-page .flex.items-center.justify-between.rounded-\[12px\] {

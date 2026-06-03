@@ -2,16 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
+  BadgeCheck,
   ChevronRight,
   Copy,
   Download,
   FileText,
   Gauge,
-  Mail,
+  Headset,
   Network,
-  PhoneCall,
   Printer,
+  Receipt,
+  RefreshCw,
   ScanLine,
+  Send,
   ShieldCheck,
   Wifi,
 } from "lucide-react";
@@ -40,6 +43,14 @@ type ProductSpec = {
   label: string;
   value: string;
 };
+
+const trustItems = [
+  { label: "Hàng chính hãng 100%", icon: BadgeCheck, color: "#16A34A" },
+  { label: "Xuất VAT đầy đủ", icon: Receipt, color: "#2563EB" },
+  { label: "Bảo hành chính hãng", icon: ShieldCheck, color: "#F59E0B" },
+  { label: "Hỗ trợ kỹ thuật tận nơi", icon: Headset, color: "#7C3AED" },
+  { label: "Đổi trả theo chính sách", icon: RefreshCw, color: "#0891B2" },
+];
 
 function parseVNDPrice(value?: string) {
   if (!value) return undefined;
@@ -429,15 +440,24 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="flex-1 rounded-xl bg-[#0057FF] hover:bg-[#0049d8]">
+              <Button
+                asChild
+                size="lg"
+                className="flex-1 rounded-xl bg-[#0057FF] hover:bg-[#0049d8]"
+                leftIcon={<FileText size={20} className="text-white" />}
+              >
                 <a href={quoteHref}>
-                  <Mail size={18} />
                   Nhận báo giá
                 </a>
               </Button>
-              <Button asChild size="lg" variant="outline" className="flex-1 rounded-xl border-slate-200">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="flex-1 rounded-xl border-slate-200 bg-white text-slate-800 hover:border-[#2563EB]/45 hover:bg-[#2563EB]/5 hover:text-[#2563EB]"
+                leftIcon={<Headset size={20} className="text-[#2563EB]" />}
+              >
                 <a href={phoneHref(phone)}>
-                  <PhoneCall size={18} />
                   Tư vấn ngay
                 </a>
               </Button>
@@ -452,19 +472,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </p>
 
             <div className="mt-5 space-y-4">
-              {[
-                "Hàng chính hãng 100%",
-                "Xuất VAT đầy đủ",
-                "Bảo hành chính hãng",
-                "Hỗ trợ kỹ thuật tận nơi",
-                "Đổi trả theo chính sách",
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-2xl bg-[#0057FF]/8 text-[#0057FF]">
-                    <ShieldCheck size={18} />
+              {trustItems.map(({ label, icon: Icon, color }) => (
+                <div key={label} className="group flex items-start gap-3">
+                  <div
+                    className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-105"
+                    style={{ backgroundColor: `${color}1A`, color }}
+                  >
+                    <Icon size={20} strokeWidth={2.1} />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-slate-900">{item}</p>
+                    <p className="text-sm font-medium text-slate-900">{label}</p>
                   </div>
                 </div>
               ))}
@@ -483,15 +500,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 size="md"
                 variant="outline"
                 className="justify-center rounded-xl border-slate-200"
+                leftIcon={<img src="/assets/icons/zalo.svg" alt="" className="h-5 w-5 object-contain" aria-hidden="true" />}
               >
                 <a href={settings.zalo || phoneHref(phone)} target="_blank" rel="noreferrer">
-                  <Network size={16} />
                   Chat Zalo
                 </a>
               </Button>
-              <Button asChild size="md" className="justify-center rounded-xl bg-[#0057FF] hover:bg-[#0049d8]">
+              <Button
+                asChild
+                size="md"
+                className="justify-center rounded-xl bg-[#0057FF] hover:bg-[#0049d8]"
+                leftIcon={<Send size={18} className="text-white" />}
+              >
                 <a href={quoteHref}>
-                  <Mail size={16} />
                   Gửi yêu cầu
                 </a>
               </Button>
