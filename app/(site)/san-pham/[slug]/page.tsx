@@ -3,24 +3,15 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
-  BadgeCheck,
+  Check,
   ChevronRight,
-  Copy,
   Download,
   FileText,
-  Gauge,
-  Headset,
-  Network,
-  Receipt,
-  RefreshCw,
-  Send,
-  ShieldCheck,
 } from "lucide-react";
 import { getProductBySlugFromPayload, getProductsFromPayload } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref, quoteMailHref } from "@/lib/site-settings";
-import { Button } from "@/components/ui/Button";
 import { ProductDetailTabs, type ProductDetailTab } from "@/components/product/ProductDetailTabs";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import ProductPricingSection from "@/components/product/ProductPricingSection";
@@ -42,12 +33,39 @@ type ProductSpec = {
   value: string;
 };
 
-const trustItems = [
-  { label: "Hàng chính hãng 100%", icon: BadgeCheck, color: "#16A34A" },
-  { label: "Xuất VAT đầy đủ", icon: Receipt, color: "#2563EB" },
-  { label: "Bảo hành chính hãng", icon: ShieldCheck, color: "#F59E0B" },
-  { label: "Hỗ trợ kỹ thuật tận nơi", icon: Headset, color: "#7C3AED" },
-  { label: "Đổi trả theo chính sách", icon: RefreshCw, color: "#0891B2" },
+const helpItems = [
+  "Hướng dẫn đặt hàng Flash Sale",
+  "Hướng dẫn mua hàng",
+  "Chính sách bảo hành đổi trả",
+  "Chính sách mua trả góp",
+  "Chính sách giao hàng",
+  "Chính sách bảo hành tận nhà",
+  "Hỗ trợ khách hàng dự án, doanh nghiệp",
+];
+
+const quickBuyItems = [
+  "Mua online - Giá tốt",
+  "Ship hàng toàn quốc",
+  "Nhận hàng và thanh toán tại nhà",
+];
+
+const consultantItems = [
+  {
+    name: "Phạm Văn Bách",
+    phone: "0918 87 14 14",
+    email: "bach.pv@hpttech.vn",
+    initials: "PB",
+    color: "#16A34A",
+    imageSrc: "/assets/consultants/pham-van-bach.jpg",
+  },
+  {
+    name: "Nguyễn Đức Thắng",
+    phone: "037 27 67 995",
+    email: "kinhdoanh@hpttech.vn",
+    initials: "NT",
+    color: "#2563EB",
+    imageSrc: "/assets/consultants/nguyen-duc-thang.jpg",
+  },
 ];
 
 function parseVNDPrice(value?: string) {
@@ -60,12 +78,6 @@ function schemaAvailability(stockStatus?: string) {
   if (stockStatus === "out_of_stock") return "https://schema.org/OutOfStock";
   if (stockStatus === "preorder") return "https://schema.org/PreOrder";
   return "https://schema.org/InStock";
-}
-
-function stockLabel(stockStatus?: string) {
-  if (stockStatus === "out_of_stock") return { label: "Hết hàng", variant: "danger" as const };
-  if (stockStatus === "preorder") return { label: "Đặt trước", variant: "warning" as const };
-  return { label: "Còn hàng", variant: "success" as const };
 }
 
 function normalizeText(value?: string) {
@@ -92,59 +104,6 @@ function textToHTML(value?: string) {
     .split(/\n{2,}/)
     .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br />")}</p>`)
     .join("");
-}
-
-function inferProductType(category?: string) {
-  const normalized = normalizeText(category);
-  if (normalized.includes("scan")) return "scanner";
-  if (normalized.includes("photo")) return "copier";
-  if (normalized.includes("in")) return "printer";
-  return "general";
-}
-
-function matchesAnyLabel(label: string, patterns: string[]) {
-  const normalized = normalizeText(label);
-  return patterns.some((pattern) => normalized.includes(pattern));
-}
-
-function pickQuickSpecs(specs: ProductSpec[], category?: string) {
-  const presets: Record<string, string[]> = {
-    printer: ["toc do", "duplex", "2 mat", "adf", "ket noi", "wifi", "lan", "usb"],
-    scanner: ["toc do", "adf", "phan giai", "ket noi", "wifi", "lan", "usb"],
-    copier: ["toc do", "kho giay", "duplex", "2 mat", "adf", "ket noi"],
-    general: ["toc do", "hieu suat", "ket noi", "bao hanh"],
-  };
-
-  const type = inferProductType(category);
-  const priority = presets[type];
-  const selected: ProductSpec[] = [];
-  const used = new Set<string>();
-
-  for (const pattern of priority) {
-    const match = specs.find((spec) => {
-      const key = `${normalizeText(spec.label)}:${normalizeText(spec.value)}`;
-      return !used.has(key) && matchesAnyLabel(spec.label, [pattern]);
-    });
-
-    if (!match) continue;
-
-    const key = `${normalizeText(match.label)}:${normalizeText(match.value)}`;
-    used.add(key);
-    selected.push(match);
-    if (selected.length === 4) break;
-  }
-
-  if (selected.length < 4) {
-    for (const spec of specs) {
-      const key = `${normalizeText(spec.label)}:${normalizeText(spec.value)}`;
-      if (used.has(key)) continue;
-      used.add(key);
-      selected.push(spec);
-      if (selected.length === 4) break;
-    }
-  }
-
-  return selected;
 }
 
 function EmptyProductSection({ message }: { message: string }) {
@@ -208,14 +167,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const specs = ((product.specs as ProductSpec[] | undefined) ?? []).filter(
     (spec) => spec.label?.trim() && spec.value?.trim(),
   );
-  const quickSpecs = pickQuickSpecs(specs, product.category);
-  const fallbackQuickSpecs = [
-    { label: "Thương hiệu", value: product.brand },
-    { label: "Danh mục", value: product.category },
-    { label: "Bảo hành", value: product.warranty || "Liên hệ xác nhận" },
-    { label: "Tình trạng", value: stockLabel(product.stockStatus).label },
-  ].filter((item): item is ProductSpec => Boolean(item.value));
-  const displayedQuickSpecs = quickSpecs.length ? quickSpecs : fallbackQuickSpecs;
   const schemaPrice = parseVNDPrice(product.price);
   const productDescription = product.description || product.detail;
   const assignedRelatedProducts = (product.relatedProducts ?? []).filter((item) => item.slug !== product.slug);
@@ -404,96 +355,94 @@ export default async function ProductDetailPage({ params }: PageProps) {
           />
         </div>
 
-        <aside className="xl:sticky xl:top-24">
-          <div className="rounded-[20px] bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0057FF]">
-              HPT TECH CAM KẾT
-            </p>
+        <aside className="space-y-4 xl:sticky xl:top-24">
+          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+            <div className="bg-[#4F64E8] px-4 py-3">
+              <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>
+            </div>
+            <div className="space-y-2 px-4 py-4">
+              {helpItems.map((item) => (
+                <a
+                  key={item}
+                  href="/lien-he"
+                  className="flex items-start gap-2 text-sm leading-5 text-slate-700 transition-colors hover:text-[#0057FF]"
+                >
+                  <Check size={16} className="mt-0.5 shrink-0 text-orange-600" strokeWidth={3} />
+                  <span>{item}</span>
+                </a>
+              ))}
+            </div>
+          </div>
 
-            <div className="mt-5 space-y-4">
-              {trustItems.map(({ label, icon: Icon, color }) => (
-                <div key={label} className="group flex items-start gap-3">
-                  <div
-                    className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-105"
-                    style={{ backgroundColor: `${color}1A`, color }}
-                  >
-                    <Icon size={20} strokeWidth={2.1} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">{label}</p>
-                  </div>
+          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+            <div className="bg-[#4F64E8] px-4 py-3">
+              <h2 className="text-sm font-bold uppercase text-white">Mua hàng nhanh chóng, tiện lợi</h2>
+            </div>
+            <div className="space-y-2 px-4 py-4">
+              {quickBuyItems.map((item) => (
+                <div key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-600" />
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="mt-6 rounded-[18px] bg-slate-50 p-4">
-              <p className="text-sm text-slate-500">Hotline</p>
-              <a href={phoneHref(phone)} className="mt-1 inline-flex text-2xl font-semibold text-slate-950">
-                {phone}
-              </a>
+          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+            <div className="bg-[#4F64E8] px-4 py-3">
+              <h2 className="text-sm font-bold uppercase text-white">Tư vấn khách hàng</h2>
             </div>
-
-            <div className="mt-4 flex flex-col gap-3">
-              <Button
-                asChild
-                size="md"
-                variant="outline"
-                className="justify-center rounded-xl border-slate-200"
-                leftIcon={<Image src="/assets/icons/zalo.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" aria-hidden="true" />}
-              >
-                <a href={settings.zalo || phoneHref(phone)} target="_blank" rel="noreferrer">
-                  Chat Zalo
-                </a>
-              </Button>
-              <Button
-                asChild
-                size="md"
-                className="justify-center rounded-xl bg-[#0057FF] hover:bg-[#0049d8]"
-                leftIcon={<Send size={18} className="text-white" />}
-              >
-                <a href={quoteHref}>
-                  Gửi yêu cầu
-                </a>
-              </Button>
+            <div className="space-y-4 px-4 py-4">
+              {consultantItems.map((consultant) => (
+                <div key={consultant.email} className="flex items-center gap-3">
+                  <div
+                    className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white ring-1 ring-slate-200"
+                    style={{ backgroundColor: consultant.color }}
+                  >
+                    {consultant.initials}
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${consultant.imageSrc})` }}
+                    />
+                  </div>
+                  <div className="min-w-0 text-sm leading-5 text-slate-700">
+                    <p className="font-semibold text-slate-900">{consultant.name}</p>
+                    <p>
+                      <strong>Hotline/Zalo:</strong>{" "}
+                      <a href={phoneHref(consultant.phone)} className="hover:text-[#0057FF]">
+                        {consultant.phone}
+                      </a>
+                    </p>
+                    <p>
+                      <strong>Email:</strong>{" "}
+                      <a href={`mailto:${consultant.email}`} className="break-all hover:text-[#0057FF]">
+                        {consultant.email}
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </aside>
       </section>
 
-      <section className="mt-5 rounded-[20px] bg-white px-5 py-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:px-6">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {displayedQuickSpecs.map((spec) => {
-              const Icon = pickQuickSpecIcon(spec.label);
-
-              return (
-                <div key={`${spec.label}-${spec.value}`} className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0057FF]/8 text-[#0057FF]">
-                    <Icon size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500">{spec.label}</p>
-                    <p className="mt-1 font-semibold text-slate-900">{spec.value}</p>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-      </section>
-
       <div id="product-hero-sentinel" />
 
+      <div className="mt-6">
+        <ProductDetailTabs sections={tabSections} />
+      </div>
+
       <section className="mt-6 rounded-[20px] bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0057FF]">Gợi ý phù hợp</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-950">Sản phẩm liên quan</h2>
-            </div>
-            <Link href="/san-pham" className="text-sm font-semibold text-slate-500 transition-colors hover:text-[#0057FF]">
-              Xem toàn bộ sản phẩm
-            </Link>
-          </div>
-          {relatedProducts.length ? (
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <h2 className="text-2xl font-semibold text-slate-950">Sản phẩm liên quan</h2>
+          <Link href="/san-pham" className="text-sm font-semibold text-slate-500 transition-colors hover:text-[#0057FF]">
+            Xem toàn bộ sản phẩm
+          </Link>
+        </div>
+        {relatedProducts.length ? (
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {relatedProducts.map((item) => {
               const image = item.images?.[0]?.url || item.image;
 
@@ -522,17 +471,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 </article>
               );
             })}
-            </div>
-          ) : (
-            <div className="mt-5">
-              <EmptyProductSection message="Chưa có sản phẩm liên quan hoặc sản phẩm thay thế trong catalog." />
-            </div>
-          )}
-        </section>
-
-      <div className="mt-6">
-        <ProductDetailTabs sections={tabSections} />
-      </div>
+          </div>
+        ) : (
+          <div className="mt-5">
+            <EmptyProductSection message="Chưa có sản phẩm liên quan hoặc sản phẩm thay thế trong catalog." />
+          </div>
+        )}
+      </section>
 
       <div className="mt-8">
         <Link
@@ -547,13 +492,3 @@ export default async function ProductDetailPage({ params }: PageProps) {
   );
 }
 
-function pickQuickSpecIcon(label: string) {
-  const normalized = normalizeText(label);
-  if (normalized.includes("toc do")) return Gauge;
-  if (normalized.includes("2 mat") || normalized.includes("duplex")) return Copy;
-  if (normalized.includes("adf")) return FileText;
-  if (normalized.includes("ket noi") || normalized.includes("wifi") || normalized.includes("lan") || normalized.includes("usb")) {
-    return Network;
-  }
-  return FileText;
-}

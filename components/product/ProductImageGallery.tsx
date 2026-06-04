@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -110,10 +111,10 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         ) : null}
       </div>
 
-      {lightboxOpen ? (
-        <div className="fixed inset-0 z-[80] bg-slate-950/92 p-4 text-white sm:p-6" role="dialog" aria-modal="true" aria-label={`Ảnh sản phẩm ${productName}`}>
+      {lightboxOpen && typeof document !== "undefined" ? createPortal((
+        <div className="fixed inset-0 z-[9999] h-screen w-screen bg-slate-950/92 p-3 text-white sm:p-4" role="dialog" aria-modal="true" aria-label={`Ảnh sản phẩm ${productName}`}>
           <button type="button" className="absolute inset-0" aria-label="Đóng ảnh lớn" onClick={() => setLightboxOpen(false)} />
-          <div className="relative z-10 mx-auto flex h-full max-w-6xl flex-col">
+          <div className="relative z-10 mx-auto flex h-full max-w-5xl flex-col">
             <div className="mb-3 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{productName}</p>
@@ -124,14 +125,14 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               </button>
             </div>
 
-            <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg bg-white/5">
+            <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg bg-white/5 p-3 sm:p-4">
               <Image
                 src={activeImage.url}
                 alt={activeImage.alt || productName}
-                fill
-                className="object-contain p-4 sm:p-8"
-                sizes="100vw"
-                priority
+                width={760}
+                height={520}
+                className="h-auto max-h-[calc(100vh-150px)] w-[min(82vw,760px)] object-contain"
+                sizes="(max-width: 768px) 82vw, 760px"
               />
               {hasMultiple ? (
                 <>
@@ -165,7 +166,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
             ) : null}
           </div>
         </div>
-      ) : null}
+      ), document.body) : null}
     </div>
   );
 }
