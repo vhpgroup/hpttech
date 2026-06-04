@@ -18,6 +18,7 @@ export type CatalogProduct = {
   stockStatus?: string;
   detail?: string;
   description?: string;
+  usageGuide?: string;
   warranty?: string;
   origin?: string;
   images?: Array<{ id?: string | number; url?: string; alt?: string }>;

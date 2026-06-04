@@ -21,6 +21,34 @@ function booleanField(doc: PayloadProductDoc, key: string) {
   return typeof value === "boolean" ? value : undefined;
 }
 
+function stripHTML(value?: string) {
+  return value
+    ?.replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function escapeHTML(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function textToHTML(value?: string) {
+  if (!value) return undefined;
+  return escapeHTML(value)
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br />")}</p>`)
+    .join("");
+}
+
+function htmlOrTextField(doc: PayloadProductDoc, htmlKey: string, textKey: string) {
+  return textField(doc, htmlKey) || textToHTML(textField(doc, textKey));
+}
+
 function relationName(value: unknown) {
   if (value && typeof value === "object" && "name" in value && typeof value.name === "string") {
     return value.name;
@@ -95,8 +123,9 @@ function normalizeProduct(doc: PayloadProductDoc, includeRelated = true): Catalo
     promoStart: textField(doc, "promoStart"),
     promoEnd: textField(doc, "promoEnd"),
     stockStatus: textField(doc, "stockStatus"),
-    detail: textField(doc, "summary"),
-    description: typeof doc.description === "string" ? doc.description : undefined,
+    detail: stripHTML(htmlOrTextField(doc, "summaryHTML", "summary")),
+    description: htmlOrTextField(doc, "descriptionHTML", "description"),
+    usageGuide: htmlOrTextField(doc, "usageGuideHTML", "usageGuide"),
     warranty: textField(doc, "warranty"),
     origin: textField(doc, "origin"),
     images,

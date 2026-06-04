@@ -1,7 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { FixedToolbarFeature, lexicalEditor, UploadFeature } from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { vi } from "@payloadcms/translations/languages/vi";
 import { buildConfig } from "payload";
@@ -97,7 +97,15 @@ export default buildConfig({
     },
     push: process.env.PAYLOAD_DB_PUSH === "true",
   }),
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      FixedToolbarFeature(),
+      UploadFeature({
+        enabledCollections: ["media"],
+      }),
+    ],
+  }),
   i18n: {
     fallbackLanguage: "vi",
     supportedLanguages: {

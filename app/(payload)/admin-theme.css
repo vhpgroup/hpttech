@@ -268,6 +268,77 @@ a {
   font-size: 12px;
 }
 
+.rich-text-lexical__wrap {
+  background: var(--hpt-surface-2);
+  border: 1px solid var(--hpt-border);
+  border-radius: 8px;
+  color: var(--hpt-text);
+  overflow: visible;
+}
+
+.rich-text-lexical:focus-within .rich-text-lexical__wrap {
+  border-color: var(--hpt-primary);
+  box-shadow: var(--hpt-glow);
+}
+
+.rich-text-lexical .editor-scroller {
+  min-height: 260px;
+  max-height: 620px;
+  overflow: auto;
+  resize: vertical;
+}
+
+.rich-text-lexical .fixed-toolbar {
+  background: var(--hpt-surface);
+  border-bottom: 1px solid var(--hpt-border);
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+  color: var(--hpt-text);
+  min-height: 44px;
+  padding: 6px 8px;
+  position: relative;
+  z-index: 5;
+}
+
+.rich-text-lexical .fixed-toolbar::before,
+.rich-text-lexical .fixed-toolbar::after {
+  display: none;
+}
+
+.rich-text-lexical .fixed-toolbar__group {
+  gap: 4px;
+}
+
+.rich-text-lexical .fixed-toolbar button,
+.rich-text-lexical .fixed-toolbar .toolbar-popup__dropdown {
+  border-radius: 6px;
+  color: var(--hpt-text);
+}
+
+.rich-text-lexical .fixed-toolbar button:hover,
+.rich-text-lexical .fixed-toolbar .toolbar-popup__dropdown:hover {
+  background: var(--hpt-overlay);
+}
+
+.rich-text-lexical .add-block-menu,
+.rich-text-lexical .draggable-block-menu {
+  display: none;
+}
+
+.rich-text-lexical .ContentEditable__root {
+  min-height: 240px;
+  padding: 14px 16px;
+}
+
+.rich-text-lexical--show-gutter > .rich-text-lexical__wrap > .editor-container > .editor-scroller > .editor > .ContentEditable__root {
+  padding-left: 3.5rem;
+}
+
+.field-type.textarea textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
 .btn {
   border-radius: 8px;
   font-weight: 700;

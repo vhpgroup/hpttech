@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { lexicalHTMLField } from "@payloadcms/richtext-lexical";
 import { seoField } from "../lib/payload/fields/seo.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
@@ -254,11 +255,15 @@ export const Products: CollectionConfig = {
             {
               name: "summary",
               label: "Mô tả ngắn",
-              type: "textarea",
+              type: "richText",
               admin: {
                 description: "Hiển thị ở danh sách và phần đầu trang sản phẩm.",
               },
             },
+            lexicalHTMLField({
+              htmlFieldName: "summaryHTML",
+              lexicalFieldName: "summary",
+            }),
             {
               name: "tag",
               label: "Nhãn nổi bật",
@@ -279,12 +284,28 @@ export const Products: CollectionConfig = {
             },
             {
               name: "description",
-              label: "Mô tả chi tiết",
+              label: "Nội dung bài viết",
               type: "richText",
               admin: {
                 description: "Nội dung chính hiển thị ở trang chi tiết sản phẩm.",
               },
             },
+            lexicalHTMLField({
+              htmlFieldName: "descriptionHTML",
+              lexicalFieldName: "description",
+            }),
+            {
+              name: "usageGuide",
+              label: "Hướng dẫn sử dụng",
+              type: "richText",
+              admin: {
+                description: "Hướng dẫn lắp đặt, vận hành hoặc lưu ý khi sử dụng sản phẩm.",
+              },
+            },
+            lexicalHTMLField({
+              htmlFieldName: "usageGuideHTML",
+              lexicalFieldName: "usageGuide",
+            }),
           ],
         },
         {

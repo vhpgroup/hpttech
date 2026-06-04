@@ -77,6 +77,23 @@ function normalizeText(value?: string) {
     .toLowerCase();
 }
 
+function escapeHTML(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function textToHTML(value?: string) {
+  if (!value) return "";
+  return escapeHTML(value)
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br />")}</p>`)
+    .join("");
+}
+
 function inferProductType(category?: string) {
   const normalized = normalizeText(category);
   if (normalized.includes("scan")) return "scanner";
@@ -286,15 +303,24 @@ export default async function ProductDetailPage({ params }: PageProps) {
       id: "description",
       label: "Mô tả sản phẩm",
       content: productDescription ? (
-        <div className="rounded-[18px] bg-slate-50 p-6 text-[15px] leading-7 text-slate-700">
-          {product.description ? (
-            <div dangerouslySetInnerHTML={{ __html: product.description }} />
-          ) : (
-            <p>{product.detail}</p>
-          )}
-        </div>
+        <div
+          className="rounded-[18px] bg-slate-50 p-6 text-[15px] leading-7 text-slate-700 [&_a]:font-semibold [&_a]:text-blue-700 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-3 [&_ul]:mb-4 [&_ol]:mb-4"
+          dangerouslySetInnerHTML={{ __html: product.description || textToHTML(product.detail) }}
+        />
       ) : (
         <EmptyProductSection message="Sản phẩm này chưa có mô tả chi tiết. Vui lòng bổ sung nội dung trong Payload CMS." />
+      ),
+    },
+    {
+      id: "usage-guide",
+      label: "Hướng dẫn sử dụng",
+      content: product.usageGuide ? (
+        <div
+          className="rounded-[18px] bg-slate-50 p-6 text-[15px] leading-7 text-slate-700 [&_a]:font-semibold [&_a]:text-blue-700 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-3 [&_ul]:mb-4 [&_ol]:mb-4"
+          dangerouslySetInnerHTML={{ __html: product.usageGuide }}
+        />
+      ) : (
+        <EmptyProductSection message="Sản phẩm này chưa có hướng dẫn sử dụng trong Payload CMS." />
       ),
     },
     {
