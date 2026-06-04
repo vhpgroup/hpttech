@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import AddToCartButton from "@/components/cart/AddToCartButton";
+import { ProductCard } from "@/components/product/ProductCard";
 import type { CatalogProduct } from "@/lib/catalog";
 
 const PAGE_SIZE = 12;
@@ -122,36 +120,10 @@ function ProductListInner({
         ) : null}
       </section>
 
-      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {visibleProducts.length ? visibleProducts.map((product) => {
-          const productImage = product.images?.[0]?.url || product.image;
-
-          return (
-          <article key={product.slug} className="flex min-h-[360px] flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-            <Link href={`/san-pham/${product.slug}`} className="grid h-40 place-items-center rounded-md bg-slate-50">
-              {productImage ? (
-                <Image className="max-h-36 object-contain" src={productImage} alt={product.title} width={220} height={160} />
-              ) : null}
-            </Link>
-            <div className="mt-4 flex flex-1 flex-col">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
-              <h2 className="mt-2 line-clamp-2 min-h-12 text-base font-semibold leading-6 text-slate-950"><Link href={`/san-pham/${product.slug}`}>{product.title}</Link></h2>
-              <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{product.detail}</p>
-              <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-                <strong className="text-sm text-orange-600">{product.price}</strong>
-                <div className="flex gap-2">
-                  <AddToCartButton
-                    product={product}
-                    label="Thêm"
-                    className="inline-flex items-center justify-center gap-1 rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700"
-                  />
-                  <Link className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" href={`/san-pham/${product.slug}`}>Chi tiết</Link>
-                </div>
-              </div>
-            </div>
-          </article>
-          );
-        }) : (
+      <section className="mt-6 grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {visibleProducts.length ? visibleProducts.map((product) => (
+          <ProductCard key={product.slug || product.title} product={product} />
+        )) : (
           <div className="col-span-full rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">
             Không tìm thấy sản phẩm phù hợp. Hãy thử từ khóa hoặc bộ lọc khác.
           </div>

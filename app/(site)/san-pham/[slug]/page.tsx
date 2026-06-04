@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
@@ -17,7 +16,7 @@ import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import ProductPricingSection from "@/components/product/ProductPricingSection";
 import { ProductSpecTable } from "@/components/product/ProductSpecTable";
 import { ProductStickyBar } from "@/components/product/ProductStickyBar";
-import AddToCartButton from "@/components/cart/AddToCartButton";
+import { ProductCard } from "@/components/product/ProductCard";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -442,35 +441,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </Link>
         </div>
         {relatedProducts.length ? (
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {relatedProducts.map((item) => {
-              const image = item.images?.[0]?.url || item.image;
-
-              return (
-                <article key={item.slug} className="flex min-h-[300px] flex-col rounded-lg border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:shadow-md">
-                  <Link href={`/san-pham/${item.slug}`} className="grid h-36 place-items-center rounded-md bg-slate-50">
-                    {image ? <Image src={image} alt={item.title} width={180} height={132} className="max-h-32 object-contain" /> : null}
-                  </Link>
-                  <div className="mt-4 flex flex-1 flex-col">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{item.brand}</p>
-                    <h3 className="mt-2 line-clamp-2 text-sm font-semibold leading-5 text-slate-950">
-                      <Link href={`/san-pham/${item.slug}`}>{item.title}</Link>
-                    </h3>
-                    <p className="mt-2 text-sm font-semibold text-orange-600">{item.price || "Liên hệ"}</p>
-                    <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
-                      <AddToCartButton
-                        product={item}
-                        label="Thêm"
-                        className="inline-flex items-center justify-center gap-1 rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700"
-                      />
-                      <Link className="rounded-md bg-blue-700 px-3 py-2 text-center text-sm font-semibold text-white hover:bg-blue-800" href={`/san-pham/${item.slug}`}>
-                        Chi tiết
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+          <div className="mt-5 grid gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4">
+            {relatedProducts.map((item) => (
+              <ProductCard key={item.slug || item.title} product={item} />
+            ))}
           </div>
         ) : (
           <div className="mt-5">

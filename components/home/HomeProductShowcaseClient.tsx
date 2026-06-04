@@ -1,12 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import dynamic from "next/dynamic";
-import { ArrowRight, Package, Printer, ScanLine, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import type { CatalogProduct } from "@/lib/catalog";
-import { quoteMailHref } from "@/lib/site-settings";
+import { ProductCard } from "@/components/product/ProductCard";
 
 const CompareDock = dynamic(() => import("@/components/home/CompareDock"), {
   ssr: false,
@@ -18,18 +17,12 @@ function productKey(product: CatalogProduct) {
   return product.slug || product.title;
 }
 
-function getProductIcon(product: CatalogProduct) {
-  if (product.category === "Máy in") return <Printer size={16} />;
-  if (product.category === "Máy scan") return <ScanLine size={16} />;
-  return <Package size={16} />;
-}
-
 type HomeProductShowcaseClientProps = {
   products: CatalogProduct[];
   quoteEmail: string;
 };
 
-export default function HomeProductShowcaseClient({ products, quoteEmail }: HomeProductShowcaseClientProps) {
+export default function HomeProductShowcaseClient({ products }: HomeProductShowcaseClientProps) {
   const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
   const [activeCompareList, setActiveCompareList] = useState<CatalogProduct[]>([]);
   const [productSearch, setProductSearch] = useState("");
@@ -106,42 +99,16 @@ export default function HomeProductShowcaseClient({ products, quoteEmail }: Home
           </a>
         </div>
 
-        <div className="product-grid" id="productGrid">
+        <div className="grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="productGrid">
           {filteredProducts.slice(0, 10).map((product) => {
             const comparing = activeCompareList.some((p) => productKey(p) === productKey(product));
             return (
-              <article key={productKey(product)} className="product-card">
-                {product.tag ? <span className="product-tag">{product.tag}</span> : null}
-                <a href={product.href} target="_blank" rel="noreferrer">
-                  {product.image ? (
-                    <Image src={product.image} alt={product.title} width={260} height={180} />
-                  ) : null}
-                </a>
-                <div className="product-meta">
-                  <span className="product-brand">
-                    {getProductIcon(product)} {product.brand}
-                  </span>
-                  <h3>
-                    <a href={product.href} target="_blank" rel="noreferrer">
-                      {product.title}
-                    </a>
-                  </h3>
-                  <p>{product.detail}</p>
-                  <div className="product-price">{product.price}</div>
-                  <div className="product-actions">
-                    <button
-                      type="button"
-                      className={`compare-card-btn ${comparing ? "active" : ""}`}
-                      onClick={() => toggleCompare(product)}
-                    >
-                      <span className="compare-card-label">{comparing ? "Đã chọn" : "So sánh"}</span>
-                    </button>
-                    <a className="btn-action primary-btn" href={quoteMailHref(quoteEmail, `Yêu cầu báo giá ${product.title}`)}>
-                      Nhận báo giá
-                    </a>
-                  </div>
-                </div>
-              </article>
+              <ProductCard
+                key={productKey(product)}
+                product={product}
+                isComparing={comparing}
+                onCompare={toggleCompare}
+              />
             );
           })}
         </div>
