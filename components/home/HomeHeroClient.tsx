@@ -11,7 +11,6 @@ type HomeHeroClientProps = {
 
 export default function HomeHeroClient({ banners }: HomeHeroClientProps) {
   const [activeBanner, setActiveBanner] = useState(0);
-  const activeBannerData = banners[activeBanner] || banners[0];
 
   useEffect(() => {
     if (banners.length <= 1) return;
