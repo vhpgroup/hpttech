@@ -103,6 +103,32 @@ export default buildConfig({
       FixedToolbarFeature(),
       UploadFeature({
         enabledCollections: ["media"],
+        collections: {
+          media: {
+            fields: [
+              {
+                name: "alt",
+                label: "Alt text",
+                type: "text",
+                admin: {
+                  description: "Mo ta ngan cho anh, dung cho SEO va accessibility.",
+                },
+              },
+              {
+                name: "displayWidth",
+                label: "Kich thuoc hien thi",
+                type: "select",
+                defaultValue: "full",
+                options: [
+                  { label: "Nho - 35%", value: "small" },
+                  { label: "Vua - 50%", value: "medium" },
+                  { label: "Lon - 75%", value: "large" },
+                  { label: "Day du - 100%", value: "full" },
+                ],
+              },
+            ],
+          },
+        },
       }),
     ],
   }),

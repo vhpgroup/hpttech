@@ -4,6 +4,13 @@ import type { CatalogProduct } from "@/lib/catalog";
 
 type PayloadProductDoc = Record<string, unknown>;
 
+const uploadDisplayWidths: Record<string, string> = {
+  full: "100%",
+  large: "75%",
+  medium: "50%",
+  small: "35%",
+};
+
 
 
 function textField(doc: PayloadProductDoc, key: string) {
@@ -45,8 +52,61 @@ function textToHTML(value?: string) {
     .join("");
 }
 
+function recordValue(value: unknown): Record<string, unknown> | undefined {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function collectUploadWidths(value: unknown) {
+  const widths: string[] = [];
+
+  function visit(node: unknown) {
+    const obj = recordValue(node);
+    if (!obj) return;
+
+    if (obj.type === "upload") {
+      const fields = recordValue(obj.fields);
+      const displayWidth = typeof fields?.displayWidth === "string" ? fields.displayWidth : undefined;
+      widths.push(uploadDisplayWidths[displayWidth || "full"] || uploadDisplayWidths.full);
+    }
+
+    if (Array.isArray(obj.children)) {
+      obj.children.forEach(visit);
+    }
+  }
+
+  visit(value);
+  return widths;
+}
+
+function withImageStyle(tag: string, maxWidth: string) {
+  const style = `display:block;margin-left:auto;margin-right:auto;max-width:${maxWidth};width:100%;height:auto;`;
+  const styleMatch = tag.match(/\sstyle=(["'])(.*?)\1/i);
+
+  if (styleMatch) {
+    return tag.replace(styleMatch[0], ` style=${styleMatch[1]}${styleMatch[2]};${style}${styleMatch[1]}`);
+  }
+
+  return tag.replace("<img", `<img style="${style}"`);
+}
+
+function applyRichTextImageWidths(html: string, lexicalValue: unknown) {
+  const widths = collectUploadWidths(lexicalValue);
+  if (!widths.length) return html;
+
+  let imageIndex = 0;
+  return html.replace(/<img\b[^>]*>/gi, (tag) => {
+    const width = widths[imageIndex];
+    imageIndex += 1;
+    return width ? withImageStyle(tag, width) : tag;
+  });
+}
+
 function htmlOrTextField(doc: PayloadProductDoc, htmlKey: string, textKey: string) {
-  return textField(doc, htmlKey) || textToHTML(textField(doc, textKey));
+  const html = textField(doc, htmlKey);
+  if (html) return applyRichTextImageWidths(html, doc[textKey]);
+  return textToHTML(textField(doc, textKey));
 }
 
 function relationName(value: unknown) {

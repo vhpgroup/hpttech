@@ -276,12 +276,18 @@ a {
   overflow: visible;
 }
 
+.rich-text-lexical .editor-container {
+  display: flex;
+  flex-direction: column;
+}
+
 .rich-text-lexical:focus-within .rich-text-lexical__wrap {
   border-color: var(--hpt-primary);
   box-shadow: var(--hpt-glow);
 }
 
 .rich-text-lexical .editor-scroller {
+  order: 2;
   min-height: 260px;
   max-height: 620px;
   overflow: auto;
@@ -294,9 +300,12 @@ a {
   border-radius: 8px 8px 0 0;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
   color: var(--hpt-text);
+  flex-shrink: 0;
   min-height: 44px;
+  order: 1;
   padding: 6px 8px;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 5;
 }
 
@@ -321,8 +330,27 @@ a {
 }
 
 .rich-text-lexical .add-block-menu,
-.rich-text-lexical .draggable-block-menu {
-  display: none;
+.rich-text-lexical .draggable-block-menu,
+.rich-text-lexical .lexical-upload__overlay,
+.rich-text-lexical .lexical-upload__actions {
+  z-index: 20;
+}
+
+.rich-text-lexical .lexical-upload__card {
+  max-width: 100%;
+}
+
+.rich-text-lexical .lexical-upload__contents {
+  max-width: 100%;
+  min-width: min(220px, 100%);
+  overflow: auto;
+  resize: horizontal;
+  width: 100%;
+}
+
+.rich-text-lexical .lexical-upload__media img {
+  height: auto;
+  max-width: 100%;
 }
 
 .rich-text-lexical .ContentEditable__root {
