@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowRight, BadgeCheck, ShieldCheck, ShoppingCart, Sparkles, Truck } from "lucide-react";
+import { ArrowRight, CircleDollarSign, FileCheck2, ShieldCheck, Truck, Wrench } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import type { PublicSolution } from "@/lib/content-payload";
 
@@ -7,28 +7,34 @@ export function TrustStrip() {
   return (
     <section className="trust-strip" aria-label="Cam kết dịch vụ HPT Tech">
       <article className="trust-item">
-        <BadgeCheck size={18} />
-        <span>100% chính hãng</span>
+        <ShieldCheck size={22} />
+        <span>
+          <strong>Chính hãng 100%</strong>
+        </span>
       </article>
       <article className="trust-item">
-        <Sparkles size={18} />
-        <span>Giá ưu đãi</span>
+        <CircleDollarSign size={22} />
+        <span>
+          <strong>Giá tốt doanh nghiệp</strong>
+        </span>
       </article>
       <article className="trust-item">
-        <Truck size={18} />
-        <span>Miễn phí vận chuyển</span>
+        <Truck size={22} />
+        <span>
+          <strong>Giao hàng toàn quốc</strong>
+        </span>
       </article>
       <article className="trust-item">
-        <ShieldCheck size={18} />
-        <span>Bảo hành nơi sử dụng</span>
+        <Wrench size={22} />
+        <span>
+          <strong>Hỗ trợ kỹ thuật</strong>
+        </span>
       </article>
       <article className="trust-item">
-        <ArrowRight size={18} />
-        <span>Đổi trả lên đến 30 ngày</span>
-      </article>
-      <article className="trust-item">
-        <ShoppingCart size={18} />
-        <span>Thanh toán linh hoạt</span>
+        <FileCheck2 size={22} />
+        <span>
+          <strong>Xuất VAT đầy đủ</strong>
+        </span>
       </article>
     </section>
   );
@@ -52,7 +58,10 @@ export default function HomeStaticSections({ solutions }: { solutions: PublicSol
       <section className="solutions" id="solutions">
         <div className="solution-intro">
           <h2>Giải pháp doanh nghiệp</h2>
-          <p>HPT Tech cung cấp các giải pháp công nghệ toàn diện, giúp doanh nghiệp tối ưu vận hành và bứt phá thành công.</p>
+          <p>
+            HPT Tech cung cấp các giải pháp công nghệ toàn diện, giúp doanh nghiệp tối ưu vận hành
+            và bứt phá thành công.
+          </p>
           <a href="https://hpttech.vn/aboutus/" target="_blank" rel="noreferrer">
             Xem tất cả giải pháp <ArrowRight size={16} />
           </a>

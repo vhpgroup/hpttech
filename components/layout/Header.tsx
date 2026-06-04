@@ -6,6 +6,7 @@ import { useState } from "react";
 import { 
   Clock,
   FileText,
+  Headset,
   Home,
   Mail,
   Menu, 
@@ -52,6 +53,10 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
             <PhoneCall size={14} />
             {phone}
           </a>
+          <Link href="/lien-he">
+            <Headset size={14} />
+            Hỗ trợ kỹ thuật
+          </Link>
         </div>
       </div>
 
