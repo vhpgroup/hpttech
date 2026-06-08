@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
 import { getProductsFromPayload } from "@/lib/catalog-payload";
 import type { CatalogProduct } from "@/lib/catalog";
 import { pageMetadata } from "@/lib/seo";
+import { SubpageHeader } from "@/components/layout/SubpageHeader";
 
 export const revalidate = 300;
 
@@ -98,6 +99,18 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
 
   return (
     <main className="compare-page-main">
+      <SubpageHeader
+        eyebrow="Công cụ mua hàng"
+        title="So sánh sản phẩm"
+        description="So sánh nhanh thông số, giá và danh mục sản phẩm thiết bị văn phòng tại HPT Tech."
+        badge={items.length ? `${items.length} sản phẩm` : undefined}
+        breadcrumbs={[
+          { label: "Trang chủ", href: "/" },
+          { label: "So sánh sản phẩm" },
+        ]}
+        className="mb-6"
+      />
+
       <section className="compare-page-hero">
         <div>
           <p>HPT Tech</p>

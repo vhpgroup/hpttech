@@ -1,5 +1,6 @@
 import { ExternalLink, Mail, MapPin, PhoneCall, Send } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
+import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
@@ -18,8 +19,18 @@ export default async function ContactPage() {
 
   return (
     <main className="subpage-main">
+      <SubpageHeader
+        eyebrow="Liên hệ HPT Tech"
+        title="Liên hệ"
+        description="Kết nối với HPT Tech để nhận tư vấn thiết bị văn phòng, báo giá máy in, máy scan và giải pháp số hóa."
+        breadcrumbs={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Liên hệ" },
+        ]}
+      />
+
       {settings.googleMapsEmbedUrl ? (
-        <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <section className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Bản đồ</p>

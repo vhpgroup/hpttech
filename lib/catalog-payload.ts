@@ -154,6 +154,94 @@ function normalizeRelatedProducts(value: unknown) {
     .filter((product) => product.title && product.slug);
 }
 
+function specValue(group: Record<string, unknown> | undefined, key: string) {
+  const value = group?.[key];
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function specsFromGroup(value: unknown, fields: Array<[string, string]>) {
+  const group = recordValue(value);
+  if (!group) return [];
+
+  return fields
+    .map(([key, label]) => ({ label, value: specValue(group, key) }))
+    .filter((spec) => spec.value);
+}
+
+function normalizeSpecs(doc: PayloadProductDoc) {
+  const manualSpecs = Array.isArray(doc.specs)
+    ? doc.specs
+        .filter((spec): spec is PayloadProductDoc => Boolean(spec) && typeof spec === "object")
+        .map((spec) => ({ label: textField(spec, "label") || "", value: textField(spec, "value") || "" }))
+        .filter((spec) => spec.label && spec.value)
+    : [];
+
+  const scannerSpecs = specsFromGroup(doc.scannerSpecs, [
+    ["scannerType", "Loại máy scan"],
+    ["functions", "Chức năng"],
+    ["scanSpeedSimplexPpm", "Tốc độ scan"],
+    ["scanSpeedDuplexIpm", "Tốc độ scan 2 mặt"],
+    ["scanModes", "Chế độ quét"],
+    ["scanResolution", "Độ phân giải"],
+    ["adfSheets", "ADF"],
+    ["adfCapacitySheets", "Sức chứa ADF"],
+    ["maxPaperSize", "Khổ giấy tối đa"],
+    ["minPaperSize", "Khổ giấy tối thiểu"],
+    ["dailyDuty", "Công suất/ngày"],
+    ["passportScanText", "Scan hộ chiếu"],
+    ["duplexScanText", "Scan hai mặt"],
+    ["colorScanText", "Scan màu"],
+    ["ocrText", "OCR"],
+    ["plasticCardScanText", "Scan thẻ nhựa"],
+    ["connectivity", "Kết nối"],
+    ["supportedOs", "Hệ điều hành hỗ trợ"],
+    ["dimensionsWeight", "Kích thước / Trọng lượng"],
+  ]);
+
+  const printerSpecs = specsFromGroup(doc.printerSpecs, [
+    ["printerType", "Loại máy in"],
+    ["functions", "Chức năng"],
+    ["printTechnology", "Công nghệ in"],
+    ["printSpeed", "Tốc độ in"],
+    ["printResolution", "Độ phân giải in"],
+    ["maxPaperSize", "Khổ giấy tối đa"],
+    ["colorPrintText", "In màu"],
+    ["autoDuplexPrintText", "In đảo mặt tự động"],
+    ["standardPaperTray", "Khay giấy tiêu chuẩn"],
+    ["maxPaperTray", "Khay giấy tối đa"],
+    ["memoryRam", "Bộ nhớ RAM"],
+    ["connectivity", "Kết nối"],
+    ["supportedOs", "Hệ điều hành hỗ trợ"],
+    ["recommendedMonthlyVolumeText", "Công suất khuyến nghị/tháng"],
+    ["maxMonthlyDuty", "Công suất tối đa/tháng"],
+    ["dimensions", "Kích thước"],
+    ["weight", "Trọng lượng"],
+  ]);
+
+  const photocopierSpecs = specsFromGroup(doc.photocopierSpecs, [
+    ["copierType", "Loại máy"],
+    ["functions", "Chức năng"],
+    ["copySpeed", "Tốc độ copy"],
+    ["printSpeed", "Tốc độ in"],
+    ["scanSpeed", "Tốc độ scan"],
+    ["maxPaperSize", "Khổ giấy tối đa"],
+    ["copyResolution", "Độ phân giải copy"],
+    ["printResolution", "Độ phân giải in"],
+    ["scanResolution", "Độ phân giải scan"],
+    ["colorPrintText", "In màu"],
+    ["autoDuplexPrintText", "In hai mặt tự động"],
+    ["adfText", "ADF"],
+    ["adfCapacity", "Sức chứa ADF"],
+    ["memoryRam", "Bộ nhớ RAM"],
+    ["connectivity", "Kết nối"],
+    ["monthlyDuty", "Công suất/tháng"],
+    ["dimensionsWeight", "Kích thước / Trọng lượng"],
+  ]);
+
+  return [...scannerSpecs, ...printerSpecs, ...photocopierSpecs, ...manualSpecs];
+}
+
 function normalizeProduct(doc: PayloadProductDoc, includeRelated = true): CatalogProduct {
   const images = Array.isArray(doc.images)
     ? doc.images
@@ -191,11 +279,7 @@ function normalizeProduct(doc: PayloadProductDoc, includeRelated = true): Catalo
     images,
     datasheets: normalizeDatasheets(doc.datasheets),
     image: images[0]?.url,
-    specs: Array.isArray(doc.specs)
-      ? doc.specs
-          .filter((spec): spec is PayloadProductDoc => Boolean(spec) && typeof spec === "object")
-          .map((spec) => ({ label: textField(spec, "label") || "", value: textField(spec, "value") || "" }))
-      : [],
+    specs: normalizeSpecs(doc),
     relatedProducts: includeRelated ? normalizeRelatedProducts(doc.relatedProducts) : [],
     href: textField(doc, "slug") ? `/san-pham/${textField(doc, "slug")}` : undefined,
     tag: textField(doc, "tag") || (doc.featured ? "Nổi bật" : undefined),

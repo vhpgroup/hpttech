@@ -16,7 +16,8 @@ import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import ProductPricingSection from "@/components/product/ProductPricingSection";
 import { ProductSpecTable } from "@/components/product/ProductSpecTable";
 import { ProductStickyBar } from "@/components/product/ProductStickyBar";
-import { ProductCard } from "@/components/product/ProductCard";
+import { ProductRelationTabs, type ProductRelationSection } from "@/components/product/ProductRelationTabs";
+import type { CatalogProduct } from "@/lib/catalog";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -105,6 +106,17 @@ function textToHTML(value?: string) {
     .join("");
 }
 
+function uniqueProducts(products: CatalogProduct[]) {
+  const seen = new Set<string>();
+
+  return products.filter((item) => {
+    const key = item.slug || item.title;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function EmptyProductSection({ message }: { message: string }) {
   return (
     <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-6 text-slate-500">
@@ -168,19 +180,41 @@ export default async function ProductDetailPage({ params }: PageProps) {
   );
   const schemaPrice = parseVNDPrice(product.price);
   const productDescription = product.description || product.detail;
-  const assignedRelatedProducts = (product.relatedProducts ?? []).filter((item) => item.slug !== product.slug);
-  const fallbackRelatedProducts = allProducts
-    .filter((item) => item.slug !== product.slug)
-    .filter((item) => item.category === product.category || item.brand === product.brand)
-    .slice(0, 4);
-  const broadRelatedProducts = allProducts.filter((item) => item.slug !== product.slug).slice(0, 4);
-  const relatedProducts = (
-    assignedRelatedProducts.length
-      ? assignedRelatedProducts
-      : fallbackRelatedProducts.length
-        ? fallbackRelatedProducts
-        : broadRelatedProducts
+  const otherProducts = allProducts.filter((item) => item.slug !== product.slug);
+  const similarProducts = uniqueProducts(
+    otherProducts.filter((item) => product.category && item.category === product.category),
   ).slice(0, 4);
+  const sameBrandProducts = uniqueProducts(
+    otherProducts.filter((item) => product.brand && item.brand === product.brand),
+  ).slice(0, 4);
+  const assignedRelatedProducts = uniqueProducts((product.relatedProducts ?? []).filter((item) => item.slug !== product.slug));
+  const usedRelationKeys = new Set(
+    [...similarProducts, ...sameBrandProducts, ...assignedRelatedProducts].map((item) => item.slug || item.title),
+  );
+  const fallbackRelatedProducts = uniqueProducts(
+    otherProducts.filter((item) => !usedRelationKeys.has(item.slug || item.title)),
+  ).slice(0, 4);
+  const relatedProducts = (assignedRelatedProducts.length ? assignedRelatedProducts : fallbackRelatedProducts).slice(0, 4);
+  const relationSections: ProductRelationSection[] = [
+    {
+      id: "similar",
+      label: "Sản phẩm tương tự",
+      products: similarProducts,
+      emptyMessage: "Chưa có sản phẩm tương tự trong cùng danh mục.",
+    },
+    {
+      id: "same-brand",
+      label: "Sản phẩm cùng hãng",
+      products: sameBrandProducts,
+      emptyMessage: "Chưa có sản phẩm cùng hãng trong catalog.",
+    },
+    {
+      id: "related",
+      label: "Sản phẩm liên quan",
+      products: relatedProducts,
+      emptyMessage: "Chưa có sản phẩm liên quan hoặc sản phẩm thay thế trong catalog.",
+    },
+  ];
   const documents = (product.datasheets as
     | Array<{ id?: string | number; url?: string; filename?: string; mimeType?: string }>
     | undefined
@@ -433,25 +467,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <ProductDetailTabs sections={tabSections} />
       </div>
 
-      <section className="mt-6 rounded-[20px] bg-white p-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <h2 className="text-2xl font-semibold text-slate-950">Sản phẩm liên quan</h2>
-          <Link href="/san-pham" className="text-sm font-semibold text-slate-500 transition-colors hover:text-[#0057FF]">
-            Xem toàn bộ sản phẩm
-          </Link>
-        </div>
-        {relatedProducts.length ? (
-          <div className="mt-5 grid gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4">
-            {relatedProducts.map((item) => (
-              <ProductCard key={item.slug || item.title} product={item} />
-            ))}
-          </div>
-        ) : (
-          <div className="mt-5">
-            <EmptyProductSection message="Chưa có sản phẩm liên quan hoặc sản phẩm thay thế trong catalog." />
-          </div>
-        )}
-      </section>
+      <ProductRelationTabs sections={relationSections} />
 
       <div className="mt-8">
         <Link

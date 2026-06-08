@@ -8,6 +8,7 @@ import Navbar from "@/components/layout/Navbar";
 import FloatingContactDockLoader from "@/components/FloatingContactDockLoader";
 import GlobalCompareDock from "@/components/GlobalCompareDock";
 import { CartProvider } from "@/components/cart/CartProvider";
+import { QuoteProvider } from "@/components/quote/QuoteProvider";
 import { getProductsFromPayload } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
@@ -56,14 +57,16 @@ export default async function SiteLayout({
       </head>
       <body className="site-shell">
         <CartProvider>
-          <DesktopStage>
-            <Header settings={settings} />
-            <Navbar />
-            {children}
-            <Footer settings={settings} />
-          </DesktopStage>
-          <GlobalCompareDock products={products} />
-          <FloatingContactDockLoader settings={settings} />
+          <QuoteProvider>
+            <DesktopStage>
+              <Header settings={settings} />
+              <Navbar />
+              {children}
+              <Footer settings={settings} />
+            </DesktopStage>
+            <GlobalCompareDock products={products} />
+            <FloatingContactDockLoader settings={settings} />
+          </QuoteProvider>
         </CartProvider>
       </body>
     </html>

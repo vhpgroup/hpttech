@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, Gift, Scale, Star } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import QuoteButton from "@/components/quote/QuoteButton";
 import { Button } from "@/components/ui/Button";
 import type { CatalogProduct } from "@/lib/catalog";
 
@@ -152,9 +153,13 @@ export default function ProductPricingSection({
             label="Thêm vào giỏ"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 text-base font-semibold text-white transition-colors hover:bg-orange-700"
           />
-          <Button asChild size="lg" className="rounded-xl bg-[#0057FF] hover:bg-[#0049d8]">
+          <div className="hidden">
             <a href={quoteHref}>Nhận báo giá</a>
-          </Button>
+          </div>
+          <QuoteButton
+            product={product}
+            className="inline-flex h-12 items-center justify-center rounded-xl bg-[#0057FF] px-4 text-base font-semibold text-white transition-colors hover:bg-[#0049d8]"
+          />
           <Button
             asChild
             size="lg"

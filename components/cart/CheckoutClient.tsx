@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { CheckCircle2, Loader2, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
+import { SubpageBreadcrumb } from "@/components/layout/SubpageHeader";
 import { formatVND } from "@/lib/cart";
 
 type CheckoutForm = {
@@ -62,6 +63,13 @@ export default function CheckoutClient() {
   if (success) {
     return (
       <main className="subpage-main">
+        <SubpageBreadcrumb
+          className="mb-3"
+          items={[
+            { label: "Trang chủ", href: "/" },
+            { label: "Thanh toán" },
+          ]}
+        />
         <section className="rounded-lg border border-slate-200 bg-white p-8 text-center shadow-sm">
           <CheckCircle2 className="mx-auto text-green-600" size={52} />
           <h1 className="mt-4 text-3xl font-bold text-slate-950">Đã tạo đơn hàng</h1>
@@ -79,6 +87,13 @@ export default function CheckoutClient() {
 
   return (
     <main className="subpage-main">
+      <SubpageBreadcrumb
+        className="mb-3"
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Thanh toán" },
+        ]}
+      />
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Checkout</p>
         <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Thanh toán</h1>

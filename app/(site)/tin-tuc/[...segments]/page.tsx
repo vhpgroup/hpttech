@@ -10,6 +10,7 @@ import {
   getPostsByCategoryPathFromPayload,
 } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
+import { SubpageBreadcrumb, SubpageHeader } from "@/components/layout/SubpageHeader";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -114,6 +115,14 @@ function NewsDetail({ post }: { post: NonNullable<Awaited<ReturnType<typeof getP
     <main className="subpage-main">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <SubpageBreadcrumb
+        className="mb-4"
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Tin tức", href: "/tin-tuc" },
+          { label: post.category?.fullTitle || post.title },
+        ]}
+      />
       <Link className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700" href="/tin-tuc">
         <ArrowLeft size={16} />
         Quay lai tin tuc
@@ -165,16 +174,23 @@ function NewsCategory({
 
   return (
     <main className="subpage-main">
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        {category.image ? (
+      <SubpageHeader
+        eyebrow="Danh mục tin tức"
+        title={category.name}
+        description={category.description}
+        badge={`${posts.length} bài viết`}
+        breadcrumbs={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Tin tức", href: "/tin-tuc" },
+          { label: category.name },
+        ]}
+      />
+
+      {category.image ? (
+        <section className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <Image className="h-56 w-full object-cover" src={category.image} alt={category.name} width={1200} height={224} priority />
-        ) : null}
-        <div className="p-6 sm:p-8">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Danh muc tin tuc</p>
-          <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">{category.name}</h1>
-          {category.description ? <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">{category.description}</p> : null}
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {subcategories.length ? (
         <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

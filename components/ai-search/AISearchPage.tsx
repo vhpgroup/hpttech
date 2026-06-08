@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import AIRecommendationSummary from "@/components/ai-search/AIRecommendationSummary";
 import AISearchHero from "@/components/ai-search/AISearchHero";
 import AIUnderstandingCard from "@/components/ai-search/AIUnderstandingCard";
@@ -51,6 +53,12 @@ export default function AISearchPage() {
   return (
     <main className="bg-slate-50">
       <div className="mx-auto max-w-[1440px] px-3 py-4 sm:px-5 md:py-6">
+        <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
+          <Link href="/" className="transition hover:text-blue-700">Trang chủ</Link>
+          <ChevronRight size={13} className="text-slate-300" />
+          <span>AI Search</span>
+        </nav>
+
         <AISearchHero
           query={query}
           prompts={QUICK_SEARCH_PROMPTS}

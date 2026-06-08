@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { CalendarDays } from "lucide-react";
+import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { getPostsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 
@@ -17,15 +18,16 @@ export default async function NewsPage() {
 
   return (
     <main className="subpage-main">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Bài viết và tiêu điểm</p>
-        <div className="max-w-3xl">
-          <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Tin tức</h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ được quản lý trong Payload CMS.
-          </p>
-        </div>
-      </section>
+      <SubpageHeader
+        eyebrow="Bài viết và tiêu điểm"
+        title="Tin tức"
+        description="Nội dung hướng dẫn chọn thiết bị, số hóa tài liệu và tin tức công nghệ được quản lý trong Payload CMS."
+        badge={`${posts.length} bài viết`}
+        breadcrumbs={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Tin tức" },
+        ]}
+      />
 
       <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {posts.map((post) => (

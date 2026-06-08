@@ -13,6 +13,45 @@ export default function AfterNavLinks() {
       }}
     >
       <a
+        href="/admin/product-import-export"
+        onMouseEnter={(event) => {
+          event.currentTarget.style.background = "rgba(99,102,241,0.14)";
+          event.currentTarget.style.color = "#c7d2fe";
+        }}
+        onMouseLeave={(event) => {
+          event.currentTarget.style.background = "transparent";
+          event.currentTarget.style.color = "#94a3b8";
+        }}
+        style={{
+          alignItems: "center",
+          borderRadius: 8,
+          color: "#94a3b8",
+          display: "flex",
+          fontSize: 13,
+          fontWeight: 600,
+          gap: 8,
+          padding: "8px 12px",
+          textDecoration: "none",
+          transition: "all 0.15s",
+        }}
+      >
+        <svg
+          aria-hidden="true"
+          fill="none"
+          height="14"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+          width="14"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" x2="12" y1="15" y2="3" />
+        </svg>
+        Import / Export sản phẩm
+      </a>
+
+      <a
         href="https://hpttech.vn"
         onMouseEnter={(event) => {
           event.currentTarget.style.background = "rgba(255,255,255,0.06)";
