@@ -1,5 +1,5 @@
 import { getProductsFromPayload } from "@/lib/catalog-payload";
-import { getPostsFromPayload } from "@/lib/content-payload";
+import { getPostCategoriesFromPayload, getPostsFromPayload } from "@/lib/content-payload";
 
 export const revalidate = 300;
 
@@ -23,13 +23,18 @@ function url(loc: string) {
 
 export async function GET() {
   const base = siteURL();
-  const [products, posts] = await Promise.all([getProductsFromPayload(), getPostsFromPayload()]);
-  const staticPaths = ["/", "/san-pham", "/compare", "/giai-phap", "/thuong-hieu", "/du-an", "/dich-vu", "/tin-tuc", "/ve-hpt", "/lien-he"];
+  const [products, posts, postCategories] = await Promise.all([
+    getProductsFromPayload(),
+    getPostsFromPayload(),
+    getPostCategoriesFromPayload(),
+  ]);
+  const staticPaths = ["/", "/san-pham", "/ai-search", "/compare", "/giai-phap", "/thuong-hieu", "/du-an", "/dich-vu", "/tin-tuc", "/ve-hpt", "/lien-he"];
 
   const urls = [
     ...staticPaths.map((path) => url(`${base}${path}`)),
     ...products.filter((product) => product.slug).map((product) => url(`${base}/san-pham/${product.slug}`)),
-    ...posts.filter((post) => post.slug).map((post) => url(`${base}/tin-tuc/${post.slug}`)),
+    ...postCategories.filter((category) => category.fullSlug).map((category) => url(`${base}/tin-tuc/${category.fullSlug}`)),
+    ...posts.filter((post) => post.fullPath || post.slug).map((post) => url(`${base}${post.href || `/tin-tuc/${post.slug}`}`)),
   ];
 
   return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join("")}</urlset>`, {

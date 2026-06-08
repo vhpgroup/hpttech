@@ -14,7 +14,17 @@ export const Media: CollectionConfig = {
     useAsTitle: "alt",
   },
   upload: {
-    mimeTypes: ["image/*", "application/pdf"],
+    mimeTypes: [
+      "image/*",
+      "application/pdf",
+      "application/zip",
+      "application/x-zip-compressed",
+      "application/octet-stream",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ],
   },
   fields: [
     {

@@ -1,17 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import dynamic from "next/dynamic";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import type { CatalogProduct } from "@/lib/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
-
-const CompareDock = dynamic(() => import("@/components/home/CompareDock"), {
-  ssr: false,
-});
-
-const COMPARE_LIMIT = 4;
 
 function productKey(product: CatalogProduct) {
   return product.slug || product.title;
@@ -24,7 +17,6 @@ type HomeProductShowcaseClientProps = {
 
 export default function HomeProductShowcaseClient({ products }: HomeProductShowcaseClientProps) {
   const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
-  const [activeCompareList, setActiveCompareList] = useState<CatalogProduct[]>([]);
   const [productSearch, setProductSearch] = useState("");
 
   const filteredProducts = useMemo(() => {
@@ -46,31 +38,12 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
     );
   }, [activeProductTab, productSearch, products]);
 
-  const toggleCompare = (product: CatalogProduct) => {
-    setActiveCompareList((prev) => {
-      const key = productKey(product);
-      const exists = prev.some((p) => productKey(p) === key);
-      if (exists) return prev.filter((p) => productKey(p) !== key);
-      if (prev.length >= COMPARE_LIMIT) {
-        return [...prev.slice(1), product];
-      }
-      return [...prev, product];
-    });
-  };
-
-  const addCompareProduct = (product: CatalogProduct) => {
-    setActiveCompareList((prev) => {
-      const key = productKey(product);
-      const exists = prev.some((p) => productKey(p) === key);
-      if (exists) return prev;
-      if (prev.length >= COMPARE_LIMIT) return [...prev.slice(1), product];
-      return [...prev, product];
-    });
+  const addToCompare = (product: CatalogProduct) => {
+    window.dispatchEvent(new CustomEvent<CatalogProduct>("hpt:compare:add", { detail: product }));
   };
 
   return (
-    <>
-      <section className="products" id="products">
+    <section className="products" id="products">
         <div className="section-head">
           <h2>Sản phẩm nổi bật</h2>
           <div className="tabs" id="productTabs">
@@ -100,27 +73,10 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
         </div>
 
         <div className="grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="productGrid">
-          {filteredProducts.slice(0, 10).map((product) => {
-            const comparing = activeCompareList.some((p) => productKey(p) === productKey(product));
-            return (
-              <ProductCard
-                key={productKey(product)}
-                product={product}
-                isComparing={comparing}
-                onCompare={toggleCompare}
-              />
-            );
-          })}
+          {filteredProducts.slice(0, 10).map((product) => (
+            <ProductCard key={productKey(product)} product={product} onCompare={addToCompare} />
+          ))}
         </div>
       </section>
-
-      <CompareDock
-        items={activeCompareList}
-        products={products}
-        onAdd={addCompareProduct}
-        onRemove={toggleCompare}
-        onClear={() => setActiveCompareList([])}
-      />
-    </>
   );
 }

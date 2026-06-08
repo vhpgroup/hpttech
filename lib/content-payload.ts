@@ -23,11 +23,33 @@ export type PublicSolution = {
 export type PublicPost = {
   title: string;
   slug: string;
+  fullPath?: string;
   image?: string;
   date?: string;
   publishedAt?: string;
   href?: string;
   summary?: string;
+  category?: PublicPostCategory;
+  tags?: PublicPostTag[];
+  postType?: string;
+  featured?: boolean;
+};
+
+export type PublicPostCategory = {
+  id?: string;
+  name: string;
+  slug: string;
+  fullTitle?: string;
+  fullSlug?: string;
+  description?: string;
+  image?: string;
+  parent?: string;
+};
+
+export type PublicPostTag = {
+  name: string;
+  slug: string;
+  description?: string;
 };
 
 export type PublicProject = {
@@ -60,6 +82,9 @@ export type PublicSiteSettings = {
   facebook?: string;
   zalo?: string;
   youtube?: string;
+  googleMapsTitle?: string;
+  googleMapsEmbedUrl?: string;
+  googleMapsDirectionsUrl?: string;
   googleAnalyticsId?: string;
   googleTagManagerId?: string;
   footerNote?: string;
@@ -180,7 +205,16 @@ function getLocalHeroBanners(): PublicBanner[] {
     return [];
   }
 }
-type PublicCollectionSlug = "banners" | "solutions" | "posts" | "projects" | "faq" | "static-pages";
+type PublicCollectionSlug =
+  | "banners"
+  | "solutions"
+  | "posts"
+  | "post-categories"
+  | "post-tags"
+  | "news-redirects"
+  | "projects"
+  | "faq"
+  | "static-pages";
 
 function textField(doc: PayloadDoc, key: string) {
   const value = doc[key];
@@ -208,6 +242,72 @@ function mediaImage(value: unknown): PublicAboutImage | undefined {
 function objectField(doc: PayloadDoc, key: string): PayloadDoc {
   const value = doc[key];
   return value && typeof value === "object" && !Array.isArray(value) ? (value as PayloadDoc) : {};
+}
+
+function relationDoc(value: unknown): PayloadDoc | undefined {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as PayloadDoc) : undefined;
+}
+
+function docID(doc: PayloadDoc) {
+  const id = doc.id;
+  return typeof id === "string" || typeof id === "number" ? String(id) : undefined;
+}
+
+function postCategory(doc: unknown): PublicPostCategory | undefined {
+  const category = relationDoc(doc);
+  if (!category) return undefined;
+  return {
+    id: docID(category),
+    name: textField(category, "name") || "",
+    slug: textField(category, "slug") || "",
+    fullTitle: textField(category, "fullTitle"),
+    fullSlug: textField(category, "fullSlug"),
+    description: textField(category, "description"),
+    image: mediaURL(category.coverImage),
+    parent:
+      typeof category.parent === "string" || typeof category.parent === "number"
+        ? String(category.parent)
+        : docID(objectField(category, "parent")),
+  };
+}
+
+function postTags(value: unknown): PublicPostTag[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    const tag = relationDoc(item);
+    if (!tag) return [];
+    return [
+      {
+        name: textField(tag, "name") || "",
+        slug: textField(tag, "slug") || "",
+        description: textField(tag, "description"),
+      },
+    ];
+  });
+}
+
+function normalizeNewsPath(value: string) {
+  return value.replace(/^\/+|\/+$/g, "").replace(/^tin-tuc\/?/, "");
+}
+
+function mapPost(doc: PayloadDoc): PublicPost {
+  const slugValue = textField(doc, "slug") || "";
+  const fullPath = textField(doc, "fullPath") || slugValue;
+
+  return {
+    title: textField(doc, "title") || "",
+    slug: slugValue,
+    fullPath,
+    image: mediaURL(doc.thumbnail),
+    date: formatDate(doc.publishedAt),
+    publishedAt: textField(doc, "publishedAt"),
+    href: `/tin-tuc/${fullPath}`,
+    summary: textField(doc, "summary"),
+    category: postCategory(doc.category),
+    tags: postTags(doc.tags),
+    postType: textField(doc, "postType"),
+    featured: doc.featured === true,
+  };
 }
 
 function arrayField(doc: PayloadDoc, key: string): PayloadDoc[] {
@@ -392,15 +492,7 @@ export async function getPostsFromPayload(): Promise<PublicPost[]> {
     where: { status: { equals: "published" } },
   });
 
-  return res.docs.map((doc) => ({
-    title: textField(doc, "title") || "",
-    slug: textField(doc, "slug") || "",
-    image: mediaURL(doc.thumbnail),
-    date: formatDate(doc.publishedAt),
-    publishedAt: textField(doc, "publishedAt"),
-    href: `/tin-tuc/${textField(doc, "slug") || ""}`,
-    summary: textField(doc, "summary"),
-  }));
+  return res.docs.map(mapPost);
 }
 
 export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
@@ -412,16 +504,100 @@ export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost
   });
   const doc = res.docs[0];
   if (!doc) return null;
-  const slugValue = textField(doc, "slug") || "";
+  return mapPost(doc);
+}
 
+export async function getPostByPathFromPayload(pathValue: string): Promise<PublicPost | null> {
+  const normalizedPath = normalizeNewsPath(pathValue);
+  const res = await findDocs("posts", {
+    limit: 1,
+    where: {
+      and: [{ fullPath: { equals: normalizedPath } }, { status: { equals: "published" } }],
+    },
+  });
+  const doc = res.docs[0];
+  if (doc) return mapPost(doc);
+
+  const slug = normalizedPath.split("/").pop() || normalizedPath;
+  return getPostBySlugFromPayload(slug);
+}
+
+export async function getPostCategoriesFromPayload(): Promise<PublicPostCategory[]> {
+  const res = await findDocs("post-categories", {
+    sort: "sortOrder",
+  });
+  return res.docs.map((doc) => ({
+    id: docID(doc),
+    name: textField(doc, "name") || "",
+    slug: textField(doc, "slug") || "",
+    fullTitle: textField(doc, "fullTitle"),
+    fullSlug: textField(doc, "fullSlug"),
+    description: textField(doc, "description"),
+    image: mediaURL(doc.coverImage),
+    parent:
+      typeof doc.parent === "string" || typeof doc.parent === "number"
+        ? String(doc.parent)
+        : docID(objectField(doc, "parent")),
+  }));
+}
+
+export async function getPostCategoryByPathFromPayload(pathValue: string): Promise<PublicPostCategory | null> {
+  const normalizedPath = normalizeNewsPath(pathValue);
+  const res = await findDocs("post-categories", {
+    limit: 1,
+    where: {
+      fullSlug: {
+        equals: normalizedPath,
+      },
+    },
+  });
+  const doc = res.docs[0];
+  if (!doc) return null;
   return {
-    title: textField(doc, "title") || "",
-    slug: slugValue,
-    image: mediaURL(doc.thumbnail),
-    date: formatDate(doc.publishedAt),
-    publishedAt: textField(doc, "publishedAt"),
-    href: `/tin-tuc/${slugValue}`,
-    summary: textField(doc, "summary"),
+    id: docID(doc),
+    name: textField(doc, "name") || "",
+    slug: textField(doc, "slug") || "",
+    fullTitle: textField(doc, "fullTitle"),
+    fullSlug: textField(doc, "fullSlug"),
+    description: textField(doc, "description"),
+    image: mediaURL(doc.coverImage),
+    parent:
+      typeof doc.parent === "string" || typeof doc.parent === "number"
+        ? String(doc.parent)
+        : docID(objectField(doc, "parent")),
+  };
+}
+
+export async function getPostsByCategoryPathFromPayload(pathValue: string): Promise<PublicPost[]> {
+  const normalizedPath = normalizeNewsPath(pathValue);
+  const [categories, posts] = await Promise.all([getPostCategoriesFromPayload(), getPostsFromPayload()]);
+  const categoryIDs = new Set(
+    categories
+      .filter((category) => category.fullSlug === normalizedPath || category.fullSlug?.startsWith(`${normalizedPath}/`))
+      .map((category) => category.id)
+      .filter(Boolean),
+  );
+
+  return posts.filter((post) => post.category?.id && categoryIDs.has(post.category.id));
+}
+
+export async function getNewsRedirectFromPayload(pathValue: string): Promise<{ destination: string; permanent: boolean } | null> {
+  const normalizedPath = normalizeNewsPath(pathValue);
+  const res = await findDocs("news-redirects", {
+    limit: 1,
+    where: {
+      fromPath: {
+        equals: normalizedPath,
+      },
+    },
+  });
+  const doc = res.docs[0];
+  if (!doc) return null;
+  const toPath = textField(doc, "toPath");
+  if (!toPath) return null;
+  return {
+    destination: `/tin-tuc/${normalizeNewsPath(toPath)}`,
+    permanent: textField(doc, "statusCode") !== "302",
   };
 }
 

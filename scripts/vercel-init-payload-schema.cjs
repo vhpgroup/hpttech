@@ -27,4 +27,8 @@ const result = spawnSync(command, ["scripts/init-payload-schema.ts"], {
   stdio: "inherit",
 });
 
-process.exit(result.status ?? 1);
+if (result.status !== 0) {
+  process.exit(result.status ?? 1);
+}
+
+process.exit(0);

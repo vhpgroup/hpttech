@@ -6,7 +6,9 @@ import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
 import FloatingContactDockLoader from "@/components/FloatingContactDockLoader";
+import GlobalCompareDock from "@/components/GlobalCompareDock";
 import { CartProvider } from "@/components/cart/CartProvider";
+import { getProductsFromPayload } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
@@ -37,7 +39,10 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = normalizeSiteSettings(await getSiteSettingsFromPayload());
+  const [settings, products] = await Promise.all([
+    getSiteSettingsFromPayload().then(normalizeSiteSettings),
+    getProductsFromPayload(),
+  ]);
 
   return (
     <html
@@ -57,6 +62,7 @@ export default async function SiteLayout({
             {children}
             <Footer settings={settings} />
           </DesktopStage>
+          <GlobalCompareDock products={products} />
           <FloatingContactDockLoader settings={settings} />
         </CartProvider>
       </body>

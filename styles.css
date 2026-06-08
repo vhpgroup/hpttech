@@ -636,9 +636,9 @@ main {
 
 @media (min-width: 1024px) {
   .hero-section {
-    --hero-shell-height: min(716px, calc(100vh - 198px));
-    --hero-top-height: calc((var(--hero-shell-height) - var(--hero-gap)) * 0.66);
-    --hero-bottom-height: calc((var(--hero-shell-height) - var(--hero-gap)) * 0.34);
+    --hero-top-height: 470px;
+    --hero-bottom-height: 230px;
+    --hero-shell-height: calc(var(--hero-top-height) + var(--hero-gap) + var(--hero-bottom-height));
     height: var(--hero-shell-height);
     min-height: 0;
     overflow: hidden;
@@ -653,7 +653,7 @@ main {
   border: 1px solid #d7e6fb;
   border-top: 0;
   border-radius: 0 0 var(--radius) var(--radius);
-  overflow: hidden;
+  overflow: visible;
   z-index: 6;
   box-shadow: 0 14px 30px rgba(11, 29, 55, 0.08);
 }
@@ -707,10 +707,11 @@ main {
 .category-mega-panel {
   position: absolute;
   top: calc(-36px * var(--menu-index, 0));
-  left: 100%;
-  width: min(1080px, calc(100vw - 350px));
-  min-height: auto;
-  padding: 0 12px 12px 0;
+  left: calc(100% - 1px);
+  width: calc(var(--shell-width) - var(--catalog-width) + 2px);
+  min-height: var(--hero-shell-height);
+  padding: 0;
+  background: #ffffff;
   opacity: 0;
   visibility: hidden;
   transform: translateX(8px);
@@ -728,11 +729,12 @@ main {
 }
 
 .category-mega-grid {
-  padding: 18px 20px 16px;
+  min-height: var(--hero-shell-height);
+  padding: 24px 28px;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 20px;
-  background: #fff;
+  background: #ffffff;
   color: var(--ink);
   border: 1px solid #dbe8f8;
   border-radius: 0 0 10px 0;
@@ -1403,17 +1405,18 @@ main {
 
 .compare-fab {
   position: fixed;
-  left: 10px;
+  left: clamp(8px, 1.2vw, 18px);
   top: auto;
-  bottom: 48px;
-  min-width: 88px;
-  min-height: 44px;
-  padding: 0 16px;
+  bottom: clamp(46px, 6vh, 72px);
+  min-width: clamp(82px, 8vw, 112px);
+  min-height: clamp(40px, 4vw, 48px);
+  padding: 0 clamp(12px, 1.4vw, 18px);
   border: 0;
   border-radius: 999px;
   background: #fff;
   color: #5a70ea;
   box-shadow: 0 14px 32px rgba(26, 41, 71, 0.18);
+  font-size: clamp(13px, 1.1vw, 15px);
   font-weight: 700;
   opacity: 1;
   transform: translateX(0);
@@ -2270,10 +2273,12 @@ main {
 
 .support-chatbot {
   position: fixed;
-  right: 20px;
-  bottom: 182px;
-  width: min(340px, calc(100vw - 24px));
-  height: 620px;
+  right: max(8px, env(safe-area-inset-right));
+  bottom: clamp(86px, 14vh, 182px);
+  width: clamp(340px, 30vw, 430px);
+  max-width: calc(100vw - 16px);
+  height: min(620px, calc(100dvh - 112px));
+  max-height: calc(100vh - 112px);
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 24px 60px rgba(12, 25, 46, 0.24);
@@ -2341,10 +2346,6 @@ main {
     width: 100%;
     min-height: 52px;
     margin-right: 0;
-  }
-
-  .support-chatbot {
-    right: max(20px, calc((100vw - var(--desktop-stage-width)) / 2 + 20px));
   }
 }
 
@@ -2683,7 +2684,7 @@ svg {
   }
 
   .category-mega-panel {
-    width: min(860px, calc(100vw - 280px));
+    width: calc(100vw - var(--catalog-width) - (var(--shell-pad-mobile) * 2) + 2px);
   }
 
   .category-mega-grid {
@@ -3129,11 +3130,12 @@ svg {
   }
 
   .compare-fab {
-    left: 12px;
+    left: max(8px, env(safe-area-inset-left));
     bottom: 84px;
-    min-height: 40px;
-    padding: 0 14px;
-    font-size: 13px;
+    min-width: clamp(78px, 26vw, 104px);
+    min-height: clamp(38px, 11vw, 44px);
+    padding: 0 clamp(12px, 4vw, 16px);
+    font-size: clamp(12px, 3.5vw, 13px);
   }
 
   .compare-drawer-body {
@@ -3229,10 +3231,14 @@ svg {
   }
 
   .support-chatbot {
-    right: 12px;
+    left: max(8px, env(safe-area-inset-left));
+    right: max(8px, env(safe-area-inset-right));
     bottom: 84px;
-    width: min(340px, calc(100vw - 24px));
-    height: min(620px, calc(100vh - 108px));
+    width: auto;
+    max-width: none;
+    height: min(560px, calc(100dvh - 100px));
+    max-height: calc(100vh - 100px);
+    border-radius: 18px;
   }
 
   .support-card.chatbot {
@@ -3391,8 +3397,7 @@ body:has(.about-page) .desktop-stage {
   background: #f5f8fc;
 }
 
-body:has(.about-page) #supportWidgetShell,
-body:has(.about-page) #compareShell {
+body:has(.about-page) #supportWidgetShell {
   display: none;
 }
 

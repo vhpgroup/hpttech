@@ -8,10 +8,14 @@ import { buildConfig } from "payload";
 import { Brands } from "./collections/Brands.ts";
 import { Banners } from "./collections/Banners.ts";
 import { Categories } from "./collections/Categories.ts";
+import { DownloadCategories } from "./collections/DownloadCategories.ts";
+import { Downloads } from "./collections/Downloads.ts";
 import { FAQ } from "./collections/FAQ.ts";
 import { Media } from "./collections/Media.ts";
+import { NewsRedirects } from "./collections/NewsRedirects.ts";
 import { Orders } from "./collections/Orders.ts";
 import { PostCategories } from "./collections/PostCategories.ts";
+import { PostTags } from "./collections/PostTags.ts";
 import { Posts } from "./collections/Posts.ts";
 import { Products } from "./collections/Products.ts";
 import { Projects } from "./collections/Projects.ts";
@@ -85,7 +89,11 @@ export default buildConfig({
     Banners,
     Solutions,
     PostCategories,
+    PostTags,
+    NewsRedirects,
     Posts,
+    DownloadCategories,
+    Downloads,
     Projects,
     FAQ,
     Testimonials,
@@ -111,7 +119,7 @@ export default buildConfig({
                 label: "Alt text",
                 type: "text",
                 admin: {
-                  description: "Mo ta ngan cho anh, dung cho SEO va accessibility.",
+                  description: "Mô tả ngắn cho ảnh, dùng cho SEO và accessibility.",
                 },
               },
               {

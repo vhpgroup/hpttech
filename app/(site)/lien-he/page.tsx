@@ -1,4 +1,4 @@
-import { Mail, MapPin, PhoneCall, Send } from "lucide-react";
+import { ExternalLink, Mail, MapPin, PhoneCall, Send } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
@@ -15,17 +15,39 @@ export const metadata = pageMetadata({
 export default async function ContactPage() {
   const settings = normalizeSiteSettings(await getSiteSettingsFromPayload());
   const phone = settings.hotline || settings.phone;
+
   return (
     <main className="subpage-main">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Tư vấn nhanh</p>
-        <div className="max-w-3xl">
-          <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Liên hệ HPT Tech</h1>
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Gửi nhu cầu báo giá, tư vấn thiết bị hoặc triển khai giải pháp. Hệ thống sẽ chuyển yêu cầu đến kênh nhận được cấu hình cho HPT Tech.
-          </p>
-        </div>
-      </section>
+      {settings.googleMapsEmbedUrl ? (
+        <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Bản đồ</p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-950">{settings.googleMapsTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{settings.address}</p>
+            </div>
+            {settings.googleMapsDirectionsUrl ? (
+              <a
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800"
+                href={settings.googleMapsDirectionsUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Chỉ đường
+                <ExternalLink size={16} />
+              </a>
+            ) : null}
+          </div>
+          <iframe
+            className="h-[300px] w-full border-0 sm:h-[360px] lg:h-[420px]"
+            src={settings.googleMapsEmbedUrl}
+            title={settings.googleMapsTitle}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </section>
+      ) : null}
 
       <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_420px]">
         <ContactForm icon={<Send size={16} />} fallbackEmail={settings.email} />

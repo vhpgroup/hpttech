@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => ({}));
   const collection = typeof body.collection === "string" ? body.collection : undefined;
   const slug = typeof body.slug === "string" ? body.slug : undefined;
+  const path = typeof body.path === "string" ? body.path : undefined;
 
   const paths = new Set<string>(["/"]);
   if (collection) {
@@ -28,6 +29,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (collection === "products" && slug) paths.add(`/san-pham/${slug}`);
+  if (collection === "posts" && path) paths.add(`/tin-tuc/${path}`);
   if (collection === "posts" && slug) paths.add(`/tin-tuc/${slug}`);
   if (collection === "static-pages" && slug) paths.add(`/${slug}`);
   if (body.global === "site-settings") paths.add("/");
