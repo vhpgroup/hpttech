@@ -1,17 +1,23 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
-import type { Product } from "@/lib/data";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
+import type { CatalogProduct } from "@/lib/catalog";
 
 const COMPARE_LIMIT = 4;
 
+function productKey(product: CatalogProduct) {
+  return product.slug || product.title;
+}
+
 type CompareDockProps = {
-  items: Product[];
-  products: Product[];
-  onAdd: (product: Product) => void;
-  onRemove: (product: Product) => void;
+  items: CatalogProduct[];
+  products: CatalogProduct[];
+  onAdd: (product: CatalogProduct) => void;
+  onRemove: (product: CatalogProduct) => void;
   onClear: () => void;
 };
 
@@ -22,33 +28,43 @@ export default function CompareDock({
   onRemove,
   onClear,
 }: CompareDockProps) {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerQuery, setPickerQuery] = useState("");
 
   const slots = Array.from({ length: COMPARE_LIMIT }, (_, index) => items[index] || null);
   const canCompare = items.length >= 2;
-  const compareHref = `/compare?products=${encodeURIComponent(items.map((p) => p.title).join(","))}`;
+  const compareHref = `/compare?products=${encodeURIComponent(items.map(productKey).join(","))}`;
   const pickerResults = useMemo(() => {
     const q = pickerQuery.trim().toLowerCase();
     if (q.length < 3) return [];
     return products
-      .filter((product) => !items.some((item) => item.title === product.title))
+      .filter((product) => !items.some((item) => productKey(item) === productKey(product)))
       .filter((product) =>
-        [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase().includes(q)
+        [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase().includes(q),
       )
       .slice(0, 16);
   }, [items, pickerQuery, products]);
 
-  return (
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const dock = (
     <div id="compareShell">
       <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => setOpen(true)}>
         So sánh ({items.length})
       </button>
-      <button className={`compare-overlay ${open ? "open" : ""}`} type="button" aria-label="Đóng so sánh" onClick={() => {
-        setOpen(false);
-        setPickerOpen(false);
-      }} />
+      <button
+        className={`compare-overlay ${open ? "open" : ""}`}
+        type="button"
+        aria-label="Đóng so sánh"
+        onClick={() => {
+          setOpen(false);
+          setPickerOpen(false);
+        }}
+      />
       <aside className={`compare-drawer ${open ? "open" : ""}`} aria-hidden={open ? "false" : "true"}>
         <div className="compare-drawer-head">
           <h2>So sánh sản phẩm</h2>
@@ -60,24 +76,29 @@ export default function CompareDock({
           <div className="compare-slot-grid">
             {slots.map((item, index) =>
               item ? (
-                <article className="compare-slot filled" key={item.title}>
+                <article className="compare-slot filled" key={productKey(item)}>
                   <button className="compare-remove" type="button" aria-label={`Xóa ${item.title}`} onClick={() => onRemove(item)}>
                     ×
                   </button>
-                  <img src={item.image} alt={item.title} />
+                  {item.image ? <Image src={item.image} alt={item.title} width={96} height={72} /> : null}
                   <h3>{item.title}</h3>
                   <p>{item.price}</p>
                 </article>
               ) : (
-                <button className="compare-slot empty" type="button" key={`empty-${index}`} onClick={() => {
-                  setOpen(true);
-                  setPickerOpen(true);
-                  setPickerQuery("");
-                }}>
+                <button
+                  className="compare-slot empty"
+                  type="button"
+                  key={`empty-${index}`}
+                  onClick={() => {
+                    setOpen(true);
+                    setPickerOpen(true);
+                    setPickerQuery("");
+                  }}
+                >
                   <span className="compare-slot-plus">+</span>
                   <p>Thêm sản phẩm</p>
                 </button>
-              )
+              ),
             )}
           </div>
           <div className="compare-actions">
@@ -120,14 +141,22 @@ export default function CompareDock({
               ) : pickerResults.length ? (
                 <div className="compare-picker-results">
                   {pickerResults.map((product) => (
-                    <button className="compare-picker-item" type="button" key={product.title} onClick={() => {
-                      onAdd(product);
-                      setPickerOpen(false);
-                    }}>
-                      <img src={product.image} alt={product.title} />
+                    <button
+                      className="compare-picker-item"
+                      type="button"
+                      key={productKey(product)}
+                      onClick={() => {
+                        onAdd(product);
+                        setPickerOpen(false);
+                      }}
+                    >
+                      {product.image ? <Image src={product.image} alt={product.title} width={72} height={56} /> : null}
                       <span>
                         <strong>{product.title}</strong>
-                        <small>{product.brand}{product.category ? ` - ${product.category}` : ""}</small>
+                        <small>
+                          {product.brand}
+                          {product.category ? ` - ${product.category}` : ""}
+                        </small>
                       </span>
                       <b>{product.price}</b>
                     </button>
@@ -142,4 +171,6 @@ export default function CompareDock({
       </div>
     </div>
   );
+
+  return mounted ? createPortal(dock, document.body) : null;
 }

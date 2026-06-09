@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="70" viewBox="0 0 180 70" role="img" aria-label="Microtek">
-  <rect width="180" height="70" fill="#fff"/>
+  <rect width="180" height="70" fill="none"/>
   <text x="90" y="34" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" font-style="italic" fill="#005ca8">MICROTEK</text>
   <text x="90" y="48" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#cf1f2e">SCAN THE WORLD</text>
 </svg>

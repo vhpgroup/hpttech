@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="180" height="70" viewBox="0 0 180 70" role="img" aria-label="PaperOne">
-  <rect width="180" height="70" fill="#fff"/>
+  <rect width="180" height="70" fill="none"/>
   <text x="73" y="43" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="800" fill="#202f7a">PAPER</text>
   <text x="125" y="43" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-style="italic" fill="#f0a000">One</text>
   <circle cx="103" cy="32" r="22" fill="none" stroke="#f0a000" stroke-width="4"/>

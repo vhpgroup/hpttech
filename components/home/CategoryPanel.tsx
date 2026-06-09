@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import {
   BadgeCheck,
   BatteryCharging,
@@ -139,7 +138,7 @@ function catalogBrand(label: string) {
 }
 
 function categoryLandingHref(label: string) {
-  const hasMatchingProducts = HPT_DATA.products.some((product) => product.category === label);
+  const hasMatchingProducts = ["Máy in", "Máy scan"].includes(label);
   return hasMatchingProducts ? `/san-pham?category=${encodeURIComponent(label)}` : `/san-pham?search=${encodeURIComponent(label)}`;
 }
 
@@ -190,7 +189,7 @@ export default function CategoryPanel() {
   return (
     <aside className="category-panel desktop-only" id="categoryPanel">
       {HPT_DATA.categories.map((cat, index) => (
-        <article className="category-item" key={cat.name} style={{ ["--menu-index" as string]: index } as React.CSSProperties}>
+        <article className="category-item" key={cat.name} style={{ ["--menu-index" as string]: index } as CSSProperties}>
           <Link href={categoryLandingHref(cat.name)}>
             {getCategoryIcon(cat.icon)}
             <span>{cat.name}</span>

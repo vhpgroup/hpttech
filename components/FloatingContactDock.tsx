@@ -1,8 +1,10 @@
 "use client";
 
 import { Bot, Menu, SendHorizontal, X } from "lucide-react";
+import Image from "next/image";
 import { FormEvent, useMemo, useRef, useState } from "react";
-import { HPT_DATA } from "@/lib/data";
+import { getProducts } from "@/lib/catalog";
+import type { PublicSiteSettings } from "@/lib/content-payload";
 
 type ChatMessage = {
   role: "bot" | "user";
@@ -15,8 +17,6 @@ type LeadForm = {
   service: string;
 };
 
-const SUPPORT_FALLBACK_MESSAGE =
-  "Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline 0876 645 432 hoặc Zalo/Facebook để được hỗ trợ ngay.";
 const SUPPORT_INTRO_MESSAGE =
   "Em đang online ạ. Anh/chị vui lòng để lại nội dung cần hỗ trợ, em sẽ phản hồi ngay.";
 const SUPPORT_LEAD_PROMPT = "Cho em xin thông tin anh/chị để tiện hỗ trợ.";
@@ -36,7 +36,7 @@ function getRelevantProducts(message: string) {
 
   if (!keywords.length) return [];
 
-  return HPT_DATA.products
+  return getProducts()
     .map((product) => {
       const haystack = [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase();
       const score = keywords.reduce((total, keyword) => total + (haystack.includes(keyword) ? 1 : 0), 0);
@@ -48,18 +48,19 @@ function getRelevantProducts(message: string) {
     .map((item) => item.product);
 }
 
-function getFriendlyChatError(message: unknown) {
+function getFriendlyChatError(message: unknown, hotline: string) {
+  const fallbackMessage = `Hệ thống chat đang tạm thời gián đoạn. Quý khách vui lòng liên hệ hotline ${hotline} hoặc Zalo/Facebook để được hỗ trợ ngay.`;
   const text = String(message || "").toLowerCase();
-  if (!text) return SUPPORT_FALLBACK_MESSAGE;
+  if (!text) return fallbackMessage;
 
   return ["openai_api_key", "api key", "openai", "server", "network", "fetch"].some((marker) =>
     text.includes(marker)
   )
-    ? SUPPORT_FALLBACK_MESSAGE
+    ? fallbackMessage
     : String(message);
 }
 
-export function FloatingContactDock() {
+export function FloatingContactDock({ settings }: { settings: Required<PublicSiteSettings> }) {
   const [chatbotOpen, setChatbotOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [leadFormOpen, setLeadFormOpen] = useState(false);
@@ -99,11 +100,11 @@ export function FloatingContactDock() {
       });
 
       const payload = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(getFriendlyChatError(payload.error));
+      if (!response.ok) throw new Error(getFriendlyChatError(payload.error, settings.hotline));
       if (!payload.reply) throw new Error("Hiện chưa nhận được phản hồi từ hệ thống chat.");
       appendMessage({ role: "bot", text: payload.reply });
     } catch (error) {
-      appendMessage({ role: "bot", text: getFriendlyChatError(error instanceof Error ? error.message : error) });
+      appendMessage({ role: "bot", text: getFriendlyChatError(error instanceof Error ? error.message : error, settings.hotline) });
     } finally {
       setLoading(false);
     }
@@ -162,9 +163,9 @@ export function FloatingContactDock() {
     <div id="supportWidgetShell">
       <div className="support-widget">
         <div className="support-stack open">
-          <a className="support-card zalo" href="https://zalo.me/0876645432" target="_blank" rel="noreferrer">
+          <a className="support-card zalo" href={settings.zalo} target="_blank" rel="noreferrer">
             <span className="support-card-icon zalo">
-              <img className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" />
+              <Image className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" width={36} height={36} />
             </span>
             <span className="support-card-copy">
               <strong>Tư vấn Zalo</strong>
@@ -172,9 +173,9 @@ export function FloatingContactDock() {
             </span>
           </a>
 
-          <a className="support-card facebook" href="https://www.facebook.com/solarangelx9/" target="_blank" rel="noreferrer">
+          <a className="support-card facebook" href={settings.facebook} target="_blank" rel="noreferrer">
             <span className="support-card-icon facebook">
-              <img className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" />
+              <Image className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" width={36} height={36} />
             </span>
             <span className="support-card-copy">
               <strong>Chat Facebook</strong>
@@ -183,10 +184,12 @@ export function FloatingContactDock() {
           </a>
 
           <button className="support-card chatbot" type="button" onClick={() => setChatbotOpen(true)}>
-            <img
+            <Image
               className="support-card-chatbot-banner"
               src="/assets/icons/bot.png"
               alt="Hỗ trợ Online"
+              width={220}
+              height={64}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
                 const fallback = event.currentTarget.nextElementSibling;
@@ -208,10 +211,10 @@ export function FloatingContactDock() {
           </button>
           <div className="support-chatbot-brand">
             <div className="support-chatbot-logo">
-              <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+              <Image src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" width={48} height={32} />
             </div>
             <div>
-              <strong>HPT Tech</strong>
+              <strong>{settings.companyName}</strong>
               <small>Agent online</small>
             </div>
           </div>
@@ -226,7 +229,7 @@ export function FloatingContactDock() {
               <div className={`support-chat-message ${message.role}`} key={`${message.role}-${index}`}>
                 {message.role === "bot" ? (
                   <div className="support-chat-avatar" aria-hidden="true">
-                    <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+                    <Image src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt={settings.companyName} width={28} height={28} />
                   </div>
                 ) : null}
                 <div className="support-chat-content">
@@ -237,7 +240,7 @@ export function FloatingContactDock() {
             {loading ? (
               <div className="support-chat-message bot loading">
                 <div className="support-chat-avatar" aria-hidden="true">
-                  <img src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" />
+                  <Image src="https://hpttech.vn/media/32/content/HPT-Logo.png" alt="HPT Tech" width={28} height={28} />
                 </div>
                 <div className="support-chat-content">
                   <div className="support-chat-bubble support-chat-typing">

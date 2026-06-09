@@ -29,10 +29,7 @@ export interface Solution {
 
 export const HPT_DATA = {
   banners: [
-    "https://hpttech.vn/media/365/pagebuilder/hpttech-banner-home-16x9-1.jpg",
-    "https://hpttech.vn/media/364/pagebuilder/hpttech-banner-home-16x9-2.jpg",
-    "https://hpttech.vn/media/366/pagebuilder/hpttech-banner-home-16x9-3.jpg",
-    "https://hpttech.vn/media/367/pagebuilder/hpttech-banner-home-16x9-4.jpg",
+    "/assets/herobanner/herobanner1.png",
   ],
   categories: [
     { name: "Laptop doanh nghiệp", icon: "laptop" },
