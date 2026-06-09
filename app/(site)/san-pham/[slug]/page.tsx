@@ -10,6 +10,7 @@ import {
 import { getProductBySlugFromPayload, getProductsFromPayload } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
+import { helpLinks } from "@/lib/help-links";
 import { normalizeSiteSettings, phoneHref, quoteMailHref } from "@/lib/site-settings";
 import { ProductDetailTabs, type ProductDetailTab } from "@/components/product/ProductDetailTabs";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
@@ -32,16 +33,6 @@ type ProductSpec = {
   label: string;
   value: string;
 };
-
-const helpItems = [
-  "Hướng dẫn đặt hàng Flash Sale",
-  "Hướng dẫn mua hàng",
-  "Chính sách bảo hành đổi trả",
-  "Chính sách mua trả góp",
-  "Chính sách giao hàng",
-  "Chính sách bảo hành tận nhà",
-  "Hỗ trợ khách hàng dự án, doanh nghiệp",
-];
 
 const quickBuyItems = [
   "Mua online - Giá tốt",
@@ -394,15 +385,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>
             </div>
             <div className="space-y-2 px-4 py-4">
-              {helpItems.map((item) => (
-                <a
-                  key={item}
-                  href="/lien-he"
+              {helpLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
                   className="flex items-start gap-2 text-sm leading-5 text-slate-700 transition-colors hover:text-[#0057FF]"
                 >
                   <Check size={16} className="mt-0.5 shrink-0 text-orange-600" strokeWidth={3} />
-                  <span>{item}</span>
-                </a>
+                  <span>{item.label}</span>
+                </Link>
               ))}
             </div>
           </div>
