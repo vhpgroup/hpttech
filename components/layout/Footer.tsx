@@ -9,6 +9,7 @@ import {
   Phone,
 } from "lucide-react";
 import type { PublicSiteSettings } from "@/lib/content-payload";
+import { helpLinks } from "@/lib/help-links";
 import { phoneHref } from "@/lib/site-settings";
 
 type FooterLink = {
@@ -53,6 +54,10 @@ const footerColumns: FooterColumn[] = [
       { label: "Liên hệ", href: "/lien-he" },
     ],
   },
+  {
+    title: "Chính sách và hỗ trợ",
+    links: helpLinks.map((link) => ({ ...link })),
+  },
 ];
 
 export default function Footer({ settings }: { settings: Required<PublicSiteSettings> }) {
@@ -72,8 +77,8 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
         Footer HPT Tech
       </h2>
 
-      <div className="mx-auto grid max-w-[1360px] gap-10 px-8 py-14 md:grid-cols-2 lg:grid-cols-[1.45fr_0.85fr_0.85fr_1.35fr] lg:justify-between lg:px-10">
-        <section className="lg:max-w-[420px]" aria-labelledby="footer-about-heading">
+      <div className="mx-auto grid max-w-[1500px] gap-9 px-8 py-14 md:grid-cols-2 lg:grid-cols-[1.2fr_0.72fr_0.72fr_1fr_1.05fr] lg:justify-between lg:px-10">
+        <section className="lg:max-w-[360px]" aria-labelledby="footer-about-heading">
           <Link href="/" className="inline-flex items-end gap-2 text-[46px] font-black leading-none tracking-tight text-[#1681ff]" aria-label="HPT Tech trang chủ">
             HPT
             <span className="mb-1 text-2xl font-light text-white">TECH</span>
@@ -117,13 +122,10 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
         </section>
       </div>
 
-      <div className="mx-auto max-w-[1360px] border-t border-white/10 px-8 py-8 lg:px-10">
+      <div className="mx-auto max-w-[1500px] border-t border-white/10 px-8 py-8 lg:px-10">
         <div className="flex flex-col gap-6 text-sm text-slate-400 lg:flex-row lg:items-center lg:justify-between">
           <p>© 2026 HPT Tech. All rights reserved.</p>
           <nav className="flex flex-wrap gap-6" aria-label="Liên kết pháp lý">
-            <Link className="footer-link" href="/chinh-sach-bao-mat">
-              Chính sách bảo mật
-            </Link>
             <Link className="footer-link" href="/dieu-khoan-su-dung">
               Điều khoản sử dụng
             </Link>

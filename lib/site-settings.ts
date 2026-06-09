@@ -2,12 +2,12 @@ import type { PublicSiteSettings } from "@/lib/content-payload";
 
 export const defaultSiteSettings: Required<PublicSiteSettings> = {
   companyName: "HPT Tech",
-  phone: "0876 645 432",
-  hotline: "0876 645 432",
+  phone: "0918 871 414",
+  hotline: "0918 871 414",
   email: "lienhe@hpttech.vn",
   address: "Tư vấn và triển khai cho doanh nghiệp",
   facebook: "https://www.facebook.com/solarangelx9/",
-  zalo: "https://zalo.me/0876645432",
+  zalo: "https://zalo.me/0918871414",
   youtube: "",
   googleMapsTitle: "Vị trí HPT Tech",
   googleMapsEmbedUrl:

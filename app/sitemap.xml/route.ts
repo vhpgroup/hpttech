@@ -1,5 +1,6 @@
 import { getProductsFromPayload } from "@/lib/catalog-payload";
 import { getPostCategoriesFromPayload, getPostsFromPayload } from "@/lib/content-payload";
+import { helpLinks } from "@/lib/help-links";
 
 export const revalidate = 300;
 
@@ -28,7 +29,20 @@ export async function GET() {
     getPostsFromPayload(),
     getPostCategoriesFromPayload(),
   ]);
-  const staticPaths = ["/", "/san-pham", "/ai-search", "/compare", "/giai-phap", "/thuong-hieu", "/du-an", "/dich-vu", "/tin-tuc", "/ve-hpt", "/lien-he"];
+  const staticPaths = [
+    "/",
+    "/san-pham",
+    "/ai-search",
+    "/compare",
+    "/giai-phap",
+    "/thuong-hieu",
+    "/du-an",
+    "/dich-vu",
+    "/tin-tuc",
+    "/ve-hpt",
+    "/lien-he",
+    ...helpLinks.map((link) => link.href),
+  ];
 
   const urls = [
     ...staticPaths.map((path) => url(`${base}${path}`)),
