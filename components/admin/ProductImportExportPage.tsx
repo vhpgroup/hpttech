@@ -178,8 +178,8 @@ export default function ProductImportExportPage() {
             <label className="hpt-import-dropzone">
               <FileSpreadsheet size={30} />
               <strong>Chọn file Excel hoặc CSV</strong>
-              <small>Hỗ trợ .xls, .html và .csv</small>
-              <input accept=".xls,.html,.csv,text/csv,application/vnd.ms-excel" ref={fileRef} type="file" />
+              <small>Hỗ trợ .xlsx, .xls, .html và .csv</small>
+              <input accept=".xlsx,.xls,.html,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ref={fileRef} type="file" />
             </label>
 
             <button

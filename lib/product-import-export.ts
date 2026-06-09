@@ -1,5 +1,6 @@
 import { getPayloadClient } from "@/lib/payload";
 import { formatSlug } from "@/lib/payload/utils/slugify";
+import ExcelJS from "exceljs";
 
 const PRODUCT_COLUMNS = [
   "sku",
@@ -314,11 +315,25 @@ function stripTags(value: string) {
   return decodeHTML(value.replace(/<[^>]+>/g, "")).trim();
 }
 
+function dataColumn(attrs: string) {
+  const match = attrs.match(/\bdata-column=(["'])(.*?)\1/i);
+  return match ? decodeHTML(match[2]).trim() : "";
+}
+
 function parseExcelHTML(input: string): CsvRecord[] {
-  const rows = Array.from(input.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)).map((match) =>
-    Array.from(match[1].matchAll(/<t[dh]\b[^>]*>([\s\S]*?)<\/t[dh]>/gi)).map((cell) => stripTags(cell[1])),
-  );
-  const [rawHeader = [], ...dataRows] = rows.filter((row) => row.some((cell) => cell.trim()));
+  const rows = Array.from(input.matchAll(/<tr\b([^>]*)>([\s\S]*?)<\/tr>/gi))
+    .filter((match) => !/\bdata-import-skip=(["'])true\1/i.test(match[1]))
+    .map((match) => ({
+      cells: Array.from(match[2].matchAll(/<t[dh]\b([^>]*)>([\s\S]*?)<\/t[dh]>/gi)).map((cell) =>
+        dataColumn(cell[1]) || stripTags(cell[2]),
+      ),
+      header: /\bdata-import-header=(["'])true\1/i.test(match[1]),
+    }))
+    .filter((row) => row.cells.some((cell) => cell.trim()));
+  const headerIndex = rows.findIndex((row) => row.header);
+  const headerRowIndex = headerIndex >= 0 ? headerIndex : 0;
+  const rawHeader = rows[headerRowIndex]?.cells || [];
+  const dataRows = rows.slice(headerRowIndex + 1).map((row) => row.cells);
   const header = rawHeader[0]?.toLowerCase() === "stt" ? rawHeader.slice(1) : rawHeader;
 
   return dataRows.map((rawCells) => {
@@ -377,6 +392,82 @@ export function parseCSV(input: string): CsvRecord[] {
     });
     return record;
   });
+}
+
+function spreadsheetCellText(cell: ExcelJS.Cell) {
+  const value = cell.value;
+  if (value === null || value === undefined) return "";
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value !== "object") return String(value).trim();
+  if ("text" in value && typeof value.text === "string") return value.text.trim();
+  if ("result" in value && value.result !== undefined && value.result !== null) return String(value.result).trim();
+  if ("richText" in value && Array.isArray(value.richText)) {
+    return value.richText.map((part) => String(part.text || "")).join("").trim();
+  }
+  return String(value).trim();
+}
+
+function cleanSpreadsheetHeader(value: string) {
+  return value
+    .split(/\r?\n/)[0]
+    .replace(/\s+\*$/, "")
+    .trim();
+}
+
+function rowValues(row: ExcelJS.Row) {
+  const values: string[] = [];
+  row.eachCell({ includeEmpty: true }, (cell, columnNumber) => {
+    values[columnNumber - 1] = spreadsheetCellText(cell);
+  });
+  return values.map((value) => value || "");
+}
+
+function looksLikeHeader(cells: string[]) {
+  const normalized = cells.map((cell) => cleanSpreadsheetHeader(cell).toLowerCase());
+  return (
+    normalized.includes("sku") ||
+    normalized.includes("producttypecode") ||
+    normalized.includes("loại sản phẩm") ||
+    normalized.includes("tên product") ||
+    normalized.includes("tên sản phẩm")
+  );
+}
+
+export async function parseExcelWorkbook(input: ArrayBuffer): Promise<CsvRecord[]> {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(input);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) return [];
+
+  const rows: Array<{ cells: string[]; hidden: boolean }> = [];
+  worksheet.eachRow({ includeEmpty: false }, (row) => {
+    const cells = rowValues(row);
+    if (!cells.some((cell) => cell.trim())) return;
+    rows.push({ cells, hidden: row.hidden === true });
+  });
+
+  const headerIndex =
+    rows.findIndex((row) => row.hidden && looksLikeHeader(row.cells)) >= 0
+      ? rows.findIndex((row) => row.hidden && looksLikeHeader(row.cells))
+      : rows.findIndex((row) => looksLikeHeader(row.cells));
+  if (headerIndex < 0) return [];
+
+  const rawHeader = rows[headerIndex].cells;
+  const header = rawHeader[0]?.toLowerCase() === "stt" ? rawHeader.slice(1) : rawHeader;
+  return rows.slice(headerIndex + 1)
+    .filter((row) => !row.hidden)
+    .filter((row) => !looksLikeHeader(row.cells))
+    .map((row) => {
+      const cells = rawHeader[0]?.toLowerCase() === "stt" ? row.cells.slice(1) : row.cells;
+      const record: CsvRecord = {};
+      header.forEach((column, index) => {
+        const headerName = cleanSpreadsheetHeader(column);
+        const mappedColumn = COLUMN_BY_LABEL.get(headerName.toLowerCase()) || headerName;
+        record[mappedColumn] = cells[index]?.trim() ?? "";
+      });
+      return record;
+    })
+    .filter((record) => Object.values(record).some((value) => value.trim()));
 }
 
 function value(record: CsvRecord, key: ProductColumn) {
@@ -849,11 +940,11 @@ export function productCSVResponse(csv: string, filename: string) {
   });
 }
 
-export function productExcelResponse(html: string, filename: string) {
-  return new Response(`\uFEFF${html}`, {
+export function productExcelResponse(workbook: Buffer, filename: string) {
+  return new Response(new Uint8Array(workbook), {
     headers: {
       "Content-Disposition": `attachment; filename="${filename}"`,
-      "Content-Type": "application/vnd.ms-excel; charset=utf-8",
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     },
   });
 }
@@ -870,5 +961,5 @@ export function productExportFilename(kind: "export" | "template", profile: Prod
 
 export function productExcelFilename(kind: "export" | "template", profile: ProductExportProfile) {
   const suffix = profileLabel(profile);
-  return kind === "template" ? `hpt-mau-import-${suffix}.xls` : `hpt-products-${suffix}.xls`;
+  return kind === "template" ? `hpt-mau-import-${suffix}.xlsx` : `hpt-products-${suffix}.xlsx`;
 }

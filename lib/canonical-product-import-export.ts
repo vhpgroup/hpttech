@@ -1,4 +1,5 @@
 import type { Payload, Where } from "payload";
+import ExcelJS from "exceljs";
 import { getPayloadClient } from "@/lib/payload";
 import { relationID } from "@/lib/catalog-schema";
 import { formatSlug } from "@/lib/payload/utils/slugify";
@@ -38,6 +39,15 @@ const BASE_COLUMNS = [
   "quantity",
   "stockStatus",
 ] as const;
+
+const REQUIRED_IMPORT_COLUMNS = new Set<string>([
+  "productTypeCode",
+  "productName",
+  "model",
+  "brandName",
+  "categoryName",
+  "sku",
+]);
 
 const LABELS: Record<(typeof BASE_COLUMNS)[number], string> = {
   internalId: "Mã Product nội bộ",
@@ -134,28 +144,7 @@ function templateColumnsForProfile(profile: ProductExportProfile) {
     profile === "all"
       ? SPEC_COLUMNS
       : SPEC_COLUMNS.filter((spec) => spec.profile === profile);
-  return [
-    "internalId",
-    "productTypeCode",
-    "productName",
-    "model",
-    "mpn",
-    "brandName",
-    "categoryName",
-    "productStatus",
-    "sku",
-    "variantName",
-    "isPrimary",
-    "warranty",
-    "price",
-    "vatIncluded",
-    "promotionPrice",
-    "saleStatus",
-    "warehouseName",
-    "quantity",
-    "stockStatus",
-    ...specs.map((spec) => `attribute.${spec.code}`),
-  ];
+  return [...BASE_COLUMNS, ...specs.map((spec) => `attribute.${spec.code}`)];
 }
 
 function labelForColumn(column: string) {
@@ -188,7 +177,69 @@ function htmlEscape(value: unknown) {
     .replace(/"/g, "&quot;");
 }
 
-function recordsToExcel(
+function columnWidth(column: string) {
+  if (column === "productName") return 280;
+  if (column === "brandName" || column === "categoryName" || column === "variantName") return 180;
+  if (column === "sourceUrl") return 260;
+  if (column === "internalId" || column === "sku" || column === "model" || column === "mpn") return 150;
+  if (column.includes("connectivity")) return 190;
+  if (column.includes("resolution") || column.includes("Speed") || column.includes("speed")) return 155;
+  if (column.includes("attribute.")) return 170;
+  return 135;
+}
+
+function columnRequirement(column: string) {
+  if (REQUIRED_IMPORT_COLUMNS.has(column)) return "Bắt buộc";
+  if (column.startsWith("attribute.")) return "Thông số";
+  return "Tùy chọn";
+}
+
+function columnHelp(column: string) {
+  const spec = SPEC_COLUMNS.find((item) => `attribute.${item.code}` === column);
+  if (spec) {
+    if (spec.dataType === "boolean") return "Có / Không";
+    if (spec.dataType === "enum_list") return "Có thể nhập nhiều giá trị, cách nhau bằng dấu phẩy";
+    if (spec.dataType === "number") return "Chỉ nhập số";
+    return "Nhập theo giá trị gợi ý";
+  }
+  const hints: Record<string, string> = {
+    productTypeCode: "scanner / printer / photocopier",
+    productStatus: "draft / published / archived",
+    sourceType: "import / manual / scraper / api",
+    isPrimary: "Có / Không",
+    variantStatus: "active / draft / discontinued",
+    currency: "VND",
+    vatIncluded: "Có / Không",
+    saleStatus: "active / contact / paused / discontinued",
+    stockStatus: "unknown / in_stock / out_of_stock / preorder",
+  };
+  return hints[column] || "";
+}
+
+function dropdownOptions(column: string) {
+  const spec = SPEC_COLUMNS.find((item) => `attribute.${item.code}` === column);
+  if (spec) {
+    if (spec.dataType === "boolean") return ["Có", "Không"];
+    if (spec.code.includes("connectivity")) return ["USB", "LAN", "WiFi"];
+    if (spec.code.includes("max_paper_size")) return spec.profile === "photocopier" ? ["A4", "A3"] : ["A4", "A3", "Legal"];
+    if (spec.code === "printer_technology") return ["Laser", "Phun mực", "LED"];
+    return undefined;
+  }
+  const options: Record<string, string[]> = {
+    productTypeCode: ["scanner", "printer", "photocopier"],
+    productStatus: ["draft", "published", "archived"],
+    sourceType: ["import", "manual", "scraper", "api"],
+    isPrimary: ["Có", "Không"],
+    variantStatus: ["active", "draft", "discontinued"],
+    currency: ["VND"],
+    vatIncluded: ["Có", "Không"],
+    saleStatus: ["active", "contact", "paused", "discontinued"],
+    stockStatus: ["unknown", "in_stock", "out_of_stock", "preorder"],
+  };
+  return options[column];
+}
+
+async function recordsToExcel(
   records: RecordRow[],
   profile: ProductExportProfile,
   template = false,
@@ -196,18 +247,93 @@ function recordsToExcel(
   const columns = template
     ? templateColumnsForProfile(profile)
     : columnsForProfile(profile);
-  const header = columns.map((column) => `<th>${htmlEscape(labelForColumn(column))}</th>`).join("");
-  const rows = records
-    .map(
-      (record) =>
-        `<tr>${columns.map((column) => `<td style="mso-number-format:'\\@';">${htmlEscape(record[column])}</td>`).join("")}</tr>`,
-    )
-    .join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-table{border-collapse:collapse;font-family:Arial,sans-serif;font-size:12px}
-th{background:#1f5a86;color:#fff;border:1px solid #17486d;padding:6px;white-space:nowrap}
-td{border:1px solid #9ca3af;padding:6px;vertical-align:top;white-space:normal}
-</style></head><body><table><thead><tr>${header}</tr></thead><tbody>${rows}</tbody></table></body></html>`;
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "HPT Tech";
+  workbook.created = new Date();
+  const worksheet = workbook.addWorksheet(template ? "Mẫu import" : "Sản phẩm");
+  worksheet.views = [{ state: "frozen", ySplit: template ? 3 : 1 }];
+
+  columns.forEach((column, index) => {
+    worksheet.getColumn(index + 1).width = Math.max(12, Math.ceil(columnWidth(column) / 8));
+  });
+
+  if (template) {
+    const note = worksheet.addRow([
+      "HPT Tech - Mẫu import sản phẩm. Cột có dấu * là bắt buộc. Không đổi tên/xóa dòng tiêu đề màu xanh.",
+    ]);
+    worksheet.mergeCells(1, 1, 1, columns.length);
+    note.height = 24;
+    note.getCell(1).fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFEFF6FF" } };
+    note.getCell(1).font = { bold: true, color: { argb: "FF1E3A8A" } };
+
+    const machineHeader = worksheet.addRow(columns);
+    machineHeader.hidden = true;
+  }
+
+  const headerRow = worksheet.addRow(
+    columns.map((column) => {
+      const help = columnHelp(column);
+      return [
+        `${labelForColumn(column)}${REQUIRED_IMPORT_COLUMNS.has(column) ? " *" : ""}`,
+        columnRequirement(column),
+        help,
+      ].filter(Boolean).join("\n");
+    }),
+  );
+  headerRow.height = 54;
+  headerRow.eachCell((cell) => {
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F5A86" } };
+    cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
+    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+    cell.border = {
+      bottom: { style: "thin", color: { argb: "FF17486D" } },
+      left: { style: "thin", color: { argb: "FF17486D" } },
+      right: { style: "thin", color: { argb: "FF17486D" } },
+      top: { style: "thin", color: { argb: "FF17486D" } },
+    };
+  });
+
+  for (const [index, record] of records.entries()) {
+    const row = worksheet.addRow(columns.map((column) => record[column] || ""));
+    row.eachCell((cell) => {
+      cell.numFmt = "@";
+      cell.alignment = { vertical: "top", wrapText: true };
+      cell.border = {
+        bottom: { style: "thin", color: { argb: "FF6BB4D3" } },
+        left: { style: "thin", color: { argb: "FF6BB4D3" } },
+        right: { style: "thin", color: { argb: "FF6BB4D3" } },
+        top: { style: "thin", color: { argb: "FF6BB4D3" } },
+      };
+      if (index % 2 === 0) {
+        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFC7EEFB" } };
+      }
+    });
+  }
+
+  if (template) {
+    const firstInputRow = headerRow.number + 1;
+    const lastInputRow = 300;
+    columns.forEach((column, columnIndex) => {
+      const options = dropdownOptions(column);
+      if (!options?.length) return;
+      for (let rowNumber = firstInputRow; rowNumber <= lastInputRow; rowNumber += 1) {
+        worksheet.getCell(rowNumber, columnIndex + 1).dataValidation = {
+          allowBlank: !REQUIRED_IMPORT_COLUMNS.has(column),
+          formulae: [`"${options.join(",")}"`],
+          showErrorMessage: true,
+          type: "list",
+        };
+      }
+    });
+  }
+
+  worksheet.autoFilter = {
+    from: { column: 1, row: headerRow.number },
+    to: { column: columns.length, row: headerRow.number },
+  };
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }
 
 function normalizeParsedRecord(record: RecordRow) {
@@ -449,9 +575,9 @@ export type CanonicalImportResult = {
   updated: number;
 };
 
-export async function importCanonicalProductsCSV(csv: string) {
+export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
   const payload = await getPayloadClient();
-  const rows = parseCSV(csv).map(normalizeParsedRecord);
+  const rows = parsedRows.map(normalizeParsedRecord);
   const result: CanonicalImportResult = {
     created: 0,
     errors: [],
@@ -501,12 +627,22 @@ export async function importCanonicalProductsCSV(csv: string) {
       );
       const internalId = text(row, "internalId");
       const slug = text(row, "slug") || formatSlug(productName);
+      const existingVariant = await findOne(payload, "product-variants", {
+        sku: { equals: sku },
+      });
+      const existingProductFromSKU =
+        existingVariant && relationID(existingVariant.product) !== undefined
+          ? await findOne(payload, "products", {
+              id: { equals: relationID(existingVariant.product) },
+            })
+          : undefined;
       const existingProduct =
         (internalId
           ? await findOne(payload, "products", {
               internalId: { equals: internalId },
             })
           : undefined) ||
+        existingProductFromSKU ||
         (await findOne(payload, "products", { slug: { equals: slug } }));
       const finalStatus = normalizedChoice(
         text(row, "productStatus"),
@@ -518,7 +654,7 @@ export async function importCanonicalProductsCSV(csv: string) {
           "luu tru": "archived",
           archived: "archived",
         },
-        "draft",
+        docText(existingProduct, "status") || "draft",
       );
       const productData = {
         attributes,
@@ -660,6 +796,10 @@ export async function importCanonicalProductsCSV(csv: string) {
     }
   }
   return result;
+}
+
+export async function importCanonicalProductsCSV(csv: string) {
+  return importCanonicalProductsRows(parseCSV(csv));
 }
 
 function docText(doc: Doc | undefined, key: string) {
@@ -886,7 +1026,7 @@ export function canonicalProductTemplateCSV(
   return recordsToCSV(canonicalTemplateRecords(profile), profile, true);
 }
 
-export function canonicalProductTemplateExcel(
+export async function canonicalProductTemplateExcel(
   profile: ProductExportProfile = "scanner",
 ) {
   return recordsToExcel(canonicalTemplateRecords(profile), profile, true);

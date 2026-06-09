@@ -1,5 +1,11 @@
-import { importCanonicalProductsCSV } from "@/lib/canonical-product-import-export";
-import { productImportExportAuthorized } from "@/lib/product-import-export";
+import {
+  importCanonicalProductsCSV,
+  importCanonicalProductsRows,
+} from "@/lib/canonical-product-import-export";
+import {
+  parseExcelWorkbook,
+  productImportExportAuthorized,
+} from "@/lib/product-import-export";
 
 export async function POST(request: Request) {
   if (!productImportExportAuthorized(request)) {
@@ -8,19 +14,31 @@ export async function POST(request: Request) {
 
   const contentType = request.headers.get("content-type") || "";
   let csv = "";
+  let rows: Awaited<ReturnType<typeof parseExcelWorkbook>> | undefined;
 
   if (contentType.includes("multipart/form-data")) {
     const form = await request.formData();
     const file = form.get("file");
-    csv = file instanceof File ? await file.text() : String(form.get("csv") || "");
+    if (file instanceof File) {
+      const isXLSX =
+        file.name.toLowerCase().endsWith(".xlsx") ||
+        file.type.includes("spreadsheetml");
+      if (isXLSX) {
+        rows = await parseExcelWorkbook(await file.arrayBuffer());
+      } else {
+        csv = await file.text();
+      }
+    } else {
+      csv = String(form.get("csv") || "");
+    }
   } else {
     csv = await request.text();
   }
 
-  if (!csv.trim()) {
+  if (!rows?.length && !csv.trim()) {
     return Response.json({ error: "Missing CSV file or body" }, { status: 400 });
   }
 
-  const result = await importCanonicalProductsCSV(csv);
+  const result = rows ? await importCanonicalProductsRows(rows) : await importCanonicalProductsCSV(csv);
   return Response.json(result);
 }

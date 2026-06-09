@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const type = url.searchParams.get("type");
   const profile = productExportProfileFromRequest(request);
   const templateProfile = profile === "all" ? "scanner" : profile;
-  const format = url.searchParams.get("format") === "csv" ? "csv" : "xls";
+  const format = url.searchParams.get("format") === "csv" ? "csv" : "xlsx";
 
   if (format === "csv") {
     const csv =
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
   const excel =
     type === "template"
-      ? canonicalProductTemplateExcel(templateProfile)
+      ? await canonicalProductTemplateExcel(templateProfile)
       : await exportCanonicalProductsExcel(profile);
   return productExcelResponse(excel, productExcelFilename(type === "template" ? "template" : "export", profile));
 }
