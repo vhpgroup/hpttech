@@ -1,15 +1,17 @@
 import {
-  exportProductsExcel,
-  exportProductsCSV,
   productExcelFilename,
   productExcelResponse,
   productExportFilename,
   productExportProfileFromRequest,
   productCSVResponse,
   productImportExportAuthorized,
-  productImportTemplateExcel,
-  productImportTemplateCSV,
 } from "@/lib/product-import-export";
+import {
+  canonicalProductTemplateCSV,
+  canonicalProductTemplateExcel,
+  exportCanonicalProductsCSV,
+  exportCanonicalProductsExcel,
+} from "@/lib/canonical-product-import-export";
 
 export async function GET(request: Request) {
   if (!productImportExportAuthorized(request)) {
@@ -23,10 +25,16 @@ export async function GET(request: Request) {
   const format = url.searchParams.get("format") === "csv" ? "csv" : "xls";
 
   if (format === "csv") {
-    const csv = type === "template" ? productImportTemplateCSV(templateProfile) : await exportProductsCSV(profile);
+    const csv =
+      type === "template"
+        ? canonicalProductTemplateCSV(templateProfile)
+        : await exportCanonicalProductsCSV(profile);
     return productCSVResponse(csv, productExportFilename(type === "template" ? "template" : "export", profile));
   }
 
-  const excel = type === "template" ? productImportTemplateExcel(templateProfile) : await exportProductsExcel(profile);
+  const excel =
+    type === "template"
+      ? canonicalProductTemplateExcel(templateProfile)
+      : await exportCanonicalProductsExcel(profile);
   return productExcelResponse(excel, productExcelFilename(type === "template" ? "template" : "export", profile));
 }

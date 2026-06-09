@@ -570,10 +570,11 @@ function emptyFilters(): Filters {
 
 export default function ProductListClient({ products }: ProductListClientProps) {
   const searchParams = useSearchParams();
-  const queryKey = searchParams.toString();
+  const safeSearchParams = searchParams ?? new URLSearchParams();
+  const queryKey = safeSearchParams.toString();
   const initialFilters = {
-    search: cleanFilterValue(searchParams.get("search")),
-    filters: initialFiltersFromParams(searchParams),
+    search: cleanFilterValue(safeSearchParams.get("search")),
+    filters: initialFiltersFromParams(safeSearchParams),
   };
 
   return <ProductListInner key={queryKey} products={products} initialSearch={initialFilters.search} initialFilters={initialFilters.filters} />;

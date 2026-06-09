@@ -19,12 +19,19 @@ import { PostTags } from "./collections/PostTags.ts";
 import { Posts } from "./collections/Posts.ts";
 import { Products } from "./collections/Products.ts";
 import { Projects } from "./collections/Projects.ts";
+import { ScraperJobs } from "./collections/ScraperJobs.ts";
 import { Solutions } from "./collections/Solutions.ts";
 import { StaticPages } from "./collections/StaticPages.ts";
 import { Testimonials } from "./collections/Testimonials.ts";
 import { Users } from "./collections/Users.ts";
 import { AboutPage } from "./globals/AboutPage.ts";
 import { SiteSettings } from "./globals/SiteSettings.ts";
+import { AttributeDefinitions } from "./collections/AttributeDefinitions.ts";
+import { ProductAIMetadata } from "./collections/ProductAIMetadata.ts";
+import { ProductInventory } from "./collections/ProductInventory.ts";
+import { ProductOffers } from "./collections/ProductOffers.ts";
+import { ProductTypes } from "./collections/ProductTypes.ts";
+import { ProductVariants } from "./collections/ProductVariants.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -66,9 +73,10 @@ export default buildConfig({
       baseDir: dirname,
     },
     components: {
+      beforeNavLinks: ["@/components/payload/NavLogo"],
       afterNavLinks: ["@/components/payload/AfterNavLinks"],
       graphics: {
-        Icon: "@/components/payload/NavLogo",
+        Icon: "@/components/payload/NavIcon",
         Logo: "@/components/payload/NavLogo",
       },
       views: {
@@ -84,7 +92,14 @@ export default buildConfig({
     Media,
     Categories,
     Brands,
+    ProductTypes,
+    AttributeDefinitions,
     Products,
+    ProductVariants,
+    ProductOffers,
+    ProductInventory,
+    ProductAIMetadata,
+    ScraperJobs,
     Orders,
     Banners,
     Solutions,

@@ -1,4 +1,5 @@
-import { importProductsCSV, productImportExportAuthorized } from "@/lib/product-import-export";
+import { importCanonicalProductsCSV } from "@/lib/canonical-product-import-export";
+import { productImportExportAuthorized } from "@/lib/product-import-export";
 
 export async function POST(request: Request) {
   if (!productImportExportAuthorized(request)) {
@@ -20,6 +21,6 @@ export async function POST(request: Request) {
     return Response.json({ error: "Missing CSV file or body" }, { status: 400 });
   }
 
-  const result = await importProductsCSV(csv);
+  const result = await importCanonicalProductsCSV(csv);
   return Response.json(result);
 }

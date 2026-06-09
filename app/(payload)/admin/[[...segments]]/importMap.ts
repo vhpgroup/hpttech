@@ -1,6 +1,7 @@
 import { CollectionCards as CollectionCards_f937fd27 } from "@payloadcms/next/rsc";
 import AfterNavLinks from "@/components/payload/AfterNavLinks";
 import Dashboard from "@/components/payload/Dashboard";
+import NavIcon from "@/components/payload/NavIcon";
 import NavLogo from "@/components/payload/NavLogo";
 import {
   LexicalDiffComponent as LexicalDiffComponent_10877c26,
@@ -36,6 +37,7 @@ import type { ImportMap } from "payload";
 export const importMap: ImportMap = {
   "@/components/payload/AfterNavLinks#default": AfterNavLinks,
   "@/components/payload/Dashboard#default": Dashboard,
+  "@/components/payload/NavIcon#default": NavIcon,
   "@/components/payload/NavLogo#default": NavLogo,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f937fd27,
   "@payloadcms/richtext-lexical/client#AlignFeatureClient": AlignFeatureClient_e70f5e05,

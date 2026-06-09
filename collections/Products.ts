@@ -1,8 +1,22 @@
-import type { CollectionConfig, Field } from "payload";
+import { randomUUID } from "crypto";
+import type {
+  CollectionBeforeChangeHook,
+  CollectionBeforeValidateHook,
+  CollectionConfig,
+  Field,
+} from "payload";
 import { lexicalHTMLField } from "@payloadcms/richtext-lexical";
+import {
+  ATTRIBUTE_DATA_TYPE_OPTIONS,
+  ATTRIBUTE_UNIT_OPTIONS,
+  hasTypedAttributeValue,
+  relationID,
+  type AttributeDataType,
+} from "../lib/catalog-schema.ts";
 import { seoField } from "../lib/payload/fields/seo.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
+import { preventProductDeleteWithVariants } from "../lib/payload/hooks/catalog-lifecycle.ts";
 
 const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
@@ -14,6 +28,192 @@ const specProfileOptions = [
 type ProductFormData = {
   category?: unknown;
   specProfile?: string;
+};
+
+type CanonicalAttributeRow = Record<string, unknown> & {
+  definition?: unknown;
+};
+
+type CanonicalProductData = Record<string, unknown> & {
+  attributes?: CanonicalAttributeRow[];
+  dataModel?: string;
+  internalId?: string;
+  model?: string;
+  name?: string;
+  productType?: unknown;
+  slug?: string;
+  status?: string;
+  title?: string;
+};
+
+const prepareCanonicalProduct: CollectionBeforeValidateHook = ({
+  data,
+  operation,
+  originalDoc,
+}) => {
+  const product = (data || {}) as CanonicalProductData;
+  const existingDataModel =
+    originalDoc && typeof originalDoc === "object" && "dataModel" in originalDoc
+      ? originalDoc.dataModel
+      : undefined;
+  const dataModel =
+    product.dataModel ||
+    (typeof existingDataModel === "string"
+      ? existingDataModel
+      : operation === "create"
+        ? "canonical"
+        : "legacy");
+
+  if (dataModel !== "canonical") {
+    return {
+      ...product,
+      dataModel,
+    };
+  }
+
+  return {
+    ...product,
+    dataModel,
+    internalId:
+      product.internalId ||
+      (originalDoc && typeof originalDoc === "object" && "internalId" in originalDoc
+        ? originalDoc.internalId
+        : undefined) ||
+      `HPT-${randomUUID().slice(0, 8).toUpperCase()}`,
+    title:
+      product.name ||
+      product.title ||
+      (originalDoc && typeof originalDoc === "object" && "title" in originalDoc
+        ? originalDoc.title
+        : undefined),
+  };
+};
+
+const validateCanonicalProduct: CollectionBeforeChangeHook = async ({
+  data,
+  originalDoc,
+  req,
+}) => {
+  const product = {
+    ...(originalDoc && typeof originalDoc === "object" ? originalDoc : {}),
+    ...data,
+  } as CanonicalProductData;
+  if (product.dataModel !== "canonical" || product.status !== "published") return data;
+
+  const missingFields = [
+    ["internalId", product.internalId],
+    ["productType", relationID(product.productType)],
+    ["brand", relationID(product.brand)],
+    ["model", product.model],
+    ["name", product.name],
+    ["slug", product.slug],
+  ]
+    .filter(([, value]) => !value)
+    .map(([field]) => field);
+
+  if (missingFields.length) {
+    throw new Error(
+      `Không thể publish sản phẩm chuẩn. Thiếu field: ${missingFields.join(", ")}.`,
+    );
+  }
+
+  const productTypeID = relationID(product.productType);
+  const definitionResult = await req.payload.find({
+    collection: "attribute-definitions" as never,
+    depth: 0,
+    limit: 500,
+    where: {
+      and: [
+        { productType: { equals: productTypeID } },
+        { status: { equals: "active" } },
+      ],
+    },
+  });
+
+  const definitions = definitionResult.docs as Array<Record<string, unknown>>;
+  const definitionsByID = new Map(
+    definitions.map((definition) => [String(definition.id), definition]),
+  );
+  const suppliedDefinitionIDs = new Set<string>();
+
+  for (const row of product.attributes || []) {
+    const definitionID = relationID(row.definition);
+    if (!definitionID) throw new Error("Mỗi thuộc tính sản phẩm phải chọn một định nghĩa.");
+
+    const definition = definitionsByID.get(String(definitionID));
+    if (!definition) {
+      throw new Error("Thuộc tính không thuộc loại sản phẩm đã chọn hoặc đã ngừng dùng.");
+    }
+    if (suppliedDefinitionIDs.has(String(definitionID))) {
+      throw new Error(`Thuộc tính ${String(definition.label || definition.code)} bị nhập trùng.`);
+    }
+
+    const dataType = definition.dataType as AttributeDataType;
+    if (row.dataType !== dataType) {
+      throw new Error(
+        `Thuộc tính ${String(definition.label || definition.code)} phải có kiểu ${dataType}.`,
+      );
+    }
+    if (row.unit !== definition.unit) {
+      throw new Error(
+        `Thuộc tính ${String(definition.label || definition.code)} phải dùng đơn vị ${String(definition.unit)}.`,
+      );
+    }
+    if (!hasTypedAttributeValue(row, dataType)) {
+      throw new Error(
+        `Thuộc tính ${String(definition.label || definition.code)} chưa có giá trị hợp lệ.`,
+      );
+    }
+
+    if (dataType === "enum" || dataType === "enum_list") {
+      const allowedValues = new Set(
+        Array.isArray(definition.options)
+          ? definition.options
+              .map((option) =>
+                option && typeof option === "object" && "value" in option
+                  ? String(option.value)
+                  : "",
+              )
+              .filter(Boolean)
+          : [],
+      );
+      const selectedValues =
+        dataType === "enum"
+          ? [String(row.enumValue || "")]
+          : Array.isArray(row.enumListValue)
+            ? row.enumListValue.map((item) =>
+                item && typeof item === "object" && "value" in item
+                  ? String(item.value)
+                  : "",
+              )
+            : [];
+      const invalidValues = selectedValues.filter(
+        (value) => !value || !allowedValues.has(value),
+      );
+      if (invalidValues.length) {
+        throw new Error(
+          `Thuộc tính ${String(definition.label || definition.code)} có lựa chọn không hợp lệ: ${invalidValues.join(", ")}.`,
+        );
+      }
+    }
+    suppliedDefinitionIDs.add(String(definitionID));
+  }
+
+  const missingRequired = definitions
+    .filter(
+      (definition) =>
+        definition.required === true &&
+        !suppliedDefinitionIDs.has(String(definition.id)),
+    )
+    .map((definition) => String(definition.label || definition.code));
+
+  if (missingRequired.length) {
+    throw new Error(
+      `Không thể publish. Thiếu thuộc tính bắt buộc: ${missingRequired.join(", ")}.`,
+    );
+  }
+
+  return data;
 };
 
 function normalizeText(value: string) {
@@ -60,6 +260,10 @@ function specCondition(profile: "scanner" | "printer" | "photocopier") {
     const categoryProfile = specProfileFromCategory(data.category ?? siblingData.category);
     return categoryProfile ? categoryProfile === profile : siblingData?.specProfile === profile;
   };
+}
+
+function legacyOnly(data: Record<string, unknown> = {}) {
+  return data.dataModel !== "canonical";
 }
 
 function row(fields: Field[]): Field {
@@ -310,11 +514,21 @@ export const Products: CollectionConfig = {
     },
   },
   admin: {
-    defaultColumns: ["title", "model", "sku", "brand", "category", "price", "status", "featured"],
+    defaultColumns: [
+      "title",
+      "internalId",
+      "model",
+      "productType",
+      "brand",
+      "status",
+    ],
     group: "Danh mục sản phẩm",
     useAsTitle: "title",
   },
   hooks: {
+    beforeValidate: [prepareCanonicalProduct],
+    beforeChange: [validateCanonicalProduct],
+    beforeDelete: [preventProductDeleteWithVariants],
     afterChange: [revalidateCollection],
     afterDelete: [revalidateCollectionDelete],
   },
@@ -325,6 +539,238 @@ export const Products: CollectionConfig = {
     {
       type: "tabs",
       tabs: [
+        {
+          label: "Catalog chuẩn",
+          fields: [
+            {
+              name: "dataModel",
+              label: "Mô hình dữ liệu",
+              type: "select",
+              options: [
+                { label: "Catalog chuẩn", value: "canonical" },
+                { label: "Legacy - chờ migration", value: "legacy" },
+              ],
+              required: true,
+              admin: {
+                description:
+                  "Sản phẩm cũ giữ legacy đến khi migration. Sản phẩm mới phải dùng Catalog chuẩn.",
+              },
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "internalId",
+                  label: "Mã catalog nội bộ",
+                  type: "text",
+                  unique: true,
+                  index: true,
+                  admin: {
+                    width: "50%",
+                    description:
+                      "Định danh ổn định của Product, tự sinh khi tạo mới. Không dùng tên sản phẩm.",
+                  },
+                },
+                {
+                  name: "productType",
+                  label: "Loại sản phẩm",
+                  type: "relationship",
+                  relationTo: "product-types",
+                  index: true,
+                  admin: { width: "50%" },
+                },
+              ],
+            },
+            {
+              type: "row",
+              fields: [
+                {
+                  name: "name",
+                  label: "Tên catalog",
+                  type: "text",
+                  admin: {
+                    width: "50%",
+                    description:
+                      "Tên chính thức của model. Field này đồng bộ sang Tên sản phẩm legacy.",
+                  },
+                },
+                {
+                  name: "mpn",
+                  label: "MPN của hãng",
+                  type: "text",
+                  index: true,
+                  admin: {
+                    width: "50%",
+                    description: "Manufacturer Part Number, chỉ nhập mã do hãng công bố.",
+                  },
+                },
+              ],
+            },
+            {
+              name: "source",
+              label: "Nguồn dữ liệu",
+              type: "group",
+              fields: [
+                {
+                  type: "row",
+                  fields: [
+                    {
+                      name: "type",
+                      label: "Loại nguồn",
+                      type: "select",
+                      defaultValue: "manual",
+                      options: [
+                        { label: "Nhập tay", value: "manual" },
+                        { label: "Website hãng", value: "manufacturer" },
+                        { label: "Scraper", value: "scraper" },
+                        { label: "Import Excel", value: "import" },
+                      ],
+                      required: true,
+                      admin: { width: "50%" },
+                    },
+                    {
+                      name: "verified",
+                      label: "Đã xác minh",
+                      type: "checkbox",
+                      defaultValue: false,
+                      admin: { width: "50%" },
+                    },
+                  ],
+                },
+                {
+                  name: "url",
+                  label: "URL nguồn",
+                  type: "text",
+                },
+                {
+                  name: "verifiedAt",
+                  label: "Thời điểm xác minh",
+                  type: "date",
+                  admin: {
+                    condition: (_, siblingData) => Boolean(siblingData?.verified),
+                  },
+                },
+              ],
+            },
+            {
+              name: "shortDescription",
+              label: "Mô tả ngắn chuẩn",
+              type: "textarea",
+              admin: {
+                description:
+                  "Nội dung ngắn có cấu trúc cho catalog, báo giá và các kênh tích hợp.",
+              },
+            },
+          ],
+        },
+        {
+          label: "Thuộc tính chuẩn",
+          fields: [
+            {
+              name: "attributes",
+              label: "Giá trị thuộc tính",
+              type: "array",
+              admin: {
+                description:
+                  "Chọn định nghĩa thuộc tính và nhập đúng cột giá trị theo kiểu dữ liệu.",
+              },
+              fields: [
+                {
+                  name: "definition",
+                  label: "Định nghĩa thuộc tính",
+                  type: "relationship",
+                  relationTo: "attribute-definitions",
+                  required: true,
+                },
+                {
+                  type: "row",
+                  fields: [
+                    {
+                      name: "dataType",
+                      label: "Kiểu dữ liệu",
+                      type: "select",
+                      options: ATTRIBUTE_DATA_TYPE_OPTIONS.map((option) => ({
+                        ...option,
+                      })),
+                      required: true,
+                      admin: { width: "50%" },
+                    },
+                    {
+                      name: "unit",
+                      label: "Đơn vị",
+                      type: "select",
+                      defaultValue: "none",
+                      options: ATTRIBUTE_UNIT_OPTIONS.map((option) => ({
+                        ...option,
+                      })),
+                      required: true,
+                      admin: { width: "50%" },
+                    },
+                  ],
+                },
+                {
+                  name: "numberValue",
+                  label: "Giá trị số",
+                  type: "number",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.dataType === "number",
+                  },
+                },
+                {
+                  name: "textValue",
+                  label: "Giá trị văn bản",
+                  type: "text",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.dataType === "text",
+                  },
+                },
+                {
+                  name: "booleanValue",
+                  label: "Giá trị Có / Không",
+                  type: "checkbox",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.dataType === "boolean",
+                  },
+                },
+                {
+                  name: "enumValue",
+                  label: "Giá trị lựa chọn",
+                  type: "text",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.dataType === "enum",
+                    description: "Nhập value đã định nghĩa trong Attribute Definition.",
+                  },
+                },
+                {
+                  name: "enumListValue",
+                  label: "Danh sách lựa chọn",
+                  type: "array",
+                  admin: {
+                    condition: (_, siblingData) =>
+                      siblingData?.dataType === "enum_list",
+                  },
+                  fields: [
+                    {
+                      name: "value",
+                      label: "Giá trị",
+                      type: "text",
+                      required: true,
+                    },
+                  ],
+                },
+                {
+                  name: "rawValue",
+                  label: "Giá trị gốc",
+                  type: "text",
+                  admin: {
+                    description:
+                      "Tùy chọn. Lưu chuỗi từ datasheet để truy vết, không dùng để filter.",
+                  },
+                },
+              ],
+            },
+          ],
+        },
         {
           label: "Thông tin chung",
           fields: [
@@ -345,6 +791,7 @@ export const Products: CollectionConfig = {
                   label: "Mã sản phẩm (SKU)",
                   type: "text",
                   admin: {
+                    condition: legacyOnly,
                     width: "25%",
                     description: "Ví dụ: HL-L2366DW",
                   },
@@ -371,7 +818,13 @@ export const Products: CollectionConfig = {
               },
               hooks: {
                 beforeValidate: [
-                  ({ data, value }) => value || (data?.title ? formatSlug(data.title) : value),
+                  ({ data, value }) =>
+                    value ||
+                    (data?.name
+                      ? formatSlug(data.name)
+                      : data?.title
+                        ? formatSlug(data.title)
+                        : value),
                 ],
               },
             },
@@ -408,6 +861,7 @@ export const Products: CollectionConfig = {
                     },
                   ],
                   admin: {
+                    condition: legacyOnly,
                     width: "50%",
                   },
                 },
@@ -421,6 +875,7 @@ export const Products: CollectionConfig = {
                   label: "Giá bán",
                   type: "text",
                   admin: {
+                    condition: legacyOnly,
                     width: "50%",
                     description: "Nhập theo định dạng hiển thị, ví dụ: 3.900.000đ.",
                   },
@@ -430,6 +885,7 @@ export const Products: CollectionConfig = {
                   label: "Giá niêm yết",
                   type: "text",
                   admin: {
+                    condition: legacyOnly,
                     width: "50%",
                   },
                 },
@@ -444,6 +900,7 @@ export const Products: CollectionConfig = {
                   type: "checkbox",
                   defaultValue: true,
                   admin: {
+                    condition: legacyOnly,
                     width: "33%",
                   },
                 },
@@ -536,6 +993,7 @@ export const Products: CollectionConfig = {
                   label: "Bảo hành",
                   type: "text",
                   admin: {
+                    condition: legacyOnly,
                     width: "50%",
                     description: "Ví dụ: 12 tháng.",
                   },

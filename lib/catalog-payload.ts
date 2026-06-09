@@ -1,6 +1,11 @@
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 import type { CatalogProduct } from "@/lib/catalog";
+import {
+  canonicalAttributeSpecs,
+  loadCanonicalCommercialProjections,
+  type CanonicalCommercialProjection,
+} from "@/lib/catalog-projection";
 
 type PayloadProductDoc = Record<string, unknown>;
 
@@ -116,6 +121,13 @@ function relationName(value: unknown) {
   return typeof value === "string" ? value : undefined;
 }
 
+function relationCode(value: unknown) {
+  if (value && typeof value === "object" && "code" in value && typeof value.code === "string") {
+    return value.code;
+  }
+  return undefined;
+}
+
 function mediaURL(value: unknown) {
   if (!value || typeof value !== "object") return undefined;
   if ("url" in value && typeof value.url === "string") return value.url;
@@ -146,11 +158,21 @@ function normalizeDatasheets(value: unknown) {
     .filter(Boolean) as Array<{ id?: string | number; url: string; filename?: string; mimeType?: string }>;
 }
 
-function normalizeRelatedProducts(value: unknown) {
+function normalizeRelatedProducts(
+  value: unknown,
+  projections?: Map<string, CanonicalCommercialProjection>,
+) {
   if (!Array.isArray(value)) return [];
   return value
     .filter((item): item is PayloadProductDoc => Boolean(item) && typeof item === "object")
-    .map((item) => normalizeProduct(item, false))
+    .map((item) =>
+      normalizeProduct(
+        item,
+        false,
+        item.id !== undefined ? projections?.get(String(item.id)) : undefined,
+        projections,
+      ),
+    )
     .filter((product) => product.title && product.slug);
 }
 
@@ -170,6 +192,7 @@ function specsFromGroup(value: unknown, fields: Array<[string, string]>) {
 }
 
 function normalizeSpecs(doc: PayloadProductDoc) {
+  const canonicalSpecs = canonicalAttributeSpecs(doc);
   const manualSpecs = Array.isArray(doc.specs)
     ? doc.specs
         .filter((spec): spec is PayloadProductDoc => Boolean(spec) && typeof spec === "object")
@@ -239,10 +262,24 @@ function normalizeSpecs(doc: PayloadProductDoc) {
     ["dimensionsWeight", "Kích thước / Trọng lượng"],
   ]);
 
-  return [...scannerSpecs, ...printerSpecs, ...photocopierSpecs, ...manualSpecs];
+  const combined = canonicalSpecs.length
+    ? [...canonicalSpecs, ...manualSpecs]
+    : [...scannerSpecs, ...printerSpecs, ...photocopierSpecs, ...manualSpecs];
+  const seen = new Set<string>();
+  return combined.filter((spec) => {
+    const key = spec.label.trim().toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
-function normalizeProduct(doc: PayloadProductDoc, includeRelated = true): CatalogProduct {
+function normalizeProduct(
+  doc: PayloadProductDoc,
+  includeRelated = true,
+  commercial?: CanonicalCommercialProjection,
+  projections?: Map<string, CanonicalCommercialProjection>,
+): CatalogProduct {
   const images = Array.isArray(doc.images)
     ? doc.images
         .map((image: unknown) => ({
@@ -255,32 +292,41 @@ function normalizeProduct(doc: PayloadProductDoc, includeRelated = true): Catalo
 
   return {
     id: typeof id === "string" || typeof id === "number" ? id : undefined,
-    title: textField(doc, "title") || "",
+    internalId: textField(doc, "internalId"),
+    title: textField(doc, "name") || textField(doc, "title") || "",
     slug: textField(doc, "slug") || "",
-    sku: textField(doc, "sku"),
+    sku: commercial?.sku || textField(doc, "sku"),
+    model: textField(doc, "model"),
+    productType: relationCode(doc.productType),
     brand: relationName(doc.brand),
     category: relationName(doc.category),
-    price: textField(doc, "price"),
-    compareAtPrice: textField(doc, "compareAtPrice"),
+    price: commercial?.price || textField(doc, "price"),
+    priceValue: commercial?.priceValue,
+    compareAtPrice: commercial?.compareAtPrice || textField(doc, "compareAtPrice"),
     rating: numberField(doc, "rating"),
     reviewCount: numberField(doc, "reviewCount"),
     viewCount: numberField(doc, "viewCount"),
-    vatIncluded: booleanField(doc, "vatIncluded"),
+    vatIncluded: commercial?.vatIncluded ?? booleanField(doc, "vatIncluded"),
     discountBadge: textField(doc, "discountBadge"),
     promoText: textField(doc, "promoText"),
     promoStart: textField(doc, "promoStart"),
     promoEnd: textField(doc, "promoEnd"),
-    stockStatus: textField(doc, "stockStatus"),
-    detail: stripHTML(htmlOrTextField(doc, "summaryHTML", "summary")),
+    stockQuantity: commercial?.quantity,
+    stockStatus: commercial?.stockStatus || textField(doc, "stockStatus"),
+    detail:
+      textField(doc, "shortDescription") ||
+      stripHTML(htmlOrTextField(doc, "summaryHTML", "summary")),
     description: htmlOrTextField(doc, "descriptionHTML", "description"),
     usageGuide: htmlOrTextField(doc, "usageGuideHTML", "usageGuide"),
-    warranty: textField(doc, "warranty"),
+    warranty: commercial?.warranty || textField(doc, "warranty"),
     origin: textField(doc, "origin"),
     images,
     datasheets: normalizeDatasheets(doc.datasheets),
     image: images[0]?.url,
     specs: normalizeSpecs(doc),
-    relatedProducts: includeRelated ? normalizeRelatedProducts(doc.relatedProducts) : [],
+    relatedProducts: includeRelated
+      ? normalizeRelatedProducts(doc.relatedProducts, projections)
+      : [],
     href: textField(doc, "slug") ? `/san-pham/${textField(doc, "slug")}` : undefined,
     tag: textField(doc, "tag") || (doc.featured ? "Nổi bật" : undefined),
   };
@@ -301,7 +347,28 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
       },
     });
 
-    return (res.docs as unknown as PayloadProductDoc[]).map((doc) => normalizeProduct(doc));
+    const docs = res.docs as unknown as PayloadProductDoc[];
+    const productIDs = docs
+      .flatMap((doc) => [
+        doc.id,
+        ...(Array.isArray(doc.relatedProducts)
+          ? doc.relatedProducts.map((related) =>
+              related && typeof related === "object" && "id" in related
+                ? related.id
+                : undefined,
+            )
+          : []),
+      ])
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+    return docs.map((doc) =>
+      normalizeProduct(
+        doc,
+        true,
+        doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+        projections,
+      ),
+    );
   } catch (error) {
     handlePayloadReadError("products", error);
     return [];
@@ -321,7 +388,32 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
       },
     });
     const doc = res.docs[0] as unknown as PayloadProductDoc | undefined;
-    return doc ? normalizeProduct(doc) : null;
+    if (!doc) return null;
+    const id = doc.id;
+    const relatedIDs = Array.isArray(doc.relatedProducts)
+      ? doc.relatedProducts
+          .map((related) =>
+            related && typeof related === "object" && "id" in related
+              ? related.id
+              : undefined,
+          )
+          .filter(
+            (relatedID): relatedID is string | number =>
+              typeof relatedID === "string" || typeof relatedID === "number",
+          )
+      : [];
+    const projectionIDs =
+      typeof id === "string" || typeof id === "number" ? [id, ...relatedIDs] : relatedIDs;
+    const projections = await loadCanonicalCommercialProjections(
+      payload,
+      projectionIDs,
+    );
+    return normalizeProduct(
+      doc,
+      true,
+      id !== undefined ? projections.get(String(id)) : undefined,
+      projections,
+    );
   } catch (error) {
     handlePayloadReadError(`products:${slug}`, error);
     return null;

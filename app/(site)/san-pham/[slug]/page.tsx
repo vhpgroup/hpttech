@@ -228,7 +228,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     description: product.detail,
     brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
     category: product.category,
-    sku: product.slug,
+    sku: product.sku || product.model || product.slug,
     offers: product.price
       ? {
           "@type": "Offer",

@@ -1,11 +1,15 @@
 export type CatalogProduct = {
   id?: string | number;
+  internalId?: string;
   title: string;
   slug: string;
   sku?: string;
+  model?: string;
+  productType?: string;
   brand?: string;
   category?: string;
   price?: string;
+  priceValue?: number;
   compareAtPrice?: string;
   rating?: number;
   reviewCount?: number;
@@ -16,6 +20,7 @@ export type CatalogProduct = {
   promoStart?: string;
   promoEnd?: string;
   stockStatus?: string;
+  stockQuantity?: number;
   detail?: string;
   description?: string;
   usageGuide?: string;
