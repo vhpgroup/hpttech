@@ -169,14 +169,6 @@ function recordsToCSV(
   return `\uFEFF${rows.join("\r\n")}`;
 }
 
-function htmlEscape(value: unknown) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 function columnWidth(column: string) {
   if (column === "productName") return 280;
   if (column === "brandName" || column === "categoryName" || column === "variantName") return 180;
