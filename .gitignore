@@ -9,3 +9,4 @@ app/(payload)/admin/importMap.js
 .env*.local
 !.env.example
 *.tsbuildinfo
+dev-server*.log

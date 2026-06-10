@@ -20,6 +20,19 @@ export type PublicSolution = {
   image?: string;
 };
 
+export type PublicEnterpriseService = {
+  title: string;
+  slug: string;
+  summary: string;
+  icon: string;
+  image?: PublicAboutImage;
+  content?: unknown;
+};
+
+export type PublicEnterpriseSupportPage = {
+  heroImages: PublicAboutImage[];
+};
+
 export type PublicPost = {
   title: string;
   slug: string;
@@ -208,6 +221,7 @@ function getLocalHeroBanners(): PublicBanner[] {
 type PublicCollectionSlug =
   | "banners"
   | "solutions"
+  | "enterprise-services"
   | "posts"
   | "post-categories"
   | "post-tags"
@@ -484,6 +498,111 @@ export async function getSolutionsFromPayload(): Promise<PublicSolution[]> {
         description: solution.description,
         icon: solution.icon,
       }));
+}
+
+const defaultEnterpriseServices: PublicEnterpriseService[] = [
+  {
+    title: "Giải pháp số hóa tài liệu",
+    slug: "giai-phap-so-hoa-tai-lieu",
+    summary: "Tư vấn thiết bị, lưu trữ và quản lý tài liệu theo nhu cầu thực tế.",
+    icon: "scan",
+  },
+  {
+    title: "Giải pháp OCR và tự động hóa",
+    slug: "giai-phap-ocr-va-tu-dong-hoa",
+    summary: "Ứng dụng công nghệ nhận dạng để hỗ trợ trích xuất và xử lý dữ liệu.",
+    icon: "file",
+  },
+  {
+    title: "Hạ tầng mạng doanh nghiệp",
+    slug: "ha-tang-mang-doanh-nghiep",
+    summary: "Thiết kế, cung cấp và triển khai mạng LAN, WAN, Wi-Fi và thiết bị liên quan.",
+    icon: "network",
+  },
+  {
+    title: "Camera giám sát và hội nghị",
+    slug: "camera-giam-sat-va-hoi-nghi",
+    summary: "Cung cấp hệ thống giám sát, họp trực tuyến và kết nối nhiều địa điểm.",
+    icon: "camera",
+  },
+  {
+    title: "Bảo trì hệ thống CNTT",
+    slug: "bao-tri-he-thong-cntt",
+    summary: "Khảo sát và thực hiện bảo trì theo phạm vi công việc đã thống nhất.",
+    icon: "wrench",
+  },
+  {
+    title: "Triển khai hệ thống CNTT",
+    slug: "trien-khai-he-thong-cntt",
+    summary: "Tư vấn, lắp đặt và cấu hình hệ thống theo mục tiêu của doanh nghiệp.",
+    icon: "building",
+  },
+  {
+    title: "Thiết bị cho trường học",
+    slug: "thiet-bi-cho-truong-hoc",
+    summary: "Cung cấp thiết bị CNTT theo số lượng, ngân sách và môi trường sử dụng.",
+    icon: "school",
+  },
+  {
+    title: "Máy chủ và lưu trữ",
+    slug: "may-chu-va-luu-tru",
+    summary: "Xây dựng cấu hình máy chủ, lưu trữ và phương án mở rộng phù hợp.",
+    icon: "server",
+  },
+];
+
+function mapEnterpriseService(doc: PayloadDoc): PublicEnterpriseService {
+  return {
+    title: textField(doc, "title") || "",
+    slug: textField(doc, "slug") || "",
+    summary: textField(doc, "summary") || "",
+    icon: textField(doc, "icon") || "building",
+    image: mediaImage(doc.image),
+    content: doc.content,
+  };
+}
+
+export async function getEnterpriseServicesFromPayload(): Promise<PublicEnterpriseService[]> {
+  const res = await findDocs("enterprise-services", {
+    sort: "sortOrder",
+    where: { status: { equals: "published" } },
+  });
+  const services = res.docs.map(mapEnterpriseService).filter((service) => service.slug);
+  return services.length ? services : defaultEnterpriseServices;
+}
+
+export async function getEnterpriseServiceBySlugFromPayload(
+  slug: string,
+): Promise<PublicEnterpriseService | null> {
+  const res = await findDocs("enterprise-services", {
+    limit: 1,
+    where: {
+      and: [{ slug: { equals: slug } }, { status: { equals: "published" } }],
+    },
+  });
+  const doc = res.docs[0];
+  if (doc) return mapEnterpriseService(doc);
+  return defaultEnterpriseServices.find((service) => service.slug === slug) || null;
+}
+
+export async function getEnterpriseSupportPageFromPayload(): Promise<PublicEnterpriseSupportPage> {
+  try {
+    const payload = await getPayloadClient();
+    const page = (await payload.findGlobal({
+      slug: "enterprise-support-page",
+      depth: 2,
+    })) as PayloadDoc;
+    return {
+      heroImages: arrayField(page, "heroImages").flatMap((item) => {
+        const image = mediaImage(item.image);
+        if (!image) return [];
+        return [{ ...image, alt: textField(item, "alt") || image.alt }];
+      }),
+    };
+  } catch (error) {
+    handlePayloadReadError("enterprise-support-page", error);
+    return { heroImages: [] };
+  }
 }
 
 export async function getPostsFromPayload(): Promise<PublicPost[]> {

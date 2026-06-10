@@ -32,6 +32,9 @@ import { ProductInventory } from "./collections/ProductInventory.ts";
 import { ProductOffers } from "./collections/ProductOffers.ts";
 import { ProductTypes } from "./collections/ProductTypes.ts";
 import { ProductVariants } from "./collections/ProductVariants.ts";
+import { EnterpriseServices } from "./collections/EnterpriseServices.ts";
+import { EnterpriseSupportPage } from "./globals/EnterpriseSupportPage.ts";
+import { seedEnterpriseServices } from "./lib/payload/seed-enterprise-services.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -68,6 +71,7 @@ if (isVercel && !r2Enabled) {
 }
 
 export default buildConfig({
+  onInit: seedEnterpriseServices,
   admin: {
     importMap: {
       baseDir: dirname,
@@ -113,6 +117,7 @@ export default buildConfig({
     FAQ,
     Testimonials,
     StaticPages,
+    EnterpriseServices,
   ],
   db: postgresAdapter({
     pool: {
@@ -161,7 +166,7 @@ export default buildConfig({
       vi,
     },
   },
-  globals: [SiteSettings, AboutPage],
+  globals: [SiteSettings, AboutPage, EnterpriseSupportPage],
   plugins: [
     s3Storage({
       acl: "public-read",
