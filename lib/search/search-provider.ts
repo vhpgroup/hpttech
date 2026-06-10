@@ -4,9 +4,13 @@ export type ExternalProduct = {
   brand?: string;
   category?: string;
   confidence: number;
+  imageUrl?: string;
+  marketSourceType?: "marketplace" | "merchant" | "official" | "organic" | "unknown";
   model?: string;
   modelNormalized: string;
   name: string;
+  priceCurrency?: string;
+  priceValue?: number;
   priceText?: string;
   sourceName: string;
   sourceUrl: string;
@@ -66,8 +70,12 @@ export function normalizeExternalProduct(input: {
   brand?: string;
   category?: string;
   confidence?: number;
+  imageUrl?: string;
+  marketSourceType?: ExternalProduct["marketSourceType"];
   model?: string;
   name: string;
+  priceCurrency?: string;
+  priceValue?: number;
   priceText?: string;
   sourceName?: string;
   sourceUrl: string;
@@ -79,9 +87,13 @@ export function normalizeExternalProduct(input: {
     brand,
     category: input.category,
     confidence: Math.max(0, Math.min(1, input.confidence ?? 0.5)),
+    imageUrl: input.imageUrl,
+    marketSourceType: input.marketSourceType || "unknown",
     model,
     modelNormalized: normalizeProductModel(model || input.name),
     name: input.name.trim(),
+    priceCurrency: input.priceCurrency,
+    priceValue: input.priceValue,
     priceText: input.priceText,
     sourceName: input.sourceName || sourceNameFromUrl(input.sourceUrl),
     sourceUrl: input.sourceUrl,

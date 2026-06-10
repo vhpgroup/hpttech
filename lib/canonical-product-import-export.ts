@@ -89,14 +89,26 @@ type SpecColumn = {
 };
 
 const SPEC_COLUMNS: SpecColumn[] = [
+  { profile: "scanner", code: "scanner_origin", label: "Xuất xứ máy scan", dataType: "text", example: "Trung Quốc" },
+  { profile: "scanner", code: "scanner_type", label: "Loại máy scan", dataType: "text", example: "Máy scan tài liệu nạp giấy" },
+  { profile: "scanner", code: "scanner_functions", label: "Chức năng máy scan", dataType: "text", example: "Scan tài liệu, scan hai mặt, OCR" },
   { profile: "scanner", code: "scanner_scan_speed_simplex", label: "Tốc độ scan một mặt (ppm)", dataType: "number", example: "40" },
   { profile: "scanner", code: "scanner_scan_speed_duplex", label: "Tốc độ scan hai mặt (ipm)", dataType: "number", example: "80" },
+  { profile: "scanner", code: "scanner_scan_modes", label: "Chế độ quét", dataType: "text", example: "Một mặt, hai mặt, màu, xám, đen trắng" },
+  { profile: "scanner", code: "scanner_color_depth", label: "Độ sâu màu", dataType: "text", example: "24-bit input / 24-bit output" },
   { profile: "scanner", code: "scanner_adf_capacity", label: "Sức chứa ADF (tờ)", dataType: "number", example: "80" },
   { profile: "scanner", code: "scanner_duplex", label: "Scan hai mặt tự động", dataType: "boolean", example: "Có" },
+  { profile: "scanner", code: "scanner_color_scan", label: "Scan màu", dataType: "boolean", example: "Có" },
+  { profile: "scanner", code: "scanner_ocr", label: "OCR", dataType: "boolean", example: "Có" },
+  { profile: "scanner", code: "scanner_plastic_card_scan", label: "Scan thẻ nhựa", dataType: "boolean", example: "Có" },
+  { profile: "scanner", code: "scanner_passport_scan", label: "Scan hộ chiếu", dataType: "boolean", example: "Không" },
   { profile: "scanner", code: "scanner_connectivity", label: "Kết nối máy scan", dataType: "enum_list", example: "USB, LAN" },
   { profile: "scanner", code: "scanner_max_paper_size", label: "Khổ giấy tối đa máy scan", dataType: "enum", example: "A4" },
+  { profile: "scanner", code: "scanner_min_paper_size", label: "Khổ giấy tối thiểu máy scan", dataType: "text", example: "50.8 x 50.8 mm" },
   { profile: "scanner", code: "scanner_daily_duty", label: "Công suất mỗi ngày (trang)", dataType: "number", example: "4000" },
   { profile: "scanner", code: "scanner_optical_resolution", label: "Độ phân giải scan (dpi)", dataType: "number", example: "600" },
+  { profile: "scanner", code: "scanner_supported_os", label: "Hệ điều hành hỗ trợ", dataType: "text", example: "Windows, macOS, Linux" },
+  { profile: "scanner", code: "scanner_dimensions_weight", label: "Kích thước / Trọng lượng", dataType: "text", example: "299 x 215 x 190 mm / 2.6 kg" },
   { profile: "printer", code: "printer_technology", label: "Công nghệ in", dataType: "enum", example: "Laser" },
   { profile: "printer", code: "printer_print_speed", label: "Tốc độ in (ppm)", dataType: "number", example: "40" },
   { profile: "printer", code: "printer_color", label: "In màu", dataType: "boolean", example: "Không" },
@@ -119,6 +131,80 @@ const COLUMN_BY_LABEL = new Map(
     ...SPEC_COLUMNS.map((spec) => [`attribute.${spec.code}`, spec.label]),
     ["attributesJSON", "Thuộc tính JSON"],
   ].map(([key, label]) => [label.toLowerCase(), key]),
+);
+
+const COLUMN_BY_NORMALIZED_LABEL = new Map(
+  [
+    ...Object.entries(LABELS),
+    ...SPEC_COLUMNS.map((spec) => [`attribute.${spec.code}`, spec.label]),
+    ["attributesJSON", "Thuộc tính JSON"],
+  ].map(([key, label]) => [normalizeImportText(label), key]),
+);
+
+function normalizeImportText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace(/\s+\*$/, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+const HEADER_ALIASES = new Map<string, string>(
+  [
+    ["Mã Product nội bộ", "internalId"],
+    ["Loại sản phẩm", "productTypeCode"],
+    ["Tên Product", "productName"],
+    ["Tên sản phẩm", "productName"],
+    ["Model", "model"],
+    ["MPN", "mpn"],
+    ["Mã thương hiệu", "brandSlug"],
+    ["Tên thương hiệu", "brandName"],
+    ["Mã danh mục", "categorySlug"],
+    ["Tên danh mục", "categoryName"],
+    ["Đường dẫn", "slug"],
+    ["Trạng thái Product", "productStatus"],
+    ["Nguồn dữ liệu", "sourceType"],
+    ["URL nguồn", "sourceUrl"],
+    ["SKU", "sku"],
+    ["Tên phiên bản", "variantName"],
+    ["SKU mặc định", "isPrimary"],
+    ["Barcode", "barcode"],
+    ["Bảo hành", "warranty"],
+    ["Trạng thái SKU", "variantStatus"],
+    ["Giá", "price"],
+    ["Tiền tệ", "currency"],
+    ["VAT (%)", "vatRate"],
+    ["Giá gồm VAT", "vatIncluded"],
+    ["Giá khuyến mãi", "promotionPrice"],
+    ["Trạng thái bán", "saleStatus"],
+    ["Kho", "warehouseName"],
+    ["Số lượng", "quantity"],
+    ["Trạng thái kho", "stockStatus"],
+    ["Xuất xứ máy scan", "attribute.scanner_origin"],
+    ["Loại máy scan", "attribute.scanner_type"],
+    ["Chức năng máy scan", "attribute.scanner_functions"],
+    ["Tốc độ scan một mặt (ppm)", "attribute.scanner_scan_speed_simplex"],
+    ["Tốc độ scan hai mặt (ipm)", "attribute.scanner_scan_speed_duplex"],
+    ["Chế độ quét", "attribute.scanner_scan_modes"],
+    ["Độ sâu màu", "attribute.scanner_color_depth"],
+    ["Sức chứa ADF (tờ)", "attribute.scanner_adf_capacity"],
+    ["Scan hai mặt tự động", "attribute.scanner_duplex"],
+    ["Scan màu", "attribute.scanner_color_scan"],
+    ["OCR", "attribute.scanner_ocr"],
+    ["Scan thẻ nhựa", "attribute.scanner_plastic_card_scan"],
+    ["Scan hộ chiếu", "attribute.scanner_passport_scan"],
+    ["Kết nối máy scan", "attribute.scanner_connectivity"],
+    ["Khổ giấy tối đa máy scan", "attribute.scanner_max_paper_size"],
+    ["Khổ giấy tối thiểu máy scan", "attribute.scanner_min_paper_size"],
+    ["Công suất mỗi ngày (trang)", "attribute.scanner_daily_duty"],
+    ["Độ phân giải scan (dpi)", "attribute.scanner_optical_resolution"],
+    ["Hệ điều hành hỗ trợ", "attribute.scanner_supported_os"],
+    ["Kích thước / Trọng lượng", "attribute.scanner_dimensions_weight"],
+  ].map(([label, key]) => [normalizeImportText(label), key]),
 );
 
 type AttributeImport = {
@@ -331,9 +417,36 @@ async function recordsToExcel(
 function normalizeParsedRecord(record: RecordRow) {
   const normalized: RecordRow = {};
   for (const [key, value] of Object.entries(record)) {
-    normalized[COLUMN_BY_LABEL.get(key.toLowerCase()) || key] = value;
+    const cleanKey = key.replace(/\s+\*$/, "").trim();
+    normalized[
+      COLUMN_BY_LABEL.get(cleanKey.toLowerCase()) ||
+        COLUMN_BY_NORMALIZED_LABEL.get(normalizeImportText(cleanKey)) ||
+        HEADER_ALIASES.get(normalizeImportText(cleanKey)) ||
+        cleanKey
+    ] = value;
   }
   return normalized;
+}
+
+function isNonDataImportRow(row: RecordRow) {
+  const productType = normalizeImportText(text(row, "productTypeCode") || "");
+  const productName = normalizeImportText(text(row, "productName") || "");
+  const model = normalizeImportText(text(row, "model") || "");
+  const sku = normalizeImportText(text(row, "sku") || "");
+  const internalId = normalizeImportText(text(row, "internalId") || "");
+
+  if (productType.includes("bat buoc") || productName.includes("bat buoc")) return true;
+  if (internalId === "hpt-sample-001" || sku === "sku-sample-001" || model === "model-001") return true;
+  return false;
+}
+
+export function prepareCanonicalImportRows(parsedRows: RecordRow[]) {
+  return parsedRows
+    .map((parsedRow, index) => ({
+      row: normalizeParsedRecord(parsedRow),
+      rowNumber: index + 2,
+    }))
+    .filter(({ row }) => !isNonDataImportRow(row));
 }
 
 function text(row: RecordRow, key: string) {
@@ -571,7 +684,7 @@ export type CanonicalImportResult = {
 
 export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
   const payload = await getPayloadClient();
-  const rows = parsedRows.map(normalizeParsedRecord);
+  const rows = prepareCanonicalImportRows(parsedRows);
   const result: CanonicalImportResult = {
     created: 0,
     errors: [],
@@ -579,9 +692,8 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
     updated: 0,
   };
 
-  for (const [index, row] of rows.entries()) {
-    const rowNumber = index + 2;
-    const sku = text(row, "sku");
+  for (const { row, rowNumber } of rows) {
+    const sku = text(row, "sku") || text(row, "internalId") || text(row, "model");
     try {
       const productTypeCode = text(row, "productTypeCode");
       const productName = text(row, "productName");

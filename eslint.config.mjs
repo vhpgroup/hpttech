@@ -11,6 +11,7 @@ const eslintConfig = [
   {
     ignores: [
       ".next/**",
+      ".next*/**",
       "legacy/**",
       "node_modules/**",
       "payload-types.ts",

@@ -18,10 +18,14 @@ export type AIRecommendedProduct = {
   aiScore: number;
   brand?: string;
   category?: string;
+  imageUrl?: string;
+  marketSourceType?: "marketplace" | "merchant" | "official" | "organic" | "unknown";
   model?: string;
   modelNormalized: string;
   name: string;
+  priceCurrency?: string;
   priceText?: string;
+  priceValue?: number;
   reason: string;
   sourceName?: string;
   sourceUrl?: string;
@@ -36,8 +40,24 @@ export type ProductRecommendationResult = {
   source: "fallback" | "openai";
 };
 
+export type ProductSearchPlanResult = {
+  candidateModels: Array<{
+    brand?: string;
+    model: string;
+    name?: string;
+    reason?: string;
+  }>;
+  error?: string;
+  intent: ProductIntent;
+  model?: string;
+  searchQueries: string[];
+  source: "fallback" | "openai";
+};
+
 export type ProductRecommendationOptions = {
   externalProducts?: ExternalProduct[];
+  intent?: ProductIntent;
+  searchQueries?: string[];
 };
 
 const DEFAULT_MISSING_QUESTIONS = [
@@ -135,8 +155,12 @@ function cleanProduct(value: unknown, index: number): AIRecommendedProduct | und
     category: typeof record.category === "string" ? record.category.trim() : undefined,
     model,
     modelNormalized: normalizeProductModel(model || name),
+    imageUrl: typeof record.imageUrl === "string" ? record.imageUrl.trim() : undefined,
+    marketSourceType: typeof record.marketSourceType === "string" ? record.marketSourceType as AIRecommendedProduct["marketSourceType"] : undefined,
     name,
+    priceCurrency: typeof record.priceCurrency === "string" ? record.priceCurrency.trim() : undefined,
     priceText: typeof record.priceText === "string" ? record.priceText.trim() : undefined,
+    priceValue: numberValue(record.priceValue),
     reason:
       typeof record.reason === "string" && record.reason.trim()
         ? record.reason.trim()
@@ -168,6 +192,215 @@ function cleanResult(value: unknown, question: string): ProductRecommendationRes
     products,
     source: "openai",
   };
+}
+
+function uniqueItems(values: string[], limit: number) {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of values) {
+    const cleaned = value.replace(/\s+/g, " ").trim();
+    const key = normalizeText(cleaned);
+    if (!cleaned || seen.has(key)) continue;
+    seen.add(key);
+    result.push(cleaned.slice(0, 180));
+    if (result.length >= limit) break;
+  }
+  return result;
+}
+
+function buildFallbackSearchQueries(question: string, intent: ProductIntent) {
+  const category =
+    intent.category === "printer"
+      ? "printer"
+      : intent.category === "photocopier"
+        ? "photocopier copier"
+        : "document scanner";
+  const speed = intent.speedPPM ? `${intent.speedPPM} ppm` : "";
+  const connectivity = intent.connectivity.join(" ");
+  const features = [...intent.requiredFeatures, ...intent.preferredFeatures].join(" ");
+  const budget = intent.budgetMax ? `under ${intent.budgetMax} VND` : "";
+
+  return uniqueItems(
+    [
+      `${category} ${speed} ${connectivity} ${features} official specifications`,
+      `${category} ${speed} ${connectivity} ${budget} product model`,
+      `${category} for ${intent.environment || ""} ${intent.useCase || ""} ${features}`,
+      question,
+    ],
+    5,
+  );
+}
+
+function cleanSearchPlan(value: unknown, question: string): ProductSearchPlanResult {
+  const record = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  const intent = cleanIntent(record.intent, question);
+  const candidateModels = Array.isArray(record.candidateModels)
+    ? record.candidateModels
+        .map((item) => {
+          const candidate = item && typeof item === "object" ? (item as Record<string, unknown>) : {};
+          const model = typeof candidate.model === "string" ? candidate.model.trim() : "";
+          if (!model) return undefined;
+          return {
+            brand: typeof candidate.brand === "string" ? candidate.brand.trim() : undefined,
+            model,
+            name: typeof candidate.name === "string" ? candidate.name.trim() : undefined,
+            reason: typeof candidate.reason === "string" ? candidate.reason.trim() : undefined,
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => Boolean(item))
+        .slice(0, 10)
+    : [];
+  const searchQueries = uniqueItems(
+    Array.isArray(record.searchQueries)
+      ? record.searchQueries.map((item) => String(item || ""))
+      : [],
+    5,
+  );
+  return {
+    candidateModels,
+    intent,
+    searchQueries: searchQueries.length ? searchQueries : buildFallbackSearchQueries(question, intent),
+    source: "openai",
+  };
+}
+
+export function fallbackProductSearchPlan(question: string, error?: string): ProductSearchPlanResult {
+  const intent = cleanIntent({}, question);
+  return {
+    candidateModels: [],
+    error,
+    intent,
+    searchQueries: buildFallbackSearchQueries(question, intent),
+    source: "fallback",
+  };
+}
+
+export async function createProductSearchPlanWithOpenAI(question: string): Promise<ProductSearchPlanResult> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
+  if (!apiKey) return fallbackProductSearchPlan(question, "OPENAI_API_KEY is not configured.");
+
+  const responseSchema = {
+    additionalProperties: false,
+    properties: {
+      intent: {
+        additionalProperties: false,
+        properties: {
+          budgetMax: { type: ["number", "null"] },
+          budgetMin: { type: ["number", "null"] },
+          category: { type: "string" },
+          confidence: { type: "number" },
+          connectivity: { items: { type: "string" }, type: "array" },
+          environment: { type: ["string", "null"] },
+          missingQuestions: { items: { type: "string" }, type: "array" },
+          preferredFeatures: { items: { type: "string" }, type: "array" },
+          requiredFeatures: { items: { type: "string" }, type: "array" },
+          speedPPM: { type: ["number", "null"] },
+          useCase: { type: ["string", "null"] },
+        },
+        required: [
+          "budgetMax",
+          "budgetMin",
+          "category",
+          "confidence",
+          "connectivity",
+          "environment",
+          "missingQuestions",
+          "preferredFeatures",
+          "requiredFeatures",
+          "speedPPM",
+          "useCase",
+        ],
+        type: "object",
+      },
+      candidateModels: {
+        items: {
+          additionalProperties: false,
+          properties: {
+            brand: { type: ["string", "null"] },
+            model: { type: "string" },
+            name: { type: ["string", "null"] },
+            reason: { type: ["string", "null"] },
+          },
+          required: ["brand", "model", "name", "reason"],
+          type: "object",
+        },
+        maxItems: 10,
+        minItems: 5,
+        type: "array",
+      },
+      searchQueries: {
+        items: { type: "string" },
+        maxItems: 5,
+        minItems: 3,
+        type: "array",
+      },
+    },
+    required: ["intent", "candidateModels", "searchQueries"],
+    type: "object",
+  };
+
+  const prompt = [
+    "You are an office-equipment product search planner for HPT Tech.",
+    "Parse the Vietnamese user requirement into structured intent.",
+    "Then suggest 5-10 concrete product models that are likely to fit the requirement. Do not use any hard-coded list; reason from the user's context and general product knowledge.",
+    "Candidate models must satisfy hard constraints from the user, especially budget range, connectivity, paper size, duplex/ADF, and speed. If a model likely misses a hard constraint, do not include it.",
+    "If there are not enough models that satisfy every hard constraint, return fewer stronger models instead of padding weak candidates.",
+    "Also create 3-5 concise web search queries for SerpAPI Vietnam market lookup.",
+    "Queries must be short, product-oriented, and useful for finding real Vietnamese market prices/specification pages.",
+    "Use both English and Vietnamese when helpful. Prefer model/category/spec words over long natural language.",
+    "Return only intent, candidateModels, and searchQueries. candidateModels are search candidates, not final recommendations.",
+    `User requirement: ${question}`,
+  ].join("\n\n");
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      input: [{ role: "user", content: prompt }],
+      max_output_tokens: 1200,
+      model,
+      reasoning: { effort: "low" },
+      text: {
+        format: {
+          name: "product_search_plan",
+          schema: responseSchema,
+          strict: true,
+          type: "json_schema",
+        },
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => undefined);
+    const message =
+      typeof errorPayload?.error?.message === "string"
+        ? errorPayload.error.message
+        : `OpenAI search-plan request failed with status ${response.status}.`;
+    return fallbackProductSearchPlan(question, message);
+  }
+
+  const payload = await response.json().catch(() => ({}));
+  const outputText =
+    typeof payload.output_text === "string"
+      ? payload.output_text
+      : Array.isArray(payload.output)
+        ? payload.output
+            .flatMap((item: { content?: Array<{ text?: string; type?: string }> }) => item.content || [])
+            .map((item: { text?: string }) => item.text || "")
+            .join("\n")
+        : "";
+
+  try {
+    return { ...cleanSearchPlan(parseJSONPayload(outputText), question), model };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not parse OpenAI search-plan response.";
+    return fallbackProductSearchPlan(question, message);
+  }
 }
 
 export function fallbackProductRecommendations(question: string, error?: string): ProductRecommendationResult {
@@ -282,7 +515,9 @@ export async function recommendProductsWithOpenAI(
             category: { type: "string" },
             model: { type: "string" },
             name: { type: "string" },
+            priceCurrency: { type: ["string", "null"] },
             priceText: { type: ["string", "null"] },
+            priceValue: { type: ["number", "null"] },
             reason: { type: "string" },
             sourceName: { type: ["string", "null"] },
             sourceUrl: { type: ["string", "null"] },
@@ -294,7 +529,9 @@ export async function recommendProductsWithOpenAI(
             "category",
             "model",
             "name",
+            "priceCurrency",
             "priceText",
+            "priceValue",
             "reason",
             "sourceName",
             "sourceUrl",
@@ -313,7 +550,7 @@ export async function recommendProductsWithOpenAI(
 
   const candidatePrompt = externalProducts.length
     ? [
-        "Market candidates from Search Provider. If this list is present, choose and rank products only from this list. Do not invent models outside this list. Keep sourceName and sourceUrl from the selected candidate.",
+        "Market candidates from Search Provider. Prefer products from this list and keep sourceName/sourceUrl when selected. If fewer than 5 strong candidates are available, you may add well-known products from general product knowledge, but never claim HPT stock or HPT price.",
         JSON.stringify(
           externalProducts.map((product, index) => ({
             brand: product.brand || null,
@@ -322,6 +559,9 @@ export async function recommendProductsWithOpenAI(
             confidence: product.confidence,
             model: product.model || null,
             name: product.name,
+            priceCurrency: product.priceCurrency || null,
+            priceText: product.priceText || null,
+            priceValue: product.priceValue || null,
             sourceName: product.sourceName,
             sourceUrl: product.sourceUrl,
             specsSummary: product.specsSummary || null,
@@ -355,6 +595,8 @@ export async function recommendProductsWithOpenAI(
       "brand": "string",
       "model": "string",
       "category": "string",
+      "priceValue": number,
+      "priceCurrency": "VND",
       "priceText": "string",
       "specsSummary": "string",
       "sourceName": "string",
@@ -364,8 +606,10 @@ export async function recommendProductsWithOpenAI(
     }
   ]
 }`,
-    "Neu co Market candidates, ket qua products phai den tu danh sach do va phai giu sourceUrl/sourceName cua ung vien.",
+    "Neu co Market candidates, uu tien chon tu danh sach do va giu sourceUrl/sourceName cua ung vien. Neu danh sach khong du 5 san pham manh, co the bo sung model pho bien tu kien thuc chung.",
     "Yêu cầu ranking: sản phẩm rank 1 phù hợp nhất, aiScore 1-100. Lý do ngắn, thực dụng, tiếng Việt.",
+    options.intent ? `Intent da boc tach truoc: ${JSON.stringify(options.intent)}` : "",
+    options.searchQueries?.length ? `Search queries da dung: ${JSON.stringify(options.searchQueries)}` : "",
     candidatePrompt,
     `Nhu cầu người dùng: ${question}`,
   ].join("\n\n");
