@@ -2,6 +2,7 @@ import Link from "next/link";
 import { List } from "lucide-react";
 
 const navLinks = [
+  { href: "/ai-recommendation", label: "AI tư vấn" },
   { href: "/ai-search", label: "AI Search" },
   { href: "/san-pham", label: "Sản phẩm" },
   { href: "/giai-phap", label: "Giải pháp" },
