@@ -24,10 +24,6 @@ export const helpLinks = [
     href: "/chinh-sach-giao-hang",
   },
   {
-    label: "Chính sách bảo hành tận nhà",
-    href: "/chinh-sach-bao-hanh-tan-nha",
-  },
-  {
     label: "Hỗ trợ khách hàng dự án, doanh nghiệp",
     href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
   },

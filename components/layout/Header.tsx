@@ -40,7 +40,7 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
   return (
     <>
       <div className="utility-topbar desktop-only">
-        <p>{settings.companyName} - Thiết bị văn phòng & giải pháp số hóa</p>
+        <p>{settings.companyName} - Công ty TNHH đầu tư xây dựng và thiết bị công nghệ HPT</p>
         <div>
           <a href={`mailto:${settings.email}`}>
             <Mail size={14} />
