@@ -2,6 +2,32 @@ import type { BrandConfig } from "../types";
 
 export const brandConfigs = [
   {
+    aliases: [
+      "microtek",
+      "artixscan",
+      "filescan",
+      "h-screen",
+      "h‑screen",
+      "objectscan",
+      "scanmaker",
+    ],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "microtek.com",
+    extraDomains: ["microtek.com"],
+    name: "Microtek",
+    slug: "microtek",
+  },
+  {
+    aliases: ["xerox"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "xerox.com",
+    extraDomains: ["xerox.com"],
+    name: "Xerox",
+    slug: "xerox",
+  },
+  {
     aliases: ["avision"],
     crawlMethod: "fetch",
     delayMs: 2000,

@@ -11,6 +11,13 @@ const modelHints: Array<{ brand: string; patterns: RegExp[] }> = [
   { brand: "plustek", patterns: [/\b(opticslim|opticbook|opticfilm|d\d{3,4})\b/i] },
   { brand: "kodak-alaris", patterns: [/\b(s\d{4}|i\d{4}|scanmate)\b/i, /\bkodak\b/i] },
   { brand: "panasonic", patterns: [/\bkv-\w+\b/i] },
+  {
+    brand: "microtek",
+    patterns: [
+      /\b(artixscan|filescan|h[\s\u2010-\u2015-]?screen|ls-\d+|objectscan|scanmaker|xt\d+)\b/i,
+    ],
+  },
+  { brand: "xerox", patterns: [/\bd35wn\b/i] },
 ];
 
 export async function detectBrand(productName: string): Promise<BrandConfig> {
@@ -22,6 +29,6 @@ export async function detectBrand(productName: string): Promise<BrandConfig> {
   if (hintedBrand) return hintedBrand;
 
   throw new Error(
-    "Chua nhan dien duoc thuong hieu duoc ho tro.",
+    "Chưa nhận diện được thương hiệu được hỗ trợ.",
   );
 }
