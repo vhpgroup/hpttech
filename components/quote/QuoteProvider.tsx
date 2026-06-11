@@ -103,6 +103,7 @@ function QuoteDocument({
   const vat = includeVat ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + vat;
   const image = productImage(product);
+  const imageUnoptimized = image?.startsWith("/api/r2-media/") === true;
   const specs = featuredSpecs(product);
 
   return (
@@ -178,7 +179,7 @@ function QuoteDocument({
               <td className="border border-blue-200 px-2 py-4 text-center font-semibold">1</td>
               <td className="border border-blue-200 px-3 py-4 text-center">
                 <div className="grid h-32 place-items-center bg-slate-50">
-                  {image ? <Image src={image} alt={product.title} width={112} height={112} className="max-h-28 w-auto object-contain" /> : null}
+                  {image ? <Image src={image} alt={product.title} width={112} height={112} className="max-h-28 w-auto object-contain" unoptimized={imageUnoptimized} /> : null}
                 </div>
               </td>
               <td className="border border-blue-200 px-4 py-4">

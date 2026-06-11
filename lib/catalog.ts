@@ -32,6 +32,7 @@ export type CatalogProduct = {
   relatedProducts?: CatalogProduct[];
   href?: string;
   image?: string;
+  sellingPoints?: string[];
   tag?: string;
 };
 

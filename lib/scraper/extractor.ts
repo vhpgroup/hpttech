@@ -186,6 +186,21 @@ function extractSpecs(html: string) {
   return specs;
 }
 
+function extractHpttechHighlights(html: string) {
+  const block =
+    html.match(/<div[^>]+class=["'][^"']*pd__spot-light-container[^"']*["'][\s\S]*?<\/ul>\s*<\/div>/i)?.[0] ||
+    "";
+  if (!block) return undefined;
+
+  const title = firstMatch(block, [/<h2[^>]*>([\s\S]*?)<\/h2>/i]) || "Điểm nổi bật";
+  const items = [...block.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/gi)]
+    .map((match) => cleanText(match[1]))
+    .filter(Boolean);
+  if (!items.length) return undefined;
+
+  return [title, "", ...items.map((item) => `- ${item}`)].join("\n");
+}
+
 function lineValue(text: string, patterns: RegExp[]) {
   for (const pattern of patterns) {
     const match = text.match(pattern);
@@ -339,15 +354,21 @@ export async function extractProductFromUrl(
     ]) ||
     productName;
 
-  const description =
+  const metadataDescription =
     cleanText(typeof jsonLd?.description === "string" ? jsonLd.description : undefined) ||
     firstMatch(html, [
       /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i,
       /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["'][^>]*>/i,
     ]);
+  const hpttechHighlights = url.includes("hpttech.vn")
+    ? extractHpttechHighlights(html)
+    : undefined;
+  const description = [metadataDescription, hpttechHighlights]
+    .filter((item): item is string => Boolean(item))
+    .join("\n\n");
 
   return {
-    description,
+    description: description || undefined,
     price:
       jsonLd?.offers && typeof jsonLd.offers === "object"
         ? cleanText(

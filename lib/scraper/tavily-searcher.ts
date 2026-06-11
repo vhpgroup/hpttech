@@ -30,6 +30,23 @@ export const RETAILER_DOMAINS = [
   "hpttech.vn",
 ] as const;
 
+function configuredAllowedDomains() {
+  const raw =
+    process.env.SCRAPER_ALLOWED_DOMAINS ||
+    process.env.TAVILY_ALLOWED_DOMAINS;
+  return raw
+    ?.split(",")
+    .map((domain) =>
+      domain
+        .trim()
+        .replace(/^https?:\/\//, "")
+        .replace(/^www\./, "")
+        .replace(/\/.*$/, "")
+        .toLowerCase(),
+    )
+    .filter(Boolean);
+}
+
 const RETAILER_PRIORITY = new Map(
   RETAILER_DOMAINS.map((domain, index) => [domain, index]),
 );
@@ -163,8 +180,10 @@ export async function tavilyMultiSourceSearch(
   if (!apiKey) throw new Error("Thiếu TAVILY_API_KEY.");
 
   const brand = await detectBrand(productName);
-  const manufacturerDomains = normalizedBrandDomains(brand);
-  const includeDomains = [...RETAILER_DOMAINS, ...manufacturerDomains];
+  const allowedDomains = configuredAllowedDomains();
+  const manufacturerDomains = allowedDomains ? [] : normalizedBrandDomains(brand);
+  const retailerDomains = allowedDomains || [...RETAILER_DOMAINS];
+  const includeDomains = [...retailerDomains, ...manufacturerDomains];
   const response = await fetch("https://api.tavily.com/search", {
     body: JSON.stringify({
       include_answer: false,
@@ -196,7 +215,7 @@ export async function tavilyMultiSourceSearch(
     .flatMap((item): TavilySearchResult[] => {
       if (!item.url || !item.title) return [];
       const host = hostname(item.url);
-      const retailerDomain = RETAILER_DOMAINS.find((domain) =>
+      const retailerDomain = retailerDomains.find((domain) =>
         matchesDomain(host, domain),
       );
       const manufacturerDomain = manufacturerDomains.find((domain) =>

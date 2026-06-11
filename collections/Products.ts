@@ -17,7 +17,6 @@ import { seoField } from "../lib/payload/fields/seo.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
 import { preventProductDeleteWithVariants } from "../lib/payload/hooks/catalog-lifecycle.ts";
-import { evaluateScannerSpecs, MIN_SCANNER_SPECS_FILLED } from "../lib/scanner-specs.ts";
 
 const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
@@ -69,14 +68,6 @@ const prepareCanonicalProduct: CollectionBeforeValidateHook = ({
       : operation === "create"
         ? "canonical"
         : "legacy");
-  const category =
-    product.category ||
-    (originalDoc && typeof originalDoc === "object" && "category" in originalDoc
-      ? originalDoc.category
-      : undefined);
-  const scannerProfile =
-    product.specProfile === "scanner" || specProfileFromCategory(category) === "scanner";
-
   if (dataModel !== "canonical") {
     return {
       ...product,
@@ -99,7 +90,7 @@ const prepareCanonicalProduct: CollectionBeforeValidateHook = ({
       (originalDoc && typeof originalDoc === "object" && "title" in originalDoc
         ? originalDoc.title
         : undefined),
-    specs: scannerProfile ? [] : product.specs,
+    specs: product.specs,
   };
 };
 
@@ -216,12 +207,6 @@ const validateCanonicalProduct: CollectionBeforeChangeHook = async ({
   const scannerProfile =
     product.specProfile === "scanner" || specProfileFromCategory(product.category) === "scanner";
   if (scannerProfile) {
-    const completeness = evaluateScannerSpecs(product.scannerSpecs);
-    if (completeness.filledCount < MIN_SCANNER_SPECS_FILLED) {
-      throw new Error(
-        `Khong the publish may scan. Da dien ${completeness.filledCount}/${completeness.totalCount} cot scannerSpecs, can it nhat ${MIN_SCANNER_SPECS_FILLED}. Thieu: ${completeness.missingLabels.join(", ")}.`,
-      );
-    }
     return data;
   }
 
@@ -286,10 +271,6 @@ function specCondition(profile: "scanner" | "printer" | "photocopier") {
     const categoryProfile = specProfileFromCategory(data.category ?? siblingData.category);
     return categoryProfile ? categoryProfile === profile : siblingData?.specProfile === profile;
   };
-}
-
-function nonScannerCondition(data: ProductFormData = {}, siblingData: ProductFormData = {}) {
-  return !specCondition("scanner")(data, siblingData);
 }
 
 function legacyOnly(data: Record<string, unknown> = {}) {
@@ -385,6 +366,10 @@ const scannerSpecsField: Field = {
       textSpec("scanResolution", "Độ phân giải quang học", "50%", "Ví dụ: 600 x 600 dpi."),
     ]),
     row([
+      textSpec("displayScreen", "Màn hình hiển thị", "50%", "Ví dụ: LED, LCD, màn hình cảm ứng."),
+      textSpec("scanTechnology", "Công nghệ quét", "50%", "Ví dụ: CMOS, CIS, CCD."),
+    ]),
+    row([
       numberSpec("adfSheets", "ADF", "50%", "Sức chứa khay nạp tự động, ví dụ: 80."),
       numberSpec("adfCapacitySheets", "Sức chứa ADF", "50%", "Nếu khác với ADF, nhập số tờ tối đa."),
     ]),
@@ -408,7 +393,11 @@ const scannerSpecsField: Field = {
       textSpec("connectivity", "Kết nối", "50%", "Ví dụ: USB 3.0, LAN, WiFi."),
       textSpec("supportedOs", "Hệ điều hành hỗ trợ", "50%", "Ví dụ: Windows, macOS, Linux."),
     ]),
-    textSpec("dimensionsWeight", "Kích thước / Trọng lượng", "100%"),
+    row([
+      textSpec("dimensions", "Kích thước", "50%", "Ví dụ: 454 x 331 x 129 mm."),
+      textSpec("weight", "Trọng lượng", "50%", "Ví dụ: 4.3 kg."),
+    ]),
+    hiddenTextSpec("dimensionsWeight"),
     hiddenCheckboxSpec("passportScan"),
     hiddenCheckboxSpec("duplexScan"),
     hiddenCheckboxSpec("colorScan"),
@@ -1052,6 +1041,22 @@ export const Products: CollectionConfig = {
               lexicalFieldName: "summary",
             }),
             {
+              name: "sellingPoints",
+              label: "Điểm nổi bật",
+              type: "array",
+              admin: {
+                description: "Các gạch đầu dòng nổi bật hiển thị ở khối đầu trang sản phẩm.",
+              },
+              fields: [
+                {
+                  name: "text",
+                  label: "Nội dung",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+            {
               name: "tag",
               label: "Nhãn nổi bật",
               type: "select",
@@ -1114,12 +1119,11 @@ export const Products: CollectionConfig = {
             photocopierSpecsField,
             {
               name: "specs",
-              label: "Thông số kỹ thuật bổ sung",
+              label: "Thông số kỹ thuật từ nguồn",
               type: "array",
               admin: {
-                condition: nonScannerCondition,
                 description:
-                  "Chi dung cho san pham khong phai may scan. May scan chi dung bo 24 cot scannerSpecs.",
+                  "Lưu nguyên các thông số lấy được từ trang nguồn, không bắt buộc theo bộ cột cố định.",
               },
               fields: [
                 {

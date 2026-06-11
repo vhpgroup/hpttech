@@ -122,6 +122,7 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
 export function ProductCard({ product, className, isComparing = false, onCompare }: ProductCardProps) {
   const href = productHref(product);
   const image = product.images?.[0]?.url || product.image;
+  const imageUnoptimized = image?.startsWith("/api/r2-media/") === true;
   const specs = pickFeaturedSpecs(product);
   const stock = stockLabel(product.stockStatus);
   const compareHref = `/compare?products=${encodeURIComponent(productKey(product))}`;
@@ -142,6 +143,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             height={190}
             className="max-h-[150px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 45vw, (max-width: 1280px) 25vw, 240px"
+            unoptimized={imageUnoptimized}
           />
         ) : (
           <div className="h-28 w-full rounded-md bg-slate-100" />

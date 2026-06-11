@@ -34,6 +34,25 @@ function adminUrl(productId: string | number) {
   return `${base.replace(/\/$/, "")}/admin/collections/products/${productId}`;
 }
 
+function productUrl(slug?: string) {
+  if (!slug) return undefined;
+  const base =
+    process.env.NEXT_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+    "http://localhost:3000";
+  return `${base.replace(/\/$/, "")}/san-pham/${slug}`;
+}
+
+function sourceDomain(url?: string) {
+  if (!url) return undefined;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return undefined;
+  }
+}
+
 async function createScraperJob(
   row: ExcelRow,
   product: ScrapedProduct,
@@ -92,6 +111,7 @@ function summarize(results: BatchResult[], durationMs: number): BatchSummary {
     draft: results.filter((result) => result.status === "draft").length,
     durationMs,
     failed: results.filter((result) => result.status === "failed").length,
+    published: results.filter((result) => result.status === "published").length,
     results,
     searched: results.filter((result) => result.status === "searched").length,
     total: results.length,
@@ -146,16 +166,48 @@ async function processRow(
   const productTypeCode = await resolveProductTypeCode(row.productType);
   const jobId = await createScraperJob(row, product);
   const imported = await importBatchProduct(row, product, productTypeCode);
+  if (options.publish) {
+    const payload = await getPayloadClient();
+    await payload.update({
+      collection: "products",
+      data: {
+        status: "published",
+        _status: "published",
+        seo: {
+          canonical: product.seo.canonical,
+          description: product.seo.description,
+          imageAlt: product.seo.imageAlt,
+          noIndex: false,
+          title: product.seo.title,
+        },
+      },
+      id: imported.productId,
+      overrideAccess: true,
+    });
+  }
   await markJobImported(jobId, imported.productId);
   return {
     adminUrl: adminUrl(imported.productId),
     confidence: product.confidence,
     jobId,
     productId: imported.productId,
+    productReport: {
+      imageCount: imported.imageCount,
+      imageStatus: imported.imageCount > 0 ? "ok" : "missing",
+      productUrl: productUrl(imported.slug),
+      rating: imported.rating,
+      sellingPointCount: imported.sellingPointCount,
+      sourceDomain: sourceDomain(product.source.url),
+      specCount: imported.specCount,
+      viewCount: imported.viewCount,
+      warranty: imported.warranty,
+    },
     productName: row.name,
     sourceUrls,
-    status: "draft",
-    warnings: product.warnings,
+    status: options.publish ? "published" : "draft",
+    warnings: imported.imageWarning
+      ? [...product.warnings, imported.imageWarning]
+      : product.warnings,
   };
 }
 

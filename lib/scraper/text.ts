@@ -17,6 +17,27 @@ export function productSlug(title: string) {
   return formatSlug(title);
 }
 
+export function firstSentence(value?: string) {
+  const text = cleanText(value);
+  if (!text) return "";
+  const match = text.match(/^(.+?[.!?])(?:\s|$)/);
+  return (match?.[1] || text).trim();
+}
+
+export function extractHighlightBulletPoints(value?: string) {
+  const text = cleanText(value);
+  const marker = text.match(/(?:điểm nổi bật|diem noi bat)\s*[:：]?/i);
+  if (!marker || marker.index === undefined) return [];
+
+  return text
+    .slice(marker.index + marker[0].length)
+    .trim()
+    .split(/\s+-\s+/)
+    .map((item) => item.replace(/^-\s*/, "").trim())
+    .filter(Boolean)
+    .slice(0, 7);
+}
+
 export function lexicalParagraphs(value: string) {
   const paragraphs = value
     .split(/\n{2,}/)

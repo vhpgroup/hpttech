@@ -1,10 +1,10 @@
 import { loadEnvConfig } from "@next/env";
 import { parseBulkImportArgs } from "../lib/scraper/batch-options";
-import { runBulkImport } from "../lib/scraper/batch-runner";
 
 loadEnvConfig(process.cwd());
 
 async function main() {
+  const { runBulkImport } = await import("../lib/scraper/batch-runner");
   const options = parseBulkImportArgs(process.argv.slice(2));
   console.log(`Doc file: ${options.filePath}`);
   const { reportPath, summary } = await runBulkImport({
@@ -22,9 +22,9 @@ async function main() {
   });
 
   console.log(
-    `Hoan tat: ${summary.draft} draft, ${summary.searched} searched, ${summary.failed} failed.`,
+    `Hoàn tất: ${summary.published} published, ${summary.draft} draft, ${summary.searched} searched, ${summary.failed} failed.`,
   );
-  console.log(`Bao cao: ${reportPath}`);
+  console.log(`Báo cáo: ${reportPath}`);
 }
 
 main().then(

@@ -1,3 +1,4 @@
+import { extractHighlightBulletPoints } from "@/lib/scraper/text";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -130,8 +131,34 @@ function relationCode(value: unknown) {
 
 function mediaURL(value: unknown) {
   if (!value || typeof value !== "object") return undefined;
+  if ("filename" in value && typeof value.filename === "string") {
+    const generated = mediaPublicURL(value.filename);
+    if (generated) return generated;
+    return mediaProxyURL(value.filename);
+  }
   if ("url" in value && typeof value.url === "string") return value.url;
   return undefined;
+}
+
+function mediaPublicURL(filename: string) {
+  const base =
+    process.env.R2_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_R2_PUBLIC_URL ||
+    process.env.MEDIA_PUBLIC_URL;
+  if (!base) return undefined;
+  return `${base.replace(/\/$/, "")}/${encodeURIComponent(filename)}`;
+}
+
+function mediaProxyURL(filename: string) {
+  if (
+    !process.env.R2_BUCKET ||
+    !process.env.R2_ACCESS_KEY_ID ||
+    !process.env.R2_SECRET_ACCESS_KEY ||
+    !process.env.R2_ENDPOINT
+  ) {
+    return `/api/media/file/${encodeURIComponent(filename)}`;
+  }
+  return `/api/r2-media/${encodeURIComponent(filename)}`;
 }
 
 function mediaID(value: unknown) {
@@ -178,7 +205,10 @@ function normalizeRelatedProducts(
 
 function specValue(group: Record<string, unknown> | undefined, key: string) {
   const value = group?.[key];
-  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (key === "dailyDuty") return `${value.toLocaleString("vi-VN")} trang/ngày`;
+    return String(value);
+  }
   return typeof value === "string" ? value.trim() : "";
 }
 
@@ -201,18 +231,25 @@ function normalizeSpecs(doc: PayloadProductDoc) {
         .filter((spec) => spec.label && spec.value)
     : [];
 
-  const scannerSpecs = specsFromGroup(doc.scannerSpecs, [
+  const scannerSpecs = [
+    ...[
+      { label: "Thương hiệu", value: relationName(doc.brand) || "" },
+      { label: "Bảo hành", value: textField(doc, "warranty") || "" },
+    ].filter((spec) => spec.value),
+    ...specsFromGroup(doc.scannerSpecs, [
     ["scannerType", "Loại máy scan"],
     ["functions", "Chức năng"],
     ["scanSpeedSimplexPpm", "Tốc độ scan"],
     ["scanSpeedDuplexIpm", "Tốc độ scan 2 mặt"],
     ["scanModes", "Chế độ quét"],
     ["scanResolution", "Độ phân giải"],
+    ["displayScreen", "Màn hình hiển thị"],
+    ["scanTechnology", "Công nghệ quét"],
     ["adfSheets", "ADF"],
     ["adfCapacitySheets", "Sức chứa ADF"],
     ["maxPaperSize", "Khổ giấy tối đa"],
     ["minPaperSize", "Khổ giấy tối thiểu"],
-    ["dailyDuty", "Công suất/ngày"],
+    ["dailyDuty", "Chu kỳ hoạt động"],
     ["passportScanText", "Scan hộ chiếu"],
     ["duplexScanText", "Scan hai mặt"],
     ["colorScanText", "Scan màu"],
@@ -220,8 +257,10 @@ function normalizeSpecs(doc: PayloadProductDoc) {
     ["plasticCardScanText", "Scan thẻ nhựa"],
     ["connectivity", "Kết nối"],
     ["supportedOs", "Hệ điều hành hỗ trợ"],
-    ["dimensionsWeight", "Kích thước / Trọng lượng"],
-  ]);
+    ["dimensions", "Kích thước"],
+    ["weight", "Trọng lượng"],
+    ]),
+  ];
 
   const printerSpecs = specsFromGroup(doc.printerSpecs, [
     ["printerType", "Loại máy in"],
@@ -265,7 +304,7 @@ function normalizeSpecs(doc: PayloadProductDoc) {
 
   const combined =
     specProfile === "scanner"
-      ? scannerSpecs
+      ? [...scannerSpecs, ...manualSpecs]
       : canonicalSpecs.length
         ? [...canonicalSpecs, ...manualSpecs]
         : [...scannerSpecs, ...printerSpecs, ...photocopierSpecs, ...manualSpecs];
@@ -276,6 +315,23 @@ function normalizeSpecs(doc: PayloadProductDoc) {
     seen.add(key);
     return true;
   });
+}
+
+function extractSellingPoints(html?: string) {
+  return extractHighlightBulletPoints(stripHTML(html));
+}
+
+function normalizeSellingPoints(value: unknown, html?: string) {
+  const points = Array.isArray(value)
+    ? value
+        .map((item) =>
+          item && typeof item === "object" && "text" in item && typeof item.text === "string"
+            ? item.text.trim()
+            : "",
+        )
+        .filter(Boolean)
+    : [];
+  return points.length ? points : extractSellingPoints(html);
 }
 
 function normalizeProduct(
@@ -293,6 +349,7 @@ function normalizeProduct(
         .filter((image: { url?: string }) => Boolean(image.url))
     : [];
   const id = doc.id;
+  const descriptionHTML = htmlOrTextField(doc, "descriptionHTML", "description");
 
   return {
     id: typeof id === "string" || typeof id === "number" ? id : undefined,
@@ -320,13 +377,14 @@ function normalizeProduct(
     detail:
       textField(doc, "shortDescription") ||
       stripHTML(htmlOrTextField(doc, "summaryHTML", "summary")),
-    description: htmlOrTextField(doc, "descriptionHTML", "description"),
+    description: descriptionHTML,
     usageGuide: htmlOrTextField(doc, "usageGuideHTML", "usageGuide"),
     warranty: commercial?.warranty || textField(doc, "warranty"),
     origin: textField(doc, "origin"),
     images,
     datasheets: normalizeDatasheets(doc.datasheets),
     image: images[0]?.url,
+    sellingPoints: normalizeSellingPoints(doc.sellingPoints, descriptionHTML),
     specs: normalizeSpecs(doc),
     relatedProducts: includeRelated
       ? normalizeRelatedProducts(doc.relatedProducts, projections)

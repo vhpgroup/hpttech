@@ -1,21 +1,23 @@
 import { importCanonicalProductsRows } from "@/lib/canonical-product-import-export";
 import { relationID } from "@/lib/catalog-schema";
 import { getPayloadClient } from "@/lib/payload";
-import { SCANNER_SPEC_FIELDS } from "@/lib/scanner-specs";
 import { buildCanonicalImportRow } from "./canonical-row";
 import { importScrapedImages } from "./media";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
-import { lexicalParagraphs } from "./text";
+import { extractHighlightBulletPoints, firstSentence, lexicalParagraphs } from "./text";
 import type { ExcelRow, ScrapedProduct } from "./types";
 
-function scannerSpecsForUpdate(productTypeCode: string, scannerSpecs: unknown) {
-  if (productTypeCode !== "scanner") return scannerSpecs;
-  return {
-    ...Object.fromEntries(
-      SCANNER_SPEC_FIELDS.map((field) => [field.key, null]),
-    ),
-    ...(scannerSpecs && typeof scannerSpecs === "object" ? scannerSpecs : {}),
-  };
+function randomRating() {
+  const values = [4, 4.5, 5];
+  return values[Math.floor(Math.random() * values.length)];
+}
+
+function randomViewCount() {
+  return Math.floor(Math.random() * 151) + 50;
+}
+
+function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
+  return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
 }
 
 export async function importBatchProduct(
@@ -74,7 +76,15 @@ export async function importBatchProduct(
   }
 
   const sourceUrls = product.source.urls || [product.source.url];
-  const manualSpecs = productTypeCode === "scanner" ? [] : normalizedSpecs.specs;
+  const manualSpecs = normalizedSpecs.specs;
+  const descriptionText = product.generated.description || product.data.description || "";
+  const summaryText =
+    firstSentence(product.data.summary || product.data.description || product.generated.summary) ||
+    product.data.title;
+  const sellingPoints = extractHighlightBulletPoints(product.data.description);
+  const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
+  const rating = randomRating();
+  const viewCount = randomViewCount();
   let uploadedImages: Array<{ id: string | number; url: string }> = [];
   let imageWarning = "";
   try {
@@ -82,10 +92,10 @@ export async function importBatchProduct(
   } catch (error) {
     imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
   }
-  await payload.update({
+  const updated = await payload.update({
     collection: "products",
     data: {
-      description: lexicalParagraphs(product.generated.description),
+      description: lexicalParagraphs(descriptionText),
       images: uploadedImages.map((image) => image.id),
       internalNote: [
         "Auto-filled by bulk scraper.",
@@ -107,20 +117,21 @@ export async function importBatchProduct(
         noIndex: true,
         title: product.seo.title,
       },
+      warranty,
       source: {
         type: "scraper",
         url: product.source.url,
         verified: false,
       },
-      scannerSpecs: scannerSpecsForUpdate(
-        productTypeCode,
-        normalizedSpecs.scannerSpecs,
-      ),
+      scannerSpecs: normalizedSpecs.scannerSpecs,
+      rating,
+      sellingPoints: sellingPoints.map((text) => ({ text })),
       specProfile: productTypeCode,
       specs: manualSpecs,
       status: "draft",
       _status: "draft",
-      summary: lexicalParagraphs(product.generated.summary),
+      summary: lexicalParagraphs(summaryText),
+      viewCount,
     },
     id: productId,
     overrideAccess: true,
@@ -128,7 +139,18 @@ export async function importBatchProduct(
 
   return {
     created: result.created === 1,
+    imageCount: uploadedImages.length,
+    imageWarning,
     productId,
+    rating,
+    specCount: manualSpecs.length,
+    sellingPointCount: sellingPoints.length,
+    slug:
+      updated && typeof updated === "object" && "slug" in updated
+        ? String(updated.slug || "")
+        : "",
     sku: row.sku,
+    viewCount,
+    warranty,
   };
 }

@@ -19,24 +19,26 @@ function hasCheckbox(value: ScannerSpecsRecord, key: string, pairedTextKey: stri
 }
 
 export const SCANNER_SPEC_FIELDS: ScannerSpecField[] = [
-  { key: "scannerType", label: "Loai may scan", isFilled: (value) => hasText(value?.["scannerType"]) },
-  { key: "functions", label: "Chuc nang", isFilled: (value) => hasText(value?.["functions"]) },
+  { key: "scannerType", label: "Loại máy scan", isFilled: (value) => hasText(value?.["scannerType"]) },
+  { key: "functions", label: "Chức năng", isFilled: (value) => hasText(value?.["functions"]) },
   {
     key: "scanSpeedSimplexPpm",
-    label: "Toc do scan mot mat",
+    label: "Tốc độ scan một mặt",
     isFilled: (value) => hasNumber(value?.["scanSpeedSimplexPpm"]),
   },
   {
     key: "scanSpeedDuplexIpm",
-    label: "Toc do scan hai mat",
+    label: "Tốc độ scan hai mặt",
     isFilled: (value) => hasNumber(value?.["scanSpeedDuplexIpm"]),
   },
-  { key: "scanModes", label: "Che do quet", isFilled: (value) => hasText(value?.["scanModes"]) },
+  { key: "scanModes", label: "Chế độ quét", isFilled: (value) => hasText(value?.["scanModes"]) },
   {
     key: "scanResolution",
-    label: "Do phan giai quang hoc",
+    label: "Độ phân giải quang học",
     isFilled: (value) => hasText(value?.["scanResolution"]),
   },
+  { key: "displayScreen", label: "Màn hình hiển thị", isFilled: (value) => hasText(value?.["displayScreen"]) },
+  { key: "scanTechnology", label: "Công nghệ quét", isFilled: (value) => hasText(value?.["scanTechnology"]) },
   {
     key: "adfSheets",
     label: "ADF",
@@ -45,33 +47,33 @@ export const SCANNER_SPEC_FIELDS: ScannerSpecField[] = [
   },
   {
     key: "adfCapacitySheets",
-    label: "Suc chua ADF",
+    label: "Sức chứa ADF",
     isFilled: (value) => hasNumber(value?.["adfCapacitySheets"]),
   },
   {
     key: "maxPaperSize",
-    label: "Kho giay toi da",
+    label: "Khổ giấy tối đa",
     isFilled: (value) => hasText(value?.["maxPaperSize"]),
   },
   {
     key: "minPaperSize",
-    label: "Kho giay toi thieu",
+    label: "Khổ giấy tối thiểu",
     isFilled: (value) => hasText(value?.["minPaperSize"]),
   },
-  { key: "dailyDuty", label: "Cong suat/ngay", isFilled: (value) => hasNumber(value?.["dailyDuty"]) },
+  { key: "dailyDuty", label: "Công suất/ngày", isFilled: (value) => hasNumber(value?.["dailyDuty"]) },
   {
     key: "passportScanText",
-    label: "Ghi chu scan ho chieu",
+    label: "Ghi chú scan hộ chiếu",
     isFilled: (value) => hasText(value?.["passportScanText"]),
   },
   {
     key: "duplexScanText",
-    label: "Ghi chu scan hai mat",
+    label: "Ghi chú scan hai mặt",
     isFilled: (value) => hasText(value?.["duplexScanText"]),
   },
   {
     key: "colorScanText",
-    label: "Ghi chu scan mau",
+    label: "Ghi chú scan màu",
     isFilled: (value) => hasText(value?.["colorScanText"]),
   },
   {
@@ -81,33 +83,35 @@ export const SCANNER_SPEC_FIELDS: ScannerSpecField[] = [
   },
   {
     key: "plasticCardScanText",
-    label: "Ghi chu scan the nhua",
+    label: "Ghi chú scan thẻ nhựa",
     isFilled: (value) => hasText(value?.["plasticCardScanText"]),
   },
-  { key: "connectivity", label: "Ket noi", isFilled: (value) => hasText(value?.["connectivity"]) },
+  { key: "connectivity", label: "Kết nối", isFilled: (value) => hasText(value?.["connectivity"]) },
   {
     key: "supportedOs",
-    label: "He dieu hanh ho tro",
+    label: "Hệ điều hành hỗ trợ",
     isFilled: (value) => hasText(value?.["supportedOs"]),
   },
   {
     key: "dimensionsWeight",
-    label: "Kich thuoc / Trong luong",
-    isFilled: (value) => hasText(value?.["dimensionsWeight"]),
+    label: "Kích thước / Trọng lượng",
+    isFilled: (value) =>
+      hasText(value?.["dimensionsWeight"]) ||
+      (hasText(value?.["dimensions"]) && hasText(value?.["weight"])),
   },
   {
     key: "passportScan",
-    label: "Co scan ho chieu",
+    label: "Có scan hộ chiếu",
     isFilled: (value) => hasCheckbox(value, "passportScan", "passportScanText"),
   },
   {
     key: "duplexScan",
-    label: "Co scan hai mat",
+    label: "Có scan hai mặt",
     isFilled: (value) => hasCheckbox(value, "duplexScan", "duplexScanText"),
   },
   {
     key: "colorScan",
-    label: "Co scan mau",
+    label: "Có scan màu",
     isFilled: (value) => hasCheckbox(value, "colorScan", "colorScanText"),
   },
   {
@@ -117,7 +121,7 @@ export const SCANNER_SPEC_FIELDS: ScannerSpecField[] = [
   },
   {
     key: "plasticCardScan",
-    label: "Co scan the nhua",
+    label: "Có scan thẻ nhựa",
     isFilled: (value) => hasCheckbox(value, "plasticCardScan", "plasticCardScanText"),
   },
 ];

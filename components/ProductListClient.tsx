@@ -341,6 +341,7 @@ function ModernProductCard({
 }) {
   const href = productHref(product);
   const image = product.images?.[0]?.url || product.image;
+  const imageUnoptimized = image?.startsWith("/api/r2-media/") === true;
   const price = product.price || "Liên hệ";
   const chips = pickSpecChips(product);
   const badges = productBadges(product);
@@ -363,6 +364,7 @@ function ModernProductCard({
             height={220}
             className="max-h-40 w-auto object-contain transition duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 260px"
+            unoptimized={imageUnoptimized}
           />
         ) : (
           <div className="h-28 w-full rounded-lg bg-slate-100" />

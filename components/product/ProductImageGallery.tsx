@@ -18,6 +18,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   const hasMultiple = images.length > 1;
   const activeImage = images[activeIndex];
+  const activeImageUnoptimized = activeImage?.url.startsWith("/api/r2-media/") === true;
 
   const goTo = useCallback((index: number) => {
     const next = (index + images.length) % images.length;
@@ -76,6 +77,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 fill
                 className="object-contain p-2"
                 sizes="84px"
+                unoptimized={img.url.startsWith("/api/r2-media/")}
               />
             </button>
           ))}
@@ -95,6 +97,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           className={cn("object-contain p-5 transition-transform duration-500 ease-out sm:p-6", isZoomed && "scale-105")}
           sizes="(max-width: 1024px) 100vw, 520px"
           priority
+          unoptimized={activeImageUnoptimized}
         />
         <button
           type="button"
@@ -133,6 +136,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 height={520}
                 className="h-auto max-h-[calc(100vh-150px)] w-[min(82vw,760px)] object-contain"
                 sizes="(max-width: 768px) 82vw, 760px"
+                unoptimized={activeImageUnoptimized}
               />
               {hasMultiple ? (
                 <>
@@ -159,7 +163,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                       activeIndex === idx ? "ring-2 ring-white" : "opacity-70 hover:opacity-100",
                     )}
                   >
-                    <Image src={img.url} alt={img.alt || `${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="56px" />
+                    <Image src={img.url} alt={img.alt || `${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="56px" unoptimized={img.url.startsWith("/api/r2-media/")} />
                   </button>
                 ))}
               </div>

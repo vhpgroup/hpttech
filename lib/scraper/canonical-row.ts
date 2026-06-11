@@ -1,8 +1,5 @@
 import type { ExcelRow, ScrapedProduct } from "./types";
-import {
-  extractRequestedModel,
-  textContainsModel,
-} from "./model-identity";
+import { extractRequestedModel } from "./model-identity";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
 
 export type CanonicalScraperRow = Record<string, string>;
@@ -29,20 +26,8 @@ function vndPrice(value?: string) {
   return digits && Number(digits) >= 100_000 ? digits : "";
 }
 
-function productTitleFromSource(title: string | undefined, model: string) {
-  if (!title || !textContainsModel(title, model)) return undefined;
-  const normalized = title
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-  if (
-    /\b(downloads?|drivers?|manuals?|support|firmware|specifications?)\b/.test(
-      normalized,
-    )
-  ) {
-    return undefined;
-  }
-  return title;
+function specValue(product: ScrapedProduct, labelPattern: RegExp) {
+  return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
 }
 
 export function buildCanonicalImportRow(
@@ -71,7 +56,7 @@ export function buildCanonicalImportRow(
     isPrimary: "true",
     model,
     price: vndPrice(product.data.price),
-    productName: productTitleFromSource(product.data.title, model) || input.name,
+    productName: input.name,
     productStatus: "draft",
     productTypeCode,
     quantity: "0",
@@ -84,7 +69,7 @@ export function buildCanonicalImportRow(
     variantStatus: "draft",
     vatIncluded: "true",
     vatRate: "10",
-    warranty: product.data.warranty || "",
+    warranty: product.data.warranty || specValue(product, /bảo hành|bao hanh/i),
     warehouseName: "Kho chính",
   };
 }

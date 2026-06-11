@@ -5,8 +5,9 @@ export function normalizeModelIdentity(value: string) {
 }
 
 export function extractRequestedModel(value: string) {
+  const normalizedValue = value.replace(/[\u2010-\u2015\u2212]/g, "-");
   const matches =
-    value.match(
+    normalizedValue.match(
       /\b(?=[A-Z0-9-]*\d)[A-Z]{1,8}(?:-[A-Z0-9]+)+\b|\b(?=[A-Z0-9]*\d)[A-Z]{1,8}\d[A-Z0-9]*\b/gi,
     ) || [];
   return matches

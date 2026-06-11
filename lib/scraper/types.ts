@@ -92,10 +92,21 @@ export type BatchResult = {
   confidence?: number;
   error?: string;
   jobId?: string | number;
+  productReport?: {
+    imageCount?: number;
+    imageStatus?: "ok" | "missing";
+    productUrl?: string;
+    rating?: number;
+    sellingPointCount?: number;
+    sourceDomain?: string;
+    specCount?: number;
+    viewCount?: number;
+    warranty?: string;
+  };
   productId?: string | number;
   productName: string;
   sourceUrls: string[];
-  status: "draft" | "failed" | "searched";
+  status: "draft" | "failed" | "published" | "searched";
   warnings: string[];
 };
 
@@ -103,6 +114,7 @@ export type BatchSummary = {
   draft: number;
   durationMs: number;
   failed: number;
+  published: number;
   results: BatchResult[];
   searched: number;
   total: number;

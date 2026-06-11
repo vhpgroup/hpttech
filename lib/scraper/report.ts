@@ -20,7 +20,10 @@ export async function generateReport(results: BatchResult[], outputPath: string)
     { header: "Trạng thái", key: "status", width: 14 },
     { header: "Confidence", key: "confidence", width: 14 },
     { header: "Link Admin", key: "adminUrl", width: 45 },
+    { header: "Link Web", key: "productUrl", width: 45 },
     { header: "Nguồn URL", key: "sourceUrls", width: 70 },
+    { header: "Ảnh R2", key: "imageStatus", width: 14 },
+    { header: "Số thông số lấy được", key: "specCount", width: 22 },
     { header: "Lỗi", key: "error", width: 45 },
     { header: "Cảnh báo", key: "warnings", width: 55 },
   ];
@@ -33,8 +36,11 @@ export async function generateReport(results: BatchResult[], outputPath: string)
           ? `${Math.round(result.confidence * 100)}%`
           : "",
       error: result.error || "",
+      imageStatus: result.productReport?.imageStatus || "",
       index: index + 1,
       productName: result.productName,
+      productUrl: result.productReport?.productUrl || "",
+      specCount: result.productReport?.specCount ?? "",
       sourceUrls: result.sourceUrls.join("\n"),
       status: result.status,
       warnings: result.warnings.join("\n"),

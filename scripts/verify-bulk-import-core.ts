@@ -48,6 +48,7 @@ async function main() {
         dryRun: true,
         filePath: inputPath,
         limit: 5,
+        publish: false,
         searchOnly: true,
         skip: 2,
       },
@@ -81,7 +82,7 @@ async function main() {
     const reportSheet = report.worksheets[0];
     assert.equal(reportSheet.rowCount, 3);
     assert.equal(reportSheet.getRow(2).getCell(2).text, "Brother ADS-4700W");
-    assert.equal(reportSheet.getRow(3).getCell(7).text, "Không tìm thấy nguồn phù hợp.");
+    assert.equal(reportSheet.getRow(3).getCell(10).text, "Không tìm thấy nguồn phù hợp.");
   } finally {
     await rm(directory, { force: true, recursive: true });
   }

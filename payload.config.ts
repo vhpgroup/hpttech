@@ -44,7 +44,7 @@ const isVercel = Boolean(process.env.VERCEL);
 const databaseURL =
   process.env.DATABASE_URI ||
   process.env.POSTGRES_URL ||
-  (!isProduction ? "postgres://payload:payload@127.0.0.1:5432/hpttech_payload" : undefined);
+  (!isProduction ? "postgres://payload:payload@127.0.0.1:5433/hpttech_payload" : undefined);
 
 if (!databaseURL) {
   throw new Error("Missing DATABASE_URI. Use a Neon PostgreSQL connection string in production.");

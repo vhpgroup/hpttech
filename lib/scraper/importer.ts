@@ -1,7 +1,7 @@
 import { getPayloadClient } from "@/lib/payload";
 import { formatSlug } from "@/lib/payload/utils/slugify";
 import type { Where } from "payload";
-import { lexicalParagraphs } from "./text";
+import { extractHighlightBulletPoints, firstSentence, lexicalParagraphs } from "./text";
 import type { ImportProductInput } from "./types";
 import { importScrapedImages } from "./media";
 
@@ -10,6 +10,19 @@ type PayloadRelationshipDoc = {
   name?: string;
   slug?: string;
 };
+
+function randomRating() {
+  const values = [4, 4.5, 5];
+  return values[Math.floor(Math.random() * values.length)];
+}
+
+function randomViewCount() {
+  return Math.floor(Math.random() * 151) + 50;
+}
+
+function sourceSpecValue(product: ImportProductInput["product"], labelPattern: RegExp) {
+  return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
+}
 
 async function findBySlugOrName(collection: "brands" | "categories", name: string) {
   const payload = await getPayloadClient();
@@ -97,6 +110,12 @@ export async function importScrapedProduct(input: ImportProductInput) {
   } catch (error) {
     imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
   }
+  const descriptionText = product.generated.description || product.data.description || "";
+  const summaryText =
+    firstSentence(product.data.summary || product.data.description || product.generated.summary) ||
+    product.data.title;
+  const sellingPoints = extractHighlightBulletPoints(product.data.description);
+  const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
 
   const created = await payload.create({
     collection: "products",
@@ -104,7 +123,7 @@ export async function importScrapedProduct(input: ImportProductInput) {
       brand: brand.id,
       category: category.id,
       compareAtPrice: product.data.compareAtPrice,
-      description: lexicalParagraphs(product.generated.description),
+      description: lexicalParagraphs(descriptionText),
       images: uploadedImages.map((image) => image.id),
       internalNote: [
         `Auto-filled by scraper MVP.`,
@@ -116,6 +135,7 @@ export async function importScrapedProduct(input: ImportProductInput) {
       ].filter(Boolean).join("\n"),
       origin: product.data.origin,
       price: product.data.price,
+      rating: randomRating(),
       seo: {
         canonical: product.seo.canonical,
         description: product.seo.description,
@@ -127,9 +147,11 @@ export async function importScrapedProduct(input: ImportProductInput) {
       specs: product.data.specs,
       status: "draft",
       stockStatus: "in_stock",
-      summary: lexicalParagraphs(product.generated.summary),
+      summary: lexicalParagraphs(summaryText),
+      sellingPoints: sellingPoints.map((text) => ({ text })),
       title: product.data.title,
-      warranty: product.data.warranty,
+      viewCount: randomViewCount(),
+      warranty,
     },
     overrideAccess: true,
   });

@@ -124,6 +124,20 @@ function inferPaperRange(spec: ProductSpec) {
     return undefined;
   }
   if (!/\d/.test(value)) return undefined;
+  const explicitMinimum =
+    label.includes("toi thieu") ||
+    label.includes("minimum") ||
+    label.includes("min") ||
+    normalizedValue.includes("toi thieu") ||
+    normalizedValue.includes("minimum");
+  const hasDimensionRange =
+    /\d+(?:[.,]\d+)?\s*(?:mm|cm|in\.?|inch)\s*(?:-|to|den|–|—|x)\s*\d+(?:[.,]\d+)?/i.test(
+      normalizedValue,
+    ) ||
+    /\d+(?:[.,]\d+)?\s*(?:-|to|den|–|—)\s*\d+(?:[.,]\d+)?\s*(?:mm|cm|in\.?|inch)/i.test(
+      normalizedValue,
+    );
+  if (!explicitMinimum && !hasDimensionRange) return undefined;
   return `${spec.label}: ${value}`;
 }
 
@@ -179,6 +193,16 @@ function isDimensionsWeightSpec(label: string, value: string) {
     label.includes("weights") ||
     label === "weight"
   );
+}
+
+function isDimensionsSpec(label: string, value: string) {
+  const normalizedValue = normalize(value);
+  return !normalizedValue.includes("thickness") && (label.includes("kich thuoc") || label.includes("dimensions"));
+}
+
+function isWeightSpec(label: string, value: string) {
+  const normalizedValue = normalize(value);
+  return !normalizedValue.includes("thickness") && (label.includes("trong luong") || label === "weight" || label.includes("weights"));
 }
 
 function hasText(value: unknown) {
@@ -457,7 +481,8 @@ export function normalizeScrapedSpecs(
 
     if (
       label.includes("kho giay toi da") ||
-      label.includes("kho tai lieu toi da")
+      label.includes("kho tai lieu toi da") ||
+      label.includes("kho giay ho tro")
     ) {
       scannerSpecs.maxPaperSize = value;
       addAttribute(attributes, "scanner_max_paper_size", paperSize(value));
@@ -472,7 +497,7 @@ export function normalizeScrapedSpecs(
     }
 
     if (
-      label.includes("cong suat") &&
+      (label.includes("cong suat") || label.includes("chu ky hoat dong")) &&
       (label.includes("ngay") || normalizedValue.includes("ngay"))
     ) {
       const duty = firstNumber(normalizedValue.replace(/[.,](?=\d{3}\b)/g, ""));
@@ -493,6 +518,12 @@ export function normalizeScrapedSpecs(
     }
 
     if (isDimensionsWeightSpec(label, value)) {
+      if (isDimensionsSpec(label, value)) {
+        scannerSpecs.dimensions = value;
+      }
+      if (isWeightSpec(label, value)) {
+        scannerSpecs.weight = value;
+      }
       scannerSpecs.dimensionsWeight = [
         scannerSpecs.dimensionsWeight,
         `${spec.label}: ${value}`,
@@ -504,6 +535,14 @@ export function normalizeScrapedSpecs(
         "scanner_dimensions_weight",
         String(scannerSpecs.dimensionsWeight),
       );
+    }
+
+    if (label.includes("man hinh hien thi") || label.includes("display")) {
+      scannerSpecs.displayScreen = value;
+    }
+
+    if (label.includes("cong nghe quet") || label.includes("scan technology")) {
+      scannerSpecs.scanTechnology = value;
     }
 
     if (label.includes("tinh nang") || label.includes("chuc nang")) {

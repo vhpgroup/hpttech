@@ -14,7 +14,7 @@ export async function assertScraperDatabaseReady() {
   const connectionString =
     process.env.DATABASE_URI ||
     process.env.POSTGRES_URL ||
-    "postgres://payload:payload@127.0.0.1:5432/hpttech_payload";
+    "postgres://payload:payload@127.0.0.1:5433/hpttech_payload";
   const client = new Client({
     connectionString,
     connectionTimeoutMillis: Number(
