@@ -1,5 +1,5 @@
 import { cleanText } from "./text";
-import type { ExtractedProductData } from "./types";
+import type { ExtractedProductData, ScrapedImage } from "./types";
 
 const PDF_TEXT_PREFIX = "__PDF_TEXT__\n";
 
@@ -42,6 +42,131 @@ function extractJsonLd(html: string) {
   }
 
   return undefined;
+}
+
+function jsonLdEntries(html: string) {
+  return [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+    .flatMap((block) => {
+      try {
+        const parsed = JSON.parse(cleanText(block[1]));
+        return Array.isArray(parsed)
+          ? parsed
+          : Array.isArray(parsed?.["@graph"])
+            ? parsed["@graph"]
+            : [parsed];
+      } catch {
+        return [];
+      }
+    });
+}
+
+function absoluteImageUrl(pageUrl: string, value?: string) {
+  const cleanValue = cleanText(value);
+  if (!cleanValue) return undefined;
+  try {
+    const url = new URL(cleanValue, pageUrl);
+    if (!/^https?:$/.test(url.protocol)) return undefined;
+    return url.toString();
+  } catch {
+    return undefined;
+  }
+}
+
+function imageKey(url: string) {
+  const parsed = new URL(url);
+  parsed.search = "";
+  return parsed.toString();
+}
+
+function isProductImage(url: string) {
+  const normalized = url.toLowerCase();
+  return (
+    /\/media\/\d+\/catalog\//.test(normalized) &&
+    !normalized.includes("default-image") &&
+    /\.(avif|gif|jpe?g|png|webp)(?:$|\?)/i.test(normalized)
+  );
+}
+
+function addImage(
+  images: ScrapedImage[],
+  seen: Set<string>,
+  image: ScrapedImage | undefined,
+) {
+  if (!image?.url || !isProductImage(image.url)) return;
+  const key = imageKey(image.url);
+  if (seen.has(key)) return;
+  seen.add(key);
+  images.push({
+    ...image,
+    url: key,
+  });
+}
+
+export function extractProductImagesFromHtml(
+  pageUrl: string,
+  html?: string,
+): ScrapedImage[] {
+  if (!html || isPdfTextSource(html)) return [];
+
+  const images: ScrapedImage[] = [];
+  const seen = new Set<string>();
+  const title =
+    firstMatch(html, [
+      /<meta[^>]+property=["']og:image:alt["'][^>]+content=["']([^"']+)["'][^>]*>/i,
+      /<h1[^>]*>([\s\S]*?)<\/h1>/i,
+    ]) || undefined;
+
+  for (const entry of jsonLdEntries(html)) {
+    const imageValue = (entry as Record<string, unknown>)?.image;
+    const values = Array.isArray(imageValue) ? imageValue : [imageValue];
+    for (const value of values) {
+      const url =
+        typeof value === "string"
+          ? absoluteImageUrl(pageUrl, value)
+          : value && typeof value === "object"
+            ? absoluteImageUrl(
+                pageUrl,
+                String((value as Record<string, unknown>).url || ""),
+              )
+            : undefined;
+      addImage(images, seen, {
+        alt: title,
+        source: "json-ld",
+        url: url || "",
+      });
+    }
+  }
+
+  for (const pattern of [
+    /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["'][^>]*>/gi,
+    /<meta[^>]+property=["']twitter:image["'][^>]+content=["']([^"']+)["'][^>]*>/gi,
+  ]) {
+    for (const match of html.matchAll(pattern)) {
+      const url = absoluteImageUrl(pageUrl, match[1]);
+      addImage(images, seen, {
+        alt: title,
+        source: "meta",
+        url: url || "",
+      });
+    }
+  }
+
+  const galleryHtml =
+    html.match(/<div[^>]+id=["']pd-gallery-container["'][\s\S]*?(?=<div class=["']pd__data)/i)?.[0] ||
+    html.match(/<div[^>]+id=["']pd-gallery-container["'][\s\S]*?(?=<div class=["']pd__spot-light)/i)?.[0] ||
+    "";
+  for (const match of galleryHtml.matchAll(
+    /<(?:a|img)\b[^>]+(?:href|data-zoom|data-medium-image|src)=["']([^"']+)["'][^>]*(?:alt=["']([^"']*)["'])?[^>]*>/gi,
+  )) {
+    const url = absoluteImageUrl(pageUrl, match[1]);
+    addImage(images, seen, {
+      alt: cleanText(match[2]) || title,
+      source: "gallery",
+      url: url || "",
+    });
+  }
+
+  return images.slice(0, Number(process.env.SCRAPER_MAX_IMAGES || 5));
 }
 
 function extractSpecs(html: string) {
@@ -99,6 +224,7 @@ function extractSpecsFromText(text: string) {
   add(
     "ADF",
     lineValue(normalized, [
+      /((?:ADF|automatic document feeder)[^\n]*(?:up to|maximum)?\s*\d+\s*(?:sheets?|pages?)[^\n]*)/i,
       /(?:adf|automatic document feeder)[^\n:]*[:\s]+([^\n]*(?:sheets?|pages?)[^\n]*)/i,
       /(\d+\s*(?:sheets?|pages?)\s*(?:adf|automatic document feeder)[^\n]*)/i,
     ]),
@@ -119,7 +245,14 @@ function extractSpecsFromText(text: string) {
   add(
     "Kho giay toi da",
     lineValue(normalized, [
+      /((?:standard paper size|paper size|document size)[^\n]*(?:a4|a3|legal|letter)[^\n]*)/i,
       /(?:document size|paper size|media size)[^\n:]*[:\s]+([^\n]*(?:a4|a3|legal|letter)[^\n]*)/i,
+    ]),
+  );
+  add(
+    "Kho giay toi thieu",
+    lineValue(normalized, [
+      /((?:document size|paper width|width|length)[^\n]*(?:\d+(?:[.,]\d+)?\s*(?:to|-)\s*\d+(?:[.,]\d+)?)[^\n]*(?:mm|in\.|inch)[^\n]*)/i,
     ]),
   );
   add(
@@ -131,12 +264,14 @@ function extractSpecsFromText(text: string) {
   add(
     "He dieu hanh",
     lineValue(normalized, [
+      /((?:twain|wia|ica|isis)[^\n]*(?:windows|macintosh|mac|linux)[^\n]*)/i,
       /(?:operating systems?|supported os|os compatibility)[^\n:]*[:\s]+([^\n]*(?:windows|mac|linux)[^\n]*)/i,
     ]),
   );
   add(
     "Kich thuoc trong luong",
     lineValue(normalized, [
+      /((?:dimensions?|weights?)[^\n]*(?:mm|inch|in\.|kg|lb)[^\n]*)/i,
       /(?:dimensions?|weight)[^\n:]*[:\s]+([^\n]*(?:mm|inch|kg|lb)[^\n]*)/i,
     ]),
   );
@@ -397,7 +532,7 @@ export async function gptExtractProduct(
   if (!validAiProduct(extracted)) return fallback;
 
   return mergeExtractedProducts([
+    { data: fallback, sourceType: "manufacturer" },
     { data: extracted, sourceType: "manufacturer" },
-    { data: fallback, sourceType: "retailer" },
   ]);
 }

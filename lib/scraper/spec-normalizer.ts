@@ -100,12 +100,25 @@ function paperSize(value: string) {
 function inferPaperRange(spec: ProductSpec) {
   const label = normalize(spec.label);
   const value = cleanText(spec.value);
+  const normalizedValue = normalize(value);
+  if (normalizedValue.includes("thickness")) return undefined;
+  if (
+    label.includes("toi da") ||
+    label.includes("maximum") ||
+    label.includes("max")
+  ) {
+    return undefined;
+  }
   if (
     !(
       label.includes("kho tai lieu") ||
       label.includes("kho giay") ||
       label.includes("do rong quet") ||
-      label.includes("do dai")
+      label.includes("do dai") ||
+      label.includes("document size") ||
+      label.includes("paper width") ||
+      label === "length" ||
+      label === "width"
     )
   ) {
     return undefined;
@@ -149,7 +162,23 @@ function modeSummary(value: string) {
 
 function yesNoText(value: boolean | undefined, positiveLabel: string) {
   if (value === undefined) return undefined;
-  return value ? positiveLabel : "Khong";
+  return value ? positiveLabel : "Không";
+}
+
+function booleanText(value: boolean) {
+  return value ? "Có" : "Không";
+}
+
+function isDimensionsWeightSpec(label: string, value: string) {
+  const normalizedValue = normalize(value);
+  if (normalizedValue.includes("thickness")) return false;
+  return (
+    label.includes("kich thuoc") ||
+    label.includes("trong luong") ||
+    label.includes("dimensions") ||
+    label.includes("weights") ||
+    label === "weight"
+  );
 }
 
 function hasText(value: unknown) {
@@ -249,13 +278,40 @@ function deriveScannerSpecs(scannerSpecs: ScannerSpecs, specs: ProductSpec[]) {
   if (!hasText(scannerSpecs.colorScanText) && hasText(scannerSpecs.scanModes)) {
     const inferred = positiveBoolean(String(scannerSpecs.scanModes));
     ensureScannerField(scannerSpecs, "colorScan", inferred);
-    ensureScannerField(scannerSpecs, "colorScanText", yesNoText(inferred, "Co"));
+    ensureScannerField(scannerSpecs, "colorScanText", yesNoText(inferred, "Có"));
   }
   if (!hasText(scannerSpecs.duplexScanText) && scannerSpecs.duplexScan !== undefined) {
     ensureScannerField(
       scannerSpecs,
       "duplexScanText",
-      yesNoText(Boolean(scannerSpecs.duplexScan), "Co"),
+      booleanText(Boolean(scannerSpecs.duplexScan)),
+    );
+  }
+  if (!hasText(scannerSpecs.colorScanText) && scannerSpecs.colorScan !== undefined) {
+    ensureScannerField(
+      scannerSpecs,
+      "colorScanText",
+      booleanText(Boolean(scannerSpecs.colorScan)),
+    );
+  }
+  if (!hasText(scannerSpecs.ocrText) && scannerSpecs.ocr !== undefined) {
+    ensureScannerField(scannerSpecs, "ocrText", booleanText(Boolean(scannerSpecs.ocr)));
+  }
+  if (
+    !hasText(scannerSpecs.plasticCardScanText) &&
+    scannerSpecs.plasticCardScan !== undefined
+  ) {
+    ensureScannerField(
+      scannerSpecs,
+      "plasticCardScanText",
+      booleanText(Boolean(scannerSpecs.plasticCardScan)),
+    );
+  }
+  if (!hasText(scannerSpecs.passportScanText) && scannerSpecs.passportScan !== undefined) {
+    ensureScannerField(
+      scannerSpecs,
+      "passportScanText",
+      booleanText(Boolean(scannerSpecs.passportScan)),
     );
   }
   if (!hasText(scannerSpecs.functions)) {
@@ -285,12 +341,19 @@ export function normalizeScrapedSpecs(
   input: ProductSpec[],
   productTypeCode: string,
 ): NormalizedScrapedSpecs {
+  const seenSpecs = new Set<string>();
   const specs = input
     .map((spec) => ({
-      label: cleanText(spec.label),
+      label: cleanText(spec.label).replace(/[:：]\s*$/, ""),
       value: cleanText(spec.value),
     }))
-    .filter((spec) => spec.label && spec.value && isUsefulSpec(spec));
+    .filter((spec) => {
+      if (!spec.label || !spec.value || !isUsefulSpec(spec)) return false;
+      const key = normalize(spec.label);
+      if (seenSpecs.has(key)) return false;
+      seenSpecs.add(key);
+      return true;
+    });
   if (productTypeCode !== "scanner") {
     return { attributes: [], specs };
   }
@@ -331,7 +394,7 @@ export function normalizeScrapedSpecs(
         scannerSpecs.scanSpeedDuplexIpm = duplex;
         addAttribute(attributes, "scanner_scan_speed_duplex", duplex);
         scannerSpecs.duplexScan = true;
-        scannerSpecs.duplexScanText = value;
+        scannerSpecs.duplexScanText = booleanText(true);
         addAttribute(attributes, "scanner_duplex", true);
       }
     }
@@ -351,11 +414,15 @@ export function normalizeScrapedSpecs(
       );
     }
 
-    if (label.includes("hai mat") || label.includes("duplex")) {
+    if (
+      label.includes("hai mat") ||
+      label.includes("2 mat") ||
+      label.includes("duplex")
+    ) {
       const duplex = positiveBoolean(`${spec.label} ${value}`);
       if (duplex !== undefined) {
         scannerSpecs.duplexScan = duplex;
-        scannerSpecs.duplexScanText = value;
+        scannerSpecs.duplexScanText = booleanText(duplex);
         addAttribute(attributes, "scanner_duplex", duplex);
       }
     }
@@ -364,7 +431,21 @@ export function normalizeScrapedSpecs(
       label.includes("adf") &&
       (label.includes("suc chua") ||
         label.includes("khay") ||
-        label.includes("capacity"))
+        label.includes("capacity") ||
+        /\b(pages?|sheets?)\b/.test(normalizedValue) ||
+        /\bto\b/.test(normalizedValue))
+    ) {
+      const capacity = firstNumber(normalizedValue);
+      if (capacity !== undefined) {
+        scannerSpecs.adfCapacitySheets = capacity;
+        scannerSpecs.adfSheets = scannerSpecs.adfSheets ?? capacity;
+        addAttribute(attributes, "scanner_adf_capacity", capacity);
+      }
+    }
+
+    if (
+      label.includes("khay giay") &&
+      /\b(to|pages?|sheets?)\b/.test(normalizedValue)
     ) {
       const capacity = firstNumber(normalizedValue);
       if (capacity !== undefined) {
@@ -411,7 +492,7 @@ export function normalizeScrapedSpecs(
       addAttribute(attributes, "scanner_supported_os", scannerSpecs.supportedOs);
     }
 
-    if (label.includes("kich thuoc") || label.includes("trong luong")) {
+    if (isDimensionsWeightSpec(label, value)) {
       scannerSpecs.dimensionsWeight = [
         scannerSpecs.dimensionsWeight,
         `${spec.label}: ${value}`,
@@ -436,33 +517,33 @@ export function normalizeScrapedSpecs(
           normalizedValue.includes("2-sided"))
       ) {
         scannerSpecs.duplexScan = duplex;
-        scannerSpecs.duplexScanText = value;
+        scannerSpecs.duplexScanText = booleanText(duplex);
         addAttribute(attributes, "scanner_duplex", duplex);
       }
       const color = /\bmau|color\b/.test(normalizedValue) ? true : undefined;
       if (color !== undefined) {
         scannerSpecs.colorScan = color;
-        scannerSpecs.colorScanText = value;
+        scannerSpecs.colorScanText = booleanText(color);
         addAttribute(attributes, "scanner_color_scan", color);
       }
       const ocr = /\bocr\b/.test(normalizedValue) ? true : undefined;
       if (ocr !== undefined) {
         scannerSpecs.ocr = ocr;
-        scannerSpecs.ocrText = value;
+        scannerSpecs.ocrText = booleanText(ocr);
         addAttribute(attributes, "scanner_ocr", ocr);
       }
       const plasticCard =
         /\b(the nhua|plastic card|id card|card)\b/.test(normalizedValue) ? true : undefined;
       if (plasticCard !== undefined) {
         scannerSpecs.plasticCardScan = plasticCard;
-        scannerSpecs.plasticCardScanText = value;
+        scannerSpecs.plasticCardScanText = booleanText(plasticCard);
         addAttribute(attributes, "scanner_plastic_card_scan", plasticCard);
       }
       const passport =
         /\b(ho chieu|passport)\b/.test(normalizedValue) ? true : undefined;
       if (passport !== undefined) {
         scannerSpecs.passportScan = passport;
-        scannerSpecs.passportScanText = value;
+        scannerSpecs.passportScanText = booleanText(passport);
         addAttribute(attributes, "scanner_passport_scan", passport);
       }
     }
@@ -476,7 +557,7 @@ export function normalizeScrapedSpecs(
       const color = positiveBoolean(value);
       if (color !== undefined) {
         scannerSpecs.colorScan = color;
-        scannerSpecs.colorScanText = value;
+        scannerSpecs.colorScanText = booleanText(color);
         addAttribute(attributes, "scanner_color_scan", color);
       }
     }
@@ -485,7 +566,7 @@ export function normalizeScrapedSpecs(
       const ocr = positiveBoolean(value);
       if (ocr !== undefined) {
         scannerSpecs.ocr = ocr;
-        scannerSpecs.ocrText = value;
+        scannerSpecs.ocrText = booleanText(ocr);
         addAttribute(attributes, "scanner_ocr", ocr);
       }
     }
@@ -494,7 +575,7 @@ export function normalizeScrapedSpecs(
       const card = positiveBoolean(value);
       if (card !== undefined) {
         scannerSpecs.plasticCardScan = card;
-        scannerSpecs.plasticCardScanText = value;
+        scannerSpecs.plasticCardScanText = booleanText(card);
         addAttribute(attributes, "scanner_plastic_card_scan", card);
       }
     }
@@ -503,7 +584,7 @@ export function normalizeScrapedSpecs(
       const passport = positiveBoolean(value);
       if (passport !== undefined) {
         scannerSpecs.passportScan = passport;
-        scannerSpecs.passportScanText = value;
+        scannerSpecs.passportScanText = booleanText(passport);
         addAttribute(attributes, "scanner_passport_scan", passport);
       }
     }

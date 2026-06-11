@@ -3,6 +3,7 @@ import { formatSlug } from "@/lib/payload/utils/slugify";
 import type { Where } from "payload";
 import { lexicalParagraphs } from "./text";
 import type { ImportProductInput } from "./types";
+import { importScrapedImages } from "./media";
 
 type PayloadRelationshipDoc = {
   id: string | number;
@@ -89,6 +90,14 @@ export async function importScrapedProduct(input: ImportProductInput) {
     };
   }
 
+  let uploadedImages: Array<{ id: string | number; url: string }> = [];
+  let imageWarning = "";
+  try {
+    uploadedImages = await importScrapedImages(product);
+  } catch (error) {
+    imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
+
   const created = await payload.create({
     collection: "products",
     data: {
@@ -96,11 +105,13 @@ export async function importScrapedProduct(input: ImportProductInput) {
       category: category.id,
       compareAtPrice: product.data.compareAtPrice,
       description: lexicalParagraphs(product.generated.description),
-      images: [],
+      images: uploadedImages.map((image) => image.id),
       internalNote: [
         `Auto-filled by scraper MVP.`,
         `Source: ${product.source.url}`,
         `Confidence: ${product.confidence}`,
+        uploadedImages.length ? `Images imported: ${uploadedImages.map((image) => image.url).join(" | ")}` : "",
+        imageWarning,
         product.warnings.length ? `Warnings: ${product.warnings.join(" | ")}` : "",
       ].filter(Boolean).join("\n"),
       origin: product.data.origin,

@@ -134,4 +134,55 @@ assert.equal(genericSpeedSpecs.scannerSpecs?.scanSpeedSimplexPpm, 25);
 assert.equal(genericSpeedSpecs.scannerSpecs?.scanSpeedDuplexIpm, 50);
 assert.equal(genericSpeedSpecs.scannerSpecs?.duplexScan, true);
 
+const ads3000nSpecs = normalizeScrapedSpecs(
+  [
+    {
+      label: "ADF",
+      value: "ADF (automatic document feeder) Up to 50 pages",
+    },
+    {
+      label: "Dimensions (W x D x H)",
+      value: "12.0 in x 10.2 in x 9.8 in (306 mm x 258 mm x 250 mm)",
+    },
+    { label: "Approx. Weights", value: "9.8 lb (4.45 kg) 10 lb (4.55 kg)" },
+    {
+      label: "Document Size",
+      value: "Multiple Paper Width 2.0 to 8.5 in. (51 to 215.9 mm)",
+    },
+    { label: "Kho giay toi da", value: "A4 8.3 in. x 11.7 in. (210 mm x 297 mm)" },
+    { label: "Length", value: "2.0 to 14.0 in. (51 to 355.6 mm)" },
+    { label: "Color /Black", value: "Yes/Yes" },
+    {
+      label: "He dieu hanh",
+      value: "TWAIN Compliant Windows, Macintosh OS X",
+    },
+    {
+      label: "Kich thuoc trong luong",
+      value: "Thickness 2 mil to 10 mil (0.05 mm to 0.26 mm)",
+    },
+    { label: "Tinh nang", value: "Duplex, OCR, Plastic card, Color scan" },
+  ],
+  "scanner",
+);
+
+assert.equal(ads3000nSpecs.scannerSpecs?.adfCapacitySheets, 50);
+assert.equal(ads3000nSpecs.scannerSpecs?.adfSheets, 50);
+assert.equal(ads3000nSpecs.scannerSpecs?.supportedOs, "TWAIN Compliant Windows, Macintosh OS X");
+assert.equal(ads3000nSpecs.scannerSpecs?.duplexScan, true);
+assert.equal(ads3000nSpecs.scannerSpecs?.duplexScanText, "Có");
+assert.equal(ads3000nSpecs.scannerSpecs?.colorScan, true);
+assert.equal(ads3000nSpecs.scannerSpecs?.colorScanText, "Có");
+assert.equal(ads3000nSpecs.scannerSpecs?.ocr, true);
+assert.equal(ads3000nSpecs.scannerSpecs?.ocrText, "Có");
+assert.equal(ads3000nSpecs.scannerSpecs?.plasticCardScan, true);
+assert.equal(ads3000nSpecs.scannerSpecs?.plasticCardScanText, "Có");
+assert.equal(
+  ads3000nSpecs.scannerSpecs?.dimensionsWeight,
+  "Dimensions (W x D x H): 12.0 in x 10.2 in x 9.8 in (306 mm x 258 mm x 250 mm) | Approx. Weights: 9.8 lb (4.45 kg) 10 lb (4.55 kg)",
+);
+assert.equal(
+  ads3000nSpecs.scannerSpecs?.minPaperSize,
+  "Document Size: Multiple Paper Width 2.0 to 8.5 in. (51 to 215.9 mm) | Length: 2.0 to 14.0 in. (51 to 355.6 mm)",
+);
+
 console.log("scraper canonical row verification passed");

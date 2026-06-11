@@ -1,10 +1,22 @@
 import { importCanonicalProductsRows } from "@/lib/canonical-product-import-export";
 import { relationID } from "@/lib/catalog-schema";
 import { getPayloadClient } from "@/lib/payload";
+import { SCANNER_SPEC_FIELDS } from "@/lib/scanner-specs";
 import { buildCanonicalImportRow } from "./canonical-row";
+import { importScrapedImages } from "./media";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
 import { lexicalParagraphs } from "./text";
 import type { ExcelRow, ScrapedProduct } from "./types";
+
+function scannerSpecsForUpdate(productTypeCode: string, scannerSpecs: unknown) {
+  if (productTypeCode !== "scanner") return scannerSpecs;
+  return {
+    ...Object.fromEntries(
+      SCANNER_SPEC_FIELDS.map((field) => [field.key, null]),
+    ),
+    ...(scannerSpecs && typeof scannerSpecs === "object" ? scannerSpecs : {}),
+  };
+}
 
 export async function importBatchProduct(
   input: ExcelRow,
@@ -63,18 +75,29 @@ export async function importBatchProduct(
 
   const sourceUrls = product.source.urls || [product.source.url];
   const manualSpecs = productTypeCode === "scanner" ? [] : normalizedSpecs.specs;
+  let uploadedImages: Array<{ id: string | number; url: string }> = [];
+  let imageWarning = "";
+  try {
+    uploadedImages = await importScrapedImages(product);
+  } catch (error) {
+    imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
+  }
   await payload.update({
     collection: "products",
     data: {
       description: lexicalParagraphs(product.generated.description),
+      images: uploadedImages.map((image) => image.id),
       internalNote: [
         "Auto-filled by bulk scraper.",
         `Confidence: ${product.confidence}`,
         `Sources: ${sourceUrls.join(" | ")}`,
+        uploadedImages.length
+          ? `Images imported: ${uploadedImages.map((image) => image.url).join(" | ")}`
+          : "",
+        imageWarning,
         product.warnings.length
           ? `Warnings: ${product.warnings.join(" | ")}`
           : "",
-        "Images are intentionally left empty for staff upload.",
       ]
         .filter(Boolean)
         .join("\n"),
@@ -89,7 +112,10 @@ export async function importBatchProduct(
         url: product.source.url,
         verified: false,
       },
-      scannerSpecs: normalizedSpecs.scannerSpecs,
+      scannerSpecs: scannerSpecsForUpdate(
+        productTypeCode,
+        normalizedSpecs.scannerSpecs,
+      ),
       specProfile: productTypeCode,
       specs: manualSpecs,
       status: "draft",

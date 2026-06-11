@@ -39,10 +39,17 @@ export type SeoPreview = {
   title: string;
 };
 
+export type ScrapedImage = {
+  alt?: string;
+  source: "json-ld" | "meta" | "gallery";
+  url: string;
+};
+
 export type ScrapedProduct = {
   confidence: number;
   data: ExtractedProductData;
   generated: GeneratedProductContent;
+  images?: ScrapedImage[];
   reviewStatus: "ready_to_review" | "needs_human_input";
   seo: SeoPreview;
   source: {

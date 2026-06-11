@@ -27,6 +27,7 @@ export const RETAILER_DOMAINS = [
   "mayvanphonghabac.com.vn",
   "sieuviet.com.vn",
   "mucinthanhdat.com",
+  "hpttech.vn",
 ] as const;
 
 const RETAILER_PRIORITY = new Map(
@@ -62,11 +63,21 @@ function retailerPriority(domain: string) {
   return RETAILER_PRIORITY.get(domain as (typeof RETAILER_DOMAINS)[number]) ?? 999;
 }
 
+function pdfLanguagePriority(result: TavilySearchResult) {
+  const text = `${result.url} ${result.title}`.toLowerCase();
+  if (/\b(bpr|bra|br|pt|por|esp|fr|de|ita|jpn|kor)_/.test(text)) return 80;
+  if (/c=br|lang=pt|portugu[eê]s|brasil/.test(text)) return 80;
+  if (/\b(use|usa|uke|eng|en)_/.test(text) || /brother usa|united states|english/.test(text)) {
+    return -40;
+  }
+  return 0;
+}
+
 function manufacturerPagePriority(result: TavilySearchResult) {
   const text = `${result.url} ${result.title}`.toLowerCase();
   if (text.includes("spec.aspx") || text.includes("specification")) return -1300;
   if (text.includes("/products/") || text.includes("/devices/")) return -1250;
-  if (isPdfSource(result.url)) return -1200;
+  if (isPdfSource(result.url)) return -1200 + pdfLanguagePriority(result);
   if (text.includes("manual")) return -1100;
   return -1150;
 }

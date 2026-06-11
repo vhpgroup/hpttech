@@ -1,7 +1,11 @@
 import { detectBrand } from "./brand-detector";
-import { crawlProductPage, crawlProductSource } from "./crawler";
+import { crawlProductPage, crawlProductSource, normalizeProductSourceUrl } from "./crawler";
 import { enrichProductContent } from "./enricher";
-import { extractProductFromUrl, gptExtractProduct } from "./extractor";
+import {
+  extractProductFromUrl,
+  extractProductImagesFromHtml,
+  gptExtractProduct,
+} from "./extractor";
 import { findBrandByUrl } from "./brands";
 import { generateSeo } from "./seo-generator";
 import { alignExtractedProductModel } from "./model-identity";
@@ -24,6 +28,7 @@ export async function searchProduct(query: string): Promise<ScrapedProduct> {
   const search = await findOfficialProductUrl(productName, brand);
   const html = await crawlProductPage(search.url, brand);
   const data = await extractProductFromUrl(search.url, productName, html);
+  const images = extractProductImagesFromHtml(search.url, html);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
   const validation = validateExtractedProduct(data, !search.warning);
@@ -32,6 +37,7 @@ export async function searchProduct(query: string): Promise<ScrapedProduct> {
     confidence: validation.confidence,
     data,
     generated,
+    images,
     reviewStatus: validation.reviewStatus,
     seo,
     source: {
@@ -59,13 +65,14 @@ export async function searchProductMultiSource(
   const crawlResults = await Promise.allSettled(
     selectedSources.map(async (source) => {
       const method = source.isManufacturer ? brand.crawlMethod : "fetch";
-      const html = await crawlProductSource(source.url, method);
-      if (!html) throw new Error(`Nguon khong co HTML: ${source.url}`);
+      const url = normalizeProductSourceUrl(source.url);
+      const html = await crawlProductSource(url, method);
+      if (!html) throw new Error(`Nguon khong co HTML: ${url}`);
       return {
         html,
         snippet: source.content,
         sourceType: source.sourceType,
-        url: source.url,
+        url,
       };
     }),
   );
@@ -99,6 +106,9 @@ export async function searchProductMultiSource(
     await gptExtractProduct(extractionSources, productName),
     productName,
   );
+  const images = htmlSources.flatMap((source) =>
+    extractProductImagesFromHtml(source.url, source.html),
+  );
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
   const validation = validateExtractedProduct(data, true);
@@ -115,6 +125,7 @@ export async function searchProductMultiSource(
     ),
     data,
     generated,
+    images,
     reviewStatus:
       crawlWarnings.length || validation.reviewStatus === "needs_human_input"
         ? "needs_human_input"
@@ -141,6 +152,7 @@ export async function scrapeProductUrl(url: string): Promise<ScrapedProduct> {
 
   const html = await crawlProductPage(productUrl, brand);
   const data = await extractProductFromUrl(productUrl, brand.name, html);
+  const images = extractProductImagesFromHtml(productUrl, html);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
   const validation = validateExtractedProduct(data, true);
@@ -149,6 +161,7 @@ export async function scrapeProductUrl(url: string): Promise<ScrapedProduct> {
     confidence: validation.confidence,
     data,
     generated,
+    images,
     reviewStatus: validation.reviewStatus,
     seo,
     source: {
