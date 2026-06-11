@@ -193,6 +193,7 @@ function specsFromGroup(value: unknown, fields: Array<[string, string]>) {
 
 function normalizeSpecs(doc: PayloadProductDoc) {
   const canonicalSpecs = canonicalAttributeSpecs(doc);
+  const specProfile = textField(doc, "specProfile");
   const manualSpecs = Array.isArray(doc.specs)
     ? doc.specs
         .filter((spec): spec is PayloadProductDoc => Boolean(spec) && typeof spec === "object")
@@ -262,9 +263,12 @@ function normalizeSpecs(doc: PayloadProductDoc) {
     ["dimensionsWeight", "Kích thước / Trọng lượng"],
   ]);
 
-  const combined = canonicalSpecs.length
-    ? [...canonicalSpecs, ...manualSpecs]
-    : [...scannerSpecs, ...printerSpecs, ...photocopierSpecs, ...manualSpecs];
+  const combined =
+    specProfile === "scanner"
+      ? scannerSpecs
+      : canonicalSpecs.length
+        ? [...canonicalSpecs, ...manualSpecs]
+        : [...scannerSpecs, ...printerSpecs, ...photocopierSpecs, ...manualSpecs];
   const seen = new Set<string>();
   return combined.filter((spec) => {
     const key = spec.label.trim().toLowerCase();
@@ -341,9 +345,10 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
       depth: 2,
       limit: 1000,
       where: {
-        status: {
-          equals: "published",
-        },
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
       },
     });
 
@@ -384,7 +389,11 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
       depth: 2,
       limit: 1,
       where: {
-        and: [{ slug: { equals: slug } }, { status: { equals: "published" } }],
+        and: [
+          { slug: { equals: slug } },
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
       },
     });
     const doc = res.docs[0] as unknown as PayloadProductDoc | undefined;

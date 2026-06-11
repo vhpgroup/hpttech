@@ -3,10 +3,14 @@ import type { BrandConfig } from "./types";
 
 const modelHints: Array<{ brand: string; patterns: RegExp[] }> = [
   { brand: "epson", patterns: [/\bl\d{3,5}\b/i, /\becotank\b/i] },
-  { brand: "canon", patterns: [/\b(mf|lbp|g|ts|tr)\d{3,5}\w*\b/i, /\bimageclass\b/i] },
+  { brand: "canon", patterns: [/\b(mf|lbp|g|ts|tr|dr)\d{3,5}\w*\b/i, /\b(imageclass|lide)\b/i] },
   { brand: "ricoh", patterns: [/\bim\s?[c]?\d{3,5}\b/i, /\bsp\s?\d{3,5}\b/i] },
-  { brand: "brother", patterns: [/\b(hl|dcp|mfc)-?\w+\b/i] },
+  { brand: "brother", patterns: [/\b(hl|dcp|mfc|ads|pds)-?\w+\b/i] },
   { brand: "hp", patterns: [/\b(laserjet|deskjet|officejet)\b/i] },
+  { brand: "avision", patterns: [/\b(av|an|ap)\d{2,4}\w*\b/i] },
+  { brand: "plustek", patterns: [/\b(opticslim|opticbook|opticfilm|d\d{3,4})\b/i] },
+  { brand: "kodak-alaris", patterns: [/\b(s\d{4}|i\d{4}|scanmate)\b/i, /\bkodak\b/i] },
+  { brand: "panasonic", patterns: [/\bkv-\w+\b/i] },
 ];
 
 export async function detectBrand(productName: string): Promise<BrandConfig> {
@@ -18,6 +22,6 @@ export async function detectBrand(productName: string): Promise<BrandConfig> {
   if (hintedBrand) return hintedBrand;
 
   throw new Error(
-    "Chua nhan dien duoc thuong hieu. MVP hien ho tro Epson, Ricoh va Canon.",
+    "Chua nhan dien duoc thuong hieu duoc ho tro.",
   );
 }

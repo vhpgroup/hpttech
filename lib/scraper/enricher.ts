@@ -1,15 +1,15 @@
 import { truncate } from "./text";
 import type { ExtractedProductData, GeneratedProductContent } from "./types";
 
-type GeminiResponse = {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ text?: string }>;
+type OpenAIResponse = {
+  choices?: Array<{
+    message?: {
+      content?: string;
     };
   }>;
 };
 
-type GeminiGeneratedContent = {
+type OpenAIGeneratedContent = {
   description?: unknown;
   summary?: unknown;
 };
@@ -54,48 +54,48 @@ export async function enrichProductContent(
   data: ExtractedProductData,
   brandName: string,
 ): Promise<GeneratedProductContent> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const apiKey = process.env.OPENAI_API_KEY;
+  const model = process.env.OPENAI_MODEL || "gpt-4.1-mini";
   if (apiKey) {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      "https://api.openai.com/v1/chat/completions",
       {
         body: JSON.stringify({
-          contents: [
+          messages: [
             {
-              parts: [
-                {
-                  text: [
-                    "Viet noi dung san pham tieng Viet cho HPT Tech.",
-                    "Chi dua tren du lieu duoc cung cap, khong bia thong so ky thuat.",
-                    "Tra ve JSON hop le gom summary va description.",
-                    "summary dai 2-4 cau.",
-                    "description co cac muc: Tong quan, Diem noi bat, Phu hop cho nhu cau, Mua hang tai HPT Tech.",
-                    `Brand: ${brandName}`,
-                    `Data: ${JSON.stringify(data)}`,
-                  ].join("\n"),
-                },
-              ],
+              content: [
+                "Viet noi dung san pham tieng Viet cho HPT Tech.",
+                "Chi dua tren du lieu duoc cung cap, khong bia thong so ky thuat.",
+                "Tra ve JSON hop le gom summary va description.",
+                "summary dai 2-4 cau.",
+                "description co cac muc: Tong quan, Diem noi bat, Phu hop cho nhu cau, Mua hang tai HPT Tech.",
+                `Brand: ${brandName}`,
+                `Data: ${JSON.stringify(data)}`,
+              ].join("\n"),
+              role: "user",
             },
           ],
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: 0.35,
-          },
+          model,
+          response_format: { type: "json_object" },
+          temperature: 0.35,
         }),
         headers: {
-          "content-type": "application/json",
-          "x-goog-api-key": apiKey,
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
         },
         method: "POST",
-        signal: AbortSignal.timeout(Number(process.env.GEMINI_ENRICH_TIMEOUT_MS || 30000)),
+        signal: AbortSignal.timeout(
+          Number(process.env.OPENAI_SCRAPER_TIMEOUT_MS || 45_000),
+        ),
       },
     ).catch(() => undefined);
 
     if (response?.ok) {
-      const result = (await response.json()) as GeminiResponse;
-      const text = result.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("");
-      const generated = text ? parseJsonObject<GeminiGeneratedContent>(text) : undefined;
+      const result = (await response.json()) as OpenAIResponse;
+      const text = result.choices?.[0]?.message?.content;
+      const generated = text
+        ? parseJsonObject<OpenAIGeneratedContent>(text)
+        : undefined;
       const summary = stringifyGenerated(generated?.summary);
       const description = stringifyGenerated(generated?.description);
       if (summary && description) {

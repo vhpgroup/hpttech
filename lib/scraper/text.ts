@@ -1,12 +1,9 @@
 import { formatSlug } from "@/lib/payload/utils/slugify";
+import { decodeHTML } from "entities";
 
 export function cleanText(value?: string | null) {
-  return String(value || "")
+  return decodeHTML(String(value || ""))
     .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
     .replace(/\s+/g, " ")
     .trim();
 }

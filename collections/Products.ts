@@ -17,6 +17,7 @@ import { seoField } from "../lib/payload/fields/seo.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
 import { preventProductDeleteWithVariants } from "../lib/payload/hooks/catalog-lifecycle.ts";
+import { evaluateScannerSpecs, MIN_SCANNER_SPECS_FILLED } from "../lib/scanner-specs.ts";
 
 const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
@@ -36,11 +37,16 @@ type CanonicalAttributeRow = Record<string, unknown> & {
 
 type CanonicalProductData = Record<string, unknown> & {
   attributes?: CanonicalAttributeRow[];
+  brand?: unknown;
+  category?: unknown;
   dataModel?: string;
   internalId?: string;
   model?: string;
   name?: string;
   productType?: unknown;
+  scannerSpecs?: Record<string, unknown>;
+  specProfile?: string;
+  specs?: unknown;
   slug?: string;
   status?: string;
   title?: string;
@@ -63,6 +69,13 @@ const prepareCanonicalProduct: CollectionBeforeValidateHook = ({
       : operation === "create"
         ? "canonical"
         : "legacy");
+  const category =
+    product.category ||
+    (originalDoc && typeof originalDoc === "object" && "category" in originalDoc
+      ? originalDoc.category
+      : undefined);
+  const scannerProfile =
+    product.specProfile === "scanner" || specProfileFromCategory(category) === "scanner";
 
   if (dataModel !== "canonical") {
     return {
@@ -86,6 +99,7 @@ const prepareCanonicalProduct: CollectionBeforeValidateHook = ({
       (originalDoc && typeof originalDoc === "object" && "title" in originalDoc
         ? originalDoc.title
         : undefined),
+    specs: scannerProfile ? [] : product.specs,
   };
 };
 
@@ -199,6 +213,18 @@ const validateCanonicalProduct: CollectionBeforeChangeHook = async ({
     suppliedDefinitionIDs.add(String(definitionID));
   }
 
+  const scannerProfile =
+    product.specProfile === "scanner" || specProfileFromCategory(product.category) === "scanner";
+  if (scannerProfile) {
+    const completeness = evaluateScannerSpecs(product.scannerSpecs);
+    if (completeness.filledCount < MIN_SCANNER_SPECS_FILLED) {
+      throw new Error(
+        `Khong the publish may scan. Da dien ${completeness.filledCount}/${completeness.totalCount} cot scannerSpecs, can it nhat ${MIN_SCANNER_SPECS_FILLED}. Thieu: ${completeness.missingLabels.join(", ")}.`,
+      );
+    }
+    return data;
+  }
+
   const missingRequired = definitions
     .filter(
       (definition) =>
@@ -260,6 +286,10 @@ function specCondition(profile: "scanner" | "printer" | "photocopier") {
     const categoryProfile = specProfileFromCategory(data.category ?? siblingData.category);
     return categoryProfile ? categoryProfile === profile : siblingData?.specProfile === profile;
   };
+}
+
+function nonScannerCondition(data: ProductFormData = {}, siblingData: ProductFormData = {}) {
+  return !specCondition("scanner")(data, siblingData);
 }
 
 function legacyOnly(data: Record<string, unknown> = {}) {
@@ -507,10 +537,11 @@ export const Products: CollectionConfig = {
     read: ({ req }) => {
       if (req.user) return true;
       return {
-        status: {
-          equals: "published",
-        },
-      };
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
+      } as const;
     },
   },
   admin: {
@@ -1086,8 +1117,9 @@ export const Products: CollectionConfig = {
               label: "Thông số kỹ thuật bổ sung",
               type: "array",
               admin: {
+                condition: nonScannerCondition,
                 description:
-                  "Dùng cho thông số ngoài bộ field chuẩn hoặc sản phẩm loại khác. Với máy scan, máy in, photocopy, hãy nhập bộ field chuẩn phía trên trước.",
+                  "Chi dung cho san pham khong phai may scan. May scan chi dung bo 24 cot scannerSpecs.",
               },
               fields: [
                 {
