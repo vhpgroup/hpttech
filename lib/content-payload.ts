@@ -70,8 +70,16 @@ export type PublicProject = {
   slug: string;
   client?: string;
   industry?: string;
+  completedAt?: string;
   summary?: string;
   image?: string;
+  content?: unknown;
+  gallery?: PublicAboutImage[];
+  products?: Array<{
+    title: string;
+    slug: string;
+    image?: string;
+  }>;
 };
 
 export type PublicFAQ = {
@@ -720,16 +728,62 @@ export async function getNewsRedirectFromPayload(pathValue: string): Promise<{ d
   };
 }
 
-export async function getProjectsFromPayload(): Promise<PublicProject[]> {
-  const res = await findDocs("projects", { sort: "-completedAt" });
-  return res.docs.map((doc) => ({
+function mapProject(doc: PayloadDoc): PublicProject {
+  return {
     title: textField(doc, "name") || "",
     slug: textField(doc, "slug") || "",
     client: textField(doc, "client"),
     industry: textField(doc, "industry"),
+    completedAt: textField(doc, "completedAt"),
     summary: textField(doc, "summary"),
     image: Array.isArray(doc.gallery) ? mediaURL(doc.gallery[0]) : undefined,
-  }));
+  };
+}
+
+function mapProjectDetail(doc: PayloadDoc): PublicProject {
+  return {
+    ...mapProject(doc),
+    content: doc.content,
+    gallery: Array.isArray(doc.gallery)
+      ? doc.gallery.flatMap((item) => {
+          const image = mediaImage(item);
+          return image ? [image] : [];
+        })
+      : [],
+    products: Array.isArray(doc.products)
+      ? doc.products.flatMap((item) => {
+          const product = relationDoc(item);
+          if (!product) return [];
+          const slug = textField(product, "slug");
+          const title = textField(product, "title") || textField(product, "name");
+          if (!slug || !title) return [];
+          const images = Array.isArray(product.images) ? product.images : [];
+          return [{
+            title,
+            slug,
+            image: mediaURL(images[0]),
+          }];
+        })
+      : [],
+  };
+}
+
+export async function getProjectsFromPayload(): Promise<PublicProject[]> {
+  const res = await findDocs("projects", { sort: "-completedAt" });
+  return res.docs.map(mapProject);
+}
+
+export async function getProjectBySlugFromPayload(slug: string): Promise<PublicProject | null> {
+  const res = await findDocs("projects", {
+    limit: 1,
+    where: {
+      slug: {
+        equals: slug,
+      },
+    },
+  });
+  const doc = res.docs[0];
+  return doc ? mapProjectDetail(doc) : null;
 }
 
 export async function getFAQsFromPayload(): Promise<PublicFAQ[]> {
