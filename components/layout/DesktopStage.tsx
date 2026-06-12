@@ -22,8 +22,16 @@ const desktopScaleScript = `
     document.documentElement.style.setProperty("--desktop-stage-width", Math.ceil(scaledStageWidth) + "px");
 
     if (stage && shell && width >= DESKTOP_BREAKPOINT) {
-      shell.style.minHeight = Math.ceil(stage.scrollHeight * scale) + "px";
+      document.documentElement.style.setProperty(
+        "--desktop-stage-min-height",
+        Math.ceil(window.innerHeight / scale) + "px"
+      );
+      var scaledHeight = Math.ceil(stage.scrollHeight * scale);
+      shell.style.height = scaledHeight + "px";
+      shell.style.minHeight = scaledHeight + "px";
     } else if (shell) {
+      document.documentElement.style.removeProperty("--desktop-stage-min-height");
+      shell.style.height = "";
       shell.style.minHeight = "";
     }
   }

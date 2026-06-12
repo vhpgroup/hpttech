@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import { existsSync } from "node:fs";
+import { getVatInclusiveQuoteTotals } from "@/lib/quote-totals";
 
 type QuoteProduct = {
   title?: string;
@@ -26,6 +27,10 @@ type QuoteRequest = {
     email?: string;
   };
   product?: QuoteProduct;
+  products?: Array<{
+    quantity?: number;
+    product?: QuoteProduct;
+  }>;
 };
 
 const HPT_INFO = {
@@ -78,17 +83,56 @@ function absoluteImageUrl(image: string | undefined, origin: string) {
 
 function quoteHTML(data: QuoteRequest, origin: string) {
   const customer = data.customer || {};
-  const product = data.product || {};
-  const quantity = Math.max(1, Math.floor(Number(data.quantity) || 1));
   const includeVat = data.includeVat !== false;
   const validDays = Math.max(1, Math.floor(Number(data.validDays) || 10));
-  const unitPrice = parseVND(product.price);
-  const subtotal = unitPrice * quantity;
-  const vat = includeVat ? Math.round(subtotal * 0.1) : 0;
-  const total = subtotal + vat;
-  const image = absoluteImageUrl(product.image, origin);
+  const requestedProducts = data.products?.length
+    ? data.products
+    : [{ quantity: data.quantity, product: data.product }];
+  const products = requestedProducts.map((line, index) => {
+    const product = line.product || {};
+    const quantity = Math.max(1, Math.floor(Number(line.quantity) || 1));
+    const unitPrice = parseVND(product.price);
+    return {
+      index,
+      product,
+      quantity,
+      unitPrice,
+      totals: getVatInclusiveQuoteTotals(unitPrice, quantity),
+      image: absoluteImageUrl(product.image, origin),
+      specs: (product.specs || []).filter((spec) => spec.label && spec.value),
+    };
+  });
+  const hasImages = products.some((line) => Boolean(line.image));
+  const totals = products.reduce(
+    (sum, line) => ({
+      subtotal: sum.subtotal + line.totals.subtotal,
+      vat: sum.vat + line.totals.vat,
+      total: sum.total + line.totals.total,
+    }),
+    { subtotal: 0, vat: 0, total: 0 },
+  );
   const logo = new URL("/assets/logo/hptlogo.png", origin).toString();
-  const specs = (product.specs || []).filter((spec) => spec.label && spec.value).slice(0, 7);
+  const summaryColSpan = hasImages ? 5 : 4;
+  const productRows = products
+    .map(
+      ({ image, index, product, quantity, specs, totals: lineTotals, unitPrice }) => `
+            <tr class="product-row">
+              <td class="stt-col">${index + 1}</td>
+              ${hasImages ? `<td class="image-col"><div class="image-box">${image ? `<img src="${escapeHTML(image)}" />` : ""}</div></td>` : ""}
+              <td>
+                <p class="product-title">${escapeHTML(product.title || "Sản phẩm")}</p>
+                ${product.detail ? `<p class="detail">${escapeHTML(product.detail)}</p>` : ""}
+                <ul>
+                  ${specs.map((spec) => `<li><strong>${escapeHTML(spec.label)}:</strong> ${escapeHTML(spec.value)}</li>`).join("")}
+                  ${product.warranty ? `<li><strong>Bảo hành:</strong> ${escapeHTML(product.warranty)}</li>` : ""}
+                </ul>
+              </td>
+              <td class="qty-col">${quantity}</td>
+              <td class="price-col red">${unitPrice ? money(unitPrice) : "Liên hệ"}</td>
+              <td class="total-col red">${unitPrice ? money(lineTotals.total) : "Liên hệ"}</td>
+            </tr>`,
+    )
+    .join("");
 
   return `<!doctype html>
   <html lang="vi">
@@ -135,12 +179,12 @@ function quoteHTML(data: QuoteRequest, origin: string) {
         .quote-table th { background: #0A4BFF; color: #fff; font-size: 11px; font-weight: 900; padding: 10px 6px; text-align: center; text-transform: uppercase; border: 1px solid #0A4BFF; }
         .quote-table td { border: 1px solid #b8cdfd; padding: 10px 8px; vertical-align: middle; }
         .stt-col { width: 42px; text-align: center; }
-        .image-col { width: 118px; text-align: center; }
+        .image-col { width: 108px; text-align: center; }
         .qty-col { width: 82px; text-align: center; }
         .price-col { width: 116px; text-align: right; }
         .total-col { width: 126px; text-align: right; }
-        .image-box { height: 118px; display: flex; align-items: center; justify-content: center; background: #f8fafc; }
-        .image-box img { max-width: 108px; max-height: 108px; object-fit: contain; }
+        .image-box { height: 92px; display: flex; align-items: center; justify-content: center; background: #f8fafc; }
+        .image-box img { max-width: 88px; max-height: 82px; object-fit: contain; }
         .product-title { font-size: 14px; line-height: 1.35; font-weight: 900; margin: 0 0 5px; }
         .detail { color: #0A4BFF; font-weight: 700; margin: 0 0 7px; line-height: 1.35; }
         ul { margin: 0; padding-left: 18px; }
@@ -160,6 +204,8 @@ function quoteHTML(data: QuoteRequest, origin: string) {
         }
         .footer-box h3 { color: #0A4BFF; font-size: 15px; margin: 0 0 10px; text-transform: uppercase; }
         .thanks { margin-top: 24px; text-align: center; color: #0A4BFF; font-weight: 900; font-size: 18px; font-style: italic; }
+        .product-row { break-inside: avoid; page-break-inside: avoid; }
+        .footer-box { break-inside: avoid; page-break-inside: avoid; }
       </style>
     </head>
     <body>
@@ -206,7 +252,7 @@ function quoteHTML(data: QuoteRequest, origin: string) {
         <table class="quote-table">
           <colgroup>
             <col class="stt-col" />
-            <col class="image-col" />
+            ${hasImages ? '<col class="image-col" />' : ""}
             <col />
             <col class="qty-col" />
             <col class="price-col" />
@@ -215,7 +261,7 @@ function quoteHTML(data: QuoteRequest, origin: string) {
           <thead>
             <tr>
               <th>STT</th>
-              <th>Hình ảnh</th>
+              ${hasImages ? "<th>Hình ảnh</th>" : ""}
               <th>Sản phẩm</th>
               <th>Số lượng</th>
               <th>Đơn giá</th>
@@ -223,26 +269,12 @@ function quoteHTML(data: QuoteRequest, origin: string) {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td class="stt-col">1</td>
-              <td class="image-col"><div class="image-box">${image ? `<img src="${escapeHTML(image)}" />` : ""}</div></td>
-              <td>
-                <p class="product-title">${escapeHTML(product.title || "Sản phẩm")}</p>
-                ${product.detail ? `<p class="detail">${escapeHTML(product.detail)}</p>` : ""}
-                <ul>
-                  ${specs.map((spec) => `<li><strong>${escapeHTML(spec.label)}:</strong> ${escapeHTML(spec.value)}</li>`).join("")}
-                  ${product.warranty ? `<li><strong>Bảo hành:</strong> ${escapeHTML(product.warranty)}</li>` : ""}
-                </ul>
-              </td>
-              <td class="qty-col">${quantity}</td>
-              <td class="price-col red">${unitPrice ? money(unitPrice) : "Liên hệ"}</td>
-              <td class="total-col red">${unitPrice ? money(subtotal) : "Liên hệ"}</td>
-            </tr>
+            ${productRows}
           </tbody>
           <tfoot>
-            <tr class="summary-row"><td colspan="5" class="summary-label">Tạm tính:</td><td class="total-col">${unitPrice ? money(subtotal) : "Liên hệ"}</td></tr>
-            <tr class="summary-row"><td colspan="5" class="summary-label">Thuế VAT (10%):</td><td class="total-col">${includeVat && unitPrice ? money(vat) : "0 đ"}</td></tr>
-            <tr class="summary-row grand-total"><td colspan="5" class="summary-label">Tổng cộng:</td><td class="total-col">${unitPrice ? money(total) : "Liên hệ"}</td></tr>
+            <tr class="summary-row"><td colspan="${summaryColSpan}" class="summary-label">Tạm tính (chưa VAT):</td><td class="total-col">${totals.total ? money(totals.subtotal) : "Liên hệ"}</td></tr>
+            <tr class="summary-row"><td colspan="${summaryColSpan}" class="summary-label">Thuế VAT (10%):</td><td class="total-col">${includeVat && totals.total ? money(totals.vat) : "0 đ"}</td></tr>
+            <tr class="summary-row grand-total"><td colspan="${summaryColSpan}" class="summary-label">Tổng cộng:</td><td class="total-col">${totals.total ? money(totals.total) : "Liên hệ"}</td></tr>
           </tfoot>
         </table>
 

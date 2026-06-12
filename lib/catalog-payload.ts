@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { extractHighlightBulletPoints } from "@/lib/scraper/text";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
@@ -16,6 +18,32 @@ type RawProductHTML = {
   shortDescription?: string;
   summaryHTML?: string;
 };
+
+function loadLocalCatalogFixtures(): CatalogProduct[] {
+  const fixturePath = process.env.LOCAL_CATALOG_FIXTURE_PATH;
+  if (process.env.NODE_ENV === "production" || !fixturePath) return [];
+
+  try {
+    const absolutePath = path.resolve(process.cwd(), fixturePath);
+    const parsed = JSON.parse(fs.readFileSync(absolutePath, "utf8")) as unknown;
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      (product): product is CatalogProduct =>
+        Boolean(
+          product &&
+            typeof product === "object" &&
+            "title" in product &&
+            typeof product.title === "string" &&
+            "slug" in product &&
+            typeof product.slug === "string",
+        ),
+    );
+  } catch (error) {
+    console.warn(`[catalog] Cannot load local fixture from ${fixturePath}.`, error);
+    return [];
+  }
+}
 
 const uploadDisplayWidths: Record<string, string> = {
   full: "100%",
@@ -456,7 +484,7 @@ function normalizeProduct(
 }
 
 export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
-
+  const localProducts = loadLocalCatalogFixtures();
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -485,7 +513,7 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
       ])
       .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
     const projections = await loadCanonicalCommercialProjections(payload, productIDs);
-    return docs.map((doc) =>
+    const products = docs.map((doc) =>
       normalizeProduct(
         doc,
         true,
@@ -493,14 +521,16 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
         projections,
       ),
     );
+    const payloadSlugs = new Set(products.map((product) => product.slug));
+    return [...products, ...localProducts.filter((product) => !payloadSlugs.has(product.slug))];
   } catch (error) {
     handlePayloadReadError("products", error);
-    return [];
+    return localProducts;
   }
 }
 
 export async function getProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
-
+  const localProduct = loadLocalCatalogFixtures().find((product) => product.slug === slug) || null;
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -516,7 +546,7 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
       },
     });
     const doc = res.docs[0] as unknown as PayloadProductDoc | undefined;
-    if (!doc) return null;
+    if (!doc) return localProduct;
     const id = doc.id;
     const relatedIDs = Array.isArray(doc.relatedProducts)
       ? doc.relatedProducts
@@ -553,6 +583,6 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
     return product;
   } catch (error) {
     handlePayloadReadError(`products:${slug}`, error);
-    return null;
+    return localProduct;
   }
 }

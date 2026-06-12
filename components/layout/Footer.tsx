@@ -50,7 +50,7 @@ const footerColumns: FooterColumn[] = [
       { label: "Dự án tiêu biểu", href: "/du-an" },
       { label: "Hồ sơ năng lực", href: "/ve-hpt" },
       { label: "Tin tức", href: "/tin-tuc" },
-      { label: "Tuyển dụng", href: "/lien-he" },
+      { label: "Tuyển dụng", href: "/tuyen-dung" },
       { label: "Liên hệ", href: "/lien-he" },
     ],
   },
@@ -65,10 +65,8 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
   const contactItems: ContactItem[] = [
     { label: "Địa chỉ", value: "SB04 Vinhomes Marina, phường An Biên, thành phố Hải Phòng.", icon: MapPin },
     { label: "Hotline", value: phone, href: phoneHref(phone), icon: Phone },
-    { label: "Điện thoại", value: settings.phone, href: phoneHref(settings.phone), icon: Phone },
     { label: "Email", value: settings.email, href: `mailto:${settings.email}`, icon: Mail },
     { label: "Website", value: "hpttech.vn", href: "https://hpttech.vn", icon: Globe2 },
-    { label: "Facebook", value: "HPT Tech", href: settings.facebook, icon: Globe2 },
   ];
 
   return (
