@@ -17,6 +17,7 @@ import {
   type PublicProject,
 } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
+import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
 
 export const revalidate = 300;
 
@@ -214,12 +215,17 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               <h2 className="text-xl font-black uppercase text-[#102b62]">Sản phẩm đã sử dụng</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {project.products.map((product) => (
-                  <Link key={product.slug} href={`/san-pham/${product.slug}`} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
-                    <div className="relative aspect-square bg-slate-50">
-                      {product.image ? <Image src={product.image} alt={product.title} fill sizes="25vw" className="object-contain p-4 transition group-hover:scale-[1.03]" /> : null}
-                    </div>
-                    <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-[#0A4BFF]">{product.title}</h3>
-                  </Link>
+                  <ProductQuickInfoTrigger
+                    key={product.slug}
+                    product={{ ...product, href: `/san-pham/${product.slug}` }}
+                  >
+                    <Link href={`/san-pham/${product.slug}`} className="group block h-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
+                      <div className="relative aspect-square bg-slate-50">
+                        {product.image ? <Image src={product.image} alt={product.title} fill sizes="25vw" className="object-contain p-4 transition group-hover:scale-[1.03]" /> : null}
+                      </div>
+                      <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-[#0A4BFF]">{product.title}</h3>
+                    </Link>
+                  </ProductQuickInfoTrigger>
                 ))}
               </div>
             </section>

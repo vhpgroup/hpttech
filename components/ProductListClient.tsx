@@ -15,6 +15,7 @@ import {
 import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import QuoteButton from "@/components/quote/QuoteButton";
 import type { CatalogProduct } from "@/lib/catalog";
+import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
 import { cn } from "@/lib/cn";
 
 const PAGE_SIZE = 12;
@@ -765,12 +766,13 @@ function ProductListInner({
 
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {visibleProducts.length ? visibleProducts.map((product) => (
-              <ModernProductCard
-                key={productKey(product)}
-                product={product}
-                selected={selectedKeys.has(productKey(product))}
-                onToggleCompare={toggleCompare}
-              />
+              <ProductQuickInfoTrigger key={productKey(product)} product={product}>
+                <ModernProductCard
+                  product={product}
+                  selected={selectedKeys.has(productKey(product))}
+                  onToggleCompare={toggleCompare}
+                />
+              </ProductQuickInfoTrigger>
             )) : (
               <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-600">
                 Không tìm thấy sản phẩm phù hợp. Hãy thử từ khóa hoặc bộ lọc khác.

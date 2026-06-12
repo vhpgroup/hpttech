@@ -5,6 +5,7 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 import type { CatalogProduct } from "@/lib/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
 
 export type ProductRelationSection = {
   id: "similar" | "same-brand" | "related";
@@ -61,7 +62,9 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
         {activeSection.products.length ? (
           <div className="grid gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4">
             {activeSection.products.map((item) => (
-              <ProductCard key={item.slug || item.title} product={item} />
+              <ProductQuickInfoTrigger key={item.slug || item.title} product={item}>
+                <ProductCard product={item} className="h-full home-category-product-card" />
+              </ProductQuickInfoTrigger>
             ))}
           </div>
         ) : (

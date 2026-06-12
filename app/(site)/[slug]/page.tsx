@@ -20,6 +20,7 @@ import {
 } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
+import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
 
 export const revalidate = 300;
 
@@ -121,26 +122,28 @@ function ProductCatalog() {
   return (
     <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.slice(0, 24).map((product) => (
-        <article key={product.title} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <a href={product.href} target="_blank" rel="noreferrer">
-            {product.image ? (
-              <Image className="h-40 w-full object-contain" src={product.image} alt={product.title} width={260} height={160} />
-            ) : null}
-          </a>
-          <div className="mt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
-            <h2 className="mt-2 line-clamp-2 min-h-12 text-base font-semibold text-slate-950">
-              {product.title}
-            </h2>
-            <p className="mt-2 line-clamp-2 min-h-10 text-sm text-slate-600">{product.detail}</p>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <strong className="text-sm text-orange-600">{product.price}</strong>
-              <a className="text-sm font-semibold text-blue-700 hover:text-blue-900" href={product.href} target="_blank" rel="noreferrer">
-                Chi tiết
-              </a>
+        <ProductQuickInfoTrigger key={product.title} product={product}>
+          <article className="h-full rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <a href={product.href} target="_blank" rel="noreferrer">
+              {product.image ? (
+                <Image className="h-40 w-full object-contain" src={product.image} alt={product.title} width={260} height={160} />
+              ) : null}
+            </a>
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
+              <h2 className="mt-2 line-clamp-2 min-h-12 text-base font-semibold text-slate-950">
+                {product.title}
+              </h2>
+              <p className="mt-2 line-clamp-2 min-h-10 text-sm text-slate-600">{product.detail}</p>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <strong className="text-sm text-orange-600">{product.price}</strong>
+                <a className="text-sm font-semibold text-blue-700 hover:text-blue-900" href={product.href} target="_blank" rel="noreferrer">
+                  Chi tiết
+                </a>
+              </div>
             </div>
-          </div>
-        </article>
+          </article>
+        </ProductQuickInfoTrigger>
       ))}
     </section>
   );
