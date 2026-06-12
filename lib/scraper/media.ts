@@ -107,7 +107,7 @@ export async function importScrapedImages(product: ScrapedProduct): Promise<Uplo
       },
       overrideAccess: true,
     });
-    uploaded.push({ id: created.id, url: image.url });
+    uploaded.push({ id: created.id, url: typeof created.url === "string" ? created.url : image.url });
   }
 
   return uploaded;

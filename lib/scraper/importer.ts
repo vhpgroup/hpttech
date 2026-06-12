@@ -1,7 +1,16 @@
 import { getPayloadClient } from "@/lib/payload";
 import { formatSlug } from "@/lib/payload/utils/slugify";
 import type { Where } from "payload";
-import { extractHighlightBulletPoints, firstSentence, lexicalParagraphs } from "./text";
+import {
+  extractHighlightBulletPoints,
+  lexicalParagraphs,
+  productShortDescription,
+} from "./text";
+import {
+  buildProductSeoArticleHTML,
+  summaryHTML,
+  updateProductSeoHTML,
+} from "./seo-article";
 import type { ImportProductInput } from "./types";
 import { importScrapedImages } from "./media";
 
@@ -111,9 +120,9 @@ export async function importScrapedProduct(input: ImportProductInput) {
     imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
   }
   const descriptionText = product.generated.description || product.data.description || "";
-  const summaryText =
-    firstSentence(product.data.summary || product.data.description || product.generated.summary) ||
-    product.data.title;
+  const summaryText = productShortDescription(product.data.title, product.data.specs);
+  const seoDescriptionHTML = buildProductSeoArticleHTML(product, uploadedImages);
+  const seoSummaryHTML = summaryHTML(summaryText);
   const sellingPoints = extractHighlightBulletPoints(product.data.description);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
 
@@ -142,6 +151,7 @@ export async function importScrapedProduct(input: ImportProductInput) {
         noIndex: false,
         title: product.seo.title,
       },
+      shortDescription: summaryText,
       sku: product.data.sku,
       slug: formatSlug(product.data.title),
       specs: product.data.specs,
@@ -155,6 +165,12 @@ export async function importScrapedProduct(input: ImportProductInput) {
     },
     overrideAccess: true,
   });
+  await updateProductSeoHTML(
+    created.id,
+    seoSummaryHTML,
+    seoDescriptionHTML,
+    summaryText,
+  );
 
   return {
     duplicate: false,

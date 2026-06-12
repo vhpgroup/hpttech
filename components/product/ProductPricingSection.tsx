@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { CheckCircle2, Gift, Scale, Star } from "lucide-react";
+import { Gift, Scale, Star } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import { ProductSellingPoints } from "@/components/product/ProductSellingPoints";
 import QuoteButton from "@/components/quote/QuoteButton";
 import { Button } from "@/components/ui/Button";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -30,7 +31,7 @@ function pickSellingSpecs(product: CatalogProduct): SellingLine[] {
   const sellingPoints = product.sellingPoints
     ?.map(splitSellingPoint)
     .filter((item) => item.value);
-  if (sellingPoints?.length) return sellingPoints.slice(0, 7);
+  if (sellingPoints?.length) return sellingPoints;
 
   const specs = product.specs ?? [];
   const preferred = ["chức năng", "độ phân giải", "tốc độ", "kết nối"];
@@ -122,22 +123,7 @@ export default function ProductPricingSection({
       </div>
 
       <div className="px-5 py-4 sm:px-6">
-        <div className="space-y-2">
-          {sellingSpecs.map((spec) => (
-            <div key={`${spec.label || ""}-${spec.value}`} className="flex gap-2 text-sm leading-6 text-slate-700">
-              <CheckCircle2 size={17} className="mt-1 shrink-0 fill-orange-500 text-white" />
-              <span>
-                {spec.label ? (
-                  <>
-                    <strong className="font-semibold text-slate-950">{spec.label}:</strong> {spec.value}
-                  </>
-                ) : (
-                  spec.value
-                )}
-              </span>
-            </div>
-          ))}
-        </div>
+        <ProductSellingPoints items={sellingSpecs} />
       </div>
 
       <div className="bg-slate-100 px-5 py-5 sm:px-6">

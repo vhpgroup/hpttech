@@ -36,19 +36,45 @@ type ComparePageProps = {
   }>;
 };
 
+function normalizedLabel(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/gi, "d")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+const RESERVED_SPEC_LABELS = new Set(["thuong hieu", "danh muc", "gia"]);
+
 function specsObject(item: CatalogProduct) {
-  return Object.fromEntries((item.specs || []).map(({ label, value }) => [label, value]));
+  const specs = new Map<string, { label: string; value: string }>();
+  for (const spec of item.specs || []) {
+    const key = normalizedLabel(spec.label);
+    if (!key || RESERVED_SPEC_LABELS.has(key) || specs.has(key)) continue;
+    specs.set(key, spec);
+  }
+  return specs;
 }
 
 function getCompareRows(items: CatalogProduct[]) {
-  const labels = new Set<string>();
-  items.forEach((item) => {
-    Object.keys(specsObject(item)).forEach((label) => labels.add(label));
+  const itemSpecs = items.map(specsObject);
+  const labels = new Map<string, string>();
+  itemSpecs.forEach((specs) => {
+    specs.forEach((spec, key) => {
+      if (!labels.has(key)) labels.set(key, spec.label);
+    });
   });
 
-  const orderedLabels = [
-    ...SPEC_FALLBACK_ORDER.filter((label) => labels.has(label)),
-    ...Array.from(labels).filter((label) => !SPEC_FALLBACK_ORDER.includes(label)).sort(),
+  const preferredKeys = SPEC_FALLBACK_ORDER.map(normalizedLabel);
+  const orderedKeys = [
+    ...preferredKeys.filter((key) => labels.has(key)),
+    ...Array.from(labels.keys())
+      .filter((key) => !preferredKeys.includes(key))
+      .sort((a, b) =>
+        (labels.get(a) || a).localeCompare(labels.get(b) || b, "vi"),
+      ),
   ];
 
   const rows: [string, string[]][] = [
@@ -56,11 +82,11 @@ function getCompareRows(items: CatalogProduct[]) {
     ["Danh mục", items.map((item) => item.category || "Đang cập nhật")],
   ];
 
-  if (orderedLabels.length) {
-    orderedLabels.forEach((label) => {
+  if (orderedKeys.length) {
+    orderedKeys.forEach((key) => {
       rows.push([
-        label,
-        items.map((item) => specsObject(item)[label] || "Đang cập nhật"),
+        labels.get(key) || key,
+        itemSpecs.map((specs) => specs.get(key)?.value || "Đang cập nhật"),
       ]);
     });
   } else {

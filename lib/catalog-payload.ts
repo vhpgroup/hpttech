@@ -2,6 +2,7 @@ import { extractHighlightBulletPoints } from "@/lib/scraper/text";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 import type { CatalogProduct } from "@/lib/catalog";
+import { Client } from "pg";
 import {
   canonicalAttributeSpecs,
   loadCanonicalCommercialProjections,
@@ -9,6 +10,12 @@ import {
 } from "@/lib/catalog-projection";
 
 type PayloadProductDoc = Record<string, unknown>;
+
+type RawProductHTML = {
+  descriptionHTML?: string;
+  shortDescription?: string;
+  summaryHTML?: string;
+};
 
 const uploadDisplayWidths: Record<string, string> = {
   full: "100%",
@@ -113,6 +120,60 @@ function htmlOrTextField(doc: PayloadProductDoc, htmlKey: string, textKey: strin
   const html = textField(doc, htmlKey);
   if (html) return applyRichTextImageWidths(html, doc[textKey]);
   return textToHTML(textField(doc, textKey));
+}
+
+function databaseURL() {
+  return (
+    process.env.DATABASE_URI ||
+    process.env.POSTGRES_URL ||
+    (!process.env.VERCEL
+      ? "postgres://payload:payload@127.0.0.1:5433/hpttech_payload"
+      : undefined)
+  );
+}
+
+async function loadRawProductHTML(id: string | number): Promise<RawProductHTML> {
+  const connectionString = databaseURL();
+  if (!connectionString) return {};
+
+  const client = new Client({ connectionString });
+  try {
+    await client.connect();
+    const result = await client.query<{
+      description_html: string | null;
+      short_description: string | null;
+      summary_html: string | null;
+    }>(
+      `
+        select
+          coalesce(p.description_h_t_m_l, v.version_description_h_t_m_l) as description_html,
+          coalesce(p.short_description, v.version_short_description) as short_description,
+          coalesce(p.summary_h_t_m_l, v.version_summary_h_t_m_l) as summary_html
+        from products p
+        left join lateral (
+          select version_description_h_t_m_l, version_short_description, version_summary_h_t_m_l
+          from _products_v
+          where parent_id = p.id
+            and version__status = 'published'
+          order by created_at desc
+          limit 1
+        ) v on true
+        where p.id = $1
+        limit 1
+      `,
+      [id],
+    );
+    const row = result.rows[0];
+    return {
+      descriptionHTML: row?.description_html || undefined,
+      shortDescription: row?.short_description || undefined,
+      summaryHTML: row?.summary_html || undefined,
+    };
+  } catch {
+    return {};
+  } finally {
+    await client.end().catch(() => undefined);
+  }
 }
 
 function relationName(value: unknown) {
@@ -475,12 +536,21 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
       payload,
       projectionIDs,
     );
-    return normalizeProduct(
+    const product = normalizeProduct(
       doc,
       true,
       id !== undefined ? projections.get(String(id)) : undefined,
       projections,
     );
+    if (typeof id === "string" || typeof id === "number") {
+      const raw = await loadRawProductHTML(id);
+      product.description = raw.descriptionHTML || product.description;
+      product.detail =
+        raw.shortDescription ||
+        stripHTML(raw.summaryHTML) ||
+        product.detail;
+    }
+    return product;
   } catch (error) {
     handlePayloadReadError(`products:${slug}`, error);
     return null;

@@ -4,7 +4,16 @@ import { getPayloadClient } from "@/lib/payload";
 import { buildCanonicalImportRow } from "./canonical-row";
 import { importScrapedImages } from "./media";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
-import { extractHighlightBulletPoints, firstSentence, lexicalParagraphs } from "./text";
+import {
+  buildProductSeoArticleHTML,
+  summaryHTML,
+  updateProductSeoHTML,
+} from "./seo-article";
+import {
+  extractHighlightBulletPoints,
+  lexicalParagraphs,
+  productShortDescription,
+} from "./text";
 import type { ExcelRow, ScrapedProduct } from "./types";
 
 function randomRating() {
@@ -78,9 +87,7 @@ export async function importBatchProduct(
   const sourceUrls = product.source.urls || [product.source.url];
   const manualSpecs = normalizedSpecs.specs;
   const descriptionText = product.generated.description || product.data.description || "";
-  const summaryText =
-    firstSentence(product.data.summary || product.data.description || product.generated.summary) ||
-    product.data.title;
+  const summaryText = productShortDescription(product.data.title, product.data.specs);
   const sellingPoints = extractHighlightBulletPoints(product.data.description);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
   const rating = randomRating();
@@ -92,6 +99,8 @@ export async function importBatchProduct(
   } catch (error) {
     imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
   }
+  const seoDescriptionHTML = buildProductSeoArticleHTML(product, uploadedImages);
+  const seoSummaryHTML = summaryHTML(summaryText);
   const updated = await payload.update({
     collection: "products",
     data: {
@@ -126,6 +135,7 @@ export async function importBatchProduct(
       scannerSpecs: normalizedSpecs.scannerSpecs,
       rating,
       sellingPoints: sellingPoints.map((text) => ({ text })),
+      shortDescription: summaryText,
       specProfile: productTypeCode,
       specs: manualSpecs,
       status: "draft",
@@ -136,6 +146,12 @@ export async function importBatchProduct(
     id: productId,
     overrideAccess: true,
   });
+  await updateProductSeoHTML(
+    productId,
+    seoSummaryHTML,
+    seoDescriptionHTML,
+    summaryText,
+  );
 
   return {
     created: result.created === 1,
