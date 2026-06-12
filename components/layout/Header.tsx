@@ -22,10 +22,8 @@ import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
 const navLinks = [
-  { href: "/ai-search", label: "AI Search" },
   { href: "/san-pham", label: "Sản phẩm" },
   { href: "/giai-phap", label: "Giải pháp" },
-  { href: "/thuong-hieu", label: "Thương hiệu" },
   { href: "/du-an", label: "Dự án" },
   { href: "/dich-vu", label: "Dịch vụ" },
   { href: "/tin-tuc", label: "Tin tức" },

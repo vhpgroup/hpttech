@@ -13,6 +13,7 @@ import { getProductsFromPayload } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
+import { ProductInfoPopupLayer } from "@/components/home/HomeCategoryCarouselsClient";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -58,14 +59,16 @@ export default async function SiteLayout({
       <body className="site-shell">
         <CartProvider>
           <QuoteProvider>
-            <DesktopStage>
-              <Header settings={settings} />
-              <Navbar />
-              {children}
-              <Footer settings={settings} />
-            </DesktopStage>
-            <GlobalCompareDock products={products} />
-            <FloatingContactDockLoader settings={settings} />
+            <ProductInfoPopupLayer>
+              <DesktopStage>
+                <Header settings={settings} />
+                <Navbar />
+                {children}
+                <Footer settings={settings} />
+              </DesktopStage>
+              <GlobalCompareDock products={products} />
+              <FloatingContactDockLoader settings={settings} />
+            </ProductInfoPopupLayer>
           </QuoteProvider>
         </CartProvider>
       </body>
