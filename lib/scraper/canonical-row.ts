@@ -13,21 +13,31 @@ function modelFromTitle(value: string) {
 
 function vndPrice(value?: string) {
   if (!value) return "";
+  const text = value.trim();
   const normalized = value
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
+  if (/lien he|call|contact/.test(normalized)) return "";
   const million = normalized.match(/(\d+(?:[,.]\d+)?)\s*(trieu|tr)\b/);
   if (million) {
     const amount = Number(million[1].replace(",", "."));
     return Number.isFinite(amount) ? String(Math.round(amount * 1_000_000)) : "";
   }
-  const digits = value.replace(/[^\d]/g, "");
+  const decimalNumber = text.match(/^\s*(\d{6,})(?:[.,]\d{1,2})?\s*(?:vnd|vnđ|đ)?\s*$/i);
+  if (decimalNumber) return decimalNumber[1];
+  const digits = text.replace(/[^\d]/g, "");
   return digits && Number(digits) >= 100_000 ? digits : "";
 }
 
 function specValue(product: ScrapedProduct, labelPattern: RegExp) {
   return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
+}
+
+function priceTarget() {
+  return process.env.SCRAPER_PRICE_TARGET === "compareAtPrice"
+    ? "compareAtPrice"
+    : "price";
 }
 
 export function buildCanonicalImportRow(
@@ -47,6 +57,8 @@ export function buildCanonicalImportRow(
     product.data.specs,
     productTypeCode,
   );
+  const price = vndPrice(product.data.price);
+  const useCompareAtPrice = priceTarget() === "compareAtPrice";
 
   return {
     attributesJSON: JSON.stringify(normalizedSpecs.attributes),
@@ -55,12 +67,12 @@ export function buildCanonicalImportRow(
     currency: "VND",
     isPrimary: "true",
     model,
-    price: vndPrice(product.data.price),
+    price: useCompareAtPrice ? "" : price,
     productName: input.name,
     productStatus: "draft",
     productTypeCode,
     quantity: "0",
-    saleStatus: "contact",
+    saleStatus: !useCompareAtPrice && price ? "active" : "contact",
     sku: model,
     sourceType: "scraper",
     sourceUrl: product.source.url,

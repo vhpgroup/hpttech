@@ -9,12 +9,14 @@ function normalize(value: string) {
     .toLowerCase();
 }
 
-function inferProductKind(title: string) {
-  const lower = normalize(title);
-  if (lower.includes("scanner") || lower.includes("scan")) return "Máy scan";
-  if (lower.includes("muc") || lower.includes("cartridge")) return "Mực in";
-  if (lower.includes("may in") || lower.includes("printer")) return "Máy in";
-  return "Thiết bị văn phòng";
+function inferProductKind(title: string, specsText = "") {
+  const lower = normalize(`${title} ${specsText}`);
+  if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(lower)) return "Máy scan";
+  if (/\b(may in|printer|muc in|toner|cartridge)\b/.test(lower)) return "Máy in";
+  if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(lower)) return "Camera";
+  if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(lower)) return "Thiết bị mạng";
+  if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(lower)) return "Thiết bị máy tính";
+  return "Sản phẩm";
 }
 
 function specValue(data: ExtractedProductData, patterns: RegExp[]) {
@@ -25,37 +27,53 @@ function specValue(data: ExtractedProductData, patterns: RegExp[]) {
 }
 
 function titleBenefit(data: ExtractedProductData) {
-  const speed = specValue(data, [/toc do/, /scan speed/, /print speed/]);
+  const speed = specValue(data, [/toc do/, /speed/, /ppm/, /ipm/]);
   const paper = specValue(data, [/kho giay/, /kho tai lieu/, /paper size/, /document size/]);
-  const duplex = specValue(data, [
-    /quet (?:2|hai) mat/,
-    /scan (?:2|hai) mat/,
-    /duplex/,
-    /in (?:2|hai) mat/,
-  ]);
+  const connect = specValue(data, [/ket noi/, /giao tiep/, /interface/, /connect/]);
   const parts = [
-    paper ? `hỗ trợ ${paper}` : undefined,
-    duplex ? "xử lý hai mặt" : undefined,
     speed ? `tốc độ ${speed}` : undefined,
+    paper ? `hỗ trợ ${paper}` : undefined,
+    connect ? `kết nối ${connect}` : undefined,
   ].filter((item): item is string => Boolean(item));
-  return parts.length ? parts.slice(0, 2).join(", ") : "phù hợp nhiều nhu cầu sử dụng";
+  return parts.length ? parts.slice(0, 2).join(", ") : "chính hãng";
+}
+
+function productDisplayName(title: string) {
+  const cleaned = title.trim().replace(/[.!?]+$/, "");
+  const [beforeDash] = cleaned.split(/\s+[–-]\s+/);
+  if (beforeDash && beforeDash.length >= 8 && beforeDash.length <= 80) {
+    return beforeDash.trim();
+  }
+  return cleaned;
+}
+
+function metaTitle(data: ExtractedProductData, kind: string) {
+  const name = productDisplayName(data.title);
+  const normalizedName = normalize(name);
+  const prefix = normalizedName.includes(normalize(kind)) ? name : `${kind} ${name}`;
+  const base = `${prefix} chính hãng | HPT Tech`;
+  if (base.length >= 55 && base.length <= 65) return base;
+  const withQuote = `${prefix} | Báo giá HPT Tech`;
+  if (withQuote.length <= 65) return withQuote;
+  const compact = `${prefix} chính hãng`;
+  if (compact.length <= 65) return compact;
+  return truncate(prefix, 65);
+}
+
+function metaDescription(data: ExtractedProductData, brandName: string) {
+  const name = productDisplayName(data.title);
+  const description = `${name} ${brandName} chính hãng, ${titleBenefit(data)}. Xem thông số, hình ảnh và nhận tư vấn báo giá tại HPT Tech.`;
+  return truncate(description, 160);
 }
 
 export function generateSeo(data: ExtractedProductData, brandName: string): SeoPreview {
-  const kind = inferProductKind(data.title);
-  const skuText = data.sku && !data.title.toLowerCase().includes(data.sku.toLowerCase())
-    ? ` ${data.sku}`
-    : "";
-  const title = truncate(`${kind} ${data.title}${skuText} - ${titleBenefit(data)}`, 68);
-  const description = truncate(
-    `${data.title} ${brandName} chính hãng, có thông số kỹ thuật rõ ràng, hình ảnh sản phẩm, tư vấn chọn cấu hình và báo giá tại HPT Tech.`,
-    158,
-  );
+  const specsText = data.specs.map((spec) => `${spec.label} ${spec.value}`).join(" ");
+  const kind = inferProductKind(data.title, specsText);
 
   return {
     canonical: `/san-pham/${productSlug(data.title)}`,
-    description,
-    imageAlt: `${kind} ${data.title} chính hãng`,
-    title,
+    description: metaDescription(data, brandName),
+    imageAlt: `${data.title} chính hãng`,
+    title: metaTitle(data, kind),
   };
 }

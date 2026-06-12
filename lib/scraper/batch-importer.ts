@@ -25,6 +25,42 @@ function randomViewCount() {
   return Math.floor(Math.random() * 151) + 50;
 }
 
+function vndPriceNumber(value?: string) {
+  if (!value) return undefined;
+  const text = value.trim();
+  const normalized = value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  if (/lien he|call|contact/.test(normalized)) return undefined;
+  const million = normalized.match(/(\d+(?:[,.]\d+)?)\s*(trieu|tr)\b/);
+  if (million) {
+    const amount = Number(million[1].replace(",", "."));
+    return Number.isFinite(amount) ? Math.round(amount * 1_000_000) : undefined;
+  }
+  const decimalNumber = text.match(/^\s*(\d{6,})(?:[.,]\d{1,2})?\s*(?:vnd|vnđ|đ)?\s*$/i);
+  if (decimalNumber) return Number(decimalNumber[1]);
+  const digits = text.replace(/[^\d]/g, "");
+  const parsed = digits ? Number(digits) : undefined;
+  return parsed && parsed >= 100_000 ? parsed : undefined;
+}
+
+function formatVnd(value: number) {
+  return `${Math.round(value).toLocaleString("vi-VN")}đ`;
+}
+
+function normalizeScannerPrice(value: number) {
+  let normalized = value;
+  while (normalized >= 100_000_000) normalized = Math.round(normalized / 10);
+  return normalized;
+}
+
+function scraperPriceTarget() {
+  return process.env.SCRAPER_PRICE_TARGET === "compareAtPrice"
+    ? "compareAtPrice"
+    : "price";
+}
+
 function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
   return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
 }
@@ -90,6 +126,7 @@ export async function importBatchProduct(
   const summaryText = productShortDescription(product.data.title, product.data.specs);
   const sellingPoints = extractHighlightBulletPoints(product.data.description);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
+  const priceValue = vndPriceNumber(product.data.price);
   const rating = randomRating();
   const viewCount = randomViewCount();
   let uploadedImages: Array<{ id: string | number; url: string }> = [];
@@ -104,6 +141,10 @@ export async function importBatchProduct(
   const updated = await payload.update({
     collection: "products",
     data: {
+      compareAtPrice:
+        scraperPriceTarget() === "compareAtPrice" && priceValue
+          ? formatVnd(normalizeScannerPrice(priceValue))
+          : product.data.compareAtPrice,
       description: lexicalParagraphs(descriptionText),
       images: uploadedImages.map((image) => image.id),
       internalNote: [

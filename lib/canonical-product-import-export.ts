@@ -504,18 +504,23 @@ async function upsert(
   data: Record<string, unknown>,
 ) {
   const existing = await findOne(payload, collection, where);
-  return existing?.id !== undefined
-    ? payload.update({
+  if (existing?.id !== undefined) {
+    const updateData = { ...data };
+    if (collection === "product-variants") {
+      delete updateData.isPrimary;
+    }
+    return payload.update({
         collection: collection as never,
         id: existing.id,
-        data,
+        data: updateData,
         overrideAccess: true,
       })
-    : payload.create({
-        collection: collection as never,
-        data,
-        overrideAccess: true,
-      });
+  }
+  return payload.create({
+    collection: collection as never,
+    data,
+    overrideAccess: true,
+  });
 }
 
 async function resolveTaxonomy(

@@ -3,18 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { 
+import {
   Clock,
   FileText,
   Headset,
   Home,
   Mail,
-  Menu, 
+  Menu,
   Package,
   Scale,
-  Search, 
-  BadgeCheck, 
-  PhoneCall, 
+  Search,
+  BadgeCheck,
+  PhoneCall,
   X,
 } from "lucide-react";
 import HeaderCartButton from "@/components/cart/HeaderCartButton";
@@ -61,9 +61,9 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
       </div>
 
       <header className="main-header">
-        <button 
-          className="icon-btn mobile-only" 
-          type="button" 
+        <button
+          className="icon-btn mobile-only"
+          type="button"
           aria-label="Mở menu"
           aria-expanded={mobileMenuOpen}
           onClick={() => setMobileMenuOpen(true)}
@@ -73,8 +73,8 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
 
         <Link href="/" className="brand" aria-label={settings.companyName}>
           <Image
-            src="https://hpttech.vn/media/32/content/HPT-Logo.png" 
-            alt={settings.companyName} 
+            src="https://hpttech.vn/media/32/content/HPT-Logo.png"
+            alt={settings.companyName}
             width={92}
             height={54}
             priority
@@ -82,11 +82,11 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
         </Link>
 
         <form className="search desktop-only" role="search" action="/san-pham" method="get">
-          <input 
-            id="searchInput" 
+          <input
+            id="searchInput"
             name="search"
-            type="search" 
-            placeholder="Tìm sản phẩm, giải pháp, thương hiệu..." 
+            type="search"
+            placeholder="Tìm sản phẩm, giải pháp, thương hiệu..."
           />
           <select aria-label="Danh mục" name="category">
             <option value="">Danh mục</option>

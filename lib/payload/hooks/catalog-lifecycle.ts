@@ -71,9 +71,21 @@ export const validateSinglePrimaryVariant: CollectionBeforeChangeHook = async ({
       ],
     },
   });
-  const currentID = relationID(originalDoc?.id);
+  const currentID = relationID(originalDoc?.id) || relationID(data.id);
+  const currentSKU =
+    typeof data.sku === "string"
+      ? data.sku
+      : typeof originalDoc?.sku === "string"
+        ? originalDoc.sku
+        : "";
   const duplicate = existing.docs.find(
-    (doc) => relationID((doc as Record<string, unknown>).id) !== currentID,
+    (doc) => {
+      const record = doc as Record<string, unknown>;
+      return (
+        relationID(record.id) !== currentID &&
+        (!currentSKU || record.sku !== currentSKU)
+      );
+    },
   );
   if (duplicate) {
     throw new Error("Mỗi Product chỉ được có một SKU mặc định.");

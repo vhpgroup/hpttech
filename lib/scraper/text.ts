@@ -46,96 +46,94 @@ function supportedFeature(value?: string) {
   return !/\b(khong|no|false|none)\b/.test(normalized);
 }
 
+function inferProductKind(title: string, specs: ProductSpec[]) {
+  const text = normalizedText(`${title} ${specs.map((spec) => `${spec.label} ${spec.value}`).join(" ")}`);
+  if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(text)) return "máy scan";
+  if (/\b(may in|printer|muc in|cartridge|toner)\b/.test(text)) return "máy in";
+  if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(text)) return "camera";
+  if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(text)) return "thiết bị mạng";
+  if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(text)) return "thiết bị máy tính";
+  return "sản phẩm";
+}
+
+function productDisplayName(title: string) {
+  const cleaned = cleanText(title).replace(/[.!?]+$/, "");
+  const [beforeDash] = cleaned.split(/\s+[–-]\s+/);
+  if (beforeDash && beforeDash.length >= 8 && beforeDash.length <= 80) {
+    return beforeDash.trim();
+  }
+  return cleaned;
+}
+
 export function productShortDescription(title: string, specs: ProductSpec[]) {
-  const productTitle = cleanText(title).replace(/[.!?]+$/, "");
+  const productTitle = productDisplayName(title);
   if (!productTitle) return "";
 
+  const kind = inferProductKind(productTitle, specs);
   const allSpecsText = normalizedText(
     specs.map((spec) => `${spec.label}: ${spec.value}`).join(" "),
   );
-  const isScanner =
-    /\b(scan|scanner|may quet)\b/.test(normalizedText(productTitle)) ||
-    /\b(toc do quet|toc do scan|adf|duplex)\b/.test(allSpecsText);
-
-  if (!isScanner) {
-    return `${productTitle} là sản phẩm chính hãng với thông tin và thông số kỹ thuật được cập nhật từ nhà cung cấp.`;
-  }
-
-  const paperSizeValue = matchingSpec(specs, [
-    /kho giay toi da/,
-    /kho giay ho tro/,
+  const parts: string[] = [];
+  const paperSize = matchingSpec(specs, [
+    /kho giay/,
     /kho tai lieu/,
-    /document size/,
     /paper size/,
+    /document size/,
   ]);
-  const paperSize =
-    cleanText(paperSizeValue).match(/\b(A[0-9]|Legal)\b/i)?.[1]?.toUpperCase() ||
-    "";
   const scannerType = matchingSpec(specs, [/loai may scan/, /scanner type/]);
-  const adfValue = matchingSpec(specs, [
-    /khay giay vao/,
-    /khay nap/,
-    /cong suat adf/,
-    /\badf\b/,
-  ]);
+  const adfValue = matchingSpec(specs, [/khay giay/, /khay nap/, /adf/]);
   const duplexValue = matchingSpec(specs, [
-    /quet 2 mat/,
-    /quet hai mat/,
-    /scan 2 mat/,
-    /scan hai mat/,
+    /2 mat/,
+    /hai mat/,
     /duplex/,
   ]);
   const speed = matchingSpec(specs, [
-    /^toc do quet$/,
-    /^toc do scan$/,
+    /^toc do/,
     /scan speed/,
+    /print speed/,
+    /ppm/,
+    /ipm/,
   ]);
+  const connect = matchingSpec(specs, [/ket noi/, /giao tiep/, /interface/, /connect/]);
 
-  const capabilities: string[] = [];
-  const normalizedType = normalizedText(scannerType || "");
-  const hasFlatbed =
-    normalizedType.includes("flatbed") ||
-    /\b(flatbed|khay phang)\b/.test(allSpecsText);
-  const hasAdf =
-    normalizedType.includes("adf") ||
-    (adfValue ? supportedFeature(adfValue) : /\badf\b/.test(allSpecsText));
+  if (paperSize) parts.push(`hỗ trợ ${cleanText(paperSize)}`);
 
-  if (hasAdf && hasFlatbed) {
-    capabilities.push("kết hợp khay phẳng và nạp giấy tự động ADF");
-  } else if (hasAdf) {
-    capabilities.push("trang bị khay nạp giấy tự động ADF");
-  } else if (hasFlatbed) {
-    capabilities.push("trang bị khay quét phẳng");
-  }
-  const hasDuplex = duplexValue
-    ? supportedFeature(duplexValue)
-    : /\b(quet (?:2|hai) mat|scan (?:2|hai) mat|duplex)\b/.test(allSpecsText);
-  if (hasDuplex) {
-    capabilities.push("hỗ trợ quét hai mặt");
-  }
-  if (speed) {
-    const speedText = cleanText(speed);
-    capabilities.push(
-      `tốc độ ${/^\d+(?:[.,]\d+)?$/.test(speedText) ? `${speedText} trang/phút` : speedText}`,
-    );
+  if (kind === "máy scan") {
+    const normalizedType = normalizedText(scannerType || "");
+    const hasFlatbed =
+      normalizedType.includes("flatbed") ||
+      /\b(flatbed|khay phang)\b/.test(allSpecsText);
+    const hasAdf =
+      normalizedType.includes("adf") ||
+      (adfValue ? supportedFeature(adfValue) : /\badf\b/.test(allSpecsText));
+
+    if (hasAdf && hasFlatbed) parts.push("kết hợp khay phẳng và ADF");
+    else if (hasAdf) parts.push("trang bị ADF");
+    else if (hasFlatbed) parts.push("trang bị khay quét phẳng");
+
+    if (duplexValue && supportedFeature(duplexValue)) parts.push("quét hai mặt");
+  } else if (duplexValue && supportedFeature(duplexValue)) {
+    parts.push("xử lý hai mặt");
   }
 
-  const category = `máy scan tài liệu${paperSize ? ` ${paperSize}` : ""}`;
-  return `${productTitle} là ${category}${capabilities.length ? `, ${capabilities.join(", ")}` : ""}.`;
+  if (speed) parts.push(`tốc độ ${cleanText(speed)}`);
+  if (connect) parts.push(`kết nối ${cleanText(connect)}`);
+
+  return `${productTitle} là ${kind} chính hãng${parts.length ? `, ${parts.slice(0, 4).join(", ")}` : ""}, phù hợp cho nhu cầu sử dụng tại văn phòng, doanh nghiệp hoặc đơn vị cần thiết bị ổn định.`;
 }
 
 export function extractHighlightBulletPoints(value?: string) {
   const text = cleanText(value);
-  const marker = text.match(/(?:điểm nổi bật|diem noi bat)\s*[:：]?/i);
+  const marker = text.match(/(?:điểm nổi bật|đặc điểm nổi bật|diem noi bat|dac diem noi bat)\s*[:：]?/i);
   if (!marker || marker.index === undefined) return [];
 
   return text
     .slice(marker.index + marker[0].length)
     .trim()
-    .split(/\s+-\s+/)
-    .map((item) => item.replace(/^-\s*/, "").trim())
+    .split(/\s+(?:[-•]|[0-9]+\.)\s+/)
+    .map((item) => item.replace(/^[-•]\s*/, "").trim())
     .filter(Boolean)
-    .slice(0, 7);
+    .slice(0, 8);
 }
 
 export function lexicalParagraphs(value: string) {

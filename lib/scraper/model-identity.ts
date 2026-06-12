@@ -20,6 +20,13 @@ export function extractRequestedModel(value: string) {
       const normalized = normalizeModelIdentity(match);
       return normalized.length >= 2 && !/^(?:A3|A4)$/.test(normalized);
     })
+    .filter((match, _index, matches) => {
+      const normalized = normalizeModelIdentity(match);
+      const hasMainModel = matches.some((candidate) =>
+        /\d{3,}/.test(normalizeModelIdentity(candidate)),
+      );
+      return !hasMainModel || !/^(?:FNW|SNW|FN|F|S)\d$/i.test(normalized);
+    })
     .map((match) => match.toUpperCase())
     .at(-1);
   if (primary) return primary;

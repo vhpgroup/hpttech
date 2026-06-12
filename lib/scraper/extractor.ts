@@ -166,7 +166,7 @@ export function extractProductImagesFromHtml(
     });
   }
 
-  return images.slice(0, Number(process.env.SCRAPER_MAX_IMAGES || 5));
+  return images.slice(0, Number(process.env.SCRAPER_MAX_IMAGES || 10));
 }
 
 function extractSpecs(html: string) {
@@ -526,7 +526,7 @@ export async function gptExtractProduct(
           role: "user",
         },
       ],
-      model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       response_format: { type: "json_object" },
       temperature: 0,
     }),

@@ -53,11 +53,31 @@ assert.equal(row.variantStatus, "draft");
 assert.equal(row.model, "ADS-4700W");
 assert.equal(row.sku, "ADS-4700W");
 assert.equal(row.price, "12990000");
-assert.equal(row.saleStatus, "contact");
+assert.equal(row.saleStatus, "active");
 assert.equal(row.stockStatus, "unknown");
 assert.equal(row.sourceType, "scraper");
 assert.equal(row.sourceUrl, "https://brother.com.vn/ads-4700w");
 assert.equal("images" in row, false);
+const decimalPriceRow = buildCanonicalImportRow(
+  {
+    category: "Máy scan",
+    name: "Ricoh SP1425",
+    productType: "Máy scan",
+    rowNumber: 3,
+  },
+  {
+    ...product,
+    data: {
+      ...product.data,
+      price: "14000000.00",
+      sku: "SP1425",
+      title: "Máy scan Ricoh SP1425",
+    },
+  },
+  "scanner",
+);
+assert.equal(decimalPriceRow.price, "14000000");
+assert.equal(decimalPriceRow.saleStatus, "active");
 assert.equal(commonProductTypeCode("Máy in đa năng"), "printer");
 assert.equal(commonProductTypeCode("Máy photocopy A3"), "photocopier");
 

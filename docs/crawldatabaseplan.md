@@ -40,7 +40,7 @@ CLI chạy local thực hiện:
 | Input | Excel gồm `Tên sản phẩm`, `Danh mục`, `Loại sản phẩm` |
 | Search | Tavily, giới hạn trong source whitelist |
 | Xử lý | Tuần tự, lỗi một sản phẩm không dừng cả batch |
-| AI | OpenAI, mặc định `gpt-4.1-mini` |
+| AI | OpenAI, mặc định `gpt-4o-mini` |
 | Hình ảnh | Crawl URL ảnh sản phẩm từ HTML/JSON-LD/gallery, download và upload vào Payload Media; bỏ qua ảnh mặc định/logo/footer |
 | Trạng thái | Mọi sản phẩm do batch tạo hoặc cập nhật đều là `draft` |
 | Publish | Máy scan cần đạt ngưỡng `scannerSpecs` tối thiểu 21/24 cột; ảnh được import tự động nếu nguồn có ảnh hợp lệ |
@@ -181,7 +181,7 @@ TAVILY_SEARCH_DEPTH=advanced
 TAVILY_SEARCH_TIMEOUT_MS=20000
 
 OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
+OPENAI_MODEL=gpt-4o-mini
 OPENAI_SCRAPER_TIMEOUT_MS=45000
 
 TELEGRAM_BOT_TOKEN=
