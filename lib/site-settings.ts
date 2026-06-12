@@ -2,8 +2,8 @@ import type { PublicSiteSettings } from "@/lib/content-payload";
 
 export const defaultSiteSettings: Required<PublicSiteSettings> = {
   companyName: "HPT Tech",
-  phone: "0918 871 414",
-  hotline: "0918 871 414",
+  phone: "0918 87 14 14",
+  hotline: "0918 87 14 14",
   email: "lienhe@hpttech.vn",
   address: "Tư vấn và triển khai cho doanh nghiệp",
   facebook: "https://www.facebook.com/solarangelx9/",
@@ -18,13 +18,29 @@ export const defaultSiteSettings: Required<PublicSiteSettings> = {
   footerNote: "Thiết bị văn phòng, máy scan, máy in và giải pháp số hóa tài liệu cho doanh nghiệp.",
 };
 
+const publicPhone = "0918 87 14 14";
+
 export function normalizeSiteSettings(settings?: PublicSiteSettings | null): Required<PublicSiteSettings> {
-  return {
+  const normalized = {
     ...defaultSiteSettings,
     ...Object.fromEntries(
       Object.entries(settings || {}).filter(([, value]) => value !== null && value !== undefined && value !== ""),
     ),
   };
+
+  return {
+    ...normalized,
+    phone: publicPhone,
+    hotline: publicPhone,
+  };
+}
+
+export function formatPhoneDisplay(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 10 && digits.startsWith("0")) {
+    return `${digits.slice(0, 4)} ${digits.slice(4, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
+  }
+  return value.trim();
 }
 
 export function phoneHref(value: string) {

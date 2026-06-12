@@ -287,7 +287,7 @@ function pickSpecChips(product: CatalogProduct) {
 function productBadges(product: CatalogProduct) {
   const badges: Array<{ label: string; className: string }> = [];
   if ((product.reviewCount || 0) >= 20 || normalizeText(product.tag).includes("noi bat")) {
-    badges.push({ label: "Best Seller", className: "bg-[#0A4BFF] text-white" });
+    badges.push({ label: "Bán chạy", className: "bg-[#0A4BFF] text-white" });
   }
   if (product.discountBadge || product.promoText) {
     badges.push({ label: "Khuyến mãi", className: "bg-red-600 text-white" });

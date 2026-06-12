@@ -46,6 +46,7 @@ export type PublicPost = {
   tags?: PublicPostTag[];
   postType?: string;
   featured?: boolean;
+  content?: unknown;
 };
 
 export type PublicPostCategory = {
@@ -120,6 +121,45 @@ export type PublicAboutLink = {
   label?: string;
   href?: string;
 };
+
+type LocalContentFixtures = {
+  posts: PublicPost[];
+  projects: PublicProject[];
+};
+
+function loadLocalContentFixtures(): LocalContentFixtures {
+  const fixturePath = process.env.LOCAL_CONTENT_FIXTURE_PATH;
+  if (process.env.NODE_ENV === "production" || !fixturePath) {
+    return { posts: [], projects: [] };
+  }
+
+  try {
+    const absolutePath = path.resolve(process.cwd(), fixturePath);
+    const parsed = JSON.parse(fs.readFileSync(absolutePath, "utf8")) as Partial<LocalContentFixtures>;
+    const posts = Array.isArray(parsed.posts)
+      ? parsed.posts.filter(
+          (post): post is PublicPost =>
+            Boolean(post && typeof post.title === "string" && typeof post.slug === "string"),
+        )
+      : [];
+    const projects = Array.isArray(parsed.projects)
+      ? parsed.projects.filter(
+          (project): project is PublicProject =>
+            Boolean(project && typeof project.title === "string" && typeof project.slug === "string"),
+        )
+      : [];
+
+    return { posts, projects };
+  } catch (error) {
+    console.warn(`[content] Cannot load local fixture from ${fixturePath}.`, error);
+    return { posts: [], projects: [] };
+  }
+}
+
+function mergeLocalBySlug<T extends { slug: string }>(remote: T[], local: T[]) {
+  const remoteSlugs = new Set(remote.map((item) => item.slug));
+  return [...local.filter((item) => !remoteSlugs.has(item.slug)), ...remote];
+}
 
 export type PublicAboutHero = {
   title: string;
@@ -329,6 +369,13 @@ function mapPost(doc: PayloadDoc): PublicPost {
     tags: postTags(doc.tags),
     postType: textField(doc, "postType"),
     featured: doc.featured === true,
+  };
+}
+
+function mapPostDetail(doc: PayloadDoc): PublicPost {
+  return {
+    ...mapPost(doc),
+    content: doc.content,
   };
 }
 
@@ -619,10 +666,13 @@ export async function getPostsFromPayload(): Promise<PublicPost[]> {
     where: { status: { equals: "published" } },
   });
 
-  return res.docs.map(mapPost);
+  return mergeLocalBySlug(res.docs.map(mapPost), loadLocalContentFixtures().posts);
 }
 
 export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
+  const localPost = loadLocalContentFixtures().posts.find((post) => post.slug === slug);
+  if (localPost) return localPost;
+
   const res = await findDocs("posts", {
     limit: 1,
     where: {
@@ -634,8 +684,33 @@ export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost
   return mapPost(doc);
 }
 
+export async function getRecruitmentPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
+  const localPost = loadLocalContentFixtures().posts.find(
+    (post) => post.slug === slug && post.postType === "recruitment",
+  );
+  if (localPost) return localPost;
+
+  const res = await findDocs("posts", {
+    limit: 1,
+    where: {
+      and: [
+        { slug: { equals: slug } },
+        { postType: { equals: "recruitment" } },
+        { status: { equals: "published" } },
+      ],
+    },
+  });
+  const doc = res.docs[0];
+  return doc ? mapPostDetail(doc) : null;
+}
+
 export async function getPostByPathFromPayload(pathValue: string): Promise<PublicPost | null> {
   const normalizedPath = normalizeNewsPath(pathValue);
+  const localPost = loadLocalContentFixtures().posts.find(
+    (post) => normalizeNewsPath(post.fullPath || post.slug) === normalizedPath,
+  );
+  if (localPost) return localPost;
+
   const res = await findDocs("posts", {
     limit: 1,
     where: {
@@ -770,10 +845,13 @@ function mapProjectDetail(doc: PayloadDoc): PublicProject {
 
 export async function getProjectsFromPayload(): Promise<PublicProject[]> {
   const res = await findDocs("projects", { sort: "-completedAt" });
-  return res.docs.map(mapProject);
+  return mergeLocalBySlug(res.docs.map(mapProject), loadLocalContentFixtures().projects);
 }
 
 export async function getProjectBySlugFromPayload(slug: string): Promise<PublicProject | null> {
+  const localProject = loadLocalContentFixtures().projects.find((project) => project.slug === slug);
+  if (localProject) return localProject;
+
   const res = await findDocs("projects", {
     limit: 1,
     where: {

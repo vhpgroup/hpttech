@@ -30,6 +30,7 @@ const navLinks = [
   { href: "/dich-vu", label: "Dịch vụ" },
   { href: "/tin-tuc", label: "Tin tức" },
   { href: "/ve-hpt", label: "Về HPT" },
+  { href: "/tuyen-dung", label: "Tuyển dụng" },
   { href: "/lien-he", label: "Liên hệ" },
 ];
 
@@ -48,7 +49,7 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
           </a>
           <span>
             <Clock size={14} />
-            8:30 - 21:00
+            8:00 - 17:30
           </span>
           <a href={phoneHref(phone)}>
             <PhoneCall size={14} />

@@ -15,7 +15,8 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test:ai-profile": "tsx scripts/verify-ai-product-profile.ts",
-    "test:desktop-stage": "node scripts/verify-desktop-stage.cjs"
+    "test:desktop-stage": "node scripts/verify-desktop-stage.cjs",
+    "test:quote": "tsx scripts/verify-quote-totals.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.0",

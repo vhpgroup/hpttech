@@ -82,8 +82,15 @@ textarea {
   .desktop-stage {
     width: var(--design-width);
     min-width: var(--design-width);
+    min-height: var(--desktop-stage-min-height, auto);
+    display: flex;
+    flex-direction: column;
     transform: scale(var(--desktop-scale));
     transform-origin: top center;
+  }
+
+  .desktop-stage > main {
+    flex: 1 0 auto;
   }
 
   .utility-topbar,
@@ -557,6 +564,11 @@ main {
 
 .nav::-webkit-scrollbar {
   display: none;
+}
+
+.nav .nav-home {
+  flex: 0 0 auto;
+  justify-content: center;
 }
 
 .nav a,
@@ -2776,6 +2788,11 @@ svg {
     background: #020a1c;
   }
 
+  .site-shell {
+    padding-bottom: calc(68px + env(safe-area-inset-bottom));
+    background: #03111f;
+  }
+
   .desktop-only {
     display: none;
   }
@@ -3253,7 +3270,8 @@ svg {
     right: 0;
     bottom: 0;
     z-index: 20;
-    height: 68px;
+    height: calc(68px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     background: #06132c;
