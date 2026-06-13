@@ -108,15 +108,15 @@ textarea {
   }
 
   .hero-section {
-    --hero-top-height: 470px;
-    --hero-bottom-height: 230px;
+    --hero-top-height: 472px;
+    --hero-bottom-height: 228px;
     --hero-gap: 16px;
     --hero-card-gap: 16px;
     grid-template-columns: 260px 1180px;
   }
 
   .hero-commerce-area {
-    grid-template-columns: 804px 360px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -632,8 +632,8 @@ main {
   --hero-gap: 10px;
   --hero-card-gap: 10px;
   --hero-side-gap: 0px;
-  --hero-top-height: clamp(350px, 31.8vw, 470px);
   --hero-bottom-height: clamp(172px, 15.6vw, 230px);
+  --hero-top-height: calc(var(--hero-bottom-height) + var(--hero-bottom-height) + var(--hero-gap));
   --hero-shell-height: calc(var(--hero-top-height) + var(--hero-gap) + var(--hero-bottom-height));
   width: var(--shell-width);
   height: auto;
@@ -648,8 +648,10 @@ main {
 
 @media (min-width: 1024px) {
   .hero-section {
-    --hero-top-height: 470px;
-    --hero-bottom-height: 230px;
+    --hero-gap: 16px;
+    --hero-card-gap: 16px;
+    --hero-top-height: 472px;
+    --hero-bottom-height: 228px;
     --hero-shell-height: calc(var(--hero-top-height) + var(--hero-gap) + var(--hero-bottom-height));
     height: var(--hero-shell-height);
     min-height: 0;
@@ -810,7 +812,7 @@ main {
 .hero-commerce-area {
   height: var(--hero-shell-height);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(280px, 24vw, 360px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: var(--hero-top-height) var(--hero-bottom-height);
   gap: var(--hero-gap);
   padding-left: 0;
@@ -819,7 +821,7 @@ main {
 
 
 .hero-commerce-area .hero {
-  grid-column: 1;
+  grid-column: 1 / 3;
   grid-row: 1;
   align-self: start;
   justify-self: stretch;
@@ -910,7 +912,7 @@ main {
 
 
 .commercial-stack {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   min-height: 0;
   height: var(--hero-top-height);
@@ -2924,8 +2926,8 @@ svg {
   }
 
   .hero-section {
-    --hero-top-height: clamp(320px, 31.8vw, 350px);
     --hero-bottom-height: clamp(128px, 12.9vw, 142px);
+    --hero-top-height: calc(var(--hero-bottom-height) + var(--hero-bottom-height) + var(--hero-gap));
     grid-template-columns: 220px minmax(0, 1fr);
     padding: 0;
   }
@@ -2954,7 +2956,7 @@ svg {
   }
 
   .hero-commerce-area {
-    grid-template-columns: minmax(0, 1fr) clamp(240px, 24vw, 270px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .commercial-tile strong {
