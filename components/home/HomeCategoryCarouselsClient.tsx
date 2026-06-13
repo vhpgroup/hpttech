@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -107,8 +108,10 @@ function popupSpecs(product: CatalogProduct) {
 export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
   const [popup, setPopup] = useState<ProductInfoPopup | null>(null);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
+  useEffect(() => setPopup(null), [pathname]);
 
   const value = useMemo(
     () => ({
@@ -241,6 +244,11 @@ export function ProductQuickInfoTrigger({
     <div
       ref={wrapperRef}
       className={className}
+      onClickCapture={(event) => {
+        if (event.target instanceof Element && event.target.closest("a[href]")) {
+          popupContext?.hidePopup();
+        }
+      }}
       onPointerEnter={(event) => {
         if (event.pointerType === "mouse") show();
       }}
