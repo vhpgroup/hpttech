@@ -18,6 +18,7 @@
     "test:bulk-import": "tsx scripts/verify-bulk-import-core.ts",
     "test:scraper-multi-source": "tsx scripts/verify-scraper-multi-source.ts",
     "test:scraper-canonical-row": "tsx scripts/verify-scraper-canonical-row.ts",
+    "test:ai-profile": "tsx scripts/verify-ai-product-profile.ts",
     "test:desktop-stage": "node scripts/verify-desktop-stage.cjs",
     "test:quote": "tsx scripts/verify-quote-totals.ts"
   },

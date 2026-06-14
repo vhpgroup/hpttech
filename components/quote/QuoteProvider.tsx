@@ -217,7 +217,7 @@ function QuoteDocument({
                         <strong>{spec.label}:</strong> {spec.value}
                       </li>
                     ))}
-                    {line.product.warranty ? <li><strong>Báº£o hÃ nh:</strong> {line.product.warranty}</li> : null}
+                    {line.product.warranty ? <li><strong>Bảo hành:</strong> {line.product.warranty}</li> : null}
                   </ul>
                 </td>
                 <td className="border border-blue-200 px-2 py-3 text-center font-semibold">{line.quantity}</td>

@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Plus, Star } from "lucide-react";
+import type { MouseEvent } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { CatalogProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
@@ -120,17 +122,29 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
 }
 
 export function ProductCard({ product, className, isComparing = false, onCompare }: ProductCardProps) {
+  const router = useRouter();
   const href = productHref(product);
   const image = product.images?.[0]?.url || product.image;
   const imageUnoptimized = image?.startsWith("/api/r2-media/") === true;
   const specs = pickFeaturedSpecs(product);
   const stock = stockLabel(product.stockStatus);
   const compareHref = `/compare?products=${encodeURIComponent(productKey(product))}`;
+  const openProduct = (event: MouseEvent<HTMLElement>) => {
+    if (
+      event.target instanceof Element &&
+      event.target.closest("a, button, input, select, textarea, [role='button']")
+    ) {
+      return;
+    }
+
+    router.push(href);
+  };
 
   return (
     <article
+      onClick={openProduct}
       className={cn(
-        "group relative flex min-h-[452px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+        "group relative flex min-h-[452px] cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
         className,
       )}
     >
