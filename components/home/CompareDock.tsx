@@ -15,7 +15,6 @@ function productKey(product: CatalogProduct) {
 
 type CompareDockProps = {
   items: CatalogProduct[];
-  products: CatalogProduct[];
   onAdd: (product: CatalogProduct) => void;
   onRemove: (product: CatalogProduct) => void;
   onClear: () => void;
@@ -23,7 +22,6 @@ type CompareDockProps = {
 
 export default function CompareDock({
   items,
-  products,
   onAdd,
   onRemove,
   onClear,
@@ -32,6 +30,9 @@ export default function CompareDock({
   const [open, setOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerQuery, setPickerQuery] = useState("");
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState("");
 
   const slots = Array.from({ length: COMPARE_LIMIT }, (_, index) => items[index] || null);
   const canCompare = items.length >= 2;
@@ -50,6 +51,31 @@ export default function CompareDock({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!pickerOpen || products.length) return;
+
+    let cancelled = false;
+    setProductsLoading(true);
+    setProductsError("");
+
+    fetch("/api/products/compare-picker")
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Cannot load compare products");
+        const payload = (await response.json()) as { products?: CatalogProduct[] };
+        if (!cancelled) setProducts(payload.products || []);
+      })
+      .catch(() => {
+        if (!cancelled) setProductsError("Không tải được danh sách sản phẩm. Vui lòng thử lại.");
+      })
+      .finally(() => {
+        if (!cancelled) setProductsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pickerOpen, products.length]);
 
   const dock = (
     <div id="compareShell">
@@ -136,7 +162,11 @@ export default function CompareDock({
               />
             </label>
             <div className="compare-picker-feedback" id="comparePickerFeedback">
-              {pickerQuery.trim().length < 3 ? (
+              {productsLoading ? (
+                <p className="compare-picker-message">Đang tải danh sách sản phẩm...</p>
+              ) : productsError ? (
+                <p className="compare-picker-message error">{productsError}</p>
+              ) : pickerQuery.trim().length < 3 ? (
                 <p className="compare-picker-message error">Vui lòng nhập tối thiểu 3 ký tự!</p>
               ) : pickerResults.length ? (
                 <div className="compare-picker-results">

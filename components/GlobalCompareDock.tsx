@@ -10,7 +10,7 @@ function productKey(product: CatalogProduct) {
   return product.slug || product.title;
 }
 
-export default function GlobalCompareDock({ products }: { products: CatalogProduct[] }) {
+export default function GlobalCompareDock() {
   const [items, setItems] = useState<CatalogProduct[]>([]);
 
   useEffect(() => {
@@ -46,7 +46,6 @@ export default function GlobalCompareDock({ products }: { products: CatalogProdu
   return (
     <CompareDock
       items={items}
-      products={products}
       onAdd={addProduct}
       onRemove={removeProduct}
       onClear={() => setItems([])}
