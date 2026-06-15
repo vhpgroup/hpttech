@@ -3,6 +3,7 @@ import path from "node:path";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 import type { CatalogProduct } from "@/lib/catalog";
+import { withProductPromotions } from "@/lib/product-promotions";
 import {
   canonicalAttributeSpecs,
   loadCanonicalCommercialProjections,
@@ -398,10 +399,12 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
       ),
     );
     const payloadSlugs = new Set(products.map((product) => product.slug));
-    return [...products, ...localProducts.filter((product) => !payloadSlugs.has(product.slug))];
+    return [...products, ...localProducts.filter((product) => !payloadSlugs.has(product.slug))].map(
+      withProductPromotions,
+    );
   } catch (error) {
     handlePayloadReadError("products", error);
-    return localProducts;
+    return localProducts.map(withProductPromotions);
   }
 }
 
@@ -418,7 +421,7 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
       },
     });
     const doc = res.docs[0] as unknown as PayloadProductDoc | undefined;
-    if (!doc) return localProduct;
+    if (!doc) return localProduct ? withProductPromotions(localProduct) : null;
     const id = doc.id;
     const relatedIDs = Array.isArray(doc.relatedProducts)
       ? doc.relatedProducts
@@ -438,14 +441,16 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
       payload,
       projectionIDs,
     );
-    return normalizeProduct(
-      doc,
-      true,
-      id !== undefined ? projections.get(String(id)) : undefined,
-      projections,
+    return withProductPromotions(
+      normalizeProduct(
+        doc,
+        true,
+        id !== undefined ? projections.get(String(id)) : undefined,
+        projections,
+      ),
     );
   } catch (error) {
     handlePayloadReadError(`products:${slug}`, error);
-    return localProduct;
+    return localProduct ? withProductPromotions(localProduct) : null;
   }
 }

@@ -16,9 +16,11 @@ function productKey(product: CatalogProduct) {
 type CompareDockProps = {
   items: CatalogProduct[];
   products: CatalogProduct[];
-  onAdd: (product: CatalogProduct) => void;
+  onAdd: (product: CatalogProduct) => boolean;
   onRemove: (product: CatalogProduct) => void;
   onClear: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
 export default function CompareDock({
@@ -27,9 +29,10 @@ export default function CompareDock({
   onAdd,
   onRemove,
   onClear,
+  open,
+  onOpenChange,
 }: CompareDockProps) {
   const [mounted, setMounted] = useState(false);
-  const [open, setOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerQuery, setPickerQuery] = useState("");
 
@@ -53,7 +56,7 @@ export default function CompareDock({
 
   const dock = (
     <div id="compareShell">
-      <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => setOpen(true)}>
+      <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => onOpenChange(true)}>
         So sánh ({items.length})
       </button>
       <button
@@ -61,14 +64,14 @@ export default function CompareDock({
         type="button"
         aria-label="Đóng so sánh"
         onClick={() => {
-          setOpen(false);
+          onOpenChange(false);
           setPickerOpen(false);
         }}
       />
       <aside className={`compare-drawer ${open ? "open" : ""}`} aria-hidden={open ? "false" : "true"}>
         <div className="compare-drawer-head">
           <h2>So sánh sản phẩm</h2>
-          <button className="compare-close" type="button" aria-label="Đóng so sánh" onClick={() => setOpen(false)}>
+          <button className="compare-close" type="button" aria-label="Đóng so sánh" onClick={() => onOpenChange(false)}>
             ×
           </button>
         </div>
@@ -90,7 +93,7 @@ export default function CompareDock({
                   type="button"
                   key={`empty-${index}`}
                   onClick={() => {
-                    setOpen(true);
+                    onOpenChange(true);
                     setPickerOpen(true);
                     setPickerQuery("");
                   }}
@@ -146,8 +149,7 @@ export default function CompareDock({
                       type="button"
                       key={productKey(product)}
                       onClick={() => {
-                        onAdd(product);
-                        setPickerOpen(false);
+                        if (onAdd(product)) setPickerOpen(false);
                       }}
                     >
                       {product.image ? <Image src={product.image} alt={product.title} width={72} height={56} /> : null}

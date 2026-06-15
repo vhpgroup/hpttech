@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ArrowRight,
+  Check,
   ChevronLeft,
   ChevronRight,
   Gift,
+  Sparkles,
   Tag,
 } from "lucide-react";
 import {
@@ -42,9 +45,86 @@ type ProductInfoPopup = {
   anchor: DOMRect;
 };
 
+type LightTraceVariant = "featured" | "scanner" | "printer" | "photocopier";
+
+type CategoryLightTrace = {
+  id: number;
+  paths: [string, string];
+};
+
+function createCategoryLightTrace(variant: LightTraceVariant): CategoryLightTrace {
+  const topY = () => Math.round(5 + Math.random() * 14);
+  const bottomY = () => Math.round(40 + Math.random() * 15);
+  const crossingX = Math.round(430 + Math.random() * 180);
+  const secondCrossingX = Math.round(crossingX + 70 + Math.random() * 140);
+  const pathsByVariant: Record<LightTraceVariant, [string, string]> = {
+    featured: [
+      `M -80 ${bottomY()} C 180 ${bottomY()}, ${crossingX - 150} ${topY()}, ${crossingX} ${topY()} S 790 ${bottomY()}, 1080 ${bottomY()}`,
+      `M -60 ${topY()} C 210 ${topY()}, ${secondCrossingX - 140} ${bottomY()}, ${secondCrossingX} ${bottomY()} S 830 ${topY()}, 1060 ${topY()}`,
+    ],
+    scanner: [
+      `M -80 ${topY()} Q 240 ${bottomY()}, 520 ${topY()} T 1080 ${bottomY()}`,
+      `M -60 ${bottomY()} Q 300 ${topY()}, 610 ${bottomY()} T 1060 ${topY()}`,
+    ],
+    printer: [
+      `M -80 ${bottomY()} C 130 ${topY()}, 340 ${topY()}, 520 ${bottomY()} S 820 ${topY()}, 1080 ${bottomY()}`,
+      `M -60 ${topY()} C 250 ${bottomY()}, 500 ${bottomY()}, 680 ${topY()} S 900 ${bottomY()}, 1060 ${topY()}`,
+    ],
+    photocopier: [
+      `M -80 ${bottomY()} C 260 ${bottomY()}, 330 ${topY()}, 560 ${topY()} C 760 ${topY()}, 820 ${bottomY()}, 1080 ${bottomY()}`,
+      `M -60 ${topY()} C 200 ${topY()}, 390 ${bottomY()}, 620 ${bottomY()} C 800 ${bottomY()}, 900 ${topY()}, 1060 ${topY()}`,
+    ],
+  };
+
+  return {
+    id: Date.now(),
+    paths: pathsByVariant[variant],
+  };
+}
+
+export function HomeBarLightTrace({
+  variant,
+  delayOrder = 0,
+}: {
+  variant: LightTraceVariant;
+  delayOrder?: number;
+}) {
+  const [lightTrace, setLightTrace] = useState<CategoryLightTrace | null>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let timeout: number | undefined;
+    const showNextTrace = () => {
+      setLightTrace(createCategoryLightTrace(variant));
+      timeout = window.setTimeout(showNextTrace, 12_000 + Math.random() * 8_000);
+    };
+
+    timeout = window.setTimeout(showNextTrace, 1_600 + delayOrder * 1_350 + Math.random() * 1_800);
+    return () => {
+      if (timeout) window.clearTimeout(timeout);
+    };
+  }, [delayOrder, variant]);
+
+  if (!lightTrace) return null;
+
+  return (
+    <svg
+      key={lightTrace.id}
+      className={`home-bar-light-trace home-bar-light-trace-${variant}`}
+      viewBox="0 0 1000 60"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d={lightTrace.paths[0]} />
+      <path d={lightTrace.paths[1]} />
+    </svg>
+  );
+}
+
 const ProductPopupContext = createContext<{
   showPopup: (product: CatalogProduct, anchor: DOMRect) => void;
-  hidePopup: () => void;
+  hidePopup: (immediate?: boolean) => void;
 } | null>(null);
 
 const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
@@ -102,21 +182,52 @@ function productKey(product: CatalogProduct) {
 function popupSpecs(product: CatalogProduct) {
   return (product.specs || [])
     .filter((spec) => spec.label.trim() && spec.value.trim())
-    .slice(0, 5);
+    .slice(0, 4);
+}
+
+function productHref(product: CatalogProduct) {
+  return product.slug ? `/san-pham/${product.slug}` : product.href || "/san-pham";
+}
+
+function stockLabel(stockStatus?: string) {
+  if (stockStatus === "out_of_stock") return { label: "Hết hàng", className: "text-red-600" };
+  if (stockStatus === "preorder") return { label: "Đặt trước", className: "text-amber-600" };
+  return { label: "Còn hàng", className: "text-emerald-600" };
 }
 
 export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
   const [popup, setPopup] = useState<ProductInfoPopup | null>(null);
   const [mounted, setMounted] = useState(false);
+  const showTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
   useEffect(() => setPopup(null), [pathname]);
+  useEffect(
+    () => () => {
+      if (showTimerRef.current) clearTimeout(showTimerRef.current);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    },
+    [],
+  );
 
   const value = useMemo(
     () => ({
-      showPopup: (product: CatalogProduct, anchor: DOMRect) => setPopup({ product, anchor }),
-      hidePopup: () => setPopup(null),
+      showPopup: (product: CatalogProduct, anchor: DOMRect) => {
+        if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+        if (showTimerRef.current) clearTimeout(showTimerRef.current);
+        showTimerRef.current = setTimeout(() => setPopup({ product, anchor }), 250);
+      },
+      hidePopup: (immediate = false) => {
+        if (showTimerRef.current) clearTimeout(showTimerRef.current);
+        if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+        if (immediate) {
+          setPopup(null);
+          return;
+        }
+        hideTimerRef.current = setTimeout(() => setPopup(null), 120);
+      },
     }),
     [],
   );
@@ -126,7 +237,7 @@ export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
       {children}
       {mounted && popup
         ? createPortal(
-            <ProductInfoPopupCard popup={popup} />,
+            <ProductInfoPopupCard key={productKey(popup.product)} popup={popup} />,
             document.body,
           )
         : null}
@@ -137,6 +248,11 @@ export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
 function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
   const { product, anchor } = popup;
   const specs = popupSpecs(product);
+  const promotions = product.promotions ?? [];
+  const featuredPromotion = promotions[0];
+  const remainingPromotions = Math.max(0, promotions.length - 1);
+  const stock = stockLabel(product.stockStatus);
+  const href = productHref(product);
   const popupWidth = 360;
   const viewportWidth = typeof window === "undefined" ? 1440 : window.innerWidth;
   const viewportHeight = typeof window === "undefined" ? 900 : window.innerHeight;
@@ -148,42 +264,59 @@ function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
 
   return (
     <aside
-      className="pointer-events-none fixed z-[95] hidden w-[360px] overflow-hidden rounded-xl border border-slate-200 bg-white text-slate-800 shadow-2xl md:block"
+      className="pointer-events-none fixed z-[95] hidden w-[360px] animate-[popup-enter_180ms_ease-out] overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-800 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:block"
       style={{ left, top }}
       aria-label={`Thông tin nhanh ${product.title}`}
     >
-      <header className="border-b border-slate-100 px-5 py-4">
-        <h3 className="text-base font-black leading-6 text-slate-900">{product.title}</h3>
+      <header className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white px-5 py-4">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="text-base font-black leading-6 text-slate-950">{product.title}</h3>
+          <span className={`inline-flex shrink-0 items-center gap-1 text-xs font-bold ${stock.className}`}>
+            <Check size={14} strokeWidth={3} />
+            {stock.label}
+          </span>
+        </div>
       </header>
 
-      {product.promoText ? (
-        <section className="mx-4 mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
-          <div className="flex items-center gap-2 text-sm font-black text-red-600">
+      {featuredPromotion ? (
+        <section className="quick-promo-panel mx-4 mt-4 overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm">
+          <div className="quick-promo-header flex items-center justify-between bg-gradient-to-r from-[#E32929] to-[#FF6A00] px-3 py-2.5 text-sm font-black text-white">
             <span className="flex items-center gap-2">
-              <Gift size={17} />
+              <span className="quick-promo-gift-wrap" aria-hidden="true">
+                <Gift size={17} className="quick-promo-gift" />
+                <Sparkles size={10} className="quick-promo-star quick-promo-star-one" />
+                <Sparkles size={8} className="quick-promo-star quick-promo-star-two" />
+                <Sparkles size={7} className="quick-promo-star quick-promo-star-three" />
+              </span>
               Khuyến mãi
             </span>
+            {remainingPromotions ? (
+              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold text-white">
+                +{remainingPromotions} ưu đãi
+              </span>
+            ) : null}
           </div>
-          <div className="mt-2 text-sm leading-5 text-red-700">
-            <p className="font-semibold">{product.promoText}</p>
+          <div className="bg-gradient-to-b from-red-50/80 to-white px-3 py-3 text-sm leading-5 text-red-700">
+            <p className="line-clamp-2 font-semibold">
+              {featuredPromotion.title}
+              {featuredPromotion.benefits?.[0] ? ` - ${featuredPromotion.benefits[0]}` : ""}
+            </p>
           </div>
         </section>
       ) : null}
 
       {specs.length ? (
-        <ul className="space-y-2 px-4 py-4 text-sm leading-5">
+        <div className="grid grid-cols-2 gap-2 px-4 py-4">
           {specs.map((spec) => (
-            <li key={`${spec.label}-${spec.value}`} className="flex gap-2">
-              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[#0A4BFF]" />
-              <span>
-                <strong>{spec.label}:</strong> {spec.value}
-              </span>
-            </li>
+            <div key={`${spec.label}-${spec.value}`} className="min-w-0 rounded-lg bg-slate-50 px-3 py-2.5">
+              <p className="truncate text-[10px] font-bold uppercase tracking-wide text-slate-400">{spec.label}</p>
+              <p className="mt-1 truncate text-sm font-bold text-slate-800">{spec.value}</p>
+            </div>
           ))}
-        </ul>
+        </div>
       ) : null}
 
-      <footer className="flex flex-wrap items-end justify-between gap-3 border-t border-slate-100 bg-slate-50 px-4 py-3">
+      <footer className="grid grid-cols-[1fr_auto] items-end gap-3 border-t border-slate-100 bg-slate-50 px-4 py-3">
         <div>
           {product.compareAtPrice ? (
             <p className="text-sm text-slate-400">
@@ -200,6 +333,13 @@ function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
             {product.discountBadge}
           </span>
         ) : null}
+        <Link
+          href={href}
+          className="pointer-events-auto col-span-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-[#0A4BFF] text-sm font-bold !text-white transition hover:bg-blue-700"
+        >
+          Xem chi tiết
+          <ArrowRight size={16} />
+        </Link>
       </footer>
     </aside>
   );
@@ -245,8 +385,20 @@ export function ProductQuickInfoTrigger({
       ref={wrapperRef}
       className={className}
       onClickCapture={(event) => {
-        if (event.target instanceof Element && event.target.closest("a[href]")) {
-          popupContext?.hidePopup();
+        if (
+          event.target instanceof Element &&
+          event.target.closest("a[href], button, [data-product-card-actions]")
+        ) {
+          popupContext?.hidePopup(true);
+        }
+      }}
+      onPointerMove={(event) => {
+        if (
+          event.pointerType === "mouse" &&
+          event.target instanceof Element &&
+          event.target.closest("[data-product-card-actions]")
+        ) {
+          popupContext?.hidePopup(true);
         }
       }}
       onPointerEnter={(event) => {
@@ -436,7 +588,11 @@ function HomeCategoryCarousel({
       className="home-category-section"
       aria-labelledby={`home-category-${config.id}`}
     >
-      <div className="home-category-bar">
+      <div className={`home-category-bar ${paused ? "is-paused" : ""}`}>
+        <HomeBarLightTrace
+          variant={config.id as Exclude<LightTraceVariant, "featured">}
+          delayOrder={config.order}
+        />
         <h2 id={`home-category-${config.id}`}>{config.title}</h2>
         {tabs.length ? (
           <div className="home-category-tabs" aria-label={`Lọc ${config.title}`}>

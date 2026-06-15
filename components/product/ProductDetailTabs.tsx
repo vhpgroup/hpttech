@@ -54,11 +54,11 @@ export function ProductDetailTabs({ sections }: ProductDetailTabsProps) {
 
         return (
           <div
-            key={section.id}
+            key={`${section.id}-${isActive ? "active" : "idle"}`}
             id={`product-tab-panel-${section.id}`}
             role="tabpanel"
             hidden={!isActive}
-            className={cn(!isActive && "hidden")}
+            className={cn(isActive ? "product-tab-panel-enter" : "hidden")}
           >
             {section.content}
           </div>

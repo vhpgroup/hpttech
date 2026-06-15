@@ -55,7 +55,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row">
-      {images.length ? (
+      {hasMultiple ? (
         <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:max-h-[560px] lg:w-[84px] lg:flex-col lg:overflow-y-auto lg:pb-0">
           {images.map((img, idx) => (
             <button
@@ -92,7 +92,11 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           src={activeImage.url}
           alt={activeImage.alt || productName}
           fill
-          className={cn("object-contain p-5 transition-transform duration-500 ease-out sm:p-6", isZoomed && "scale-105")}
+          className={cn(
+            "object-contain transition-transform duration-500 ease-out",
+            hasMultiple ? "p-3 sm:p-4" : "p-2",
+            isZoomed && "scale-105",
+          )}
           sizes="(max-width: 1024px) 100vw, 520px"
           priority
         />

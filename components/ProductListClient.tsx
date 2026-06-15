@@ -1,22 +1,19 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   Filter,
   Search,
   SlidersHorizontal,
-  Star,
   X,
 } from "lucide-react";
 import { SubpageHeader } from "@/components/layout/SubpageHeader";
-import QuoteButton from "@/components/quote/QuoteButton";
 import type { CatalogProduct } from "@/lib/catalog";
 import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
-import { cn } from "@/lib/cn";
+import { ProductCard } from "@/components/product/ProductCard";
 
 const PAGE_SIZE = 12;
 
@@ -110,10 +107,6 @@ function formatVND(value: number) {
 function firstNumber(value?: string) {
   const match = normalizeText(value).match(/\d+(?:[.,]\d+)?/);
   return match ? Number(match[0].replace(",", ".")) : undefined;
-}
-
-function productHref(product: CatalogProduct) {
-  return product.slug ? `/san-pham/${product.slug}` : product.href || "/san-pham";
 }
 
 function productKey(product: CatalogProduct) {
@@ -264,41 +257,6 @@ function removeValue(values: string[], value: string) {
   return values.filter((item) => item !== value);
 }
 
-function pickSpecChips(product: CatalogProduct) {
-  const chips: string[] = [];
-  const speed = scanSpeed(product);
-  const adf = adfSheets(product);
-  const duplex = hasDuplex(product);
-  const connectivity = findSpecValue(product, ["Kết nối"]);
-
-  if (speed !== undefined) chips.push(`${speed} trang/phút`);
-  if (adf !== undefined) chips.push(`ADF ${adf} tờ`);
-  if (duplex === "yes") chips.push("Duplex");
-  if (connectivity) chips.push(connectivity.split(",").map((item) => item.trim()).filter(Boolean).slice(0, 2).join(" + "));
-
-  for (const spec of product.specs || []) {
-    if (chips.length >= 4) break;
-    const value = spec.value?.trim();
-    if (value && !chips.includes(value)) chips.push(value);
-  }
-
-  return chips.slice(0, 4);
-}
-
-function productBadges(product: CatalogProduct) {
-  const badges: Array<{ label: string; className: string }> = [];
-  if ((product.reviewCount || 0) >= 20 || normalizeText(product.tag).includes("noi bat")) {
-    badges.push({ label: "Bán chạy", className: "bg-[#0A4BFF] text-white" });
-  }
-  if (product.discountBadge || product.promoText) {
-    badges.push({ label: "Khuyến mãi", className: "bg-red-600 text-white" });
-  }
-  if (!badges.length && product.tag) {
-    badges.push({ label: product.tag, className: "bg-emerald-500 text-white" });
-  }
-  return badges.slice(0, 2);
-}
-
 function sortProducts(products: CatalogProduct[], sort: SortValue) {
   const ranked = [...products];
   ranked.sort((a, b) => {
@@ -309,112 +267,6 @@ function sortProducts(products: CatalogProduct[], sort: SortValue) {
     return (b.reviewCount || 0) - (a.reviewCount || 0) || (parsePrice(b.price) ?? 0) - (parsePrice(a.price) ?? 0);
   });
   return ranked;
-}
-
-function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; reviewCount?: number }) {
-  const score = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 0;
-
-  return (
-    <div className="flex items-center gap-1">
-      <div className="flex items-center gap-0.5" aria-label={`${score} trên 5 sao`}>
-        {Array.from({ length: 5 }, (_, index) => (
-          <Star
-            key={index}
-            size={14}
-            className={index + 1 <= Math.round(score) ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"}
-            strokeWidth={1.5}
-          />
-        ))}
-      </div>
-      <span className="text-xs text-slate-500">({reviewCount || 0})</span>
-    </div>
-  );
-}
-
-function ModernProductCard({
-  product,
-  selected,
-  onToggleCompare,
-}: {
-  product: CatalogProduct;
-  selected: boolean;
-  onToggleCompare: (product: CatalogProduct) => void;
-}) {
-  const href = productHref(product);
-  const image = product.images?.[0]?.url || product.image;
-  const price = product.price || "Liên hệ";
-  const chips = pickSpecChips(product);
-  const badges = productBadges(product);
-
-  return (
-    <article className="group flex min-h-[468px] flex-col rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-100 hover:shadow-[0_22px_46px_-28px_rgba(15,23,42,0.35)]">
-      <Link href={href} className="relative grid h-48 place-items-center overflow-hidden rounded-lg bg-slate-50 p-4">
-        <div className="absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
-          {badges.map((badge) => (
-            <span key={badge.label} className={cn("rounded-full px-2.5 py-1 text-[10px] font-extrabold", badge.className)}>
-              {badge.label}
-            </span>
-          ))}
-        </div>
-        {image ? (
-          <Image
-            src={image}
-            alt={product.title}
-            width={300}
-            height={220}
-            className="max-h-40 w-auto object-contain transition duration-300 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 260px"
-          />
-        ) : (
-          <div className="h-28 w-full rounded-lg bg-slate-100" />
-        )}
-      </Link>
-
-      <div className="mt-4 flex flex-1 flex-col">
-        <h3 className="line-clamp-2 min-h-[44px] text-[15px] font-bold leading-6 text-slate-950">
-          <Link href={href} className="hover:text-[#0A4BFF]">
-            {product.title}
-          </Link>
-        </h3>
-
-        <div className="mt-3 grid grid-cols-2 gap-1.5">
-          {chips.map((chip) => (
-            <span key={chip} className="truncate rounded-md border border-blue-100 bg-blue-50 px-2 py-1 text-[11px] font-semibold text-blue-700">
-              {chip}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-3">
-          <ProductRating rating={product.rating} reviewCount={product.reviewCount} />
-        </div>
-
-        <div className="mt-3 min-h-[54px]">
-          {product.compareAtPrice ? <p className="text-sm font-medium text-slate-400 line-through">{product.compareAtPrice}</p> : null}
-          <p className="text-[22px] font-extrabold leading-8 text-red-600">{price}</p>
-        </div>
-
-        <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
-          <QuoteButton
-            product={product}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#0A4BFF] px-3 text-xs font-bold text-white transition hover:bg-blue-700"
-          />
-          <button
-            type="button"
-            onClick={() => onToggleCompare(product)}
-            className={cn(
-              "h-10 rounded-lg border px-3 text-xs font-bold transition",
-              selected
-                ? "border-[#0A4BFF] bg-blue-50 text-[#0A4BFF]"
-                : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:text-[#0A4BFF]",
-            )}
-          >
-            {selected ? "Đã chọn" : "So sánh"}
-          </button>
-        </div>
-      </div>
-    </article>
-  );
 }
 
 function FilterSection({
@@ -596,6 +448,17 @@ function ProductListInner({
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [compareProducts, setCompareProducts] = useState<CatalogProduct[]>([]);
 
+  useEffect(() => {
+    const handleCompareState = (event: Event) => {
+      const next = (event as CustomEvent<CatalogProduct[]>).detail;
+      if (Array.isArray(next)) setCompareProducts(next);
+    };
+
+    window.addEventListener("hpt:compare:state", handleCompareState);
+    window.dispatchEvent(new CustomEvent("hpt:compare:request-state"));
+    return () => window.removeEventListener("hpt:compare:state", handleCompareState);
+  }, []);
+
   const filteredProducts = useMemo(() => {
     const q = normalizeText(query.trim());
     const matched = products.filter((product) => {
@@ -641,11 +504,13 @@ function ProductListInner({
   };
 
   const toggleCompare = (product: CatalogProduct) => {
-    setCompareProducts((current) => {
-      const key = productKey(product);
-      if (current.some((item) => productKey(item) === key)) return current.filter((item) => productKey(item) !== key);
-      return [...current, product].slice(0, 4);
-    });
+    const selected = compareProducts.some((item) => productKey(item) === productKey(product));
+    window.dispatchEvent(
+      new CustomEvent<CatalogProduct>(
+        selected ? "hpt:compare:remove" : "hpt:compare:add",
+        { detail: product },
+      ),
+    );
   };
 
   const selectedKeys = new Set(compareProducts.map(productKey));
@@ -765,10 +630,11 @@ function ProductListInner({
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {visibleProducts.length ? visibleProducts.map((product) => (
               <ProductQuickInfoTrigger key={productKey(product)} product={product}>
-                <ModernProductCard
+                <ProductCard
                   product={product}
-                  selected={selectedKeys.has(productKey(product))}
-                  onToggleCompare={toggleCompare}
+                  isComparing={selectedKeys.has(productKey(product))}
+                  onCompare={toggleCompare}
+                  className="h-full home-category-product-card"
                 />
               </ProductQuickInfoTrigger>
             )) : (

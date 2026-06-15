@@ -366,7 +366,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </nav>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1.45fr)_minmax(280px,0.8fr)] xl:items-start">
-        <div className="rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-5">
+        <div className="product-detail-enter product-detail-enter-gallery rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-5">
           <ProductImageGallery images={productImages} productName={product.title} />
         </div>
 
@@ -380,7 +380,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         <aside className="space-y-4 xl:sticky xl:top-24">
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+          <div className="product-side-card overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
             <div className="bg-[#4F64E8] px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>
             </div>
@@ -398,7 +398,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+          <div className="product-side-card overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
             <div className="bg-[#4F64E8] px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Mua hàng nhanh chóng, tiện lợi</h2>
             </div>
@@ -412,7 +412,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+          <div className="product-side-card overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
             <div className="bg-[#4F64E8] px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Tư vấn khách hàng</h2>
             </div>

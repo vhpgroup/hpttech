@@ -1,10 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import type { CatalogProduct } from "@/lib/catalog";
-import { QuickInfoProductCard } from "@/components/home/HomeCategoryCarouselsClient";
+import {
+  HomeBarLightTrace,
+  QuickInfoProductCard,
+} from "@/components/home/HomeCategoryCarouselsClient";
 
 type HomeProductShowcaseClientProps = {
   products: CatalogProduct[];
@@ -13,8 +16,6 @@ type HomeProductShowcaseClientProps = {
 
 export default function HomeProductShowcaseClient({ products }: HomeProductShowcaseClientProps) {
   const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
-  const [productSearch, setProductSearch] = useState("");
-
   const filteredProducts = useMemo(() => {
     const tabFiltered = (() => {
       if (activeProductTab === "Nổi bật") return products.filter((product) => product.tag);
@@ -28,24 +29,13 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
       return products;
     })();
 
-    const query = productSearch.trim().toLowerCase();
-    if (!query) return tabFiltered;
-
-    return tabFiltered.filter((product) =>
-      [product.title, product.detail, product.brand, product.category]
-        .join(" ")
-        .toLowerCase()
-        .includes(query),
-    );
-  }, [activeProductTab, productSearch, products]);
-
-  const addToCompare = (product: CatalogProduct) => {
-    window.dispatchEvent(new CustomEvent<CatalogProduct>("hpt:compare:add", { detail: product }));
-  };
+    return tabFiltered;
+  }, [activeProductTab, products]);
 
   return (
     <section className="products home-featured-products" id="products">
       <div className="section-head home-featured-bar">
+        <HomeBarLightTrace variant="featured" />
         <h2>Sản phẩm nổi bật</h2>
         <div className="tabs" id="productTabs">
           {HPT_DATA.productTabs.map((tab) => (
@@ -60,15 +50,6 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
             </button>
           ))}
         </div>
-        <label className="product-search" aria-label="Tìm kiếm sản phẩm nổi bật">
-          <Sparkles size={18} />
-          <input
-            value={productSearch}
-            onChange={(event) => setProductSearch(event.target.value)}
-            type="search"
-            placeholder="Tìm sản phẩm..."
-          />
-        </label>
         <a href="/san-pham">
           Xem tất cả <ArrowRight size={16} />
         </a>
@@ -79,7 +60,6 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
           <QuickInfoProductCard
             key={product.slug || product.title}
             product={product}
-            onCompare={addToCompare}
           />
         ))}
       </div>

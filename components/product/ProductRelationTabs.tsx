@@ -58,7 +58,12 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
         </Link>
       </div>
 
-      <div id={`product-relation-panel-${activeSection.id}`} role="tabpanel" className="mt-5">
+      <div
+        key={activeSection.id}
+        id={`product-relation-panel-${activeSection.id}`}
+        role="tabpanel"
+        className="product-tab-panel-enter mt-5"
+      >
         {activeSection.products.length ? (
           <div className="grid gap-4 min-[420px]:grid-cols-2 xl:grid-cols-4">
             {activeSection.products.map((item) => (

@@ -192,7 +192,7 @@ function ProductActions({
     <div className={cn("grid gap-2", compact ? "min-w-[150px]" : "sm:grid-cols-2")}>
       <Link
         href={product.href || `/san-pham/${product.slug}`}
-        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-white px-2 text-xs font-bold text-blue-700 transition hover:bg-blue-50"
+        className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-blue-700 bg-blue-700 px-3 text-xs font-bold !text-white transition hover:bg-blue-800"
       >
         <ExternalLink size={14} />
         Xem chi tiết
