@@ -26,7 +26,7 @@ type AttributeSeed = {
 };
 
 const schemas: Record<
-  "scanner" | "printer" | "photocopier",
+  "scanner" | "printer" | "photocopier" | "software",
   { name: string; description: string; attributes: AttributeSeed[] }
 > = {
   scanner: {
@@ -161,6 +161,11 @@ const schemas: Record<
       { code: "photocopier_monthly_duty", label: "Công suất tối đa mỗi tháng", dataType: "number", unit: "pages_per_month" },
     ],
   },
+  software: {
+    name: "Phần mềm",
+    description: "Phần mềm bản quyền, ứng dụng văn phòng, hệ điều hành và bảo mật.",
+    attributes: [],
+  },
 };
 
 async function findOne(
@@ -227,7 +232,7 @@ async function seedSchemas(payload: PayloadClient) {
           comparable: true,
           options: attribute.options || [],
           productType: productType.id,
-          required: attribute.required || false,
+          required: false,
           searchable: true,
           sortOrder: index,
           status: "active",

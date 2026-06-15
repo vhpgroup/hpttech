@@ -19,12 +19,18 @@ type ImportResult = {
   updated: number;
 };
 
-type ProductProfile = "all" | "scanner" | "printer" | "photocopier";
+type ProductProfile =
+  | "all"
+  | "scanner"
+  | "printer"
+  | "photocopier"
+  | "software";
 
 const productProfiles: Array<{ label: string; value: ProductProfile }> = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Máy photocopy", value: "photocopier" },
+  { label: "Phần mềm", value: "software" },
   { label: "Tất cả sản phẩm", value: "all" },
 ];
 

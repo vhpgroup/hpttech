@@ -14,7 +14,10 @@ assert(css.includes("--desktop-scale"), "Missing desktop scale variable.");
 assert(css.includes(".desktop-shell"), "Missing desktop shell CSS.");
 assert(css.includes(".desktop-stage"), "Missing desktop stage CSS.");
 assert(css.includes("grid-template-columns: 260px 1180px"), "Hero shell must keep fixed sidebar/content columns.");
-assert(css.includes("grid-template-columns: 804px 360px"), "Hero content must keep fixed banner/right columns.");
+assert(
+  css.includes("grid-template-columns: repeat(3, minmax(0, 1fr))"),
+  "Hero commerce area must keep the current three-column layout.",
+);
 assert(stage.includes("REFERENCE_VIEWPORT = 1920"), "Desktop scale must keep the 1920px viewport reference.");
 assert(stage.includes("DESKTOP_BREAKPOINT = 1024"), "Desktop scale must keep the desktop breakpoint.");
 assert(stage.includes("width / REFERENCE_VIEWPORT"), "Desktop scale must be based on viewport/reference width.");

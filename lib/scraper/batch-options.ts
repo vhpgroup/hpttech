@@ -5,6 +5,7 @@ export type BulkImportOptions = {
   publish: boolean;
   searchOnly: boolean;
   skip: number;
+  categoryUrl?: string;
 };
 
 function integerOption(args: string[], name: string, defaultValue?: number) {
@@ -27,6 +28,10 @@ export function parseBulkImportArgs(args: string[]): BulkImportOptions {
     );
   }
 
+  const categoryUrl = args
+    .find((arg) => arg.startsWith("--category-url="))
+    ?.slice("--category-url=".length)
+    .trim();
   return {
     dryRun: args.includes("--dry-run"),
     filePath,
@@ -34,5 +39,6 @@ export function parseBulkImportArgs(args: string[]): BulkImportOptions {
     publish: args.includes("--publish"),
     searchOnly: args.includes("--search-only"),
     skip: integerOption(args, "skip", 0) || 0,
+    ...(categoryUrl ? { categoryUrl } : {}),
   };
 }

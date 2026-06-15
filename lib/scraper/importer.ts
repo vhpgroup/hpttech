@@ -2,9 +2,9 @@ import { getPayloadClient } from "@/lib/payload";
 import { formatSlug } from "@/lib/payload/utils/slugify";
 import type { Where } from "payload";
 import {
-  extractHighlightBulletPoints,
   lexicalParagraphs,
   productShortDescription,
+  productSellingPoints,
 } from "./text";
 import {
   buildProductSeoArticleHTML,
@@ -123,7 +123,7 @@ export async function importScrapedProduct(input: ImportProductInput) {
   const summaryText = productShortDescription(product.data.title, product.data.specs);
   const seoDescriptionHTML = buildProductSeoArticleHTML(product, uploadedImages);
   const seoSummaryHTML = summaryHTML(summaryText);
-  const sellingPoints = extractHighlightBulletPoints(product.data.description);
+  const sellingPoints = productSellingPoints(product.data.description, product.data.specs);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
 
   const created = await payload.create({

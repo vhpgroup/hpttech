@@ -281,7 +281,7 @@ function columnHelp(column: string) {
     return "Nhập theo giá trị gợi ý";
   }
   const hints: Record<string, string> = {
-    productTypeCode: "scanner / printer / photocopier",
+    productTypeCode: "scanner / printer / photocopier / software",
     productStatus: "draft / published / archived",
     sourceType: "import / manual / scraper / api",
     isPrimary: "Có / Không",
@@ -304,7 +304,7 @@ function dropdownOptions(column: string) {
     return undefined;
   }
   const options: Record<string, string[]> = {
-    productTypeCode: ["scanner", "printer", "photocopier"],
+    productTypeCode: ["scanner", "printer", "photocopier", "software"],
     productStatus: ["draft", "published", "archived"],
     sourceType: ["import", "manual", "scraper", "api"],
     isPrimary: ["Có", "Không"],
@@ -753,6 +753,11 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
               internalId: { equals: internalId },
             })
           : undefined) ||
+        (text(row, "sourceUrl")
+          ? await findOne(payload, "products", {
+              "source.url": { equals: text(row, "sourceUrl") },
+            })
+          : undefined) ||
         existingProductFromSKU ||
         (await findOne(payload, "products", { slug: { equals: slug } }));
       const finalStatus = normalizedChoice(
@@ -800,11 +805,16 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
               overrideAccess: true,
             });
 
-      const variant = await upsert(
-        payload,
-        "product-variants",
-        { sku: { equals: sku } },
-        {
+      const existingPrimaryVariant =
+        existingProduct?.id !== undefined && !existingVariant
+          ? await findOne(payload, "product-variants", {
+              and: [
+                { product: { equals: existingProduct.id } },
+                { isPrimary: { equals: true } },
+              ],
+            })
+          : undefined;
+      const variantData = {
           barcode: text(row, "barcode"),
           isPrimary: booleanValue(row, "isPrimary", true),
           product: product.id,
@@ -823,8 +833,21 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
           ),
           variantName: text(row, "variantName") || "Phiên bản tiêu chuẩn",
           warranty: text(row, "warranty"),
-        },
-      );
+        };
+      const variant =
+        existingPrimaryVariant?.id !== undefined
+          ? await payload.update({
+              collection: "product-variants",
+              id: existingPrimaryVariant.id,
+              data: variantData,
+              overrideAccess: true,
+            })
+          : await upsert(
+              payload,
+              "product-variants",
+              { sku: { equals: sku } },
+              variantData,
+            );
 
       await upsert(
         payload,

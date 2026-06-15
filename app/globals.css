@@ -31,3 +31,43 @@
   --shadow-soft: 0 20px 45px -24px rgba(15, 23, 42, 0.35);
 }
 
+.product-description-content figure,
+.product-description-content picture {
+  display: block;
+  max-width: 720px;
+  margin: 24px auto;
+}
+
+.product-description-content figure {
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fff;
+  padding: 16px;
+}
+
+.product-description-content img {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  max-height: 420px;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.product-description-content figure img,
+.product-description-content picture img {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .product-description-content figure {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .product-description-content img {
+    max-height: 320px;
+  }
+}
+

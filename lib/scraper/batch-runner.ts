@@ -2,6 +2,7 @@ import { getPayloadClient } from "@/lib/payload";
 import { importBatchProduct } from "./batch-importer";
 import type { BulkImportOptions } from "./batch-options";
 import { resolveProductTypeCode } from "./db-lookup";
+import { validateExpectedProductType } from "./product-type-guard";
 import { assertScraperDatabaseReady } from "./database-preflight";
 import { searchProductMultiSource } from "./engine";
 import { parseExcelInput } from "./excel-parser";
@@ -151,7 +152,8 @@ async function processRow(
 ): Promise<BatchResult> {
   if (options.searchOnly) return searchOnly(row);
 
-  const product = await searchProductMultiSource(row.name);
+  const product = await searchProductMultiSource(row.name, options.categoryUrl);
+  validateExpectedProductType(row.productType, product);
   const sourceUrls = product.source.urls || [product.source.url];
   if (options.dryRun) {
     return {
@@ -165,26 +167,9 @@ async function processRow(
 
   const productTypeCode = await resolveProductTypeCode(row.productType);
   const jobId = await createScraperJob(row, product);
-  const imported = await importBatchProduct(row, product, productTypeCode);
-  if (options.publish) {
-    const payload = await getPayloadClient();
-    await payload.update({
-      collection: "products",
-      data: {
-        status: "published",
-        _status: "published",
-        seo: {
-          canonical: product.seo.canonical,
-          description: product.seo.description,
-          imageAlt: product.seo.imageAlt,
-          noIndex: false,
-          title: product.seo.title,
-        },
-      },
-      id: imported.productId,
-      overrideAccess: true,
-    });
-  }
+  const imported = await importBatchProduct(row, product, productTypeCode, {
+    publish: options.publish,
+  });
   await markJobImported(jobId, imported.productId);
   return {
     adminUrl: adminUrl(imported.productId),
@@ -204,10 +189,12 @@ async function processRow(
     },
     productName: row.name,
     sourceUrls,
-    status: options.publish ? "published" : "draft",
-    warnings: imported.imageWarning
-      ? [...product.warnings, imported.imageWarning]
-      : product.warnings,
+    status: imported.published ? "published" : "draft",
+    warnings: [
+      ...product.warnings,
+      ...(imported.imageWarning ? [imported.imageWarning] : []),
+      ...imported.publishGateReasons,
+    ],
   };
 }
 

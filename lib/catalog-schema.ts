@@ -4,6 +4,7 @@ export const PRODUCT_TYPE_OPTIONS = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Máy photocopy", value: "photocopier" },
+  { label: "Phần mềm", value: "software" },
   { label: "Khác", value: "other" },
 ] as const;
 

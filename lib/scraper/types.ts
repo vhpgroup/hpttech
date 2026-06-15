@@ -18,8 +18,11 @@ export type ProductSpec = {
 export type ExtractedProductData = {
   compareAtPrice?: string;
   description?: string;
+  descriptionHTML?: string;
   origin?: string;
   price?: string;
+  promoText?: string;
+  sellingPoints?: string[];
   sku?: string;
   specs: ProductSpec[];
   summary?: string;
@@ -54,6 +57,11 @@ export type ScrapedProduct = {
   seo: SeoPreview;
   source: {
     brand: string;
+    identity?: {
+      exact: boolean;
+      key: string;
+      method: "name" | "sku" | "url";
+    };
     searchQuery: string;
     url: string;
     urls?: string[];

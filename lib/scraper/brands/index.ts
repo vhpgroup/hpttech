@@ -2,6 +2,132 @@ import type { BrandConfig } from "../types";
 
 export const brandConfigs = [
   {
+    aliases: ["openai", "chatgpt"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "openai.com",
+    extraDomains: ["chatgpt.com"],
+    name: "OpenAI",
+    slug: "openai",
+  },
+  {
+    aliases: ["autodesk", "autocad", "revit", "navisworks", "inventor", "advance steel", "product design & manufacturing"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "autodesk.com",
+    extraDomains: ["autodesk.com"],
+    name: "Autodesk",
+    slug: "autodesk",
+  },
+  {
+    aliases: ["adobe", "acrobat", "photoshop", "illustrator", "indesign", "lightroom", "premiere", "creative cloud"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "adobe.com",
+    extraDomains: ["adobe.com"],
+    name: "Adobe",
+    slug: "adobe",
+  },
+  {
+    aliases: ["canva"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "canva.com",
+    extraDomains: ["canva.com"],
+    name: "Canva",
+    slug: "canva",
+  },
+  {
+    aliases: ["capcut"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "capcut.com",
+    extraDomains: ["capcut.com"],
+    name: "CapCut",
+    slug: "capcut",
+  },
+  {
+    aliases: ["teamviewer"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "teamviewer.com",
+    extraDomains: ["teamviewer.com"],
+    name: "TeamViewer",
+    slug: "teamviewer",
+  },
+  {
+    aliases: ["corel", "graphics suite"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "corel.com",
+    extraDomains: ["coreldraw.com"],
+    name: "Corel",
+    slug: "corel",
+  },
+  {
+    aliases: ["bitdefender"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "bitdefender.com",
+    extraDomains: ["bitdefender.com"],
+    name: "Bitdefender",
+    slug: "bitdefender",
+  },
+  {
+    aliases: ["bullguard"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "bullguard.com",
+    extraDomains: ["norton.com"],
+    name: "BullGuard",
+    slug: "bullguard",
+  },
+  {
+    aliases: ["trend micro"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "trendmicro.com",
+    extraDomains: ["trendmicro.com"],
+    name: "Trend Micro",
+    slug: "trend-micro",
+  },
+  {
+    aliases: ["microsoft", "micrsoft", "m365", "office", "windows", "win home"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "microsoft.com",
+    extraDomains: ["microsoft.com"],
+    name: "Microsoft",
+    slug: "microsoft",
+  },
+  {
+    aliases: ["kaspersky"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "kaspersky.com",
+    extraDomains: ["kaspersky.com.vn"],
+    name: "Kaspersky",
+    slug: "kaspersky",
+  },
+  {
+    aliases: ["bkav"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "bkav.com.vn",
+    extraDomains: ["bkav.com"],
+    name: "Bkav",
+    slug: "bkav",
+  },
+  {
+    aliases: ["draytek"],
+    crawlMethod: "fetch",
+    delayMs: 1500,
+    domain: "draytek.com",
+    extraDomains: ["draytek.com.vn"],
+    name: "DrayTek",
+    slug: "draytek",
+  },
+  {
     aliases: [
       "microtek",
       "artixscan",
@@ -26,6 +152,15 @@ export const brandConfigs = [
     extraDomains: ["xerox.com"],
     name: "Xerox",
     slug: "xerox",
+  },
+  {
+    aliases: ["fujifilm", "fuji"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "fujifilm.com",
+    extraDomains: ["fujifilm.com"],
+    name: "Fujifilm",
+    slug: "fujifilm",
   },
   {
     aliases: ["avision"],
@@ -91,6 +226,24 @@ export const brandConfigs = [
     slug: "canon",
   },
   {
+    aliases: ["konica", "minolta", "bizhub"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "konicaminolta.com",
+    extraDomains: ["konicaminolta.com"],
+    name: "Konica Minolta",
+    slug: "konica-minolta",
+  },
+  {
+    aliases: ["sharp"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "global.sharp",
+    extraDomains: ["sharp.com"],
+    name: "Sharp",
+    slug: "sharp",
+  },
+  {
     aliases: ["brother"],
     crawlMethod: "playwright",
     delayMs: 3000,
@@ -108,14 +261,35 @@ export const brandConfigs = [
     name: "HP",
     slug: "hp",
   },
+  {
+    aliases: ["kyocera", "ecosys"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "kyoceradocumentsolutions.com",
+    extraDomains: ["kyoceradocumentsolutions.com.vn"],
+    name: "Kyocera",
+    slug: "kyocera",
+  },
+  {
+    aliases: ["xprinter", "xp-p"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "xprintertech.com",
+    extraDomains: ["xprintertech.com"],
+    name: "Xprinter",
+    slug: "xprinter",
+  },
 ] satisfies BrandConfig[];
 
 export function findBrandByName(productName: string) {
   const normalized = productName.toLowerCase();
-
-  return brandConfigs.find((brand) =>
-    brand.aliases.some((alias) => normalized.includes(alias.toLowerCase())),
-  );
+  return brandConfigs
+    .flatMap((brand) =>
+      brand.aliases
+        .filter((alias) => normalized.includes(alias.toLowerCase()))
+        .map((alias) => ({ alias, brand })),
+    )
+    .sort((a, b) => b.alias.length - a.alias.length)[0]?.brand;
 }
 
 export function findBrandBySlug(slug: string) {

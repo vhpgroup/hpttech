@@ -1,4 +1,5 @@
 import { cleanText } from "./text";
+import { decodeHTML } from "entities";
 import type { ExtractedProductData, ScrapedImage } from "./types";
 
 const PDF_TEXT_PREFIX = "__PDF_TEXT__\n";
@@ -78,12 +79,27 @@ function imageKey(url: string) {
   return parsed.toString();
 }
 
+function imageIdentity(url: string) {
+  const parsed = new URL(imageKey(url));
+  const match = parsed.pathname.match(
+    /^(.*\/media\/product\/)(?:\d+_)?(\d+_.*)$/i,
+  );
+  if (match) parsed.pathname = `${match[1]}${match[2]}`;
+  return parsed.toString();
+}
+
 function isProductImage(url: string) {
   const normalized = url.toLowerCase();
+  const isAnphatProductImage =
+    /https?:\/\/(?:www\.)?anphat(?:pc)?\.com\.vn\/media\/product\/(?:\d+_)?\d+_[^/?]*$/i.test(
+      normalized,
+    );
   return (
-    /\/media\/\d+\/catalog\//.test(normalized) &&
+    (/\/media\/\d+\/catalog\//.test(normalized) ||
+      /\/media\/product\//.test(normalized)) &&
     !normalized.includes("default-image") &&
-    /\.(avif|gif|jpe?g|png|webp)(?:$|\?)/i.test(normalized)
+    (/\.(avif|gif|jpe?g|png|webp)(?:$|\?)/i.test(normalized) ||
+      isAnphatProductImage)
   );
 }
 
@@ -94,8 +110,9 @@ function addImage(
 ) {
   if (!image?.url || !isProductImage(image.url)) return;
   const key = imageKey(image.url);
-  if (seen.has(key)) return;
-  seen.add(key);
+  const identity = imageIdentity(key);
+  if (seen.has(identity)) return;
+  seen.add(identity);
   images.push({
     ...image,
     url: key,
@@ -166,6 +183,15 @@ export function extractProductImagesFromHtml(
     });
   }
 
+  for (const match of html.matchAll(/\bimage\s*:\s*`([^`]+)`/gi)) {
+    const url = absoluteImageUrl(pageUrl, match[1]);
+    addImage(images, seen, {
+      alt: title,
+      source: "gallery",
+      url: url || "",
+    });
+  }
+
   return images.slice(0, Number(process.env.SCRAPER_MAX_IMAGES || 10));
 }
 
@@ -184,6 +210,46 @@ function extractSpecs(html: string) {
   }
 
   return specs;
+}
+
+function stripUnsafeDescriptionHtml(value: string) {
+  return value
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/\s(?:style|class|id|onclick|onerror|onload|align)=["'][^"']*["']/gi, "")
+    .replace(/\s(?:target|rel)=["'][^"']*["']/gi, "")
+    .replace(/<a\b[^>]*>/gi, "")
+    .replace(/<\/a>/gi, "")
+    .replace(/<font\b[^>]*>/gi, "")
+    .replace(/<\/font>/gi, "")
+    .replace(/<span\b[^>]*>/gi, "<span>")
+    .replace(/<p>\s*<\/p>/gi, "")
+    .trim();
+}
+
+export function extractAnphatDescriptionHTML(
+  html: string | undefined,
+  productName: string,
+) {
+  if (!html || isPdfTextSource(html)) return undefined;
+  const raw =
+    html.match(/<div\b[^>]*id=["']pro-desc["'][^>]*>([\s\S]*?)<\/div>/i)?.[1] ||
+    "";
+  if (!raw) return undefined;
+
+  const decoded = decodeHTML(raw)
+    .replace(/An Phát Computer/gi, "HPT Tech")
+    .replace(/An Phát/gi, "HPT Tech")
+    .replace(/1900\.0323(?:\s*phím\s*\d+)?/gi, "0967 286 889")
+    .replace(/1900\s*0323(?:\s*\(phím\s*\d+\))?/gi, "0967 286 889")
+    .replace(
+      /<p\b[^>]*>(?:(?!<\/p>)[\s\S])*?Nếu bạn có bất kỳ thắc mắc(?:(?!<\/p>)[\s\S])*?<\/p>/i,
+      `<p><strong>Nếu bạn cần tư vấn về ${cleanText(productName)}, hãy liên hệ HPT Tech (Hotline: 0967 286 889) để được hỗ trợ nhanh chóng.</strong></p>`,
+    );
+
+  const cleaned = stripUnsafeDescriptionHtml(decoded);
+  if (cleanText(cleaned).length < 80) return undefined;
+  return `<div class="payload-richtext source-description">${cleaned}</div>`;
 }
 
 function extractHpttechHighlights(html: string) {
@@ -366,8 +432,12 @@ export async function extractProductFromUrl(
   const description = [metadataDescription, hpttechHighlights]
     .filter((item): item is string => Boolean(item))
     .join("\n\n");
+  const anphatDescriptionHTML = url.includes("anphatpc.com.vn")
+    ? extractAnphatDescriptionHTML(html, productName)
+    : undefined;
 
   return {
+    descriptionHTML: anphatDescriptionHTML,
     description: description || undefined,
     price:
       jsonLd?.offers && typeof jsonLd.offers === "object"
@@ -428,6 +498,7 @@ export function mergeExtractedProducts(
   const merged = {
     compareAtPrice: firstValue(sources, "compareAtPrice", "retailer"),
     description: firstValue(sources, "description", "manufacturer"),
+    descriptionHTML: firstValue(sources, "descriptionHTML", "retailer"),
     origin: firstValue(sources, "origin", "manufacturer"),
     price: firstValue(sources, "price", "retailer"),
     sku: firstValue(sources, "sku", "manufacturer"),

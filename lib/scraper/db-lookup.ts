@@ -23,6 +23,15 @@ export function commonProductTypeCode(value: string) {
   if (normalized.includes("may in") || normalized.includes("printer")) {
     return "printer";
   }
+  if (
+    normalized.includes("phan mem") ||
+    normalized.includes("software") ||
+    normalized.includes("antivirus") ||
+    normalized.includes("office") ||
+    normalized.includes("windows")
+  ) {
+    return "software";
+  }
   return undefined;
 }
 

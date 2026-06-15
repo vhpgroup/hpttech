@@ -2,7 +2,9 @@ import { importCanonicalProductsRows } from "@/lib/canonical-product-import-expo
 import { relationID } from "@/lib/catalog-schema";
 import { getPayloadClient } from "@/lib/payload";
 import { buildCanonicalImportRow } from "./canonical-row";
-import { importScrapedImages } from "./media";
+import { importScrapedImagesWithReport } from "./media";
+import { evaluatePublicationGate } from "./publication-gate";
+import { generateSeo } from "./seo-generator";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
 import {
   buildProductSeoArticleHTML,
@@ -10,9 +12,9 @@ import {
   updateProductSeoHTML,
 } from "./seo-article";
 import {
-  extractHighlightBulletPoints,
   lexicalParagraphs,
   productShortDescription,
+  productSellingPoints,
 } from "./text";
 import type { ExcelRow, ScrapedProduct } from "./types";
 
@@ -65,16 +67,77 @@ function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
   return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
 }
 
+async function upsertAIMetadata(
+  productId: string | number,
+  product: ScrapedProduct,
+  sellingPoints: string[],
+) {
+  const payload = await getPayloadClient();
+  const existing = await payload.find({
+    collection: "product-ai-metadata",
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    where: { product: { equals: productId } },
+  });
+  const data = {
+    advantages: sellingPoints.slice(0, 8).map((value) => ({ value })),
+    aiGenerated: true,
+    keywords: [
+      product.data.title,
+      product.source.brand,
+      ...product.data.specs.slice(0, 6).map((spec) => spec.label),
+    ]
+      .filter(Boolean)
+      .map((value) => ({ value })),
+    note: `Nguồn: ${product.source.url}. Confidence: ${product.confidence}.`,
+    product: productId,
+    useCases: [],
+    verified: false,
+  };
+  if (existing.docs[0]?.id !== undefined) {
+    await payload.update({
+      collection: "product-ai-metadata",
+      data,
+      id: existing.docs[0].id,
+      overrideAccess: true,
+    });
+    return;
+  }
+  await payload.create({
+    collection: "product-ai-metadata",
+    data,
+    overrideAccess: true,
+  });
+}
+
 export async function importBatchProduct(
   input: ExcelRow,
   product: ScrapedProduct,
   productTypeCode: string,
+  options: { publish?: boolean } = {},
 ) {
-  const row = buildCanonicalImportRow(input, product, productTypeCode);
+  const row = buildCanonicalImportRow(input, product, productTypeCode, options);
   const normalizedSpecs = normalizeScrapedSpecs(
     product.data.specs,
     productTypeCode,
   );
+  const displayProduct: ScrapedProduct = {
+    ...product,
+    data: {
+      ...product.data,
+      specs: normalizedSpecs.specs,
+      title: input.name,
+    },
+    seo: generateSeo(
+      {
+        ...product.data,
+        specs: normalizedSpecs.specs,
+        title: input.name,
+      },
+      product.source.brand,
+    ),
+  };
   const payload = await getPayloadClient();
   const productTypes = await payload.find({
     collection: "product-types",
@@ -123,38 +186,87 @@ export async function importBatchProduct(
   const sourceUrls = product.source.urls || [product.source.url];
   const manualSpecs = normalizedSpecs.specs;
   const descriptionText = product.generated.description || product.data.description || "";
-  const summaryText = productShortDescription(product.data.title, product.data.specs);
-  const sellingPoints = extractHighlightBulletPoints(product.data.description);
+  const summaryText = productShortDescription(displayProduct.data.title, displayProduct.data.specs);
+  const sellingPoints =
+    productTypeCode === "software"
+      ? (product.data.sellingPoints?.length
+          ? product.data.sellingPoints
+          : normalizedSpecs.specs.map(
+              (spec) => `${spec.label.replace(/[:：]\s*$/, "")}: ${spec.value}`,
+            )
+        )
+          .filter((text) => text.length >= 5 && text.length <= 700)
+          .slice(0, 8)
+      : productSellingPoints(product.data.description, normalizedSpecs.specs);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
   const priceValue = vndPriceNumber(product.data.price);
+  const compareAtPriceValue = vndPriceNumber(product.data.compareAtPrice);
   const rating = randomRating();
   const viewCount = randomViewCount();
-  let uploadedImages: Array<{ id: string | number; url: string }> = [];
-  let imageWarning = "";
-  try {
-    uploadedImages = await importScrapedImages(product);
-  } catch (error) {
-    imageWarning = `Image import failed: ${error instanceof Error ? error.message : String(error)}`;
-  }
-  const seoDescriptionHTML = buildProductSeoArticleHTML(product, uploadedImages);
+  const existing = await payload.findByID({
+    collection: "products",
+    depth: 1,
+    id: productId,
+    overrideAccess: true,
+  });
+  const existingImages = Array.isArray(existing.images)
+    ? existing.images.flatMap((image) => {
+        const imageId = relationID(image);
+        if (imageId === undefined) return [];
+        const url =
+          image && typeof image === "object" && "url" in image && typeof image.url === "string"
+            ? image.url
+            : "";
+        return [{ id: imageId, url }];
+      })
+    : [];
+  const imageReport = await importScrapedImagesWithReport(displayProduct);
+  const articleImages = imageReport.images.length
+    ? imageReport.images
+    : existingImages;
+  const imageWarning = imageReport.warnings.join(" | ");
+  const descriptionHTML = buildProductSeoArticleHTML(displayProduct, articleImages);
+  const publicationGate = evaluatePublicationGate({
+    articleHTML: descriptionHTML,
+    imageCount: articleImages.length,
+    imageWarning,
+    product: displayProduct,
+  });
+  const publish = Boolean(options.publish && publicationGate.allowed);
   const seoSummaryHTML = summaryHTML(summaryText);
+  const typedSpecs =
+    productTypeCode === "scanner"
+      ? { scannerSpecs: normalizedSpecs.scannerSpecs }
+      : productTypeCode === "printer"
+        ? { printerSpecs: normalizedSpecs.printerSpecs }
+        : productTypeCode === "photocopier"
+          ? { photocopierSpecs: normalizedSpecs.photocopierSpecs }
+          : {};
   const updated = await payload.update({
     collection: "products",
     data: {
+      ...typedSpecs,
       compareAtPrice:
-        scraperPriceTarget() === "compareAtPrice" && priceValue
-          ? formatVnd(normalizeScannerPrice(priceValue))
-          : product.data.compareAtPrice,
+        productTypeCode === "software" && compareAtPriceValue
+          ? formatVnd(compareAtPriceValue)
+          : scraperPriceTarget() === "compareAtPrice" && priceValue
+            ? formatVnd(normalizeScannerPrice(priceValue))
+            : product.data.compareAtPrice,
       description: lexicalParagraphs(descriptionText),
-      images: uploadedImages.map((image) => image.id),
+      ...(imageReport.images.length
+        ? { images: imageReport.images.map((image) => image.id) }
+        : {}),
       internalNote: [
         "Auto-filled by bulk scraper.",
         `Confidence: ${product.confidence}`,
         `Sources: ${sourceUrls.join(" | ")}`,
-        uploadedImages.length
-          ? `Images imported: ${uploadedImages.map((image) => image.url).join(" | ")}`
+        imageReport.images.length
+          ? `Images imported: ${imageReport.images.map((image) => image.url).join(" | ")}`
           : "",
         imageWarning,
+        publicationGate.reasons.length
+          ? `Publish gate: ${publicationGate.reasons.join(" | ")}`
+          : "",
         product.warnings.length
           ? `Warnings: ${product.warnings.join(" | ")}`
           : "",
@@ -163,9 +275,10 @@ export async function importBatchProduct(
         .join("\n"),
       seo: {
         canonical: product.seo.canonical,
-        description: product.seo.description,
-        noIndex: true,
-        title: product.seo.title,
+        description: displayProduct.seo.description,
+        imageAlt: displayProduct.seo.imageAlt,
+        noIndex: !publish,
+        title: displayProduct.seo.title,
       },
       warranty,
       source: {
@@ -173,14 +286,14 @@ export async function importBatchProduct(
         url: product.source.url,
         verified: false,
       },
-      scannerSpecs: normalizedSpecs.scannerSpecs,
       rating,
+      promoText: product.data.promoText,
       sellingPoints: sellingPoints.map((text) => ({ text })),
       shortDescription: summaryText,
       specProfile: productTypeCode,
       specs: manualSpecs,
-      status: "draft",
-      _status: "draft",
+      status: publish ? "published" : "draft",
+      _status: publish ? "published" : "draft",
       summary: lexicalParagraphs(summaryText),
       viewCount,
     },
@@ -190,14 +303,17 @@ export async function importBatchProduct(
   await updateProductSeoHTML(
     productId,
     seoSummaryHTML,
-    seoDescriptionHTML,
+    descriptionHTML,
     summaryText,
   );
+  await upsertAIMetadata(productId, displayProduct, sellingPoints);
 
   return {
     created: result.created === 1,
-    imageCount: uploadedImages.length,
+    imageCount: articleImages.length,
     imageWarning,
+    publishGateReasons: publicationGate.reasons,
+    published: publish,
     productId,
     rating,
     specCount: manualSpecs.length,

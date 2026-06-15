@@ -10,6 +10,11 @@ type UploadedImage = {
   url: string;
 };
 
+export type ImageImportReport = {
+  images: UploadedImage[];
+  warnings: string[];
+};
+
 const imageMimeExtensions: Record<string, string> = {
   "image/avif": ".avif",
   "image/gif": ".gif",
@@ -21,6 +26,15 @@ const imageMimeExtensions: Record<string, string> = {
 function imageKey(url: string) {
   const parsed = new URL(url);
   parsed.search = "";
+  return parsed.toString();
+}
+
+function imageIdentity(url: string) {
+  const parsed = new URL(imageKey(url));
+  const match = parsed.pathname.match(
+    /^(.*\/media\/product\/)(?:\d+_)?(\d+_.*)$/i,
+  );
+  if (match) parsed.pathname = `${match[1]}${match[2]}`;
   return parsed.toString();
 }
 
@@ -37,6 +51,22 @@ function imageFilename(product: ScrapedProduct, image: ScrapedImage, mimeType: s
   return `${formatSlug(title)}-${hash}${fileExtension(image.url, mimeType)}`;
 }
 
+function detectMimeType(buffer: Buffer, fallback: string): string {
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return "image/jpeg";
+  }
+  if (buffer.length >= 8 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+    return "image/png";
+  }
+  if (buffer.length >= 4 && buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38) {
+    return "image/gif";
+  }
+  if (buffer.length >= 12 && buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) {
+    return "image/webp";
+  }
+  return fallback;
+}
+
 async function downloadImage(image: ScrapedImage) {
   const response = await fetch(image.url, {
     headers: {
@@ -50,10 +80,7 @@ async function downloadImage(image: ScrapedImage) {
     throw new Error(`Khong tai duoc anh (${response.status}): ${image.url}`);
   }
 
-  const mimeType = response.headers.get("content-type")?.split(";")[0]?.trim() || "";
-  if (!mimeType.startsWith("image/")) {
-    throw new Error(`URL khong tra ve image content-type: ${image.url}`);
-  }
+  let mimeType = response.headers.get("content-type")?.split(";")[0]?.trim() || "";
 
   const maxBytes = Number(process.env.SCRAPER_MAX_IMAGE_BYTES || 8 * 1024 * 1024);
   const contentLength = Number(response.headers.get("content-length") || 0);
@@ -66,17 +93,45 @@ async function downloadImage(image: ScrapedImage) {
     throw new Error(`Anh vuot qua gioi han ${maxBytes} bytes: ${image.url}`);
   }
 
+  if (!mimeType.startsWith("image/")) {
+    mimeType = detectMimeType(buffer, mimeType);
+    if (!mimeType.startsWith("image/")) {
+      throw new Error(`URL khong tra ve image content-type: ${image.url} (Type: ${mimeType})`);
+    }
+  }
+
+  if (buffer.byteLength < Number(process.env.SCRAPER_MIN_IMAGE_BYTES || 2_048)) {
+    throw new Error(`Ảnh quá nhỏ hoặc không hợp lệ: ${image.url}`);
+  }
+
   return { buffer, mimeType };
 }
 
-export async function importScrapedImages(product: ScrapedProduct): Promise<UploadedImage[]> {
+function uploadedMediaURL(created: Record<string, unknown>, fallback: string) {
+  const filename =
+    typeof created.filename === "string" ? created.filename : undefined;
+  if (filename && process.env.R2_BUCKET && process.env.R2_ENDPOINT) {
+    const publicBase =
+      process.env.R2_PUBLIC_URL ||
+      process.env.NEXT_PUBLIC_R2_PUBLIC_URL ||
+      process.env.MEDIA_PUBLIC_URL;
+    return publicBase
+      ? `${publicBase.replace(/\/$/, "")}/${encodeURIComponent(filename)}`
+      : `/api/r2-media/${encodeURIComponent(filename)}`;
+  }
+  return typeof created.url === "string" ? created.url : fallback;
+}
+
+export async function importScrapedImagesWithReport(
+  product: ScrapedProduct,
+): Promise<ImageImportReport> {
   const payload = await getPayloadClient();
   const maxImages = Number(process.env.SCRAPER_IMPORT_MAX_IMAGES || 3);
   const seen = new Set<string>();
   const images = (product.images || [])
     .filter((image) => {
       try {
-        const key = imageKey(image.url);
+        const key = imageIdentity(image.url);
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
@@ -87,28 +142,46 @@ export async function importScrapedImages(product: ScrapedProduct): Promise<Uplo
     .slice(0, maxImages);
 
   const uploaded: UploadedImage[] = [];
+  const warnings: string[] = [];
   for (const image of images) {
-    const { buffer, mimeType } = await downloadImage(image);
-    const filename = imageFilename(product, image, mimeType);
-    const alt = image.alt || product.data.title;
-    const created = await payload.create({
-      collection: "media",
-      data: {
-        alt,
-        caption: product.data.title,
-        folder: "scraper/products",
-        tags: "product,scraper",
-      },
-      file: {
-        data: buffer,
-        mimetype: mimeType,
-        name: filename,
-        size: buffer.byteLength,
-      },
-      overrideAccess: true,
-    });
-    uploaded.push({ id: created.id, url: typeof created.url === "string" ? created.url : image.url });
+    try {
+      if (/placeholder|no[-_ ]?image|default[-_ ]?image/i.test(image.url)) {
+        throw new Error(`Bỏ qua ảnh placeholder: ${image.url}`);
+      }
+      const { buffer, mimeType } = await downloadImage(image);
+      const filename = imageFilename(product, image, mimeType);
+      const alt = image.alt || product.data.title;
+      const created = await payload.create({
+        collection: "media",
+        data: {
+          alt,
+          caption: product.data.title,
+          folder: "scraper/products",
+          tags: "product,scraper",
+        },
+        file: {
+          data: buffer,
+          mimetype: mimeType,
+          name: filename,
+          size: buffer.byteLength,
+        },
+        overrideAccess: true,
+      });
+      uploaded.push({
+        id: created.id,
+        url: uploadedMediaURL(created as Record<string, unknown>, image.url),
+      });
+    } catch (error) {
+      warnings.push(error instanceof Error ? error.message : String(error));
+    }
   }
 
-  return uploaded;
+  return { images: uploaded, warnings };
+}
+
+export async function importScrapedImages(
+  product: ScrapedProduct,
+): Promise<UploadedImage[]> {
+  const report = await importScrapedImagesWithReport(product);
+  return report.images;
 }

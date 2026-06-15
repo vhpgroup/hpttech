@@ -2,6 +2,7 @@ import { detectBrand } from "./brand-detector";
 import { crawlProductPage, crawlProductSource, normalizeProductSourceUrl } from "./crawler";
 import { enrichProductContent } from "./enricher";
 import {
+  extractAnphatDescriptionHTML,
   extractProductFromUrl,
   extractProductImagesFromHtml,
   gptExtractProduct,
@@ -18,10 +19,74 @@ import {
   selectProductSources,
   tavilyMultiSourceSearch,
 } from "./tavily-searcher";
+import {
+  findExactSourceCandidate,
+  normalizeSourceUrl,
+  normalizedSourceName,
+  sourceIdentityKey,
+  sourceMatchMethod,
+} from "./source-identity";
+import { cleanText } from "./text";
 import type { ScrapedProduct } from "./types";
 import { validateExtractedProduct } from "./validator";
 
 let hpttechSitemapPromise: Promise<string[]> | undefined;
+const anphatCategoryProductsPromises = new Map<
+  string,
+  Promise<AnphatCategoryProduct[]>
+>();
+
+type AnphatCategoryProduct = {
+  marketPrice?: string | number;
+  price?: string | number;
+  productImage?: {
+    large?: string;
+    medium?: string;
+    small?: string;
+  };
+  productName: string;
+  productSKU?: string;
+  productSummary?: string;
+  productUrl: string;
+  specialOffer?: {
+    all?: AnphatPromotion[];
+    other?: AnphatPromotion[];
+    service?: AnphatPromotion[];
+  };
+};
+
+type AnphatPromotion = {
+  description?: string;
+  id?: string;
+};
+
+async function fetchSourceWithRetry(
+  url: string,
+  init: RequestInit,
+  attempts = Number(process.env.SCRAPER_FETCH_RETRIES || 3),
+) {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        ...init,
+        signal: AbortSignal.timeout(
+          Number(process.env.SCRAPER_FETCH_TIMEOUT_MS || 20_000),
+        ),
+      });
+      if (response.ok || response.status < 500) return response;
+      lastError = new Error(`HTTP ${response.status}: ${url}`);
+    } catch (error) {
+      lastError = error;
+    }
+    if (attempt < attempts) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`Không tải được nguồn: ${url}`);
+}
 
 function hpttechOnlyMode() {
   const domains = (
@@ -70,8 +135,12 @@ function normalizedSearchTokens(value: string) {
     "sach",
     "scan",
     "scanner",
+    "photocopy",
+    "photocopier",
     "tai",
     "lieu",
+    "toc",
+    "do",
   ]);
   return value
     .normalize("NFD")
@@ -80,6 +149,175 @@ function normalizedSearchTokens(value: string) {
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter((token) => token && !stopWords.has(token));
+}
+
+async function fetchAnphatCategoryProducts(categoryUrl: string) {
+  const normalizedCategoryUrl = normalizeSourceUrl(categoryUrl);
+  const categoryOrigin = new URL(normalizedCategoryUrl).origin;
+  let pending = anphatCategoryProductsPromises.get(normalizedCategoryUrl);
+  if (!pending) {
+    pending = (async () => {
+      const categoryResponse = await fetchSourceWithRetry(normalizedCategoryUrl, {
+        headers: {
+          "accept-language": "vi,en;q=0.8",
+          "user-agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36",
+        },
+      });
+      if (!categoryResponse.ok) {
+        throw new Error(
+          `Không tải được danh mục An Phát (${categoryResponse.status}).`,
+        );
+      }
+      const categoryHTML = await categoryResponse.text();
+      const categoryId =
+        categoryHTML.match(/show_more_product\(['"](\d+)['"]/i)?.[1] ||
+        normalizedCategoryUrl.match(/_dm(\d+)\.html/i)?.[1];
+      if (!categoryId) {
+        throw new Error(`Không xác định được category ID từ ${normalizedCategoryUrl}.`);
+      }
+
+      const products: AnphatCategoryProduct[] = [];
+      for (let page = 1; ; page += 1) {
+        const url = `${categoryOrigin}/ajax/get_json.php?action=product&action_type=product-list&type=&category=${categoryId}&collection=&show=30&page=${page}&sort=order-last-update`;
+        const response = await fetchSourceWithRetry(url, {
+          headers: {
+            accept: "application/json, text/javascript, */*; q=0.01",
+            "accept-language": "vi,en;q=0.8",
+            referer: normalizedCategoryUrl,
+            "user-agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36",
+            "x-requested-with": "XMLHttpRequest",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Không tải được API An Phát (${response.status}).`);
+        }
+        const payload = (await response.json()) as {
+          list?: AnphatCategoryProduct[];
+          total?: number;
+        };
+        const list = payload.list || [];
+        products.push(...list);
+        const total = Number(payload.total || 0);
+        if (!list.length || (total > 0 && products.length >= total)) break;
+      }
+      return products.filter((product) => product.productName && product.productUrl);
+    })();
+    anphatCategoryProductsPromises.set(normalizedCategoryUrl, pending);
+  }
+  return pending;
+}
+
+export async function discoverSourceCategory(categoryUrl: string) {
+  const url = normalizeSourceUrl(categoryUrl);
+  const products = await fetchAnphatCategoryProducts(url);
+  const response = await fetchSourceWithRetry(url, {
+    headers: {
+      "accept-language": "vi,en;q=0.8",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36",
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`Không tải được danh mục nguồn (${response.status}).`);
+  }
+  const html = await response.text();
+  const title =
+    cleanText(
+      html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ||
+        html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] ||
+        "",
+    ) || new URL(url).pathname;
+  return { products, title, url };
+}
+
+function anphatSyntheticHTML(product: AnphatCategoryProduct) {
+  const specs = (product.productSummary || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [label, ...rest] = line.split(":");
+      const value = rest.join(":").trim();
+      return value
+        ? `<tr><td>${label.trim()}</td><td>${value}</td></tr>`
+        : `<tr><td>Thông tin</td><td>${line}</td></tr>`;
+    })
+    .join("");
+  const image =
+    product.productImage?.large ||
+    product.productImage?.medium ||
+    product.productImage?.small ||
+    "";
+  return `
+    <html>
+      <head>
+        <meta property="og:title" content="${product.productName}">
+        <meta property="og:image" content="${image}">
+        <script type="application/ld+json">
+          ${JSON.stringify({
+            "@type": "Product",
+            image,
+            name: product.productName,
+            offers: { price: product.price },
+            sku: product.productSKU,
+          })}
+        </script>
+      </head>
+      <body>
+        <h1>${product.productName}</h1>
+        <p>${product.productSummary || ""}</p>
+        <table>${specs}</table>
+      </body>
+    </html>
+  `;
+}
+
+function anphatSummarySpecs(product: AnphatCategoryProduct) {
+  return (product.productSummary || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .flatMap((line) => {
+      const [label, ...rest] = line.split(":");
+      const value = rest.join(":").trim();
+      return value
+        ? [{ label: label.trim(), value }]
+        : [];
+    });
+}
+
+function anphatSummarySellingPoints(product: AnphatCategoryProduct) {
+  return (product.productSummary || "")
+    .split(/\r?\n/)
+    .map((line) => cleanText(line))
+    .filter(Boolean);
+}
+
+function anphatPromotionText(product: AnphatCategoryProduct) {
+  const preferred = [
+    ...(product.specialOffer?.service || []),
+    ...(product.specialOffer?.other || []),
+  ];
+  const entries = preferred.length ? preferred : product.specialOffer?.all || [];
+  const seen = new Set<string>();
+  const lines: string[] = [];
+
+  for (const entry of entries) {
+    const description = String(entry.description || "")
+      .replace(/<a\b[^>]*>[\s\S]*?<\/a>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n");
+    for (const line of description.split(/\r?\n/)) {
+      const text = cleanText(line).replace(/\s*Xem ngay\s*$/i, "").trim();
+      const key = text.toLocaleLowerCase("vi");
+      if (!text || seen.has(key)) continue;
+      seen.add(key);
+      lines.push(text);
+    }
+  }
+
+  return lines.join("\n") || undefined;
 }
 
 function hpttechUrlScore(url: string, productName: string) {
@@ -91,7 +329,7 @@ function hpttechUrlScore(url: string, productName: string) {
   if (requiredModelTokens.some((token) => !path.includes(token))) return 0;
   const coverage = matched.length / tokens.length;
   const productBonus =
-    /\/(?:may-scan|canon-|plustek-|microtek-|hp-scanjet|epson-|ricoh-|kodak-)/.test(
+    /\/(?:may-scan|may-in|canon-|plustek-|microtek-|hp-scanjet|epson-|ricoh-|kodak-|brother-|kyocera-|xprinter-)/.test(
       path,
     )
       ? 0.15
@@ -145,7 +383,10 @@ async function searchProductFromHpttech(
   const images = extractProductImagesFromHtml(url, html);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
-  const validation = validateExtractedProduct(data, true);
+  const validation = validateExtractedProduct(data, true, {
+    hasImages: images.length > 0,
+    sourceExact: true,
+  });
 
   return {
     confidence: validation.confidence,
@@ -156,6 +397,88 @@ async function searchProductFromHpttech(
     seo,
     source: {
       brand: brand.name,
+      identity: {
+        exact: true,
+        key: sourceIdentityKey(url),
+        method: "url",
+      },
+      searchQuery: productName,
+      url,
+      urls: [url],
+    },
+    warnings: validation.warnings,
+  };
+}
+
+async function searchProductFromCategory(
+  productName: string,
+  categoryUrl: string,
+): Promise<ScrapedProduct> {
+  const brand = await detectBrand(productName);
+  const category = await discoverSourceCategory(categoryUrl);
+  const match = findExactSourceCandidate(
+    category.products,
+    productName,
+    category.url,
+  );
+  const url = normalizeSourceUrl(match.productUrl, category.url);
+  const html = await crawlProductSource(url, "fetch");
+  if (!html) throw new Error(`Trang nguồn không có HTML: ${url}`);
+
+  const syntheticHTML = anphatSyntheticHTML(match);
+  const extracted = await gptExtractProduct(
+    [
+      { html, sourceType: "retailer", url },
+      { html: syntheticHTML, sourceType: "retailer", url },
+    ],
+    productName,
+  );
+  const data = {
+    ...extracted,
+    compareAtPrice:
+      match.marketPrice !== undefined ? String(match.marketPrice) : extracted.compareAtPrice,
+    price: match.price !== undefined ? String(match.price) : extracted.price,
+    promoText: anphatPromotionText(match),
+    sellingPoints: anphatSummarySellingPoints(match),
+    sku: match.productSKU || extracted.sku,
+    specs: match.productSummary?.trim()
+      ? anphatSummarySpecs(match)
+      : extracted.specs,
+    title: productName,
+  };
+  data.descriptionHTML = data.descriptionHTML || extractAnphatDescriptionHTML(html, productName);
+  const apiImage =
+    match.productImage?.large ||
+    match.productImage?.medium ||
+    match.productImage?.small;
+  const images = [
+    ...extractProductImagesFromHtml(url, syntheticHTML),
+    ...extractProductImagesFromHtml(url, html),
+    ...(apiImage
+      ? [{ alt: data.title, source: "gallery" as const, url: apiImage }]
+      : []),
+  ];
+  const generated = await enrichProductContent(data, brand.name);
+  const seo = generateSeo(data, brand.name);
+  const validation = validateExtractedProduct(data, true, {
+    hasImages: images.length > 0,
+    sourceExact: true,
+  });
+
+  return {
+    confidence: validation.confidence,
+    data,
+    generated,
+    images,
+    reviewStatus: validation.reviewStatus,
+    seo,
+    source: {
+      brand: brand.name,
+      identity: {
+        exact: true,
+        key: sourceIdentityKey(url),
+        method: sourceMatchMethod(match, productName),
+      },
       searchQuery: productName,
       url,
       urls: [url],
@@ -178,7 +501,11 @@ export async function searchProduct(query: string): Promise<ScrapedProduct> {
   const images = extractProductImagesFromHtml(search.url, html);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
-  const validation = validateExtractedProduct(data, !search.warning);
+  const sourceExact = !search.warning;
+  const validation = validateExtractedProduct(data, sourceExact, {
+    hasImages: images.length > 0,
+    sourceExact,
+  });
 
   return {
     confidence: validation.confidence,
@@ -189,6 +516,11 @@ export async function searchProduct(query: string): Promise<ScrapedProduct> {
     seo,
     source: {
       brand: brand.name,
+      identity: {
+        exact: sourceExact,
+        key: sourceIdentityKey(search.url),
+        method: "url",
+      },
       searchQuery: search.searchQuery,
       url: search.url,
     },
@@ -198,9 +530,13 @@ export async function searchProduct(query: string): Promise<ScrapedProduct> {
 
 export async function searchProductMultiSource(
   query: string,
+  categoryUrl?: string,
 ): Promise<ScrapedProduct> {
   const productName = query.trim();
   if (!productName) throw new Error("Vui long nhap ten san pham.");
+  if (categoryUrl) {
+    return searchProductFromCategory(productName, categoryUrl);
+  }
   if (hpttechOnlyMode()) {
     return searchProductFromHpttech(productName);
   }
@@ -261,7 +597,17 @@ export async function searchProductMultiSource(
   );
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
-  const validation = validateExtractedProduct(data, true);
+  const requestedModel = extractRequestedModel(productName);
+  const modelExact = requestedModel
+    ? textContainsModel(`${data.title} ${data.sku || ""}`, requestedModel)
+    : selectedSources.some(
+        (source) =>
+          normalizedSourceName(source.title) === normalizedSourceName(productName),
+      );
+  const validation = validateExtractedProduct(data, true, {
+    hasImages: images.length > 0,
+    sourceExact: modelExact,
+  });
   const crawlWarnings = crawlResults.flatMap((result, index) =>
     result.status === "rejected"
       ? [`Khong crawl duoc ${selectedSources[index].url}: ${String(result.reason)}`]
@@ -283,6 +629,11 @@ export async function searchProductMultiSource(
     seo,
     source: {
       brand: brand.name,
+      identity: {
+        exact: modelExact,
+        key: sourceIdentityKey(htmlSources[0].url),
+        method: "name",
+      },
       searchQuery: productName,
       url: htmlSources[0].url,
       urls: htmlSources.map((source) => source.url),
@@ -295,17 +646,32 @@ export async function scrapeProductUrl(url: string): Promise<ScrapedProduct> {
   const productUrl = url.trim();
   if (!productUrl) throw new Error("Vui long nhap URL san pham.");
 
-  const brand = findBrandByUrl(productUrl);
-  if (!brand) {
-    throw new Error("URL nay chua thuoc brand duoc ho tro trong MVP.");
+  const configuredBrand = findBrandByUrl(productUrl);
+  const isAnphat = new URL(productUrl).hostname.replace(/^www\./, "") === "anphatpc.com.vn";
+  if (!configuredBrand && !isAnphat) {
+    throw new Error("URL này chưa thuộc nguồn được hỗ trợ.");
   }
 
-  const html = await crawlProductPage(productUrl, brand);
-  const data = await extractProductFromUrl(productUrl, brand.name, html);
+  const html = configuredBrand
+    ? await crawlProductPage(productUrl, configuredBrand)
+    : await crawlProductSource(productUrl, "fetch");
+  if (!html) throw new Error(`Trang nguồn không có HTML: ${productUrl}`);
+  const preliminary = await extractProductFromUrl(
+    productUrl,
+    configuredBrand?.name || "",
+    html,
+  );
+  const brand = configuredBrand || (await detectBrand(preliminary.title));
+  const data = configuredBrand
+    ? preliminary
+    : await extractProductFromUrl(productUrl, brand.name, html);
   const images = extractProductImagesFromHtml(productUrl, html);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
-  const validation = validateExtractedProduct(data, true);
+  const validation = validateExtractedProduct(data, true, {
+    hasImages: images.length > 0,
+    sourceExact: true,
+  });
 
   return {
     confidence: validation.confidence,
@@ -316,6 +682,11 @@ export async function scrapeProductUrl(url: string): Promise<ScrapedProduct> {
     seo,
     source: {
       brand: brand.name,
+      identity: {
+        exact: true,
+        key: sourceIdentityKey(productUrl),
+        method: "url",
+      },
       searchQuery: "",
       url: productUrl,
     },

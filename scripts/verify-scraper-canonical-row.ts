@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { buildCanonicalImportRow } from "../lib/scraper/canonical-row";
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
 import { normalizeScrapedSpecs } from "../lib/scraper/spec-normalizer";
+import {
+  sourceIdentityKey,
+  sourceVariantSku,
+} from "../lib/scraper/source-identity";
 import type { ScrapedProduct } from "../lib/scraper/types";
 
 const product: ScrapedProduct = {
@@ -51,13 +55,26 @@ assert.equal(row.productTypeCode, "scanner");
 assert.equal(row.productStatus, "draft");
 assert.equal(row.variantStatus, "draft");
 assert.equal(row.model, "ADS-4700W");
-assert.equal(row.sku, "ADS-4700W");
+assert.equal(row.internalId, sourceIdentityKey(product.source.url));
+assert.equal(row.sku, sourceVariantSku(product.source.url, "SCBR0009"));
 assert.equal(row.price, "12990000");
 assert.equal(row.saleStatus, "active");
 assert.equal(row.stockStatus, "unknown");
 assert.equal(row.sourceType, "scraper");
 assert.equal(row.sourceUrl, "https://brother.com.vn/ads-4700w");
 assert.equal("images" in row, false);
+const publishedRow = buildCanonicalImportRow(
+  {
+    category: "Máy scan",
+    name: "Brother ADS-4700W",
+    productType: "Máy scan",
+    rowNumber: 2,
+  },
+  product,
+  "scanner",
+  { publish: true },
+);
+assert.equal(publishedRow.variantStatus, "active");
 const decimalPriceRow = buildCanonicalImportRow(
   {
     category: "Máy scan",
@@ -204,5 +221,52 @@ assert.equal(
   ads3000nSpecs.scannerSpecs?.minPaperSize,
   "Document Size: Multiple Paper Width 2.0 to 8.5 in. (51 to 215.9 mm) | Length: 2.0 to 14.0 in. (51 to 355.6 mm)",
 );
+
+const scannerWithoutType = normalizeScrapedSpecs(
+  [{ label: "Độ phân giải", value: "600 dpi" }],
+  "scanner",
+);
+assert.equal(scannerWithoutType.scannerSpecs?.scannerType, undefined);
+
+const printerSpecs = normalizeScrapedSpecs(
+  [
+    { label: "Công nghệ in", value: "Laser màu" },
+    { label: "Tốc độ in", value: "31 trang/phút" },
+    { label: "Độ phân giải in", value: "2.400 x 600 dpi" },
+    { label: "Kết nối", value: "USB, LAN, WiFi" },
+    { label: "In đảo mặt tự động", value: "Có" },
+    { label: "Khay giấy tiêu chuẩn", value: "250 tờ" },
+  ],
+  "printer",
+);
+
+assert.deepEqual(printerSpecs.attributes, []);
+assert.equal(printerSpecs.printerSpecs?.printTechnology, "Laser màu");
+assert.equal(printerSpecs.printerSpecs?.printSpeed, "31 trang/phút");
+assert.equal(printerSpecs.printerSpecs?.printSpeedPpm, 31);
+assert.equal(printerSpecs.printerSpecs?.printResolution, "2.400 x 600 dpi");
+assert.equal(printerSpecs.printerSpecs?.connectivity, "USB, LAN, WiFi");
+assert.equal(printerSpecs.printerSpecs?.autoDuplexPrint, true);
+assert.equal(printerSpecs.printerSpecs?.standardPaperTray, "250 tờ");
+assert.equal(printerSpecs.specs.length, 6);
+
+const photocopierSpecs = normalizeScrapedSpecs(
+  [
+    { label: "Cấu hình chuẩn", value: "Copy, In mạng, Scan màu, ADF, đảo mặt" },
+    { label: "Tốc độ copy", value: "25 trang/phút" },
+    { label: "Khổ giấy", value: "A3, A4" },
+    { label: "Cổng giao tiếp", value: "USB, LAN, WiFi" },
+    { label: "Độ phân giải", value: "600 x 600 dpi" },
+  ],
+  "photocopier",
+);
+
+assert.deepEqual(photocopierSpecs.attributes, []);
+assert.equal(photocopierSpecs.photocopierSpecs?.functions, "Copy, In mạng, Scan màu, ADF, đảo mặt");
+assert.equal(photocopierSpecs.photocopierSpecs?.copySpeed, "25 trang/phút");
+assert.equal(photocopierSpecs.photocopierSpecs?.copySpeedCpm, 25);
+assert.equal(photocopierSpecs.photocopierSpecs?.maxPaperSize, "A3, A4");
+assert.equal(photocopierSpecs.photocopierSpecs?.connectivity, "USB, LAN, WiFi");
+assert.equal(photocopierSpecs.photocopierSpecs?.hasAdf, true);
 
 console.log("scraper canonical row verification passed");

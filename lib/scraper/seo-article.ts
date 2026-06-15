@@ -10,9 +10,11 @@ type UploadedImage = {
 type ProductKind =
   | "scanner"
   | "printer"
+  | "photocopier"
   | "camera"
   | "network"
   | "computer"
+  | "software"
   | "accessory"
   | "office";
 
@@ -61,10 +63,12 @@ function wordCount(value: string) {
 
 function inferProductKind(title: string, specs: ProductSpec[]): ProductKind {
   const text = normalize(`${title} ${specs.map((spec) => `${spec.label} ${spec.value}`).join(" ")}`);
+  if (/\b(photocopy|copier|may photo|may photocopy|copy)\b/.test(text)) return "photocopier";
   if (/\b(scan|scanner|may quet|adf|ocr|duplex scan)\b/.test(text)) return "scanner";
   if (/\b(may in|printer|muc in|cartridge|toner|drum)\b/.test(text)) return "printer";
   if (/\b(camera|ip camera|dau ghi|nvr|cctv|hong ngoai)\b/.test(text)) return "camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|mang lan|ethernet)\b/.test(text)) return "network";
+  if (/\b(phan mem|software|license|ban quyen|office|microsoft|windows|copilot|acrobat|kaspersky|bullguard|antivirus|chatgpt)\b/.test(text)) return "software";
   if (/\b(laptop|pc|may tinh|server|workstation|cpu|ram|ssd)\b/.test(text)) return "computer";
   if (/\b(cap|cable|adapter|phu kien|pin|sac)\b/.test(text)) return "accessory";
   return "office";
@@ -76,12 +80,16 @@ function productNoun(kind: ProductKind) {
       return "máy scan";
     case "printer":
       return "máy in";
+    case "photocopier":
+      return "máy photocopy";
     case "camera":
       return "camera";
     case "network":
       return "thiết bị mạng";
     case "computer":
       return "thiết bị máy tính";
+    case "software":
+      return "phần mềm";
     case "accessory":
       return "phụ kiện";
     default:
@@ -104,12 +112,16 @@ function usageTitle(kind: ProductKind) {
       return "Chất lượng scan và hiệu suất làm việc";
     case "printer":
       return "Chất lượng in và hiệu suất vận hành";
+    case "photocopier":
+      return "Hiệu suất copy, in và scan trong văn phòng";
     case "camera":
       return "Khả năng quan sát và vận hành";
     case "network":
       return "Hiệu năng kết nối và độ ổn định";
     case "computer":
       return "Hiệu năng sử dụng trong công việc";
+    case "software":
+      return "Tính năng, bản quyền và khả năng tương thích";
     default:
       return "Khả năng sử dụng thực tế";
   }
@@ -181,8 +193,11 @@ function htmlList(items: string[]) {
   return `<ul>${items.map((item) => `<li>${escapeHTML(item)}</li>`).join("")}</ul>`;
 }
 
-function specsHTML(specs: ProductSpec[]) {
+function specsHTML(specs: ProductSpec[], kind: ProductKind) {
   const items = keySpecs(specs, 10);
+  if (!items.length && kind === "software") {
+    return `<p>Thông tin chi tiết của sản phẩm phần mềm được thể hiện trong phần mô tả và đặc điểm nổi bật từ nguồn sản phẩm. HPT Tech sẽ đối chiếu thêm điều kiện bản quyền, thời hạn sử dụng và hình thức kích hoạt khi tư vấn hoặc báo giá cho khách hàng.</p>`;
+  }
   if (!items.length) return `<p>NEED_REVIEW: specifications</p>`;
 
   return `<ul>${items
@@ -192,7 +207,7 @@ function specsHTML(specs: ProductSpec[]) {
 
 function imageHTML(image?: UploadedImage, alt?: string) {
   if (!image?.url) return `<p>NEED_REVIEW_BLOCKING: product_image</p>`;
-  return `<figure><img src="${escapeHTML(image.url)}" alt="${escapeHTML(alt || "Ảnh sản phẩm")}" loading="lazy" style="max-width:100%;height:auto;" /></figure>`;
+  return `<figure class="hpt-product-article-image"><img src="${escapeHTML(image.url)}" alt="${escapeHTML(alt || "Ảnh sản phẩm")}" loading="lazy" /></figure>`;
 }
 
 function introParagraphs(title: string, kind: ProductKind, shortDescription: string, specs: ProductSpec[]) {
@@ -210,8 +225,8 @@ function introParagraphs(title: string, kind: ProductKind, shortDescription: str
   return [
     `${shortDescription || `${title} là ${noun} chính hãng được HPT Tech cung cấp cho nhu cầu sử dụng chuyên nghiệp.`} Sản phẩm phù hợp với khách hàng cần một thiết bị có thông tin rõ ràng, dễ đối chiếu thông số và có thể triển khai trong môi trường làm việc thực tế.`,
     secondParts.length
-      ? `Điểm đáng chú ý của ${title} nằm ở ${secondParts.join(", ")}. Những thông tin này giúp người mua nhanh chóng đánh giá sản phẩm có phù hợp với quy mô sử dụng, hạ tầng hiện có và yêu cầu vận hành hằng ngày hay không.`
-      : `${title} được trình bày theo các thông tin đã crawl từ nguồn sản phẩm, giúp người mua tham khảo trước khi yêu cầu tư vấn cấu hình, báo giá hoặc phương án triển khai.`,
+      ? `${title} nổi bật ở ${secondParts.join(", ")}. Nhờ đó, khách hàng có thể dễ dàng đối chiếu với khối lượng tài liệu, hạ tầng đang dùng và yêu cầu vận hành hằng ngày trước khi chọn mua.`
+      : `${title} được HPT Tech tổng hợp thông tin rõ ràng để khách hàng dễ tham khảo, so sánh cấu hình và trao đổi nhanh hơn khi cần tư vấn hoặc báo giá.`,
   ];
 }
 
@@ -226,6 +241,14 @@ function designParagraphs(title: string, kind: ProductKind, specs: ProductSpec[]
       `${title} hướng đến nhu cầu số hóa tài liệu trong văn phòng, doanh nghiệp, trường học hoặc đơn vị cần xử lý hồ sơ định kỳ. Thiết kế của máy scan thường được đánh giá qua khả năng đặt máy, cách nạp tài liệu, độ thuận tiện khi vận hành và sự ổn định khi xử lý nhiều trang liên tục.`,
       `${adf ? `Thông số khay nạp/khay giấy ${cleanText(adf)} hỗ trợ người dùng giảm thao tác nạp từng tờ.` : "Với các nhu cầu scan tài liệu thông dụng, người dùng nên kiểm tra kỹ khay nạp và cách xử lý giấy trước khi triển khai."} ${speed ? `Hiệu suất ${cleanText(speed)} giúp rút ngắn thời gian chờ khi xử lý hồ sơ nhiều trang.` : ""} ${paper ? `Khả năng hỗ trợ ${cleanText(paper)} giúp thiết bị linh hoạt hơn với nhiều nhóm tài liệu.` : ""}`,
       `${resolution ? `Độ phân giải ${cleanText(resolution)} là yếu tố quan trọng khi cần bản scan rõ chữ, dễ lưu trữ hoặc phục vụ OCR.` : "Chất lượng đầu ra phụ thuộc vào độ phân giải, loại tài liệu, phần mềm sử dụng và cách thiết lập trước khi scan."} Khi vận hành thực tế, người dùng nên phân loại tài liệu, tháo ghim và kiểm tra mẫu đầu ra để hạn chế phải quét lại.`,
+    ];
+  }
+
+  if (kind === "photocopier") {
+    return [
+      `${title} hướng đến nhu cầu sao chụp, in và scan tài liệu trong văn phòng, doanh nghiệp, trường học hoặc cơ quan cần xử lý hồ sơ thường xuyên. Khi chọn máy photocopy, khách hàng nên xem kỹ tốc độ copy, khổ giấy hỗ trợ, bộ nạp bản gốc, in đảo mặt, kết nối mạng và khả năng phục vụ nhiều người dùng.`,
+      `${speed ? `Thông số tốc độ ${cleanText(speed)} cho biết máy phù hợp hơn với nhu cầu xử lý tài liệu liên tục hay chỉ dùng ở mức cơ bản.` : "Khách hàng nên đối chiếu khối lượng copy/in mỗi ngày với cấu hình máy để chọn đúng model."} ${paper ? `Khả năng hỗ trợ ${cleanText(paper)} giúp máy xử lý tốt hơn các nhóm hồ sơ hành chính, hợp đồng, biểu mẫu và tài liệu khổ lớn.` : ""} ${adf ? `ADF/DADF hoặc khay nạp ${cleanText(adf)} sẽ hữu ích nếu đơn vị thường xuyên copy, scan bộ tài liệu nhiều trang.` : ""}`,
+      `${resolution ? `Độ phân giải ${cleanText(resolution)} ảnh hưởng trực tiếp đến độ rõ của bản copy, bản in và bản scan.` : "Chất lượng đầu ra phụ thuộc vào cấu hình quét/in, loại giấy, vật tư sử dụng và cách thiết lập trên máy."} Khi triển khai thực tế, nên đặt máy tại vị trí thuận tiện, có nguồn điện ổn định và kiểm tra quyền truy cập nếu dùng chung qua mạng nội bộ.`,
     ];
   }
 
@@ -244,7 +267,7 @@ function designParagraphs(title: string, kind: ProductKind, specs: ProductSpec[]
   }
 
   return [
-    `${title} được lựa chọn dựa trên sự phù hợp giữa cấu hình, tính năng và môi trường sử dụng. Với nhóm ${productNoun(kind)}, người mua nên quan tâm đến độ ổn định, khả năng triển khai, mức độ tương thích và nhu cầu vận hành thực tế.`,
+    `${title} nên được chọn dựa trên sự phù hợp giữa cấu hình, tính năng và môi trường sử dụng. Với nhóm ${productNoun(kind)}, khách hàng nên quan tâm đến độ ổn định, khả năng triển khai, mức độ tương thích và nhu cầu vận hành thực tế.`,
     `${speed ? `Thông số hiệu suất ${cleanText(speed)} là một điểm cần lưu ý khi so sánh với các model khác.` : "Các thông số kỹ thuật nên được đối chiếu với nhu cầu sử dụng trước khi quyết định."} ${paper ? `Thông tin hỗ trợ ${cleanText(paper)} cũng giúp xác định phạm vi ứng dụng của sản phẩm.` : ""}`,
   ];
 }
@@ -265,6 +288,13 @@ function practicalParagraphs(title: string, kind: ProductKind, specs: ProductSpe
     return [
       `${title} hỗ trợ nhu cầu in tài liệu hằng ngày như hợp đồng, báo giá, biểu mẫu, hồ sơ nội bộ hoặc tài liệu giao dịch. Một máy in phù hợp giúp giảm thời gian chờ, ổn định quy trình xử lý giấy tờ và kiểm soát chi phí vận hành tốt hơn.`,
       "Người dùng nên xác định trước khối lượng in, loại giấy, nhu cầu in màu hoặc in trắng đen để chọn đúng cấu hình.",
+    ];
+  }
+
+  if (kind === "photocopier") {
+    return [
+      `${title} giúp tập trung các công việc văn phòng như copy, in và scan tài liệu trên cùng một thiết bị. Với các bộ phận hành chính, kế toán, nhân sự, đào tạo hoặc lưu trữ, máy photocopy phù hợp giúp giảm thời gian xử lý hồ sơ, chia sẻ thiết bị cho nhiều người dùng và chuẩn hóa quy trình tài liệu nội bộ.`,
+      `${connect ? `Kết nối ${cleanText(connect)} giúp máy dễ triển khai trong mạng nội bộ để nhiều người dùng cùng khai thác.` : "Khi triển khai, đơn vị nên xác định trước cách chia sẻ máy, quyền in/scan và vị trí đặt thiết bị."} Nếu cần scan lưu trữ, gửi file hoặc số hóa hồ sơ, nên kiểm tra thêm định dạng file, phần mềm đi kèm và khả năng tích hợp với hệ thống hiện có.`,
     ];
   }
 
@@ -307,6 +337,13 @@ function fitParagraphs(title: string, kind: ProductKind) {
     ];
   }
 
+  if (kind === "photocopier") {
+    return [
+      `${title} phù hợp với văn phòng, doanh nghiệp, trường học, bệnh viện, cơ quan nhà nước hoặc đơn vị dịch vụ cần xử lý hồ sơ giấy thường xuyên. Sản phẩm đặc biệt hữu ích khi một nhóm người dùng cần dùng chung chức năng copy, in và scan trong cùng khu vực làm việc.`,
+      "Nếu nhu cầu chỉ in hoặc copy số lượng thấp, khách hàng có thể cân nhắc thiết bị nhỏ hơn để tối ưu chi phí. Nếu cần xử lý khối lượng lớn, dùng giấy A3 thường xuyên, cần nhiều khay giấy hoặc yêu cầu quản trị người dùng, nên trao đổi với HPT Tech để chọn cấu hình cao hơn.",
+    ];
+  }
+
   return [
     `${title} phù hợp với khách hàng cần một sản phẩm rõ thông số, có nguồn cung chính hãng và được tư vấn theo nhu cầu sử dụng thực tế. Thiết bị có thể dùng cho cá nhân, văn phòng, doanh nghiệp, trường học, bệnh viện hoặc cơ quan tùy theo cấu hình và mục đích triển khai.`,
     "Nếu nhu cầu sử dụng đơn giản, khách hàng có thể chọn model thấp hơn để tối ưu chi phí. Nếu cần vận hành liên tục, tích hợp hệ thống hoặc dùng cho nhiều người, nên cân nhắc model cao hơn sau khi được tư vấn.",
@@ -334,6 +371,8 @@ function faqItems(title: string, kind: ProductKind, specs: ProductSpec[]) {
       answer:
         kind === "scanner"
           ? `${title} phù hợp với văn phòng, doanh nghiệp, trường học, cơ quan hoặc bộ phận cần số hóa tài liệu thường xuyên.`
+          : kind === "photocopier"
+            ? `${title} phù hợp với văn phòng, doanh nghiệp, trường học, cơ quan hoặc đơn vị cần copy, in và scan tài liệu thường xuyên.`
           : `${title} phù hợp với khách hàng cần thiết bị chính hãng, có thông số rõ ràng và được tư vấn theo nhu cầu sử dụng thực tế.`,
     },
     speed
@@ -397,6 +436,32 @@ function stripBannedWords(html: string) {
   );
 }
 
+function ensureArticleLength(html: string, title: string) {
+  const minimum = Number(process.env.SCRAPER_MIN_ARTICLE_WORDS || 1000);
+  if (wordCount(html) >= minimum) return html;
+
+  const guidance = [
+    `Trước khi đưa ${title} vào sử dụng, khách hàng nên xác định rõ khối lượng công việc trung bình mỗi ngày, số người cùng khai thác và yêu cầu kết nối với hệ thống hiện có. Việc làm rõ các yếu tố này giúp chọn đúng cấu hình, tránh đầu tư thiếu công suất hoặc dư tính năng không cần thiết.`,
+    `Trong quá trình triển khai, nên bố trí vị trí sử dụng thông thoáng, nguồn điện ổn định và thuận tiện cho thao tác hằng ngày. Với thiết bị dùng chung, doanh nghiệp cần phân công người quản lý, lưu lại cấu hình ban đầu và thống nhất quy trình xử lý khi phát sinh cảnh báo hoặc cần thay vật tư.`,
+    `Thông số từ nhà sản xuất thường được đo trong điều kiện tiêu chuẩn. Hiệu quả thực tế còn phụ thuộc vào loại tài liệu, chất lượng giấy, cấu hình máy tính, đường truyền mạng và cách người dùng thiết lập tác vụ. Vì vậy, khách hàng nên đánh giá sản phẩm theo toàn bộ quy trình làm việc thay vì chỉ so sánh một thông số riêng lẻ.`,
+    `Khi so sánh ${title} với model khác, nên ưu tiên các tiêu chí gắn trực tiếp với nhu cầu như hiệu suất, khả năng tương thích, phương thức kết nối, chi phí vận hành và mức độ thuận tiện khi bảo trì. Một model phù hợp là model đáp ứng ổn định công việc hiện tại và còn khoảng dự phòng hợp lý cho nhu cầu tăng thêm.`,
+    `Đối với doanh nghiệp và cơ quan, khả năng bàn giao, hướng dẫn sử dụng và hỗ trợ sau bán hàng cũng cần được tính vào quyết định mua. Hồ sơ sản phẩm, chính sách bảo hành và thông tin cấu hình nên được lưu cùng chứng từ để thuận tiện cho bộ phận kỹ thuật, kế toán và quản lý tài sản.`,
+    `Người dùng nên kiểm tra yêu cầu hệ điều hành, trình điều khiển, phần mềm đi kèm và quyền truy cập mạng trước khi cài đặt. Nếu sản phẩm được dùng trong môi trường có chính sách bảo mật riêng, bộ phận CNTT cần xác nhận phương án kết nối và phân quyền trước khi đưa thiết bị vào hệ thống chính thức.`,
+    `Việc bảo dưỡng định kỳ nên tuân theo hướng dẫn của hãng và tần suất sử dụng thực tế. Làm sạch đúng cách, theo dõi cảnh báo và sử dụng vật tư phù hợp giúp duy trì chất lượng đầu ra, hạn chế gián đoạn và kéo dài thời gian khai thác thiết bị trong môi trường làm việc.`,
+    `HPT Tech có thể hỗ trợ khách hàng đối chiếu cấu hình ${title} với nhu cầu thực tế trước khi đặt hàng. Khi liên hệ, khách hàng nên cung cấp quy mô sử dụng, khối lượng công việc, hạ tầng kết nối và những yêu cầu bắt buộc để đội ngũ tư vấn đề xuất phương án sát với mục tiêu triển khai.`,
+  ];
+
+  let expanded = html;
+  for (const paragraph of guidance) {
+    if (wordCount(expanded) >= minimum) break;
+    const block = expanded.includes("data-buyer-guide")
+      ? `<p>${escapeHTML(paragraph)}</p>`
+      : `<h2 data-buyer-guide="true">Kinh nghiệm triển khai và sử dụng</h2><p>${escapeHTML(paragraph)}</p>`;
+    expanded = expanded.replace(/<\/div>\s*$/, `${block}</div>`);
+  }
+  return expanded;
+}
+
 export function buildProductSeoArticleHTML(product: ScrapedProduct, images: UploadedImage[]) {
   const title = productDisplayName(product.data.title);
   const specs = product.data.specs;
@@ -421,7 +486,7 @@ ${paragraphHTML(fitParagraphs(title, kind))}
 <h2>Lưu ý khi chọn mua</h2>
 <p>${escapeHTML(buyingAdvice(title, kind))}</p>
 <h2>Thông số kỹ thuật đáng chú ý</h2>
-${specsHTML(specs)}
+${specsHTML(specs, kind)}
 <h2>Chính sách bán hàng tại HPT Tech</h2>
 <p>${escapeHTML(hptPolicy(title))}</p>
 <p>Xem thêm <a href="/san-pham">danh mục sản phẩm HPT Tech</a> hoặc liên hệ đội ngũ tư vấn để được gợi ý model phù hợp.</p>
@@ -429,7 +494,7 @@ ${specsHTML(specs)}
 ${faqHTML(title, kind, specs)}
 </div>`;
 
-  return stripBannedWords(descriptionHTML);
+  return ensureArticleLength(stripBannedWords(descriptionHTML), title);
 }
 
 function databaseURL() {

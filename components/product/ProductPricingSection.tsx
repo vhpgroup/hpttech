@@ -27,19 +27,81 @@ function splitSellingPoint(value: string): SellingLine {
   };
 }
 
+function normalizeText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase();
+}
+
+function isConciseSellingLine(item: SellingLine, allowLong = false) {
+  const text = `${item.label ? `${item.label}: ` : ""}${item.value}`.trim();
+  if (text.length < 5 || text.length > (allowLong ? 700 : 180)) return false;
+  if (/\b(hpt tech|mua hang|mua tai|lien he|giao hang|tra gop)\b/.test(normalizeText(text))) {
+    return false;
+  }
+  return allowLong || (text.match(/[.!?]/g) || []).length <= 1;
+}
+
 function pickSellingSpecs(product: CatalogProduct): SellingLine[] {
+  const allowLong = product.productType === "software";
   const sellingPoints = product.sellingPoints
     ?.map(splitSellingPoint)
-    .filter((item) => item.value);
-  if (sellingPoints?.length) return sellingPoints;
+    .filter((item) => item.value)
+    .filter((item) => isConciseSellingLine(item, allowLong)) ?? [];
 
   const specs = product.specs ?? [];
-  const preferred = ["chức năng", "độ phân giải", "tốc độ", "kết nối"];
+  const preferred = [
+    "cấu hình",
+    "chức năng",
+    "khổ giấy",
+    "đảo mặt",
+    "hai mặt",
+    "adf",
+    "giao tiếp",
+    "kết nối",
+    "thu phóng",
+    "dùng mực",
+    "tốc độ",
+    "độ phân giải",
+  ];
   const selected = preferred
-    .map((keyword) => specs.find((spec) => spec.label.toLowerCase().includes(keyword)))
+    .map((keyword) =>
+      specs.find((spec) => normalizeText(spec.label).includes(normalizeText(keyword))),
+    )
     .filter((item): item is { label: string; value: string } => Boolean(item));
 
-  if (selected.length) return selected.slice(0, 4);
+  const selectedSpecs: SellingLine[] = [];
+  if (selected.length) {
+    const seen = new Set<string>();
+    selectedSpecs.push(
+      ...selected
+        .filter((item) => {
+          const key = normalizeText(item.label);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .map((item) => ({ label: item.label, value: item.value }))
+        .filter((item) => isConciseSellingLine(item, allowLong)),
+    );
+  }
+
+  const merged = [...selectedSpecs, ...sellingPoints];
+  if (merged.length) {
+    const seen = new Set<string>();
+    return merged
+      .filter((item) => {
+        const labelKey = normalizeText(item.label || "");
+        const valueKey = normalizeText(item.value);
+        const key = labelKey || valueKey;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 8);
+  }
 
   return [
     { label: "Danh mục", value: product.category || "Thiết bị văn phòng" },
@@ -147,7 +209,9 @@ export default function ProductPricingSection({
             </span>
             <div className="mt-2 flex gap-2 text-sm font-semibold leading-6 text-blue-700">
               <Gift size={17} className="mt-1 shrink-0 fill-orange-500 text-orange-500" />
-              <span>{promoRange ? `${promoRange} ${promo}` : promo}</span>
+              <span className="whitespace-pre-line">
+                {promoRange ? `${promoRange} ${promo}` : promo}
+              </span>
             </div>
           </div>
         </div>

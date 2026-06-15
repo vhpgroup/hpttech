@@ -15,6 +15,7 @@ const eslintConfig = [
       "legacy/**",
       "node_modules/**",
       "payload-types.ts",
+      "scratch/**",
       "tmp/**",
     ],
   },

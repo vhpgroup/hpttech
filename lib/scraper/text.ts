@@ -47,11 +47,18 @@ function supportedFeature(value?: string) {
 }
 
 function inferProductKind(title: string, specs: ProductSpec[]) {
-  const text = normalizedText(`${title} ${specs.map((spec) => `${spec.label} ${spec.value}`).join(" ")}`);
-  if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(text)) return "máy scan";
+  const normalizedTitle = normalizedText(title);
+  const specsText = normalizedText(specs.map((spec) => `${spec.label} ${spec.value}`).join(" "));
+  const text = `${normalizedTitle} ${specsText}`;
+  if (/\b(photocopy|copier|may photo|may photocopy|copy)\b/.test(normalizedTitle)) return "máy photocopy";
+  if (/\b(may in|printer|muc in|cartridge|toner)\b/.test(normalizedTitle)) return "máy in";
+  if (/\b(scan|scanner|may quet)\b/.test(normalizedTitle)) return "máy scan";
+  if (/\b(photocopy|copier|may photo|may photocopy)\b/.test(text)) return "máy photocopy";
   if (/\b(may in|printer|muc in|cartridge|toner)\b/.test(text)) return "máy in";
+  if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(text)) return "máy scan";
   if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(text)) return "camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(text)) return "thiết bị mạng";
+  if (/\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(text)) return "phần mềm";
   if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(text)) return "thiết bị máy tính";
   return "sản phẩm";
 }
@@ -134,6 +141,57 @@ export function extractHighlightBulletPoints(value?: string) {
     .map((item) => item.replace(/^[-•]\s*/, "").trim())
     .filter(Boolean)
     .slice(0, 8);
+}
+
+function isConciseHighlight(value: string) {
+  const text = cleanText(value);
+  if (text.length < 5 || text.length > 180) return false;
+  if (/\b(hpt tech|mua hang|mua tại|lien he|liên hệ|giao hang|tra gop|trả góp)\b/i.test(normalizedText(text))) {
+    return false;
+  }
+  return (text.match(/[.!?]/g) || []).length <= 1;
+}
+
+function specHighlight(specs: ProductSpec[], patterns: RegExp[]) {
+  return specs.find((spec) => {
+    const label = normalizedText(spec.label);
+    const value = cleanText(spec.value);
+    return value && patterns.some((pattern) => pattern.test(label));
+  });
+}
+
+function uniqueHighlights(items: string[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = normalizedText(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+export function productSellingPoints(description: string | undefined, specs: ProductSpec[]) {
+  const descriptionPoints = extractHighlightBulletPoints(description)
+    .map(cleanText)
+    .filter(isConciseHighlight);
+  const preferredSpecs = [
+    [/cau hinh/, /chuc nang/, /function/],
+    [/^kho giay$/, /kich thuoc giay/, /paper size/],
+    [/dao mat/, /hai mat/, /duplex/],
+    [/^adf$/, /khay nap/, /khay nap ban goc/],
+    [/cong giao tiep/, /giao tiep/, /ket noi/, /interface/, /connect/],
+    [/thu phong/, /zoom/],
+    [/dung muc/, /^muc$/, /toner/],
+    [/toc do copy/, /toc do sao/, /toc do in/, /copy speed/, /print speed/],
+    [/do phan giai/, /resolution/],
+  ];
+  const specPoints = preferredSpecs
+    .map((patterns) => specHighlight(specs, patterns))
+    .filter((spec): spec is ProductSpec => Boolean(spec))
+    .map((spec) => `${cleanText(spec.label).replace(/[:：]\s*$/, "")}: ${cleanText(spec.value)}`)
+    .filter(isConciseHighlight);
+
+  return uniqueHighlights([...specPoints, ...descriptionPoints]).slice(0, 8);
 }
 
 export function lexicalParagraphs(value: string) {

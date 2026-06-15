@@ -87,7 +87,12 @@ const PRODUCT_COLUMNS = [
 type ProductColumn = (typeof PRODUCT_COLUMNS)[number];
 type CsvRecord = Record<string, string>;
 type PayloadDoc = Record<string, unknown> & { id?: string | number };
-export type ProductExportProfile = "all" | "scanner" | "printer" | "photocopier";
+export type ProductExportProfile =
+  | "all"
+  | "scanner"
+  | "printer"
+  | "photocopier"
+  | "software";
 
 const COMMON_COLUMNS: ProductColumn[] = [
   "sku",
@@ -222,7 +227,14 @@ function profileLabel(profile: ProductExportProfile) {
 }
 
 function normalizeProfile(value: string | null): ProductExportProfile {
-  if (value === "scanner" || value === "printer" || value === "photocopier") return value;
+  if (
+    value === "scanner" ||
+    value === "printer" ||
+    value === "photocopier" ||
+    value === "software"
+  ) {
+    return value;
+  }
   return "all";
 }
 

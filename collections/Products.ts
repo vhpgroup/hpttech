@@ -22,6 +22,7 @@ const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Photocopy", value: "photocopier" },
+  { label: "Phần mềm", value: "software" },
   { label: "Khác / nhập thủ công", value: "other" },
 ];
 
@@ -204,9 +205,14 @@ const validateCanonicalProduct: CollectionBeforeChangeHook = async ({
     suppliedDefinitionIDs.add(String(definitionID));
   }
 
-  const scannerProfile =
-    product.specProfile === "scanner" || specProfileFromCategory(product.category) === "scanner";
-  if (scannerProfile) {
+  const flexibleSpecProfile =
+    product.specProfile === "scanner" ||
+    product.specProfile === "printer" ||
+    product.specProfile === "photocopier" ||
+    specProfileFromCategory(product.category) === "scanner" ||
+    specProfileFromCategory(product.category) === "printer" ||
+    specProfileFromCategory(product.category) === "photocopier";
+  if (flexibleSpecProfile) {
     return data;
   }
 

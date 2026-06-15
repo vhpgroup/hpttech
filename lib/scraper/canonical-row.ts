@@ -1,6 +1,10 @@
 import type { ExcelRow, ScrapedProduct } from "./types";
 import { extractRequestedModel } from "./model-identity";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
+import {
+  sourceIdentityKey,
+  sourceVariantSku,
+} from "./source-identity";
 
 export type CanonicalScraperRow = Record<string, string>;
 
@@ -40,16 +44,48 @@ function priceTarget() {
     : "price";
 }
 
+function normalized(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase();
+}
+
+function photocopierModel(inputName: string, fallback?: string) {
+  const model = extractRequestedModel(inputName) || fallback || modelFromTitle(inputName);
+  if (!model) return undefined;
+  const text = normalized(inputName);
+  const speed = inputName.match(/tốc\s*độ\s*(\d+)/i)?.[1];
+  const prefix = text.includes("apeosport")
+    ? "APEOSPORT"
+    : text.includes("docucentre")
+      ? "DOCUCENTRE"
+      : text.includes("apeos")
+        ? "APEOS"
+        : "";
+  return [prefix, model, speed ? `${speed}PPM` : ""]
+    .filter(Boolean)
+    .join("-")
+    .replace(/\s+/g, "-")
+    .toUpperCase();
+}
+
 export function buildCanonicalImportRow(
   input: ExcelRow,
   product: ScrapedProduct,
   productTypeCode: string,
+  options: { publish?: boolean } = {},
 ): CanonicalScraperRow {
   const model =
-    extractRequestedModel(input.name) ||
-    product.data.sku?.trim() ||
-    modelFromTitle(product.data.title) ||
-    modelFromTitle(input.name);
+    productTypeCode === "photocopier"
+      ? photocopierModel(input.name, product.data.sku?.trim())
+      : productTypeCode === "software" && product.data.sku?.trim()
+        ? product.data.sku.trim()
+      : extractRequestedModel(input.name) ||
+        product.data.sku?.trim() ||
+        modelFromTitle(product.data.title) ||
+        modelFromTitle(input.name);
   if (!model) {
     throw new Error("Không xác định được model/SKU để nhập Catalog chuẩn.");
   }
@@ -58,13 +94,15 @@ export function buildCanonicalImportRow(
     productTypeCode,
   );
   const price = vndPrice(product.data.price);
-  const useCompareAtPrice = priceTarget() === "compareAtPrice";
+  const useCompareAtPrice =
+    productTypeCode !== "software" && priceTarget() === "compareAtPrice";
 
   return {
     attributesJSON: JSON.stringify(normalizedSpecs.attributes),
     brandName: product.source.brand,
     categoryName: input.category,
     currency: "VND",
+    internalId: product.source.identity?.key || sourceIdentityKey(product.source.url),
     isPrimary: "true",
     model,
     price: useCompareAtPrice ? "" : price,
@@ -73,12 +111,12 @@ export function buildCanonicalImportRow(
     productTypeCode,
     quantity: "0",
     saleStatus: !useCompareAtPrice && price ? "active" : "contact",
-    sku: model,
+    sku: sourceVariantSku(product.source.url, product.data.sku),
     sourceType: "scraper",
     sourceUrl: product.source.url,
     stockStatus: "unknown",
     variantName: "Phiên bản tiêu chuẩn",
-    variantStatus: "draft",
+    variantStatus: options.publish ? "active" : "draft",
     vatIncluded: "true",
     vatRate: "10",
     warranty: product.data.warranty || specValue(product, /bảo hành|bao hanh/i),

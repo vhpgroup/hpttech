@@ -11,10 +11,12 @@ function normalize(value: string) {
 
 function inferProductKind(title: string, specsText = "") {
   const lower = normalize(`${title} ${specsText}`);
+  if (/\b(photocopy|copier|may photo|may photocopy|copy)\b/.test(lower)) return "Máy photocopy";
   if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(lower)) return "Máy scan";
   if (/\b(may in|printer|muc in|toner|cartridge)\b/.test(lower)) return "Máy in";
   if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(lower)) return "Camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(lower)) return "Thiết bị mạng";
+  if (/\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(lower)) return "Phần mềm";
   if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(lower)) return "Thiết bị máy tính";
   return "Sản phẩm";
 }
@@ -35,7 +37,9 @@ function titleBenefit(data: ExtractedProductData) {
     paper ? `hỗ trợ ${paper}` : undefined,
     connect ? `kết nối ${connect}` : undefined,
   ].filter((item): item is string => Boolean(item));
-  return parts.length ? parts.slice(0, 2).join(", ") : "chính hãng";
+  return parts.length
+    ? parts.slice(0, 2).join(", ")
+    : "thông tin sản phẩm rõ ràng";
 }
 
 function productDisplayName(title: string) {

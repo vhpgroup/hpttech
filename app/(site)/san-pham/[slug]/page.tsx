@@ -279,7 +279,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       label: "Mô tả sản phẩm",
       content: productDescription ? (
         <div
-          className="rounded-[18px] bg-slate-50 p-6 text-[15px] leading-7 text-slate-700 [&_a]:font-semibold [&_a]:text-blue-700 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_img]:mx-auto [&_img]:h-auto [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-3 [&_picture]:mx-auto [&_picture]:block [&_ul]:mb-4 [&_ol]:mb-4"
+          className="product-description-content rounded-[18px] bg-slate-50 p-6 text-[15px] leading-7 text-slate-700 [&_a]:font-semibold [&_a]:text-blue-700 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-3 [&_ul]:mb-4 [&_ol]:mb-4"
           dangerouslySetInnerHTML={{ __html: product.description || textToHTML(product.detail) }}
         />
       ) : (

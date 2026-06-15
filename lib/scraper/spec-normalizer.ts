@@ -6,11 +6,13 @@ type CanonicalAttribute = {
   value: boolean | number | string | string[];
 };
 
-type ScannerSpecs = Record<string, boolean | number | string>;
+type TypedSpecs = Record<string, boolean | number | string>;
 
 export type NormalizedScrapedSpecs = {
   attributes: CanonicalAttribute[];
-  scannerSpecs?: ScannerSpecs;
+  photocopierSpecs?: TypedSpecs;
+  printerSpecs?: TypedSpecs;
+  scannerSpecs?: TypedSpecs;
   specs: ProductSpec[];
 };
 
@@ -217,7 +219,7 @@ function hasBooleanEvidence(textValue: unknown, boolValue: unknown) {
   return hasText(textValue) || boolValue === true;
 }
 
-function completenessValue(scannerSpecs: ScannerSpecs, key: string) {
+function completenessValue(scannerSpecs: TypedSpecs, key: string) {
   switch (key) {
     case "passportScan":
       return hasBooleanEvidence(scannerSpecs.passportScanText, scannerSpecs.passportScan);
@@ -238,7 +240,7 @@ function completenessValue(scannerSpecs: ScannerSpecs, key: string) {
 }
 
 function ensureScannerField(
-  scannerSpecs: ScannerSpecs,
+  scannerSpecs: TypedSpecs,
   key: string,
   value: boolean | number | string | undefined,
 ) {
@@ -248,7 +250,7 @@ function ensureScannerField(
   }
 }
 
-function deriveFunctions(scannerSpecs: ScannerSpecs) {
+function deriveFunctions(scannerSpecs: TypedSpecs) {
   const functions = [
     scannerSpecs.duplexScanText || scannerSpecs.duplexScan
       ? "Scan 2 mat"
@@ -269,7 +271,7 @@ function deriveFunctions(scannerSpecs: ScannerSpecs) {
   return functions.length ? functions.join(", ") : undefined;
 }
 
-function deriveScannerSpecs(scannerSpecs: ScannerSpecs, specs: ProductSpec[]) {
+function deriveScannerSpecs(scannerSpecs: TypedSpecs, specs: ProductSpec[]) {
   if (!hasNumber(scannerSpecs.adfSheets) && hasNumber(scannerSpecs.adfCapacitySheets)) {
     scannerSpecs.adfSheets = scannerSpecs.adfCapacitySheets;
   }
@@ -277,7 +279,7 @@ function deriveScannerSpecs(scannerSpecs: ScannerSpecs, specs: ProductSpec[]) {
     const inferred = specs
       .map((spec) => inferScannerType(`${spec.label}: ${spec.value}`))
       .find(Boolean);
-    ensureScannerField(scannerSpecs, "scannerType", inferred || "ADF");
+    if (inferred) ensureScannerField(scannerSpecs, "scannerType", inferred);
   }
   if (!hasText(scannerSpecs.minPaperSize)) {
     const ranges = specs
@@ -361,6 +363,272 @@ function isUsefulSpec(spec: ProductSpec) {
   );
 }
 
+function ensureTextField(specs: TypedSpecs, key: string, value: string | undefined) {
+  if (!value?.trim()) return;
+  if (!hasText(specs[key])) specs[key] = value.trim();
+}
+
+function derivePrinterSpecs(specs: ProductSpec[]) {
+  const printerSpecs: TypedSpecs = {};
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+
+    if (label.includes("loai may") || label.includes("printer type")) {
+      ensureTextField(printerSpecs, "printerType", value);
+    }
+    if (label.includes("chuc nang") || label.includes("function")) {
+      ensureTextField(printerSpecs, "functions", value);
+      if (normalizedValue.includes("mau") || normalizedValue.includes("color")) {
+        ensureTextField(printerSpecs, "colorPrintText", "Có");
+        printerSpecs.colorPrint = true;
+      }
+      if (
+        normalizedValue.includes("hai mat") ||
+        normalizedValue.includes("duplex") ||
+        normalizedValue.includes("2-sided")
+      ) {
+        ensureTextField(printerSpecs, "autoDuplexPrintText", "Có");
+        printerSpecs.autoDuplexPrint = true;
+      }
+    }
+    if (
+      label.includes("cong nghe in") ||
+      label.includes("print technology") ||
+      label.includes("technology")
+    ) {
+      ensureTextField(printerSpecs, "printTechnology", value);
+    }
+    if (
+      label.includes("toc do in") ||
+      label.includes("toc do") ||
+      label.includes("print speed") ||
+      label.includes("ppm")
+    ) {
+      ensureTextField(printerSpecs, "printSpeed", value);
+      const speed = unitNumber(normalizedValue, "ppm") || firstNumber(normalizedValue);
+      if (speed !== undefined && !hasNumber(printerSpecs.printSpeedPpm)) {
+        printerSpecs.printSpeedPpm = speed;
+      }
+    }
+    if (label.includes("do phan giai") || label.includes("resolution")) {
+      ensureTextField(printerSpecs, "printResolution", value);
+    }
+    if (
+      label.includes("kho giay") ||
+      label.includes("paper size") ||
+      label.includes("media size")
+    ) {
+      ensureTextField(printerSpecs, "maxPaperSize", value);
+    }
+    if (
+      label.includes("in mau") ||
+      label.includes("color print") ||
+      label.includes("colour print")
+    ) {
+      ensureTextField(printerSpecs, "colorPrintText", value);
+      const color = positiveBoolean(value);
+      if (color !== undefined) printerSpecs.colorPrint = color;
+    }
+    if (
+      label.includes("hai mat") ||
+      label.includes("dao mat") ||
+      label.includes("duplex") ||
+      label.includes("2-sided")
+    ) {
+      ensureTextField(printerSpecs, "autoDuplexPrintText", value);
+      const duplex = positiveBoolean(`${spec.label} ${value}`);
+      if (duplex !== undefined) printerSpecs.autoDuplexPrint = duplex;
+    }
+    if (label.includes("khay giay") || label.includes("paper tray")) {
+      if (label.includes("toi da") || label.includes("maximum") || label.includes("max")) {
+        ensureTextField(printerSpecs, "maxPaperTray", value);
+        const sheets = firstNumber(normalizedValue);
+        if (sheets !== undefined) printerSpecs.maxPaperTraySheets = sheets;
+      } else {
+        ensureTextField(printerSpecs, "standardPaperTray", value);
+        const sheets = firstNumber(normalizedValue);
+        if (sheets !== undefined) printerSpecs.standardPaperTraySheets = sheets;
+      }
+    }
+    if (label.includes("ram") || label.includes("bo nho") || label.includes("memory")) {
+      ensureTextField(printerSpecs, "memoryRam", value);
+    }
+    if (label.includes("ket noi") || label.includes("giao tiep") || label.includes("connect")) {
+      ensureTextField(printerSpecs, "connectivity", value);
+    }
+    if (label.includes("he dieu hanh") || label.includes("supported os") || osSummary(value)) {
+      ensureTextField(printerSpecs, "supportedOs", osSummary(value) || value);
+    }
+    if (
+      label.includes("cong suat") ||
+      label.includes("monthly duty") ||
+      label.includes("duty cycle")
+    ) {
+      if (label.includes("khuyen nghi") || label.includes("recommended")) {
+        ensureTextField(printerSpecs, "recommendedMonthlyVolumeText", value);
+        const pages = firstNumber(normalizedValue.replace(/[.,](?=\d{3}\b)/g, ""));
+        if (pages !== undefined) printerSpecs.recommendedMonthlyVolume = pages;
+      } else {
+        ensureTextField(printerSpecs, "maxMonthlyDuty", value);
+        const pages = firstNumber(normalizedValue.replace(/[.,](?=\d{3}\b)/g, ""));
+        if (pages !== undefined) printerSpecs.monthlyDuty = pages;
+      }
+    }
+    if (isDimensionsSpec(label, value)) {
+      ensureTextField(printerSpecs, "dimensions", value);
+    }
+    if (isWeightSpec(label, value)) {
+      ensureTextField(printerSpecs, "weight", value);
+    }
+    if (label.includes("muc") || label.includes("ink") || label.includes("toner")) {
+      ensureTextField(printerSpecs, "inkType", value);
+    }
+  }
+
+  return Object.keys(printerSpecs).length ? printerSpecs : undefined;
+}
+
+function derivePhotocopierSpecs(specs: ProductSpec[]) {
+  const photocopierSpecs: TypedSpecs = {};
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+    const combined = `${label} ${normalizedValue}`;
+    const dimensionOrWeight = isDimensionsWeightSpec(label, value);
+
+    if (label.includes("loai may") || label.includes("type")) {
+      ensureTextField(photocopierSpecs, "copierType", value);
+    }
+    if (label.includes("chuc nang") || label.includes("cau hinh") || label.includes("function")) {
+      ensureTextField(photocopierSpecs, "functions", value);
+      if (normalizedValue.includes("mau") || normalizedValue.includes("color")) {
+        ensureTextField(photocopierSpecs, "colorPrintText", "Có");
+        photocopierSpecs.colorPrint = true;
+      }
+      if (normalizedValue.includes("dadf") || normalizedValue.includes("adf")) {
+        ensureTextField(photocopierSpecs, "adfText", "Có");
+        photocopierSpecs.hasAdf = true;
+      }
+      if (
+        normalizedValue.includes("dao mat") ||
+        normalizedValue.includes("duplex") ||
+        normalizedValue.includes("hai mat")
+      ) {
+        ensureTextField(photocopierSpecs, "autoDuplexPrintText", "Có");
+        photocopierSpecs.autoDuplexPrint = true;
+      }
+    }
+    if (label.includes("toc do copy") || label.includes("toc do sao") || label.includes("copy speed")) {
+      ensureTextField(photocopierSpecs, "copySpeed", value);
+      const speed = unitNumber(normalizedValue, "cpm") || firstNumber(normalizedValue);
+      if (speed !== undefined) photocopierSpecs.copySpeedCpm = speed;
+    }
+    if (label.includes("toc do in") || label.includes("print speed")) {
+      ensureTextField(photocopierSpecs, "printSpeed", value);
+    }
+    if (label.includes("toc do scan") || label.includes("scan speed")) {
+      ensureTextField(photocopierSpecs, "scanSpeed", value);
+      const speed = unitNumber(normalizedValue, "ppm") || firstNumber(normalizedValue);
+      if (speed !== undefined) photocopierSpecs.scanSpeedPpm = speed;
+    }
+    if (
+      label.includes("kho giay") ||
+      label.includes("kich thuoc giay") ||
+      label.includes("paper size") ||
+      label.includes("paper sizes")
+    ) {
+      const paperCapacityOrWeight =
+        label.includes("chua") ||
+        label.includes("ra giay") ||
+        label.includes("loai giay") ||
+        label.includes("dinh luong");
+      if (!paperCapacityOrWeight) {
+        if (label === "kho giay" || label.includes("toi da") || label.includes("maximum")) {
+          photocopierSpecs.maxPaperSize = value;
+        } else {
+          ensureTextField(photocopierSpecs, "maxPaperSize", value);
+        }
+      }
+    }
+    if (label.includes("do phan giai copy") || label.includes("copy resolution")) {
+      ensureTextField(photocopierSpecs, "copyResolution", value);
+    } else if (label.includes("do phan giai in") || label.includes("print resolution")) {
+      ensureTextField(photocopierSpecs, "printResolution", value);
+    } else if (label.includes("do phan giai scan") || label.includes("scan resolution")) {
+      ensureTextField(photocopierSpecs, "scanResolution", value);
+    } else if (label.includes("do phan giai") || label.includes("resolution")) {
+      ensureTextField(photocopierSpecs, "copyResolution", value);
+    }
+    if (label.includes("in mau") || label.includes("mau") || label.includes("color")) {
+      ensureTextField(photocopierSpecs, "colorPrintText", value);
+      const color = positiveBoolean(value);
+      if (color !== undefined) photocopierSpecs.colorPrint = color;
+    }
+    if (
+      label.includes("dao mat") ||
+      label.includes("hai mat") ||
+      label.includes("duplex") ||
+      combined.includes("duplex")
+    ) {
+      ensureTextField(photocopierSpecs, "autoDuplexPrintText", value);
+      const duplex = positiveBoolean(`${spec.label} ${value}`);
+      if (duplex !== undefined) photocopierSpecs.autoDuplexPrint = duplex;
+    }
+    if (
+      !dimensionOrWeight &&
+      (
+        label.includes("adf") ||
+        label.includes("dadf") ||
+        label.includes("radf") ||
+        (
+          combined.includes("adf") &&
+          (
+            label.includes("cau hinh") ||
+            label.includes("khay") ||
+            label.includes("nap") ||
+            label.includes("chua") ||
+            /\b(to|sheet|sheets|page|pages)\b/.test(normalizedValue)
+          )
+        )
+      )
+    ) {
+      ensureTextField(photocopierSpecs, "adfText", value);
+      const adf = positiveBoolean(`${spec.label} ${value}`);
+      if (adf !== undefined) photocopierSpecs.hasAdf = adf;
+      const sheets = firstNumber(normalizedValue);
+      if (sheets !== undefined) {
+        photocopierSpecs.adfSheets = sheets;
+        ensureTextField(photocopierSpecs, "adfCapacity", value);
+      }
+    }
+    if (label.includes("ram") || label.includes("bo nho") || label.includes("memory")) {
+      ensureTextField(photocopierSpecs, "memoryRam", value);
+    }
+    if (
+      label.includes("ket noi") ||
+      label.includes("cong giao tiep") ||
+      label.includes("giao tiep") ||
+      label.includes("connect") ||
+      /\b(usb|lan|wifi|wi-fi|ethernet)\b/.test(normalizedValue)
+    ) {
+      ensureTextField(photocopierSpecs, "connectivity", value);
+    }
+    if (label.includes("cong suat") || label.includes("duty")) {
+      ensureTextField(photocopierSpecs, "monthlyDuty", value);
+    }
+    if (dimensionOrWeight) {
+      ensureTextField(photocopierSpecs, "dimensionsWeight", `${spec.label}: ${value}`);
+    }
+  }
+
+  return Object.keys(photocopierSpecs).length ? photocopierSpecs : undefined;
+}
+
 export function normalizeScrapedSpecs(
   input: ProductSpec[],
   productTypeCode: string,
@@ -378,12 +646,28 @@ export function normalizeScrapedSpecs(
       seenSpecs.add(key);
       return true;
     });
+  if (productTypeCode === "printer") {
+    return {
+      attributes: [],
+      printerSpecs: derivePrinterSpecs(specs),
+      specs,
+    };
+  }
+
+  if (productTypeCode === "photocopier") {
+    return {
+      attributes: [],
+      photocopierSpecs: derivePhotocopierSpecs(specs),
+      specs,
+    };
+  }
+
   if (productTypeCode !== "scanner") {
     return { attributes: [], specs };
   }
 
   const attributes: CanonicalAttribute[] = [];
-  const scannerSpecs: ScannerSpecs = {};
+  const scannerSpecs: TypedSpecs = {};
 
   for (const spec of specs) {
     const label = normalize(spec.label);
