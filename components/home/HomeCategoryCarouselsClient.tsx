@@ -86,6 +86,8 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
   },
 ];
 
+const HOME_CATEGORY_PRODUCT_LIMIT = 16;
+
 function normalizeText(value?: string) {
   return (value || "")
     .normalize("NFD")
@@ -310,10 +312,12 @@ function HomeCategoryCarousel({
   const visibleTabs = showAllTabs ? tabs : tabs.slice(0, 5);
 
   const visibleProducts = useMemo(() => {
-    if (activeTab === "all") return allProducts;
-    return allProducts.filter((product) =>
-      config.tabMode === "brand" ? product.brand === activeTab : product.category === activeTab,
-    );
+    const matchedProducts = activeTab === "all"
+      ? allProducts
+      : allProducts.filter((product) =>
+          config.tabMode === "brand" ? product.brand === activeTab : product.category === activeTab,
+        );
+    return matchedProducts.slice(0, HOME_CATEGORY_PRODUCT_LIMIT);
   }, [activeTab, allProducts, config.tabMode]);
   const shouldLoop = !mobile && visibleProducts.length > 4;
   const renderedProducts = shouldLoop ? [...visibleProducts, ...visibleProducts] : visibleProducts;

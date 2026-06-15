@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { unstable_cache } from "next/cache";
 import { HPT_DATA } from "@/lib/data";
 import { defaultAboutPage } from "@/globals/AboutPage";
 import { getPayloadClient } from "@/lib/payload";
@@ -516,7 +517,7 @@ async function findDocs(collection: PublicCollectionSlug, options: Record<string
   }
 }
 
-export async function getBannersFromPayload(): Promise<PublicBanner[]> {
+async function loadBannersFromPayload(): Promise<PublicBanner[]> {
   const res = await findDocs("banners", {
     sort: "sortOrder",
     where: { active: { equals: true } },
@@ -536,7 +537,13 @@ export async function getBannersFromPayload(): Promise<PublicBanner[]> {
     : HPT_DATA.banners.map((image) => ({ image, link: "/" }));
 }
 
-export async function getSolutionsFromPayload(): Promise<PublicSolution[]> {
+export const getBannersFromPayload = unstable_cache(
+  loadBannersFromPayload,
+  ["banners"],
+  { revalidate: 300, tags: ["banners"] },
+);
+
+async function loadSolutionsFromPayload(): Promise<PublicSolution[]> {
   const res = await findDocs("solutions", { sort: "sortOrder" });
   const solutions = res.docs.map((doc) => ({
     title: textField(doc, "name") || "",
@@ -554,6 +561,12 @@ export async function getSolutionsFromPayload(): Promise<PublicSolution[]> {
         icon: solution.icon,
       }));
 }
+
+export const getSolutionsFromPayload = unstable_cache(
+  loadSolutionsFromPayload,
+  ["solutions"],
+  { revalidate: 300, tags: ["solutions"] },
+);
 
 const defaultEnterpriseServices: PublicEnterpriseService[] = [
   {
@@ -617,7 +630,7 @@ function mapEnterpriseService(doc: PayloadDoc): PublicEnterpriseService {
   };
 }
 
-export async function getEnterpriseServicesFromPayload(): Promise<PublicEnterpriseService[]> {
+async function loadEnterpriseServicesFromPayload(): Promise<PublicEnterpriseService[]> {
   const res = await findDocs("enterprise-services", {
     sort: "sortOrder",
     where: { status: { equals: "published" } },
@@ -625,6 +638,12 @@ export async function getEnterpriseServicesFromPayload(): Promise<PublicEnterpri
   const services = res.docs.map(mapEnterpriseService).filter((service) => service.slug);
   return services.length ? services : defaultEnterpriseServices;
 }
+
+export const getEnterpriseServicesFromPayload = unstable_cache(
+  loadEnterpriseServicesFromPayload,
+  ["enterprise-services"],
+  { revalidate: 300, tags: ["enterprise-services"] },
+);
 
 export async function getEnterpriseServiceBySlugFromPayload(
   slug: string,
@@ -890,7 +909,7 @@ export async function getStaticPageFromPayload(slug: string): Promise<PublicStat
   };
 }
 
-export async function getSiteSettingsFromPayload(): Promise<PublicSiteSettings | null> {
+async function loadSiteSettingsFromPayload(): Promise<PublicSiteSettings | null> {
   try {
     const payload = await getPayloadClient();
     return (await payload.findGlobal({ slug: "site-settings" })) as PublicSiteSettings;
@@ -899,6 +918,12 @@ export async function getSiteSettingsFromPayload(): Promise<PublicSiteSettings |
     return null;
   }
 }
+
+export const getSiteSettingsFromPayload = unstable_cache(
+  loadSiteSettingsFromPayload,
+  ["site-settings"],
+  { revalidate: 300, tags: ["site-settings"] },
+);
 
 export async function getAboutPageFromPayload(): Promise<PublicAboutPage> {
   try {

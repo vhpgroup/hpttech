@@ -7,7 +7,12 @@ import {
   Download,
   FileText,
 } from "lucide-react";
-import { getProductBySlugFromPayload, getProductsFromPayload } from "@/lib/catalog-payload";
+import {
+  getProductBySlugFromPayload,
+  getProductsByBrandFromPayload,
+  getProductsByCategoryFromPayload,
+  getPublishedProductSlugs,
+} from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
 import { helpLinks } from "@/lib/help-links";
@@ -127,7 +132,8 @@ function inferDocumentType(filename?: string) {
 }
 
 export async function generateStaticParams() {
-  return [];
+  const slugs = await getPublishedProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -152,13 +158,17 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [product, rawSettings, allProducts] = await Promise.all([
+  const [product, rawSettings] = await Promise.all([
     getProductBySlugFromPayload(slug),
     getSiteSettingsFromPayload(),
-    getProductsFromPayload(),
   ]);
 
   if (!product) notFound();
+
+  const [similarProducts, sameBrandProducts] = await Promise.all([
+    product.category ? getProductsByCategoryFromPayload(product.category, product.slug, 8) : Promise.resolve([]),
+    product.brand ? getProductsByBrandFromPayload(product.brand, product.slug, 8) : Promise.resolve([]),
+  ]);
 
   const settings = normalizeSiteSettings(rawSettings);
   const phone = settings.hotline || settings.phone;
@@ -171,32 +181,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
   );
   const schemaPrice = parseVNDPrice(product.price);
   const productDescription = product.description || product.detail;
-  const otherProducts = allProducts.filter((item) => item.slug !== product.slug);
-  const similarProducts = uniqueProducts(
-    otherProducts.filter((item) => product.category && item.category === product.category),
-  ).slice(0, 4);
-  const sameBrandProducts = uniqueProducts(
-    otherProducts.filter((item) => product.brand && item.brand === product.brand),
-  ).slice(0, 4);
   const assignedRelatedProducts = uniqueProducts((product.relatedProducts ?? []).filter((item) => item.slug !== product.slug));
-  const usedRelationKeys = new Set(
-    [...similarProducts, ...sameBrandProducts, ...assignedRelatedProducts].map((item) => item.slug || item.title),
-  );
-  const fallbackRelatedProducts = uniqueProducts(
-    otherProducts.filter((item) => !usedRelationKeys.has(item.slug || item.title)),
-  ).slice(0, 4);
-  const relatedProducts = (assignedRelatedProducts.length ? assignedRelatedProducts : fallbackRelatedProducts).slice(0, 4);
+  const relatedProducts = assignedRelatedProducts.slice(0, 4);
   const relationSections: ProductRelationSection[] = [
     {
       id: "similar",
       label: "Sản phẩm tương tự",
-      products: similarProducts,
+      products: uniqueProducts(similarProducts).slice(0, 4),
       emptyMessage: "Chưa có sản phẩm tương tự trong cùng danh mục.",
     },
     {
       id: "same-brand",
       label: "Sản phẩm cùng hãng",
-      products: sameBrandProducts,
+      products: uniqueProducts(sameBrandProducts).slice(0, 4),
       emptyMessage: "Chưa có sản phẩm cùng hãng trong catalog.",
     },
     {

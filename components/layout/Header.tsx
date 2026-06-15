@@ -21,6 +21,8 @@ import HeaderCartButton from "@/components/cart/HeaderCartButton";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
+const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
+
 const navLinks = [
   { href: "/san-pham", label: "Sản phẩm" },
   { href: "/giai-phap", label: "Giải pháp" },
@@ -73,7 +75,7 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
 
         <Link href="/" className="brand" aria-label={settings.companyName}>
           <Image
-            src="https://hpttech.vn/media/32/content/HPT-Logo.png"
+            src={HPT_LOGO_SRC}
             alt={settings.companyName}
             width={92}
             height={54}

@@ -12,6 +12,8 @@ import type { PublicSiteSettings } from "@/lib/content-payload";
 import { helpLinks } from "@/lib/help-links";
 import { phoneHref } from "@/lib/site-settings";
 
+const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
+
 type FooterLink = {
   label: string;
   href: string;
@@ -77,9 +79,14 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
 
       <div className="mx-auto grid max-w-[1500px] gap-9 px-8 py-14 md:grid-cols-2 lg:grid-cols-[1.2fr_0.72fr_0.72fr_1fr_1.05fr] lg:justify-between lg:px-10">
         <section className="lg:max-w-[360px]" aria-labelledby="footer-about-heading">
-          <Link href="/" className="inline-flex items-end gap-2 text-[46px] font-black leading-none tracking-tight text-[#1681ff]" aria-label="HPT Tech trang chủ">
-            HPT
-            <span className="mb-1 text-2xl font-light text-white">TECH</span>
+          <Link href="/" className="inline-flex rounded-xl bg-white px-4 py-3" aria-label="HPT Tech trang chủ">
+            <Image
+              src={HPT_LOGO_SRC}
+              alt={settings.companyName}
+              width={150}
+              height={88}
+              className="h-auto w-[150px] object-contain"
+            />
           </Link>
           <p className="mt-8 text-base leading-8 text-slate-300">
             HPT Tech cung cấp thiết bị CNTT, thiết bị văn phòng, máy scan, máy in, NAS, camera, thiết bị mạng và giải pháp hạ tầng công nghệ cho doanh nghiệp, tổ chức và cơ quan nhà nước.

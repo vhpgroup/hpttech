@@ -1,5 +1,5 @@
 import HomePageClient from "@/components/home/HomePageClient";
-import { getProductsFromPayload } from "@/lib/catalog-payload";
+import { getHomeProductsFromPayload } from "@/lib/catalog-payload";
 import { getBannersFromPayload, getSiteSettingsFromPayload, getSolutionsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
@@ -14,7 +14,7 @@ export const metadata = pageMetadata({
 
 export default async function HomePage() {
   const [products, banners, solutions, rawSettings] = await Promise.all([
-    getProductsFromPayload(),
+    getHomeProductsFromPayload(),
     getBannersFromPayload(),
     getSolutionsFromPayload(),
     getSiteSettingsFromPayload(),

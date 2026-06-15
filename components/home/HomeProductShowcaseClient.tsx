@@ -12,7 +12,7 @@ type HomeProductShowcaseClientProps = {
 };
 
 export default function HomeProductShowcaseClient({ products }: HomeProductShowcaseClientProps) {
-  const [activeProductTab, setActiveProductTab] = useState("Nổi bật");
+  const [activeProductTab, setActiveProductTab] = useState(HPT_DATA.productTabs[0] || "Nổi bật");
   const [productSearch, setProductSearch] = useState("");
 
   const filteredProducts = useMemo(() => {
@@ -28,10 +28,13 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
       return products;
     })();
 
+    const visibleTabProducts = activeProductTab === "Nổi bật" && tabFiltered.length === 0
+      ? products
+      : tabFiltered;
     const query = productSearch.trim().toLowerCase();
-    if (!query) return tabFiltered;
+    if (!query) return visibleTabProducts;
 
-    return tabFiltered.filter((product) =>
+    return visibleTabProducts.filter((product) =>
       [product.title, product.detail, product.brand, product.category]
         .join(" ")
         .toLowerCase()
