@@ -30,10 +30,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteURL()),
   icons: {
     icon: [
-      { url: "/assets/logo/hptlogo.png", type: "image/png" },
+      { url: "/assets/logo/hptlogo.jpg", type: "image/jpeg" },
     ],
-    shortcut: "/assets/logo/hptlogo.png",
-    apple: "/assets/logo/hptlogo.png",
+    shortcut: "/assets/logo/hptlogo.jpg",
+    apple: "/assets/logo/hptlogo.jpg",
   },
   ...pageMetadata({
     title: "HPT Tech - Thiết bị văn phòng & giải pháp số hóa",

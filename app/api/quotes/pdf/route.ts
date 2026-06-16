@@ -111,7 +111,7 @@ function quoteHTML(data: QuoteRequest, origin: string) {
     }),
     { subtotal: 0, vat: 0, total: 0 },
   );
-  const logo = new URL("/assets/logo/hptlogo.png", origin).toString();
+  const logo = new URL("/assets/logo/hptlogo.jpg", origin).toString();
   const summaryColSpan = hasImages ? 5 : 4;
   const productRows = products
     .map(

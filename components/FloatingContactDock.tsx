@@ -211,7 +211,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
           </button>
           <div className="support-chatbot-brand">
             <div className="support-chatbot-logo">
-              <Image src="/assets/logo/hptlogo.png" alt="HPT Tech" width={48} height={32} />
+              <Image src="/assets/logo/hptlogo.jpg" alt="HPT Tech" width={48} height={32} />
             </div>
             <div>
               <strong>{settings.companyName}</strong>
@@ -229,7 +229,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
               <div className={`support-chat-message ${message.role}`} key={`${message.role}-${index}`}>
                 {message.role === "bot" ? (
                   <div className="support-chat-avatar" aria-hidden="true">
-                    <Image src="/assets/logo/hptlogo.png" alt={settings.companyName} width={28} height={28} />
+                    <Image src="/assets/logo/hptlogo.jpg" alt={settings.companyName} width={28} height={28} />
                   </div>
                 ) : null}
                 <div className="support-chat-content">
@@ -240,7 +240,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
             {loading ? (
               <div className="support-chat-message bot loading">
                 <div className="support-chat-avatar" aria-hidden="true">
-                  <Image src="/assets/logo/hptlogo.png" alt="HPT Tech" width={28} height={28} />
+                  <Image src="/assets/logo/hptlogo.jpg" alt="HPT Tech" width={28} height={28} />
                 </div>
                 <div className="support-chat-content">
                   <div className="support-chat-bubble support-chat-typing">

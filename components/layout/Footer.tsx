@@ -12,7 +12,7 @@ import type { PublicSiteSettings } from "@/lib/content-payload";
 import { helpLinks } from "@/lib/help-links";
 import { phoneHref } from "@/lib/site-settings";
 
-const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
+const HPT_LOGO_SRC = "/assets/logo/hptlogo.jpg";
 
 type FooterLink = {
   label: string;

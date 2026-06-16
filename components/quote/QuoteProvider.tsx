@@ -126,7 +126,7 @@ function QuoteDocument({
       <header className="quote-intro grid gap-5 border-b-4 border-[#0A4BFF] pb-5 md:grid-cols-[190px_1fr]">
         <div className="flex items-center">
           <Image
-            src="/assets/logo/hptlogo.png"
+            src="/assets/logo/hptlogo.jpg"
             alt="HPT Technology"
             width={170}
             height={92}
