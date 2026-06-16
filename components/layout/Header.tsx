@@ -21,7 +21,7 @@ import HeaderCartButton from "@/components/cart/HeaderCartButton";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
-const HPT_LOGO_SRC = "/assets/logo/hptlogo.jpg";
+const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 
 const navLinks = [
   { href: "/san-pham", label: "Sản phẩm" },

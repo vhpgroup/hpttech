@@ -153,7 +153,7 @@ export default async function EnterpriseSupportPage() {
               <div className="relative">
                 <div className="flex items-center gap-5">
                   <Image
-                    src="/assets/logo/hptlogo.jpg"
+                    src="/assets/logo/hptlogo.png"
                     alt="HPT Technology"
                     width={150}
                     height={84}
