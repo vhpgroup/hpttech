@@ -103,7 +103,13 @@ async function upsertPostCategory(
   sortOrder = 0,
 ) {
   const slug = formatSlug(node.name);
-  const existing = await findOne(payload, "post-categories", parent ? { and: [{ slug: { equals: slug } }, { parent: { equals: parent } }] } : { slug: { equals: slug } });
+  const existing = await findOne(
+    payload,
+    "post-categories",
+    parent
+      ? { and: [{ slug: { equals: slug } }, { parent: { equals: parent } }] }
+      : { slug: { equals: slug } },
+  );
   const data = { name: node.name, slug, parent, sortOrder };
   const doc = existing
     ? await payload.update({ collection: "post-categories" as never, id: existing.id, data })

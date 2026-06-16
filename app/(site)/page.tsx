@@ -5,6 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
 
 export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata = pageMetadata({
   title: "HPT Tech - Thiết bị văn phòng & giải pháp số hóa",

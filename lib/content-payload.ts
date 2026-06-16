@@ -737,7 +737,7 @@ export async function getPostByPathFromPayload(pathValue: string): Promise<Publi
     },
   });
   const doc = res.docs[0];
-  if (doc) return mapPost(doc);
+  if (doc) return mapPostDetail(doc);
 
   const slug = normalizedPath.split("/").pop() || normalizedPath;
   return getPostBySlugFromPayload(slug);

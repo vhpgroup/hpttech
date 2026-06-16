@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/vercel-init-payload-schema.cjs && next build",
+    "cron:create-news": "tsx scripts/cron-create-news.ts",
     "payload": "payload",
     "payload:audit-catalog": "tsx scripts/audit-catalog-readiness.ts",
     "payload:create-first-user": "tsx scripts/create-first-payload-user.ts",

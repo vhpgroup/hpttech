@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Check, Plus, Star } from "lucide-react";
-import type { MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { CatalogProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
@@ -16,74 +16,6 @@ type ProductCardProps = {
   onCompare?: (product: CatalogProduct) => void;
 };
 
-const SPEC_PRESETS: Record<string, string[]> = {
-  printer: ["toc do", "duplex", "2 mat", "adf", "ket noi", "wifi", "lan", "usb"],
-  scanner: ["toc do", "adf", "phan giai", "ket noi", "wifi", "lan", "usb"],
-  copier: ["toc do", "kho giay", "duplex", "2 mat", "adf", "ket noi"],
-  general: ["toc do", "hieu suat", "ket noi", "bao hanh"],
-};
-
-function normalizeText(value?: string) {
-  return (value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
-    .toLowerCase();
-}
-
-function productType(product: CatalogProduct) {
-  const text = normalizeText(`${product.category || ""} ${product.title}`);
-  if (text.includes("scan")) return "scanner";
-  if (text.includes("photo") || text.includes("copier")) return "copier";
-  if (text.includes("may in") || text.includes("printer") || text.includes("laserjet")) return "printer";
-  return "general";
-}
-
-function compactSpecLabel(label: string) {
-  const normalized = normalizeText(label);
-  if (normalized.includes("toc do") && normalized.includes("scan")) return "Tốc độ scan";
-  if (normalized.includes("toc do") && normalized.includes("in")) return "Tốc độ in";
-  if (normalized.includes("phan giai")) return "Độ phân giải";
-  if (normalized.includes("ket noi")) return "Kết nối";
-  if (normalized.includes("duplex") || normalized.includes("2 mat")) return "2 mặt";
-  if (normalized.includes("kho giay")) return "Khổ giấy";
-  if (normalized.includes("bao hanh")) return "Bảo hành";
-  return label;
-}
-
-function pickFeaturedSpecs(product: CatalogProduct) {
-  const specs = (product.specs || []).filter((spec) => spec.label?.trim() && spec.value?.trim());
-  const priority = SPEC_PRESETS[productType(product)];
-  const picked: CatalogProduct["specs"] = [];
-  const used = new Set<string>();
-
-  for (const pattern of priority) {
-    const match = specs.find((spec) => {
-      const key = `${normalizeText(spec.label)}:${normalizeText(spec.value)}`;
-      return !used.has(key) && normalizeText(spec.label).includes(pattern);
-    });
-    if (!match) continue;
-
-    used.add(`${normalizeText(match.label)}:${normalizeText(match.value)}`);
-    picked.push(match);
-    if (picked.length === 4) break;
-  }
-
-  for (const spec of specs) {
-    if (picked.length === 4) break;
-    const key = `${normalizeText(spec.label)}:${normalizeText(spec.value)}`;
-    if (used.has(key)) continue;
-    used.add(key);
-    picked.push(spec);
-  }
-
-  return picked.slice(0, 4).map((spec) => ({
-    label: compactSpecLabel(spec.label),
-    value: spec.value,
-  }));
-}
-
 function stockLabel(stockStatus?: string) {
   if (stockStatus === "out_of_stock") return { label: "Hết hàng", className: "text-red-600" };
   if (stockStatus === "preorder") return { label: "Đặt trước", className: "text-amber-600" };
@@ -92,10 +24,6 @@ function stockLabel(stockStatus?: string) {
 
 function productHref(product: CatalogProduct) {
   return product.slug ? `/san-pham/${product.slug}` : product.href || "/san-pham";
-}
-
-function productKey(product: CatalogProduct) {
-  return product.slug || product.title;
 }
 
 function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; reviewCount?: number }) {
@@ -123,12 +51,43 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
 
 export function ProductCard({ product, className, isComparing = false, onCompare }: ProductCardProps) {
   const router = useRouter();
+  const [globalComparing, setGlobalComparing] = useState(isComparing);
   const href = productHref(product);
   const image = product.images?.[0]?.url || product.image;
-  const imageUnoptimized = image?.startsWith("/api/r2-media/") === true;
-  const specs = pickFeaturedSpecs(product);
+  const promotionCount =
+    product.promotionCount ?? product.promotions?.length ?? (product.promoText ? 1 : 0);
   const stock = stockLabel(product.stockStatus);
-  const compareHref = `/compare?products=${encodeURIComponent(productKey(product))}`;
+  const selected = onCompare ? isComparing : globalComparing;
+
+  useEffect(() => {
+    if (onCompare) return;
+
+    const handleState = (event: Event) => {
+      const items = (event as CustomEvent<CatalogProduct[]>).detail;
+      if (!Array.isArray(items)) return;
+      setGlobalComparing(
+        items.some((item) => (item.slug || item.title) === (product.slug || product.title)),
+      );
+    };
+
+    window.addEventListener("hpt:compare:state", handleState);
+    window.dispatchEvent(new CustomEvent("hpt:compare:request-state"));
+    return () => window.removeEventListener("hpt:compare:state", handleState);
+  }, [onCompare, product.slug, product.title]);
+
+  const toggleCompare = () => {
+    if (onCompare) {
+      onCompare(product);
+      return;
+    }
+
+    window.dispatchEvent(
+      new CustomEvent<CatalogProduct>(
+        selected ? "hpt:compare:remove" : "hpt:compare:add",
+        { detail: product },
+      ),
+    );
+  };
   const openProduct = (event: MouseEvent<HTMLElement>) => {
     if (
       event.target instanceof Element &&
@@ -144,7 +103,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
     <article
       onClick={openProduct}
       className={cn(
-        "group relative flex min-h-[452px] cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+        "group relative flex min-h-[390px] cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
         className,
       )}
     >
@@ -157,23 +116,11 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             height={190}
             className="max-h-[150px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 45vw, (max-width: 1280px) 25vw, 240px"
-            unoptimized={imageUnoptimized}
           />
         ) : (
           <div className="h-28 w-full rounded-md bg-slate-100" />
         )}
       </Link>
-
-      {specs.length ? (
-        <div className="mt-1 grid grid-cols-2 gap-1.5">
-          {specs.map((spec) => (
-            <div key={`${spec.label}-${spec.value}`} className="rounded-md border border-blue-100 bg-blue-50/70 px-1.5 py-1">
-              <p className="truncate text-[9px] font-semibold leading-3 text-blue-600">{spec.label}</p>
-              <p className="truncate text-[10px] font-bold leading-3 text-slate-700">{spec.value}</p>
-            </div>
-          ))}
-        </div>
-      ) : null}
 
       <div className="mt-3 flex flex-1 flex-col">
         <h3 className="line-clamp-2 min-h-[42px] text-[15px] font-bold leading-[21px] text-slate-950">
@@ -198,26 +145,13 @@ export function ProductCard({ product, className, isComparing = false, onCompare
               </span>
             ) : null}
           </div>
-          {product.promoText ? <p className="mt-1 text-sm text-slate-700">1 khuyến mại</p> : null}
+          {promotionCount > 0 ? (
+            <p className="mt-1 text-sm text-slate-700">{promotionCount} khuyến mại</p>
+          ) : null}
         </div>
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm font-medium">
-            {onCompare ? (
-              <button
-                type="button"
-                className={cn("inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-700", isComparing && "font-bold")}
-                onClick={() => onCompare(product)}
-              >
-                <Plus size={14} />
-                {isComparing ? "Đã chọn" : "So sánh"}
-              </button>
-            ) : (
-              <Link href={compareHref} className="inline-flex items-center gap-0.5 text-blue-600 hover:text-blue-700">
-                <Plus size={14} />
-                So sánh
-              </Link>
-            )}
             <span className={cn("inline-flex items-center gap-0.5", stock.className)}>
               <Check size={14} strokeWidth={3} />
               {stock.label}
@@ -229,6 +163,28 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             ariaLabel={`Thêm ${product.title} vào giỏ`}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-blue-600 text-white transition hover:bg-blue-700"
           />
+        </div>
+
+        <div className="product-card-actions mt-3 grid grid-cols-2 gap-2" data-product-card-actions>
+          <Link
+            href={href}
+            className="inline-flex h-10 items-center justify-center rounded-lg bg-[#0A4BFF] px-3 text-xs font-bold !text-white transition hover:bg-blue-700"
+          >
+            Xem chi tiết
+          </Link>
+          <button
+            type="button"
+            onClick={toggleCompare}
+            className={cn(
+              "inline-flex h-10 items-center justify-center gap-1 rounded-lg border px-3 text-xs font-bold transition",
+              selected
+                ? "border-blue-300 bg-blue-50 text-blue-700"
+                : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700",
+            )}
+          >
+            {selected ? <Check size={14} strokeWidth={3} /> : <Plus size={14} />}
+            {selected ? "Đã thêm" : "So sánh"}
+          </button>
         </div>
       </div>
     </article>

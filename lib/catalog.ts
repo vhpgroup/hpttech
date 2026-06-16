@@ -1,3 +1,15 @@
+export type ProductPromotion = {
+  id: string;
+  kind: "monthly" | "product";
+  title: string;
+  description?: string;
+  benefits?: string[];
+  startDate?: string;
+  endDate?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+};
+
 export type CatalogProduct = {
   id?: string | number;
   internalId?: string;
@@ -19,6 +31,8 @@ export type CatalogProduct = {
   promoText?: string;
   promoStart?: string;
   promoEnd?: string;
+  promotions?: ProductPromotion[];
+  promotionCount?: number;
   stockStatus?: string;
   stockQuantity?: number;
   detail?: string;
