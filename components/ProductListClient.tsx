@@ -22,6 +22,9 @@ const PAGE_SIZE = 12;
 
 type ProductListClientProps = {
   products: CatalogProduct[];
+  page?: number;
+  totalPages?: number;
+  totalProducts?: number;
 };
 
 type MultiFilterKey = "categories" | "brands" | "scanSpeeds" | "duplex" | "adf" | "connectivity" | "paperSizes";

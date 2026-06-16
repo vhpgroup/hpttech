@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { unstable_cache } from "next/cache";
 import { extractHighlightBulletPoints } from "@/lib/scraper/text";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
@@ -18,6 +19,53 @@ type RawProductHTML = {
   shortDescription?: string;
   summaryHTML?: string;
 };
+
+const DEFAULT_HOME_PRODUCTS_LIMIT = 36;
+const HOME_PRODUCTS_POOL_LIMIT = 180;
+const DEFAULT_PRODUCT_LIST_LIMIT = 24;
+
+export type ProductListPageResult = {
+  products: CatalogProduct[];
+  page: number;
+  limit: number;
+  totalProducts: number;
+  totalPages: number;
+};
+
+function normalizeSearchText(value?: string) {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/Ä‘/g, "d")
+    .replace(/Ä/g, "D")
+    .toLowerCase();
+}
+
+function compactHomeProduct(product: CatalogProduct): CatalogProduct {
+  const images = product.images?.slice(0, 1);
+  return {
+    id: product.id,
+    title: product.title,
+    slug: product.slug,
+    sku: product.sku,
+    productType: product.productType,
+    brand: product.brand,
+    category: product.category,
+    price: product.price,
+    priceValue: product.priceValue,
+    compareAtPrice: product.compareAtPrice,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    discountBadge: product.discountBadge,
+    promoText: product.promoText,
+    stockStatus: product.stockStatus,
+    images,
+    image: images?.[0]?.url || product.image,
+    specs: product.specs?.slice(0, 4),
+    href: product.href,
+    tag: product.tag,
+  };
+}
 
 function loadLocalCatalogFixtures(): CatalogProduct[] {
   const fixturePath = process.env.LOCAL_CATALOG_FIXTURE_PATH;
@@ -526,6 +574,304 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
   } catch (error) {
     handlePayloadReadError("products", error);
     return localProducts;
+  }
+}
+
+async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT): Promise<CatalogProduct[]> {
+  const safeLimit = Math.max(1, Math.min(Math.floor(limit) || DEFAULT_HOME_PRODUCTS_LIMIT, 500));
+  const localProducts = loadLocalCatalogFixtures()
+    .slice(0, safeLimit)
+    .map(compactHomeProduct);
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 2,
+      limit: Math.max(safeLimit, HOME_PRODUCTS_POOL_LIMIT),
+      sort: "-updatedAt",
+      where: {
+        status: {
+          equals: "published",
+        },
+      },
+    });
+
+    const docs = res.docs as unknown as PayloadProductDoc[];
+    const productIDs = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+    const products = docs.map((doc) =>
+      compactHomeProduct(
+        normalizeProduct(
+          doc,
+          false,
+          doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+          projections,
+        ),
+      ),
+    );
+    const selected = selectHomeProducts(products, safeLimit);
+    const payloadSlugs = new Set(selected.map((product) => product.slug));
+
+    return [...selected, ...localProducts.filter((product) => !payloadSlugs.has(product.slug))]
+      .slice(0, safeLimit);
+  } catch (error) {
+    handlePayloadReadError("home-products", error);
+    return localProducts;
+  }
+}
+
+export const getHomeProductsFromPayload = unstable_cache(
+  loadHomeProductsFromPayload,
+  ["home-products"],
+  { revalidate: 300, tags: ["products"] },
+);
+
+function selectHomeProducts(products: CatalogProduct[], limit: number) {
+  const selected: CatalogProduct[] = [];
+  const seen = new Set<string>();
+
+  const addGroup = (group: CatalogProduct[], groupLimit: number) => {
+    for (const product of group) {
+      const key = product.slug || product.title;
+      if (!key || seen.has(key)) continue;
+      selected.push(product);
+      seen.add(key);
+      if (selected.length >= limit) return;
+      groupLimit -= 1;
+      if (groupLimit <= 0) return;
+    }
+  };
+
+  const text = (product: CatalogProduct) =>
+    normalizeSearchText(`${product.productType || ""} ${product.category || ""} ${product.brand || ""} ${product.title || ""}`);
+
+  addGroup(products.filter((product) => product.tag), 12);
+  addGroup(
+    Array.from(
+      products.reduce((groups, product) => {
+        const value = text(product);
+        const kind = value.includes("scan")
+          ? "scanner"
+          : value.includes("printer") || value.includes("may in") || value.includes("laserjet")
+            ? "printer"
+            : value.includes("photocop") || value.includes("copier") || value.includes("may photo")
+              ? "photocopier"
+              : "";
+        if (!kind || !product.brand) return groups;
+
+        const key = `${kind}:${product.brand}`;
+        if (!groups.has(key)) groups.set(key, product);
+        return groups;
+      }, new Map<string, CatalogProduct>()).values(),
+    ),
+    limit,
+  );
+  addGroup(products.filter((product) => text(product).includes("scan")), 20);
+  addGroup(
+    products.filter((product) => {
+      const value = text(product);
+      return value.includes("printer") || value.includes("may in") || value.includes("laserjet");
+    }),
+    20,
+  );
+  addGroup(
+    products.filter((product) => {
+      const value = text(product);
+      return value.includes("photocop") || value.includes("copier") || value.includes("may photo");
+    }),
+    20,
+  );
+  addGroup(products.filter((product) => product.brand === "HP"), 8);
+  addGroup(products.filter((product) => product.brand === "Brother"), 8);
+  addGroup(products, limit - selected.length);
+
+  return selected.slice(0, limit);
+}
+
+export async function getProductListPageFromPayload({
+  page = 1,
+  limit = DEFAULT_PRODUCT_LIST_LIMIT,
+}: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<ProductListPageResult> {
+  const safePage = Math.max(1, Math.floor(page) || 1);
+  const safeLimit = Math.max(1, Math.min(Math.floor(limit) || DEFAULT_PRODUCT_LIST_LIMIT, 60));
+  const localProducts = loadLocalCatalogFixtures();
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 2,
+      limit: safeLimit,
+      page: safePage,
+      sort: "-updatedAt",
+      where: {
+        status: {
+          equals: "published",
+        },
+      },
+    });
+
+    const docs = res.docs as unknown as PayloadProductDoc[];
+    const productIDs = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+    const products = docs.map((doc) =>
+      normalizeProduct(
+        doc,
+        false,
+        doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+        projections,
+      ),
+    );
+
+    return {
+      products,
+      page: typeof res.page === "number" ? res.page : safePage,
+      limit: safeLimit,
+      totalProducts: typeof res.totalDocs === "number" ? res.totalDocs : products.length,
+      totalPages: typeof res.totalPages === "number" ? res.totalPages : Math.max(1, Math.ceil(products.length / safeLimit)),
+    };
+  } catch (error) {
+    handlePayloadReadError("product-list-page", error);
+    const start = (safePage - 1) * safeLimit;
+    const products = localProducts.slice(start, start + safeLimit);
+
+    return {
+      products,
+      page: safePage,
+      limit: safeLimit,
+      totalProducts: localProducts.length,
+      totalPages: Math.max(1, Math.ceil(localProducts.length / safeLimit)),
+    };
+  }
+}
+
+async function getRelatedProductsFromPayload({
+  field,
+  value,
+  excludeSlug,
+  limit,
+  readLabel,
+}: {
+  field: "category" | "brand";
+  value: string;
+  excludeSlug: string;
+  limit: number;
+  readLabel: string;
+}): Promise<CatalogProduct[]> {
+  if (!value) return [];
+
+  try {
+    const payload = await getPayloadClient();
+    const collection = field === "category" ? "categories" : "brands";
+    const relRes = await payload.find({
+      collection: collection as never,
+      depth: 0,
+      limit: 1,
+      where: { name: { equals: value } },
+    });
+    const relId = (relRes.docs[0] as { id?: string | number } | undefined)?.id;
+    if (!relId) return [];
+
+    const res = await payload.find({
+      collection: "products",
+      depth: 2,
+      limit: Math.max(1, Math.min(limit, 24)),
+      sort: "-updatedAt",
+      where: {
+        and: [
+          { slug: { not_in: [excludeSlug] } },
+          { status: { equals: "published" } },
+          { [field]: { equals: relId } },
+        ],
+      },
+    });
+
+    const docs = res.docs as unknown as PayloadProductDoc[];
+    const productIDs = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+
+    return docs.map((doc) =>
+      normalizeProduct(
+        doc,
+        false,
+        doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+        projections,
+      ),
+    );
+  } catch (error) {
+    handlePayloadReadError(readLabel, error);
+    return loadLocalCatalogFixtures()
+      .filter((product) => product.slug !== excludeSlug && product[field] === value)
+      .slice(0, limit);
+  }
+}
+
+export function getProductsByCategoryFromPayload(
+  categoryName: string,
+  excludeSlug: string,
+  limit = 8,
+): Promise<CatalogProduct[]> {
+  return getRelatedProductsFromPayload({
+    field: "category",
+    value: categoryName,
+    excludeSlug,
+    limit,
+    readLabel: `products:category:${categoryName}`,
+  });
+}
+
+export function getProductsByBrandFromPayload(
+  brandName: string,
+  excludeSlug: string,
+  limit = 8,
+): Promise<CatalogProduct[]> {
+  return getRelatedProductsFromPayload({
+    field: "brand",
+    value: brandName,
+    excludeSlug,
+    limit,
+    readLabel: `products:brand:${brandName}`,
+  });
+}
+
+function productStaticParamsLimit() {
+  const configured = Number(process.env.PRODUCT_STATIC_PARAMS_LIMIT);
+  if (Number.isFinite(configured) && configured > 0) return Math.floor(configured);
+  return 50;
+}
+
+export async function getPublishedProductSlugs(limit = productStaticParamsLimit()): Promise<string[]> {
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 0,
+      limit: Math.max(1, Math.min(limit, 1000)),
+      sort: "-updatedAt",
+      select: { slug: true },
+      where: {
+        status: {
+          equals: "published",
+        },
+      },
+    });
+
+    return (res.docs as Array<{ slug?: string }>)
+      .map((doc) => doc.slug)
+      .filter((slug): slug is string => Boolean(slug));
+  } catch (error) {
+    handlePayloadReadError("product-slugs", error);
+    return loadLocalCatalogFixtures().map((product) => product.slug).filter(Boolean).slice(0, limit);
   }
 }
 
