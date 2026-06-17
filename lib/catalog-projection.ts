@@ -84,6 +84,14 @@ export async function loadCanonicalCommercialProjections(
     depth: 0,
     limit: 5000,
     overrideAccess: true,
+    select: {
+      id: true,
+      isPrimary: true,
+      product: true,
+      sku: true,
+      status: true,
+      warranty: true,
+    },
     where: {
       product: {
         in: productIDs,
@@ -102,6 +110,16 @@ export async function loadCanonicalCommercialProjections(
           depth: 0,
           limit: 5000,
           overrideAccess: true,
+          select: {
+            currency: true,
+            price: true,
+            promotionPrice: true,
+            saleStatus: true,
+            validFrom: true,
+            validTo: true,
+            variant: true,
+            vatIncluded: true,
+          },
           where: { variant: { in: variantIDs } },
         }),
         payload.find({
@@ -109,6 +127,11 @@ export async function loadCanonicalCommercialProjections(
           depth: 0,
           limit: 5000,
           overrideAccess: true,
+          select: {
+            quantity: true,
+            stockStatus: true,
+            variant: true,
+          },
           where: { variant: { in: variantIDs } },
         }),
       ])

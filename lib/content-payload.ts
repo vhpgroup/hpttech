@@ -679,7 +679,7 @@ export async function getEnterpriseSupportPageFromPayload(): Promise<PublicEnter
   }
 }
 
-export async function getPostsFromPayload(): Promise<PublicPost[]> {
+async function loadPostsFromPayload(): Promise<PublicPost[]> {
   const res = await findDocs("posts", {
     sort: "-publishedAt",
     where: { status: { equals: "published" } },
@@ -688,7 +688,13 @@ export async function getPostsFromPayload(): Promise<PublicPost[]> {
   return mergeLocalBySlug(res.docs.map(mapPost), loadLocalContentFixtures().posts);
 }
 
-export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
+export const getPostsFromPayload = unstable_cache(
+  loadPostsFromPayload,
+  ["posts"],
+  { revalidate: 300, tags: ["posts"] },
+);
+
+async function loadPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
   const localPost = loadLocalContentFixtures().posts.find((post) => post.slug === slug);
   if (localPost) return localPost;
 
@@ -701,6 +707,16 @@ export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost
   const doc = res.docs[0];
   if (!doc) return null;
   return mapPost(doc);
+}
+
+const getCachedPostBySlugFromPayload = unstable_cache(
+  loadPostBySlugFromPayload,
+  ["post-by-slug"],
+  { revalidate: 300, tags: ["posts"] },
+);
+
+export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
+  return getCachedPostBySlugFromPayload(slug);
 }
 
 export async function getRecruitmentPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
@@ -862,10 +878,16 @@ function mapProjectDetail(doc: PayloadDoc): PublicProject {
   };
 }
 
-export async function getProjectsFromPayload(): Promise<PublicProject[]> {
+async function loadProjectsFromPayload(): Promise<PublicProject[]> {
   const res = await findDocs("projects", { sort: "-completedAt" });
   return mergeLocalBySlug(res.docs.map(mapProject), loadLocalContentFixtures().projects);
 }
+
+export const getProjectsFromPayload = unstable_cache(
+  loadProjectsFromPayload,
+  ["projects"],
+  { revalidate: 300, tags: ["projects"] },
+);
 
 export async function getProjectBySlugFromPayload(slug: string): Promise<PublicProject | null> {
   const localProject = loadLocalContentFixtures().projects.find((project) => project.slug === slug);
@@ -883,13 +905,19 @@ export async function getProjectBySlugFromPayload(slug: string): Promise<PublicP
   return doc ? mapProjectDetail(doc) : null;
 }
 
-export async function getFAQsFromPayload(): Promise<PublicFAQ[]> {
+async function loadFAQsFromPayload(): Promise<PublicFAQ[]> {
   const res = await findDocs("faq", { sort: "sortOrder" });
   return res.docs.map((doc) => ({
     question: textField(doc, "question") || "",
     category: textField(doc, "category"),
   }));
 }
+
+export const getFAQsFromPayload = unstable_cache(
+  loadFAQsFromPayload,
+  ["faqs"],
+  { revalidate: 300, tags: ["faqs"] },
+);
 
 export async function getStaticPageFromPayload(slug: string): Promise<PublicStaticPage | null> {
   const res = await findDocs("static-pages", {
@@ -925,7 +953,7 @@ export const getSiteSettingsFromPayload = unstable_cache(
   { revalidate: 300, tags: ["site-settings"] },
 );
 
-export async function getAboutPageFromPayload(): Promise<PublicAboutPage> {
+async function loadAboutPageFromPayload(): Promise<PublicAboutPage> {
   try {
     const payload = await getPayloadClient();
     const page = (await payload.findGlobal({ slug: "about-page", depth: 2 })) as PayloadDoc;
@@ -935,3 +963,9 @@ export async function getAboutPageFromPayload(): Promise<PublicAboutPage> {
     return normalizeAboutPage(null);
   }
 }
+
+export const getAboutPageFromPayload = unstable_cache(
+  loadAboutPageFromPayload,
+  ["about-page"],
+  { revalidate: 300, tags: ["about"] },
+);

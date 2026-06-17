@@ -2,10 +2,19 @@ import type { NextConfig } from "next";
 import { withPayload } from "@payloadcms/next/withPayload";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  compress: true,
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  poweredByHeader: false,
+  serverExternalPackages: ["sharp", "pg", "playwright", "puppeteer-core", "exceljs", "pdf-parse"],
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400,
+    minimumCacheTTL: 2592000,
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
     remotePatterns: [
       {
         protocol: "https",
@@ -23,7 +32,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.anphatpc.com.vn",
       },
-    ]
+    ],
   },
 };
 

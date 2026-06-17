@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -11,16 +11,25 @@ type HomeProductShowcaseClientProps = {
   quoteEmail: string;
 };
 
+const HOME_FEATURED_PAGE_SIZE = 5;
+
 export default function HomeProductShowcaseClient({ products }: HomeProductShowcaseClientProps) {
-  const [activeProductTab, setActiveProductTab] = useState(HPT_DATA.productTabs[0] || "Nổi bật");
+  const [activeProductTab, setActiveProductTab] = useState(HPT_DATA.productTabs[0] || "Noi bat");
   const [productSearch, setProductSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
 
   const filteredProducts = useMemo(() => {
     const tabFiltered = (() => {
-      if (activeProductTab === "Nổi bật") return products.filter((product) => product.tag);
-      if (activeProductTab === "Máy scan") return products.filter((product) => product.category === "Máy scan");
-      if (activeProductTab === "Máy in") return products.filter((product) => product.category === "Máy in");
-      if (activeProductTab === "Thiết bị văn phòng") {
+      if (activeProductTab === "Noi bat" || activeProductTab === "Nổi bật") {
+        return products.filter((product) => product.tag);
+      }
+      if (activeProductTab === "May scan" || activeProductTab === "Máy scan") {
+        return products.filter((product) => product.category === "Máy scan");
+      }
+      if (activeProductTab === "May in" || activeProductTab === "Máy in") {
+        return products.filter((product) => product.category === "Máy in");
+      }
+      if (activeProductTab === "Thiet bi van phong" || activeProductTab === "Thiết bị văn phòng") {
         return products.filter((product) => product.category === "Máy in" || product.category === "Máy scan");
       }
       if (activeProductTab === "HP") return products.filter((product) => product.brand === "HP");
@@ -28,19 +37,31 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
       return products;
     })();
 
-    const visibleTabProducts = activeProductTab === "Nổi bật" && tabFiltered.length === 0
-      ? products
-      : tabFiltered;
+    const visibleTabProducts =
+      (activeProductTab === "Noi bat" || activeProductTab === "Nổi bật") && tabFiltered.length === 0
+        ? products
+        : tabFiltered;
     const query = productSearch.trim().toLowerCase();
     if (!query) return visibleTabProducts;
 
     return visibleTabProducts.filter((product) =>
-      [product.title, product.detail, product.brand, product.category]
-        .join(" ")
-        .toLowerCase()
-        .includes(query),
+      [product.title, product.detail, product.brand, product.category].join(" ").toLowerCase().includes(query),
     );
   }, [activeProductTab, productSearch, products]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / HOME_FEATURED_PAGE_SIZE));
+  const currentProducts = filteredProducts.slice(
+    currentPage * HOME_FEATURED_PAGE_SIZE,
+    (currentPage + 1) * HOME_FEATURED_PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [activeProductTab, productSearch]);
+
+  useEffect(() => {
+    setCurrentPage((page) => Math.min(page, totalPages - 1));
+  }, [totalPages]);
 
   const addToCompare = (product: CatalogProduct) => {
     window.dispatchEvent(new CustomEvent<CatalogProduct>("hpt:compare:add", { detail: product }));
@@ -77,15 +98,13 @@ export default function HomeProductShowcaseClient({ products }: HomeProductShowc
         </a>
       </div>
 
-      <div className="home-featured-grid grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="productGrid">
-        {filteredProducts.slice(0, 8).map((product) => (
-          <QuickInfoProductCard
-            key={product.slug || product.title}
-            product={product}
-            onCompare={addToCompare}
-          />
+      <div className="home-featured-grid grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" id="productGrid">
+        {currentProducts.map((product) => (
+          <QuickInfoProductCard key={product.slug || product.title} product={product} onCompare={addToCompare} />
         ))}
       </div>
+
+      
     </section>
   );
 }

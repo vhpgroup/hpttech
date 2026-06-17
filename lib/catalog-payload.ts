@@ -5,7 +5,7 @@ import { extractHighlightBulletPoints } from "@/lib/scraper/text";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 import type { CatalogProduct } from "@/lib/catalog";
-import { Client } from "pg";
+import { Pool } from "pg";
 import {
   canonicalAttributeSpecs,
   loadCanonicalCommercialProjections,
@@ -182,14 +182,22 @@ function databaseURL() {
   );
 }
 
-async function loadRawProductHTML(id: string | number): Promise<RawProductHTML> {
-  const connectionString = databaseURL();
-  if (!connectionString) return {};
+let pgPool: Pool | undefined;
 
-  const client = new Client({ connectionString });
+function getPgPool() {
+  if (pgPool) return pgPool;
+  const connectionString = databaseURL();
+  if (!connectionString) return undefined;
+  pgPool = new Pool({ connectionString, max: 5 });
+  return pgPool;
+}
+
+async function loadRawProductHTML(id: string | number): Promise<RawProductHTML> {
+  const pool = getPgPool();
+  if (!pool) return {};
+
   try {
-    await client.connect();
-    const result = await client.query<{
+    const result = await pool.query<{
       description_html: string | null;
       short_description: string | null;
       summary_html: string | null;
@@ -221,8 +229,6 @@ async function loadRawProductHTML(id: string | number): Promise<RawProductHTML> 
     };
   } catch {
     return {};
-  } finally {
-    await client.end().catch(() => undefined);
   }
 }
 
@@ -567,7 +573,7 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
     const payload = await getPayloadClient();
     const res = await payload.find({
       collection: "products",
-      depth: 2,
+      depth: 1,
       limit: Math.max(safeLimit, HOME_PRODUCTS_POOL_LIMIT),
       sort: "-updatedAt",
       where: {
@@ -632,10 +638,10 @@ function selectHomeProducts(products: CatalogProduct[], limit: number) {
         const value = text(product);
         const kind = value.includes("scan")
           ? "scanner"
-          : value.includes("printer") || value.includes("may in") || value.includes("laserjet")
-            ? "printer"
-            : value.includes("photocop") || value.includes("copier") || value.includes("may photo")
-              ? "photocopier"
+          : value.includes("photocop") || value.includes("copier") || value.includes("may photo")
+            ? "photocopier"
+            : value.includes("printer") || value.includes("may in") || value.includes("laserjet")
+              ? "printer"
               : "";
         if (!kind || !product.brand) return groups;
 
@@ -650,7 +656,8 @@ function selectHomeProducts(products: CatalogProduct[], limit: number) {
   addGroup(
     products.filter((product) => {
       const value = text(product);
-      return value.includes("printer") || value.includes("may in") || value.includes("laserjet");
+      const isPhotocopier = value.includes("photocop") || value.includes("copier") || value.includes("may photo");
+      return !isPhotocopier && (value.includes("printer") || value.includes("may in") || value.includes("laserjet"));
     }),
     20,
   );
@@ -677,13 +684,13 @@ function selectHomeProducts(products: CatalogProduct[], limit: number) {
   return selected.slice(0, limit);
 }
 
-export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
+async function loadProductsFromPayload(): Promise<CatalogProduct[]> {
   const localProducts = loadLocalCatalogFixtures();
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
       collection: "products",
-      depth: 2,
+      depth: 1,
       limit: 1000,
       where: {
         and: [
@@ -723,7 +730,17 @@ export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
   }
 }
 
-export async function getProductListPageFromPayload({
+const getCachedProductsFromPayload = unstable_cache(
+  loadProductsFromPayload,
+  ["all-products"],
+  { revalidate: 300, tags: ["products"] },
+);
+
+export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
+  return getCachedProductsFromPayload();
+}
+
+async function loadProductListPageFromPayload({
   page = 1,
   limit = DEFAULT_PRODUCT_LIST_LIMIT,
 }: {
@@ -738,7 +755,7 @@ export async function getProductListPageFromPayload({
     const payload = await getPayloadClient();
     const res = await payload.find({
       collection: "products",
-      depth: 2,
+      depth: 1,
       limit: safeLimit,
       page: safePage,
       sort: "-updatedAt",
@@ -784,7 +801,23 @@ export async function getProductListPageFromPayload({
   }
 }
 
-async function getRelatedProductsFromPayload({
+const getCachedProductListPageFromPayload = unstable_cache(
+  (page?: number, limit?: number) => loadProductListPageFromPayload({ page, limit }),
+  ["product-list-page"],
+  { revalidate: 300, tags: ["products"] },
+);
+
+export async function getProductListPageFromPayload({
+  page = 1,
+  limit = DEFAULT_PRODUCT_LIST_LIMIT,
+}: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<ProductListPageResult> {
+  return getCachedProductListPageFromPayload(page, limit);
+}
+
+async function loadRelatedProductsFromPayload({
   field,
   value,
   excludeSlug,
@@ -816,7 +849,7 @@ async function getRelatedProductsFromPayload({
 
     const res = await payload.find({
       collection: "products",
-      depth: 2,
+      depth: 1,
       limit: Math.max(1, Math.min(limit, 24)),
       sort: "-updatedAt",
       where: {
@@ -849,12 +882,18 @@ async function getRelatedProductsFromPayload({
   }
 }
 
+const getCachedRelatedProductsFromPayload = unstable_cache(
+  loadRelatedProductsFromPayload,
+  ["related-products"],
+  { revalidate: 300, tags: ["products"] },
+);
+
 export function getProductsByCategoryFromPayload(
   categoryName: string,
   excludeSlug: string,
   limit = 8,
 ): Promise<CatalogProduct[]> {
-  return getRelatedProductsFromPayload({
+  return getCachedRelatedProductsFromPayload({
     field: "category",
     value: categoryName,
     excludeSlug,
@@ -868,7 +907,7 @@ export function getProductsByBrandFromPayload(
   excludeSlug: string,
   limit = 8,
 ): Promise<CatalogProduct[]> {
-  return getRelatedProductsFromPayload({
+  return getCachedRelatedProductsFromPayload({
     field: "brand",
     value: brandName,
     excludeSlug,
@@ -909,7 +948,7 @@ export async function getPublishedProductSlugs(limit = productStaticParamsLimit(
   }
 }
 
-export async function getProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
+async function loadProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
   const localProduct = loadLocalCatalogFixtures().find((product) => product.slug === slug) || null;
   try {
     const payload = await getPayloadClient();
@@ -965,4 +1004,14 @@ export async function getProductBySlugFromPayload(slug: string): Promise<Catalog
     handlePayloadReadError(`products:${slug}`, error);
     return localProduct;
   }
+}
+
+const getCachedProductBySlugFromPayload = unstable_cache(
+  loadProductBySlugFromPayload,
+  ["product-by-slug"],
+  { revalidate: 300, tags: ["products"] },
+);
+
+export async function getProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
+  return getCachedProductBySlugFromPayload(slug);
 }

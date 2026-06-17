@@ -2,15 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  ArrowRight,
-  Check,
+import {  Check,
   ChevronLeft,
   ChevronRight,
-  Gift,
-  Sparkles,
-  Tag,
-} from "lucide-react";
+  Gift} from "lucide-react";
 import {
   createContext,
   useCallback,
@@ -45,83 +40,6 @@ type ProductInfoPopup = {
   anchor: DOMRect;
 };
 
-type LightTraceVariant = "featured" | "scanner" | "printer" | "photocopier";
-
-type CategoryLightTrace = {
-  id: number;
-  paths: [string, string];
-};
-
-function createCategoryLightTrace(variant: LightTraceVariant): CategoryLightTrace {
-  const topY = () => Math.round(5 + Math.random() * 14);
-  const bottomY = () => Math.round(40 + Math.random() * 15);
-  const crossingX = Math.round(430 + Math.random() * 180);
-  const secondCrossingX = Math.round(crossingX + 70 + Math.random() * 140);
-  const pathsByVariant: Record<LightTraceVariant, [string, string]> = {
-    featured: [
-      `M -80 ${bottomY()} C 180 ${bottomY()}, ${crossingX - 150} ${topY()}, ${crossingX} ${topY()} S 790 ${bottomY()}, 1080 ${bottomY()}`,
-      `M -60 ${topY()} C 210 ${topY()}, ${secondCrossingX - 140} ${bottomY()}, ${secondCrossingX} ${bottomY()} S 830 ${topY()}, 1060 ${topY()}`,
-    ],
-    scanner: [
-      `M -80 ${topY()} Q 240 ${bottomY()}, 520 ${topY()} T 1080 ${bottomY()}`,
-      `M -60 ${bottomY()} Q 300 ${topY()}, 610 ${bottomY()} T 1060 ${topY()}`,
-    ],
-    printer: [
-      `M -80 ${bottomY()} C 130 ${topY()}, 340 ${topY()}, 520 ${bottomY()} S 820 ${topY()}, 1080 ${bottomY()}`,
-      `M -60 ${topY()} C 250 ${bottomY()}, 500 ${bottomY()}, 680 ${topY()} S 900 ${bottomY()}, 1060 ${topY()}`,
-    ],
-    photocopier: [
-      `M -80 ${bottomY()} C 260 ${bottomY()}, 330 ${topY()}, 560 ${topY()} C 760 ${topY()}, 820 ${bottomY()}, 1080 ${bottomY()}`,
-      `M -60 ${topY()} C 200 ${topY()}, 390 ${bottomY()}, 620 ${bottomY()} C 800 ${bottomY()}, 900 ${topY()}, 1060 ${topY()}`,
-    ],
-  };
-
-  return {
-    id: Date.now(),
-    paths: pathsByVariant[variant],
-  };
-}
-
-export function HomeBarLightTrace({
-  variant,
-  delayOrder = 0,
-}: {
-  variant: LightTraceVariant;
-  delayOrder?: number;
-}) {
-  const [lightTrace, setLightTrace] = useState<CategoryLightTrace | null>(null);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let timeout: number | undefined;
-    const showNextTrace = () => {
-      setLightTrace(createCategoryLightTrace(variant));
-      timeout = window.setTimeout(showNextTrace, 12_000 + Math.random() * 8_000);
-    };
-
-    timeout = window.setTimeout(showNextTrace, 1_600 + delayOrder * 1_350 + Math.random() * 1_800);
-    return () => {
-      if (timeout) window.clearTimeout(timeout);
-    };
-  }, [delayOrder, variant]);
-
-  if (!lightTrace) return null;
-
-  return (
-    <svg
-      key={lightTrace.id}
-      className={`home-bar-light-trace home-bar-light-trace-${variant}`}
-      viewBox="0 0 1000 60"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <path d={lightTrace.paths[0]} />
-      <path d={lightTrace.paths[1]} />
-    </svg>
-  );
-}
-
 const ProductPopupContext = createContext<{
   showPopup: (product: CatalogProduct, anchor: DOMRect) => void;
   hidePopup: (immediate?: boolean) => void;
@@ -148,7 +66,8 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
     autoplay: true,
     match: (product) => {
       const text = normalizeText(`${product.productType} ${product.category} ${product.title}`);
-      return text.includes("printer") || text.includes("may in") || text.includes("laserjet");
+      const isPhotocopier = text.includes("photocop") || text.includes("copier") || text.includes("may photo");
+      return !isPhotocopier && (text.includes("printer") || text.includes("may in") || text.includes("laserjet"));
     },
   },
   {
@@ -166,7 +85,10 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
   },
 ];
 
-const HOME_CATEGORY_PRODUCT_LIMIT = 16;
+const HOME_CATEGORY_PRODUCT_LIMIT = 15;
+const HOME_CATEGORY_PAGE_SIZE = 5;
+const HOME_CATEGORY_CARD_GAP = 16;
+const HOME_CATEGORY_AUTOPLAY_MS = 2500;
 
 function normalizeText(value?: string) {
   return (value || "")
@@ -181,20 +103,43 @@ function productKey(product: CatalogProduct) {
   return String(product.id || product.slug || product.sku || product.title);
 }
 
+function loopProductsForCarousel(products: CatalogProduct[], cardsPerView: number) {
+  if (products.length <= 1 || products.length > cardsPerView) return products;
+
+  const targetCount = Math.max(cardsPerView + 1, products.length * 2);
+  return Array.from({ length: targetCount }, (_, index) => products[index % products.length]);
+}
+
 function popupSpecs(product: CatalogProduct) {
-  return (product.specs || [])
-    .filter((spec) => spec.label.trim() && spec.value.trim())
-    .slice(0, 4);
-}
+  const specs = product.specs ?? [];
+  const preferred = [
+    "cpu",
+    "vga",
+    "màn hình",
+    "ram",
+    "chức năng",
+    "adf",
+    "kết nối",
+    "tốc độ",
+    "độ phân giải",
+  ];
 
-function productHref(product: CatalogProduct) {
-  return product.slug ? `/san-pham/${product.slug}` : product.href || "/san-pham";
-}
+  const selected = preferred
+    .map((keyword) =>
+      specs.find((spec) => normalizeText(spec.label).includes(normalizeText(keyword))),
+    )
+    .filter((item): item is { label: string; value: string } => Boolean(item));
 
-function stockLabel(stockStatus?: string) {
-  if (stockStatus === "out_of_stock") return { label: "Hết hàng", className: "text-red-600" };
-  if (stockStatus === "preorder") return { label: "Đặt trước", className: "text-amber-600" };
-  return { label: "Còn hàng", className: "text-emerald-600" };
+  const seen = new Set<string>();
+  const unique = selected.filter((item) => {
+    const key = normalizeText(item.label);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  if (unique.length) return unique.slice(0, 4);
+  return specs.slice(0, 4);
 }
 
 export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
@@ -249,99 +194,81 @@ export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
 
 function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
   const { product, anchor } = popup;
-  const specs = popupSpecs(product);
   const promotions = product.promotions ?? [];
   const featuredPromotion = promotions[0];
-  const remainingPromotions = Math.max(0, promotions.length - 1);
-  const stock = stockLabel(product.stockStatus);
-  const href = productHref(product);
-  const popupWidth = 360;
+  const promoItems = [
+    ...(featuredPromotion?.benefits?.filter(Boolean) ?? []),
+    ...(featuredPromotion?.description ? [featuredPromotion.description] : []),
+  ].slice(0, 4);
+  const quickSpecs = popupSpecs(product);
+  const popupWidth = 390;
   const viewportWidth = typeof window === "undefined" ? 1440 : window.innerWidth;
   const viewportHeight = typeof window === "undefined" ? 900 : window.innerHeight;
   const openLeft = anchor.right + popupWidth + 16 > viewportWidth;
   const left = openLeft
     ? Math.max(12, anchor.left - popupWidth - 12)
     : Math.min(viewportWidth - popupWidth - 12, anchor.right + 12);
-  const top = Math.max(12, Math.min(anchor.top, viewportHeight - 490));
+  const top = Math.max(12, Math.min(anchor.top, viewportHeight - 560));
 
   return (
     <aside
-      className="pointer-events-none fixed z-[95] hidden w-[360px] animate-[popup-enter_180ms_ease-out] overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-800 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:block"
+      className="pointer-events-none fixed z-[95] hidden w-[390px] animate-[popup-enter_180ms_ease-out] overflow-hidden rounded-[18px] border border-slate-200 bg-white text-slate-800 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:block"
       style={{ left, top }}
       aria-label={`Thông tin nhanh ${product.title}`}
     >
-      <header className="border-b border-slate-100 bg-gradient-to-r from-blue-50 to-white px-5 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <h3 className="text-base font-black leading-6 text-slate-950">{product.title}</h3>
-          <span className={`inline-flex shrink-0 items-center gap-1 text-xs font-bold ${stock.className}`}>
-            <Check size={14} strokeWidth={3} />
-            {stock.label}
-          </span>
-        </div>
+      <header className="bg-gradient-to-r from-[#2457e8] to-[#637cf5] px-4 py-3.5 text-white">
+        <h3 className="text-[15px] font-extrabold leading-6">{product.title}</h3>
       </header>
 
       {featuredPromotion ? (
-        <section className="quick-promo-panel mx-4 mt-4 overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm">
-          <div className="quick-promo-header flex items-center justify-between bg-gradient-to-r from-[#E32929] to-[#FF6A00] px-3 py-2.5 text-sm font-black text-white">
-            <span className="flex items-center gap-2">
-              <span className="quick-promo-gift-wrap" aria-hidden="true">
-                <Gift size={17} className="quick-promo-gift" />
-                <Sparkles size={10} className="quick-promo-star quick-promo-star-one" />
-                <Sparkles size={8} className="quick-promo-star quick-promo-star-two" />
-                <Sparkles size={7} className="quick-promo-star quick-promo-star-three" />
-              </span>
-              Khuyến mãi
-            </span>
-            {remainingPromotions ? (
-              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold text-white">
-                +{remainingPromotions} ưu đãi
-              </span>
-            ) : null}
+        <section className="mx-2 mt-2 border border-red-300 bg-white">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e53935] to-[#f36b3c] px-3 py-2 text-sm font-black uppercase tracking-wide text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]">
+            <Gift size={15} className="shrink-0" />
+            Khuyến mại
           </div>
-          <div className="bg-gradient-to-b from-red-50/80 to-white px-3 py-3 text-sm leading-5 text-red-700">
-            <p className="line-clamp-2 font-semibold">
-              {featuredPromotion.title}
-              {featuredPromotion.benefits?.[0] ? ` - ${featuredPromotion.benefits[0]}` : ""}
-            </p>
+          <div className="space-y-2 px-3 pb-3 pt-3 text-[15px] leading-6 text-slate-700">
+            <p className="font-bold text-slate-800">{featuredPromotion.title}</p>
+            {promoItems.map((item, index) => (
+              <div key={`${item}-${index}`} className="flex gap-2">
+                <span className="mt-1 text-[12px] leading-none text-slate-700">✦</span>
+                <span>{item}</span>
+              </div>
+            ))}
           </div>
         </section>
       ) : null}
 
-      {specs.length ? (
-        <div className="grid grid-cols-2 gap-2 px-4 py-4">
-          {specs.map((spec) => (
-            <div key={`${spec.label}-${spec.value}`} className="min-w-0 rounded-lg bg-slate-50 px-3 py-2.5">
-              <p className="truncate text-[10px] font-bold uppercase tracking-wide text-slate-400">{spec.label}</p>
-              <p className="mt-1 truncate text-sm font-bold text-slate-800">{spec.value}</p>
-            </div>
-          ))}
-        </div>
-      ) : null}
+      <div className="space-y-2 px-4 py-3">
+        {quickSpecs.map((spec) => (
+          <div key={`${spec.label}-${spec.value}`} className="flex gap-2 text-[15px] leading-6 text-slate-700">
+            <Check size={16} className="mt-1 shrink-0 rounded-full bg-orange-500 p-[2px] text-white" strokeWidth={3} />
+            <span>
+              <strong>{spec.label}:</strong> {spec.value}
+            </span>
+          </div>
+        ))}
+      </div>
 
-      <footer className="grid grid-cols-[1fr_auto] items-end gap-3 border-t border-slate-100 bg-slate-50 px-4 py-3">
-        <div>
-          {product.compareAtPrice ? (
-            <p className="text-sm text-slate-400">
-              Giá niêm yết: <span className="line-through">{product.compareAtPrice}</span>
-            </p>
-          ) : null}
-          <p className="mt-1 text-sm font-semibold text-slate-700">
-            Giá bán: <strong className="text-xl text-red-600">{product.price || "Liên hệ"}</strong>
+      <footer className="px-4 pb-4 pt-1">
+        {product.compareAtPrice ? (
+          <p className="text-[15px] text-slate-700">
+            Giá niêm yết:{" "}
+            <span className="font-semibold text-slate-400 line-through">{product.compareAtPrice}</span>
           </p>
-        </div>
-        {product.discountBadge ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-400 px-3 py-1.5 text-sm font-black text-white">
-            <Tag size={15} />
-            {product.discountBadge}
-          </span>
         ) : null}
-        <Link
-          href={href}
-          className="pointer-events-auto col-span-2 flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-[#0A4BFF] text-sm font-bold !text-white transition hover:bg-blue-700"
-        >
-          Xem chi tiết
-          <ArrowRight size={16} />
-        </Link>
+
+        <div className="mt-1 flex items-end justify-between gap-3">
+          <p className="text-[15px] text-slate-700">
+            Giá khuyến mại:{" "}
+            <strong className="text-[18px] font-extrabold text-red-600">{product.price || "Liên hệ"}</strong>
+          </p>
+
+          {product.discountBadge ? (
+            <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border-2 border-amber-300 bg-gradient-to-br from-amber-400 to-orange-500 px-2 text-sm font-black text-white shadow-sm">
+              {product.discountBadge}
+            </span>
+          ) : null}
+        </div>
       </footer>
     </aside>
   );
@@ -456,130 +383,118 @@ function HomeCategoryCarousel({
   const [activeTab, setActiveTab] = useState("all");
   const [paused, setPaused] = useState(false);
   const [showAllTabs, setShowAllTabs] = useState(false);
-  const [canScroll, setCanScroll] = useState(false);
-  const [mobile, setMobile] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [cardsPerView, setCardsPerView] = useState(HOME_CATEGORY_PAGE_SIZE);
   const railRef = useRef<HTMLDivElement>(null);
   const autoplayStartedRef = useRef(false);
+  const autoplayIntervalRef = useRef<number | null>(null);
   const visibleTabs = showAllTabs ? tabs : tabs.slice(0, 5);
 
   const visibleProducts = useMemo(() => {
-    const matchedProducts = activeTab === "all"
-      ? allProducts
-      : allProducts.filter((product) =>
-          config.tabMode === "brand" ? product.brand === activeTab : product.category === activeTab,
-        );
+    const matchedProducts =
+      activeTab === "all"
+        ? allProducts
+        : allProducts.filter((product) =>
+            config.tabMode === "brand" ? product.brand === activeTab : product.category === activeTab,
+          );
     return matchedProducts.slice(0, HOME_CATEGORY_PRODUCT_LIMIT);
   }, [activeTab, allProducts, config.tabMode]);
-  const shouldLoop = !mobile && visibleProducts.length > 4;
-  const renderedProducts = shouldLoop ? [...visibleProducts, ...visibleProducts] : visibleProducts;
+  const carouselProducts = useMemo(
+    () => loopProductsForCarousel(visibleProducts, cardsPerView),
+    [cardsPerView, visibleProducts],
+  );
+
+  const canScroll = carouselProducts.length > cardsPerView;
 
   useEffect(() => {
     const motionMedia = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const mobileMedia = window.matchMedia("(max-width: 767px)");
     const sync = () => {
       setReducedMotion(motionMedia.matches);
-      setMobile(mobileMedia.matches);
     };
     sync();
     motionMedia.addEventListener("change", sync);
-    mobileMedia.addEventListener("change", sync);
     return () => {
       motionMedia.removeEventListener("change", sync);
-      mobileMedia.removeEventListener("change", sync);
     };
   }, []);
 
-  const updateCanScroll = useCallback(() => {
-    const rail = railRef.current;
-    setCanScroll(Boolean(rail && rail.scrollWidth > rail.clientWidth + 8));
+  useEffect(() => {
+    const syncCardsPerView = () => {
+      const width = window.innerWidth;
+      if (width >= 1280) {
+        setCardsPerView(5);
+        return;
+      }
+      if (width >= 1024) {
+        setCardsPerView(3);
+        return;
+      }
+      if (width >= 420) {
+        setCardsPerView(2);
+        return;
+      }
+      setCardsPerView(1);
+    };
+
+    syncCardsPerView();
+    window.addEventListener("resize", syncCardsPerView);
+    return () => window.removeEventListener("resize", syncCardsPerView);
   }, []);
 
-  useEffect(() => {
-    updateCanScroll();
-    window.addEventListener("resize", updateCanScroll);
-    return () => window.removeEventListener("resize", updateCanScroll);
-  }, [updateCanScroll, visibleProducts.length]);
+  const clearSlideTimers = useCallback(() => {
+    if (autoplayIntervalRef.current) {
+      window.clearInterval(autoplayIntervalRef.current);
+      autoplayIntervalRef.current = null;
+    }
+  }, []);
 
   const move = useCallback((direction: 1 | -1) => {
     const rail = railRef.current;
-    if (!rail) return;
+    if (!rail || !canScroll) return;
     const card = rail.querySelector<HTMLElement>("[data-carousel-card]");
-    const step = card ? card.offsetWidth + 16 : rail.clientWidth;
-    const loopSize = shouldLoop ? visibleProducts.length * step : 0;
-    const atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 8;
-    const atStart = rail.scrollLeft <= 8;
+    const gap = Number.parseFloat(window.getComputedStyle(rail).columnGap || "16") || HOME_CATEGORY_CARD_GAP;
+    const step = card ? card.offsetWidth + gap : rail.clientWidth;
+    const maxScroll = rail.scrollWidth - rail.clientWidth;
+    const nextLeft = rail.scrollLeft + direction * step;
 
-    const continueAfterJump = (left: number) => {
-      rail.style.scrollBehavior = "auto";
-      rail.style.scrollSnapType = "none";
-      rail.scrollTo({ left, behavior: "auto" });
-      void rail.offsetWidth;
-      window.requestAnimationFrame(() => {
-        rail.style.scrollBehavior = "";
-        rail.style.scrollSnapType = "";
-        window.requestAnimationFrame(() => {
-          rail.scrollBy({ left: direction * step, behavior: "smooth" });
-        });
-      });
-    };
-
-    if (shouldLoop && direction === -1 && atStart) {
-      continueAfterJump(loopSize);
-      return;
-    }
-    if (shouldLoop) {
-      rail.scrollBy({ left: direction * step, behavior: "smooth" });
-      if (direction === 1) {
-        window.setTimeout(() => {
-          if (!rail.isConnected || rail.scrollLeft < loopSize - step / 2) return;
-          rail.style.scrollBehavior = "auto";
-          rail.style.scrollSnapType = "none";
-          rail.style.overflowX = "hidden";
-          rail.scrollLeft -= loopSize;
-          void rail.offsetWidth;
-          window.requestAnimationFrame(() => {
-            rail.style.scrollBehavior = "";
-            rail.style.scrollSnapType = "";
-            rail.style.overflowX = "";
-          });
-        }, 900);
-      }
-      return;
-    }
-
-    if (direction === 1 && atEnd) {
+    if (direction === 1 && nextLeft >= maxScroll - 8) {
       rail.scrollTo({ left: 0, behavior: "smooth" });
       return;
     }
-    if (direction === -1 && atStart) {
-      rail.scrollTo({ left: rail.scrollWidth, behavior: "smooth" });
+    if (direction === -1 && nextLeft <= 8) {
+      rail.scrollTo({ left: maxScroll, behavior: "smooth" });
       return;
     }
     rail.scrollBy({ left: direction * step, behavior: "smooth" });
-  }, [shouldLoop, visibleProducts.length]);
+  }, [canScroll]);
 
   useEffect(() => {
-    if (!config.autoplay || paused || mobile || reducedMotion || !canScroll) return;
+    clearSlideTimers();
+    if (!config.autoplay || paused || reducedMotion || !canScroll) return;
 
-    let interval: number | undefined;
-    const initialOffset = autoplayStartedRef.current ? 0 : (config.order - 1) * 700;
+    const initialOffset = autoplayStartedRef.current ? 0 : (config.order - 1) * 350;
     const timeout = window.setTimeout(() => {
-      move(1);
       autoplayStartedRef.current = true;
-      interval = window.setInterval(() => move(1), 2_000);
-    }, 2_000 + initialOffset);
+      move(1);
+      autoplayIntervalRef.current = window.setInterval(() => move(1), HOME_CATEGORY_AUTOPLAY_MS);
+    }, HOME_CATEGORY_AUTOPLAY_MS + initialOffset);
 
     return () => {
       window.clearTimeout(timeout);
-      if (interval) window.clearInterval(interval);
+      clearSlideTimers();
     };
-  }, [canScroll, config.autoplay, config.order, mobile, move, paused, reducedMotion]);
+  }, [canScroll, clearSlideTimers, config.autoplay, config.order, move, paused, reducedMotion]);
 
   useEffect(() => {
     railRef.current?.scrollTo({ left: 0 });
-    window.requestAnimationFrame(updateCanScroll);
-  }, [activeTab, updateCanScroll]);
+  }, [activeTab, carouselProducts.length]);
+
+  useEffect(
+    () => () => {
+      clearSlideTimers();
+    },
+    [clearSlideTimers],
+  );
 
   if (!allProducts.length) return null;
 
@@ -588,15 +503,8 @@ function HomeCategoryCarousel({
   };
 
   return (
-    <section
-      className="home-category-section"
-      aria-labelledby={`home-category-${config.id}`}
-    >
+    <section className="home-category-section" aria-labelledby={`home-category-${config.id}`}>
       <div className={`home-category-bar ${paused ? "is-paused" : ""}`}>
-        <HomeBarLightTrace
-          variant={config.id as Exclude<LightTraceVariant, "featured">}
-          delayOrder={config.order}
-        />
         <h2 id={`home-category-${config.id}`}>{config.title}</h2>
         {tabs.length ? (
           <div className="home-category-tabs" aria-label={`Lọc ${config.title}`}>
@@ -635,11 +543,11 @@ function HomeCategoryCarousel({
         </Link>
       </div>
 
-      <div className="home-category-carousel">
+      <div className="relative home-category-carousel">
         {canScroll ? (
           <button
             type="button"
-            className="home-carousel-arrow home-carousel-arrow-prev"
+            className="home-carousel-arrow home-carousel-arrow-prev absolute left-[-18px] top-1/2 z-10 -translate-y-1/2 rounded-full border border-slate-200 bg-white p-2 shadow-lg"
             onClick={() => move(-1)}
             aria-label={`Xem sản phẩm ${config.title} trước`}
           >
@@ -647,15 +555,17 @@ function HomeCategoryCarousel({
           </button>
         ) : null}
 
-        <div ref={railRef} className="home-category-rail">
-          {renderedProducts.map((product, index) => (
+        <div
+          ref={railRef}
+          className="home-category-rail"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+          {carouselProducts.map((product, index) => (
             <div
-              key={`${productKey(product)}-${index >= visibleProducts.length ? "clone" : "original"}`}
+              key={`${productKey(product)}-${index}`}
               data-carousel-card
-              aria-hidden={index >= visibleProducts.length}
               className="home-category-card"
-              onMouseEnter={() => setPaused(true)}
-              onMouseLeave={() => setPaused(false)}
               onFocusCapture={() => setPaused(true)}
               onBlurCapture={(event) => {
                 if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
@@ -669,7 +579,7 @@ function HomeCategoryCarousel({
         {canScroll ? (
           <button
             type="button"
-            className="home-carousel-arrow home-carousel-arrow-next"
+            className="home-carousel-arrow home-carousel-arrow-next absolute right-[-18px] top-1/2 z-10 -translate-y-1/2 rounded-full border border-slate-200 bg-white p-2 shadow-lg"
             onClick={() => move(1)}
             aria-label={`Xem sản phẩm ${config.title} tiếp theo`}
           >

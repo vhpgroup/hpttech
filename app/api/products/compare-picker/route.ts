@@ -24,7 +24,14 @@ function toCompareProduct(product: CatalogProduct): CatalogProduct {
 export async function GET() {
   const products = await getProductsFromPayload();
 
-  return NextResponse.json({
-    products: products.map(toCompareProduct),
-  });
+  return NextResponse.json(
+    {
+      products: products.map(toCompareProduct),
+    },
+    {
+      headers: {
+        "Cache-Control": "s-maxage=300, stale-while-revalidate=60",
+      },
+    },
+  );
 }

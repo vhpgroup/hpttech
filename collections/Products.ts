@@ -863,6 +863,7 @@ export const Products: CollectionConfig = {
                   type: "relationship",
                   relationTo: "brands",
                   required: true,
+                  index: true,
                   admin: {
                     width: "50%",
                   },
@@ -1203,6 +1204,7 @@ export const Products: CollectionConfig = {
       type: "relationship",
       relationTo: "categories",
       required: true,
+      index: true,
       admin: {
         position: "sidebar",
       },
@@ -1232,6 +1234,7 @@ export const Products: CollectionConfig = {
       label: "Trạng thái đăng",
       type: "select",
       defaultValue: "draft",
+      index: true,
       options: [
         {
           label: "Bản nháp",

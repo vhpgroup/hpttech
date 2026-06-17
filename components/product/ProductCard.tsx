@@ -30,7 +30,7 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
   const score = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 0;
 
   return (
-    <div className="mt-1.5 flex items-center gap-1">
+    <div className="mt-1 flex items-center gap-1">
       <div className="flex items-center gap-0.5" aria-label={`${score} trên 5 sao`}>
         {Array.from({ length: 5 }, (_, index) => {
           const active = index + 1 <= Math.round(score);
@@ -44,7 +44,7 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
           );
         })}
       </div>
-      <span className="text-sm text-slate-600">({reviewCount || 0})</span>
+      <span className="text-sm text-slate-500">({reviewCount || 0})</span>
     </div>
   );
 }
@@ -54,8 +54,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
   const [globalComparing, setGlobalComparing] = useState(isComparing);
   const href = productHref(product);
   const image = product.images?.[0]?.url || product.image;
-  const promotionCount =
-    product.promotionCount ?? product.promotions?.length ?? (product.promoText ? 1 : 0);
+  const promotionCount = product.promotionCount ?? product.promotions?.length ?? (product.promoText ? 1 : 0);
   const stock = stockLabel(product.stockStatus);
   const selected = onCompare ? isComparing : globalComparing;
 
@@ -65,9 +64,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
     const handleState = (event: Event) => {
       const items = (event as CustomEvent<CatalogProduct[]>).detail;
       if (!Array.isArray(items)) return;
-      setGlobalComparing(
-        items.some((item) => (item.slug || item.title) === (product.slug || product.title)),
-      );
+      setGlobalComparing(items.some((item) => (item.slug || item.title) === (product.slug || product.title)));
     };
 
     window.addEventListener("hpt:compare:state", handleState);
@@ -82,12 +79,10 @@ export function ProductCard({ product, className, isComparing = false, onCompare
     }
 
     window.dispatchEvent(
-      new CustomEvent<CatalogProduct>(
-        selected ? "hpt:compare:remove" : "hpt:compare:add",
-        { detail: product },
-      ),
+      new CustomEvent<CatalogProduct>(selected ? "hpt:compare:remove" : "hpt:compare:add", { detail: product }),
     );
   };
+
   const openProduct = (event: MouseEvent<HTMLElement>) => {
     if (
       event.target instanceof Element &&
@@ -103,27 +98,27 @@ export function ProductCard({ product, className, isComparing = false, onCompare
     <article
       onClick={openProduct}
       className={cn(
-        "group relative flex min-h-[390px] cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+        "group relative flex min-h-[355px] min-w-0 cursor-pointer flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
         className,
       )}
     >
-      <Link href={href} className="relative grid h-[198px] place-items-center rounded-md bg-white p-2">
+      <Link href={href} className="relative flex h-[170px] items-center justify-center rounded-[10px] bg-white p-2">
         {image ? (
           <Image
             src={image}
             alt={product.title}
-            width={260}
-            height={190}
-            className="max-h-[150px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
-            sizes="(max-width: 640px) 45vw, (max-width: 1280px) 25vw, 240px"
+            width={250}
+            height={170}
+            className="max-h-[148px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 45vw, (max-width: 1280px) 20vw, 220px"
           />
         ) : (
-          <div className="h-28 w-full rounded-md bg-slate-100" />
+          <div className="h-28 w-full rounded-[10px] bg-slate-100" />
         )}
       </Link>
 
       <div className="mt-3 flex flex-1 flex-col">
-        <h3 className="line-clamp-2 min-h-[42px] text-[15px] font-bold leading-[21px] text-slate-950">
+        <h3 className="line-clamp-2 min-h-[46px] text-[15px] font-bold leading-[22px] text-slate-950">
           <Link href={href} className="hover:text-blue-700">
             {product.title}
           </Link>
@@ -131,60 +126,52 @@ export function ProductCard({ product, className, isComparing = false, onCompare
 
         <ProductRating rating={product.rating} reviewCount={product.reviewCount} />
 
-        {product.sku ? <p className="mt-1.5 text-sm text-slate-700">Mã SP: {product.sku}</p> : null}
+        {product.sku ? <p className="mt-1 text-sm text-slate-700">Mã SP: {product.sku}</p> : null}
 
-        <div className="mt-2 min-h-[58px]">
+        <div className="mt-2 min-h-[72px]">
           {product.compareAtPrice ? (
             <p className="text-sm font-medium text-slate-400 line-through">{product.compareAtPrice}</p>
-          ) : null}
-          <div className="flex items-center justify-between gap-2">
+          ) : (
+            <div className="h-5" />
+          )}
+
+          <div className="mt-0.5 flex items-end justify-between gap-2">
             <strong className="text-[22px] font-extrabold leading-7 text-red-600">{product.price || "Liên hệ"}</strong>
             {product.discountBadge ? (
-              <span className="shrink-0 rounded-md bg-red-600 px-2 py-1 text-xs font-extrabold text-white">
+              <span className="inline-flex h-7 items-center rounded-md bg-red-600 px-2 text-sm font-extrabold text-white">
                 {product.discountBadge}
               </span>
             ) : null}
           </div>
-          {promotionCount > 0 ? (
-            <p className="mt-1 text-sm text-slate-700">{promotionCount} khuyến mại</p>
-          ) : null}
+
+          {promotionCount > 0 ? <p className="mt-1 text-sm text-slate-700">{promotionCount} khuyến mại</p> : null}
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm font-medium">
-            <span className={cn("inline-flex items-center gap-0.5", stock.className)}>
+        <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-sm">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <button
+              type="button"
+              onClick={toggleCompare}
+              className={cn(
+                "inline-flex items-center gap-1 font-medium transition",
+                selected ? "text-blue-700" : "text-blue-600 hover:text-blue-700",
+              )}
+            >
+              <Plus size={14} />
+              So sánh
+            </button>
+            <span className={cn("inline-flex items-center gap-1 font-medium", stock.className)}>
               <Check size={14} strokeWidth={3} />
               {stock.label}
             </span>
           </div>
+
           <AddToCartButton
             product={product}
             label=""
             ariaLabel={`Thêm ${product.title} vào giỏ`}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-blue-600 text-white transition hover:bg-blue-700"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0A4BFF] text-white transition hover:bg-blue-700"
           />
-        </div>
-
-        <div className="product-card-actions mt-3 grid grid-cols-2 gap-2" data-product-card-actions>
-          <Link
-            href={href}
-            className="inline-flex h-10 items-center justify-center rounded-lg bg-[#0A4BFF] px-3 text-xs font-bold !text-white transition hover:bg-blue-700"
-          >
-            Xem chi tiết
-          </Link>
-          <button
-            type="button"
-            onClick={toggleCompare}
-            className={cn(
-              "inline-flex h-10 items-center justify-center gap-1 rounded-lg border px-3 text-xs font-bold transition",
-              selected
-                ? "border-blue-300 bg-blue-50 text-blue-700"
-                : "border-slate-200 bg-white text-slate-700 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700",
-            )}
-          >
-            {selected ? <Check size={14} strokeWidth={3} /> : <Plus size={14} />}
-            {selected ? "Đã thêm" : "So sánh"}
-          </button>
         </div>
       </div>
     </article>

@@ -50,30 +50,25 @@ export default async function SiteLayout({
   const settings = await getSiteSettingsFromPayload().then(normalizeSiteSettings);
 
   return (
-    <html
-      lang="vi"
-      suppressHydrationWarning
-      className={`${inter.variable} ${geist.variable}`}
-      style={{ "--desktop-scale": "1" } as React.CSSProperties}
-    >
-      <head>
-        <DesktopStageScript />
-      </head>
-      <body className="site-shell">
-        <CartProvider>
-          <QuoteProvider>
-            <ProductInfoPopupLayer>
-              <DesktopStage>
-                <Header settings={settings} />
-                <Navbar />
-                {children}
-                <Footer settings={settings} />
-              </DesktopStage>
-              <GlobalCompareDock />
-              <FloatingContactDockLoader settings={settings} />
-            </ProductInfoPopupLayer>
-          </QuoteProvider>
-        </CartProvider>
+    <html lang="vi" suppressHydrationWarning style={{ "--desktop-scale": "1" } as React.CSSProperties}>
+      <body>
+        <div className={`${inter.variable} ${geist.variable} site-shell`}>
+          <DesktopStageScript />
+          <CartProvider>
+            <QuoteProvider>
+              <ProductInfoPopupLayer>
+                <DesktopStage>
+                  <Header settings={settings} />
+                  <Navbar />
+                  {children}
+                  <Footer settings={settings} />
+                </DesktopStage>
+                <GlobalCompareDock />
+                <FloatingContactDockLoader settings={settings} />
+              </ProductInfoPopupLayer>
+            </QuoteProvider>
+          </CartProvider>
+        </div>
       </body>
     </html>
   );

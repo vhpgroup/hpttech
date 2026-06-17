@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import {
   getNewsRedirectFromPayload,
   getPostByPathFromPayload,
@@ -176,15 +176,7 @@ function NewsDetail({ post }: { post: NonNullable<Awaited<ReturnType<typeof getP
           { label: post.category?.fullTitle || post.title },
         ]}
       />
-      <Link className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700" href="/tin-tuc">
-        <ArrowLeft size={16} />
-        Quay lai tin tuc
-      </Link>
-
       <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        {post.image ? (
-          <Image className="h-[360px] w-full object-cover" src={post.image} alt={post.title} width={1200} height={360} priority />
-        ) : null}
         <div className="p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-500">
             <span className="inline-flex items-center gap-2">

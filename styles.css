@@ -136,7 +136,7 @@ main {
 .subpage-main {
   width: var(--shell-width);
   margin: 0 auto;
-  padding: 34px 0 52px;
+  padding: 48px 0 52px;
 }
 
 .utility-topbar {
@@ -1447,7 +1447,7 @@ main {
 
 .home-category-card {
   min-width: 0;
-  flex: 0 0 calc((100% - 48px) / 4);
+  flex: 0 0 calc((100% - 64px) / 5);
   scroll-snap-align: start;
 }
 

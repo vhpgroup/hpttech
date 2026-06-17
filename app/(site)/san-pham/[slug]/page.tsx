@@ -182,18 +182,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const schemaPrice = parseVNDPrice(product.price);
   const productDescription = product.description || product.detail;
   const assignedRelatedProducts = uniqueProducts((product.relatedProducts ?? []).filter((item) => item.slug !== product.slug));
-  const relatedProducts = assignedRelatedProducts.slice(0, 4);
+  const relatedProducts = assignedRelatedProducts.slice(0, 15);
   const relationSections: ProductRelationSection[] = [
     {
       id: "similar",
       label: "Sản phẩm tương tự",
-      products: uniqueProducts(similarProducts).slice(0, 4),
+      products: uniqueProducts(similarProducts).slice(0, 15),
       emptyMessage: "Chưa có sản phẩm tương tự trong cùng danh mục.",
     },
     {
       id: "same-brand",
       label: "Sản phẩm cùng hãng",
-      products: uniqueProducts(sameBrandProducts).slice(0, 4),
+      products: uniqueProducts(sameBrandProducts).slice(0, 15),
       emptyMessage: "Chưa có sản phẩm cùng hãng trong catalog.",
     },
     {

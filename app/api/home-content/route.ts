@@ -11,5 +11,12 @@ export async function GET() {
     getSiteSettingsFromPayload().then(normalizeSiteSettings).catch(() => normalizeSiteSettings()),
   ]);
 
-  return NextResponse.json({ products, banners, solutions, settings });
+  return NextResponse.json(
+    { products, banners, solutions, settings },
+    {
+      headers: {
+        "Cache-Control": "s-maxage=300, stale-while-revalidate=60",
+      },
+    },
+  );
 }
