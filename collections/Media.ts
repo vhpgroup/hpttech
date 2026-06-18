@@ -1,5 +1,57 @@
 import type { CollectionConfig } from "payload";
 
+function isR2Enabled() {
+  return Boolean(
+    process.env.R2_BUCKET &&
+      process.env.R2_ACCESS_KEY_ID &&
+      process.env.R2_SECRET_ACCESS_KEY &&
+      process.env.R2_ENDPOINT,
+  );
+}
+
+function r2MediaURL(filename: unknown) {
+  return typeof filename === "string" && filename
+    ? `/api/r2-media/${encodeURIComponent(filename)}`
+    : undefined;
+}
+
+function rewriteMediaDocURLs(doc: Record<string, unknown>) {
+  if (!isR2Enabled()) return doc;
+
+  const nextDoc = { ...doc };
+  const url = r2MediaURL(doc.filename);
+
+  if (url) {
+    nextDoc.url = url;
+    nextDoc.thumbnailURL = url;
+  }
+
+  if (doc.sizes && typeof doc.sizes === "object" && !Array.isArray(doc.sizes)) {
+    nextDoc.sizes = Object.fromEntries(
+      Object.entries(doc.sizes).map(([key, value]) => {
+        if (!value || typeof value !== "object" || Array.isArray(value)) {
+          return [key, value];
+        }
+
+        const sizeDoc = value as Record<string, unknown>;
+        const sizeURL = r2MediaURL(sizeDoc.filename);
+
+        return [
+          key,
+          sizeURL
+            ? {
+                ...sizeDoc,
+                url: sizeURL,
+              }
+            : value,
+        ];
+      }),
+    );
+  }
+
+  return nextDoc;
+}
+
 export const Media: CollectionConfig = {
   slug: "media",
   labels: {
@@ -8,6 +60,9 @@ export const Media: CollectionConfig = {
   },
   access: {
     read: () => true,
+  },
+  hooks: {
+    afterRead: [({ doc }) => (doc ? rewriteMediaDocURLs(doc as Record<string, unknown>) : doc)],
   },
   admin: {
     group: "Tài nguyên",

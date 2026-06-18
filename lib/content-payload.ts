@@ -706,7 +706,7 @@ async function loadPostBySlugFromPayload(slug: string): Promise<PublicPost | nul
   });
   const doc = res.docs[0];
   if (!doc) return null;
-  return mapPost(doc);
+  return mapPostDetail(doc);
 }
 
 const getCachedPostBySlugFromPayload = unstable_cache(

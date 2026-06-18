@@ -1,7 +1,12 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { FixedToolbarFeature, lexicalEditor, UploadFeature } from "@payloadcms/richtext-lexical";
+import {
+  EXPERIMENTAL_TableFeature,
+  FixedToolbarFeature,
+  lexicalEditor,
+  UploadFeature,
+} from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { vi } from "@payloadcms/translations/languages/vi";
 import { buildConfig } from "payload";
@@ -129,6 +134,7 @@ export default buildConfig({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures,
       FixedToolbarFeature(),
+      EXPERIMENTAL_TableFeature(),
       UploadFeature({
         enabledCollections: ["media"],
         collections: {
