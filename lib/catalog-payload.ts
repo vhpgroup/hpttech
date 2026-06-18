@@ -495,7 +495,9 @@ function normalizeProduct(
       textField(doc, "shortDescription") ||
       stripHTML(htmlOrTextField(doc, "summaryHTML", "summary")),
     description: descriptionHTML,
+    descriptionRichText: doc.description,
     usageGuide: htmlOrTextField(doc, "usageGuideHTML", "usageGuide"),
+    usageGuideRichText: doc.usageGuide,
     warranty: commercial?.warranty || textField(doc, "warranty"),
     origin: textField(doc, "origin"),
     images,
@@ -562,6 +564,18 @@ function toProductCardData(
     specs: normalizeSpecs(doc).slice(0, 4),
     href: slug ? `/san-pham/${slug}` : undefined,
     tag: textField(doc, "tag") || (doc.featured ? "Ná»•i báº­t" : undefined),
+  };
+}
+
+function toProductListData(
+  doc: PayloadProductDoc,
+  commercial?: CanonicalCommercialProjection,
+): CatalogProduct {
+  return {
+    ...toProductCardData(doc, commercial),
+    origin: textField(doc, "origin"),
+    viewCount: numberField(doc, "viewCount"),
+    specs: normalizeSpecs(doc),
   };
 }
 
@@ -715,11 +729,9 @@ async function loadProductsFromPayload(): Promise<CatalogProduct[]> {
       .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
     const projections = await loadCanonicalCommercialProjections(payload, productIDs);
     const products = docs.map((doc) =>
-      normalizeProduct(
+      toProductListData(
         doc,
-        true,
         doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
-        projections,
       ),
     );
     const payloadSlugs = new Set(products.map((product) => product.slug));

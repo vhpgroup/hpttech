@@ -1,4 +1,8 @@
 import { getPayloadClient } from "@/lib/payload";
+import {
+  canonicalizeCategoryName,
+  canonicalizeCategorySlug,
+} from "@/lib/product-category";
 import { formatSlug } from "@/lib/payload/utils/slugify";
 import ExcelJS from "exceljs";
 
@@ -557,27 +561,32 @@ async function findOne(collection: "brands" | "categories" | "products", field: 
 }
 
 async function resolveTaxonomy(collection: "brands" | "categories", slug?: string, name?: string) {
-  const lookupSlug = slug || (name ? formatSlug(name) : undefined);
+  const normalizedName =
+    collection === "categories" ? canonicalizeCategoryName(name) : name;
+  const lookupSlug =
+    collection === "categories"
+      ? canonicalizeCategorySlug(slug, normalizedName)
+      : slug || (name ? formatSlug(name) : undefined);
   if (lookupSlug) {
-    const existingBySlug = await findOne(collection, "slug", lookupSlug);
-    if (existingBySlug?.id) return existingBySlug.id;
+      const existingBySlug = await findOne(collection, "slug", lookupSlug);
+      if (existingBySlug?.id) return existingBySlug.id;
   }
 
-  if (name) {
-    const existingByName = await findOne(collection, "name", name);
-    if (existingByName?.id) return existingByName.id;
+  if (normalizedName) {
+      const existingByName = await findOne(collection, "name", normalizedName);
+      if (existingByName?.id) return existingByName.id;
   }
 
-  if (!name && !lookupSlug) return undefined;
+  if (!normalizedName && !lookupSlug) return undefined;
 
   const payload = await getPayloadClient();
   const created = await payload.create({
-    collection,
-    data: {
-      name: name || lookupSlug,
-      slug: lookupSlug || formatSlug(String(name)),
-    },
-    overrideAccess: true,
+      collection,
+      data: {
+        name: normalizedName || lookupSlug,
+        slug: lookupSlug || formatSlug(String(normalizedName)),
+      },
+      overrideAccess: true,
   });
 
   return (created as PayloadDoc).id;

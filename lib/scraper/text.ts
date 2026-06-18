@@ -1,3 +1,4 @@
+import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
 import { formatSlug } from "@/lib/payload/utils/slugify";
 import { decodeHTML } from "entities";
 import type { ProductSpec } from "./types";
@@ -58,7 +59,7 @@ function inferProductKind(title: string, specs: ProductSpec[]) {
   if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(text)) return "máy scan";
   if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(text)) return "camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(text)) return "thiết bị mạng";
-  if (/\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(text)) return "phần mềm";
+  if (/\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(text)) return SOFTWARE_CATEGORY_NAME.toLowerCase();
   if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(text)) return "thiết bị máy tính";
   return "sản phẩm";
 }

@@ -11,6 +11,7 @@ import {
   KeyRound,
   PackageCheck,
 } from "lucide-react";
+import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
 
 type ImportResult = {
   created: number;
@@ -30,7 +31,7 @@ const productProfiles: Array<{ label: string; value: ProductProfile }> = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Máy photocopy", value: "photocopier" },
-  { label: "Phần mềm", value: "software" },
+  { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "Tất cả sản phẩm", value: "all" },
 ];
 

@@ -11,6 +11,7 @@ import {
 } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
 import { SubpageBreadcrumb, SubpageHeader } from "@/components/layout/SubpageHeader";
+import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -23,59 +24,6 @@ type PageProps = {
 
 function newsPath(segments: string[]) {
   return segments.join("/");
-}
-
-type RichTextNode = {
-  children?: RichTextNode[];
-  tag?: string;
-  text?: string;
-  type?: string;
-  version?: number;
-};
-
-function lexicalChildren(content: unknown): RichTextNode[] {
-  if (!content || typeof content !== "object") return [];
-  const root = "root" in content ? (content as { root?: unknown }).root : undefined;
-  if (!root || typeof root !== "object" || !("children" in root)) return [];
-  const children = (root as { children?: unknown }).children;
-  return Array.isArray(children) ? (children as RichTextNode[]) : [];
-}
-
-function nodeText(node: RichTextNode): string {
-  if (typeof node.text === "string") return node.text;
-  return (node.children || []).map(nodeText).join("");
-}
-
-function RichTextContent({ content }: { content: unknown }) {
-  const nodes = lexicalChildren(content);
-  if (!nodes.length) return null;
-
-  return (
-    <div className="mt-8 max-w-4xl space-y-5 text-base leading-8 text-slate-700">
-      {nodes.map((node, index) => {
-        const text = nodeText(node).trim();
-        if (!text) return null;
-
-        if (node.type === "heading" && node.tag === "h3") {
-          return (
-            <h3 key={index} className="pt-2 text-xl font-bold leading-8 text-slate-950">
-              {text}
-            </h3>
-          );
-        }
-
-        if (node.type === "heading") {
-          return (
-            <h2 key={index} className="pt-4 text-2xl font-bold leading-9 text-slate-950">
-              {text}
-            </h2>
-          );
-        }
-
-        return <p key={index}>{text}</p>;
-      })}
-    </div>
-  );
 }
 
 export function generateStaticParams() {
@@ -200,21 +148,7 @@ function NewsDetail({ post }: { post: NonNullable<Awaited<ReturnType<typeof getP
           <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-slate-700">
             {post.summary ? <p>{post.summary}</p> : <p>Noi dung chi tiet dang duoc cap nhat trong Payload CMS.</p>}
           </div>
-          {post.image ? (
-            <figure className="mt-8 max-w-4xl overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-              <Image
-                className="mx-auto max-h-[420px] w-full object-contain"
-                src={post.image}
-                alt={post.title}
-                width={960}
-                height={540}
-              />
-              <figcaption className="border-t border-slate-200 px-4 py-3 text-sm text-slate-500">
-                Hình ảnh minh họa cho bài viết {post.title}
-              </figcaption>
-            </figure>
-          ) : null}
-          <RichTextContent content={post.content} />
+          <PayloadRichText data={post.content} className="mt-8 max-w-4xl" />
         </div>
       </article>
     </main>

@@ -1,8 +1,6 @@
-import type { ComponentProps } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RichText } from "@payloadcms/richtext-lexical/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,6 +16,7 @@ import {
 } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
+import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 
 export const revalidate = 300;
 
@@ -181,10 +180,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
         <div className="p-6 sm:p-8">
           {project.content ? (
-            <RichText
-              data={project.content as ComponentProps<typeof RichText>["data"]}
-              className="prose prose-slate max-w-none prose-headings:text-[#102b62] prose-a:text-[#0A4BFF]"
-            />
+            <PayloadRichText data={project.content} className="[&_h1]:text-[#102b62] [&_h2]:text-[#102b62] [&_h3]:text-[#102b62]" />
           ) : project.summary ? (
             <div className="max-w-4xl text-base leading-8 text-slate-700">
               <p>{project.summary}</p>

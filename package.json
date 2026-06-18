@@ -10,6 +10,7 @@
     "payload:audit-catalog": "tsx scripts/audit-catalog-readiness.ts",
     "payload:create-first-user": "tsx scripts/create-first-payload-user.ts",
     "payload:migrate-existing-catalog": "tsx scripts/migrate-existing-products-to-canonical.ts",
+    "payload:merge-software-category": "tsx scripts/merge-software-categories.ts",
     "payload:backfill-ai-metadata": "tsx scripts/backfill-product-ai-metadata.ts",
     "payload:make-attributes-optional": "tsx scripts/make-product-attributes-optional.ts",
     "payload:seed-catalog": "tsx scripts/seed-catalog-schema.ts",

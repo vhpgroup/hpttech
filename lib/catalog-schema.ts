@@ -1,10 +1,12 @@
+import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
+
 export const CATALOG_ADMIN_GROUP = "Catalog chuẩn";
 
 export const PRODUCT_TYPE_OPTIONS = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Máy photocopy", value: "photocopier" },
-  { label: "Phần mềm", value: "software" },
+  { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "Khác", value: "other" },
 ] as const;
 

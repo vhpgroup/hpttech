@@ -133,7 +133,14 @@ export default buildConfig({
   editor: lexicalEditor({
     features: ({ defaultFeatures }) => [
       ...defaultFeatures,
-      FixedToolbarFeature(),
+      FixedToolbarFeature({
+        customGroups: {
+          add: {
+            order: 10,
+            type: "buttons",
+          },
+        },
+      }),
       EXPERIMENTAL_TableFeature(),
       UploadFeature({
         enabledCollections: ["media"],

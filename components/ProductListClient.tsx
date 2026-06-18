@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -8,6 +9,7 @@ import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
 import { ProductCard } from "@/components/product/ProductCard";
 import type { CatalogProduct } from "@/lib/catalog";
+import { canonicalizeCategoryName } from "@/lib/product-category";
 
 const PAGE_SIZE = 12;
 
@@ -36,12 +38,6 @@ type FilterOption = {
 type ProductListClientProps = {
   products: CatalogProduct[];
 };
-
-const CATEGORY_OPTIONS: FilterOption[] = [
-  { label: "Máy scan", value: "may-scan" },
-  { label: "Máy in", value: "may-in" },
-  { label: "Photocopy", value: "photocopy" },
-];
 
 const BRAND_OPTIONS = ["Brother", "Ricoh", "Epson", "HP", "Canon", "Fujitsu"];
 
@@ -96,6 +92,16 @@ function normalizeText(value?: string) {
     .toLowerCase();
 }
 
+function slugifyFilterValue(value?: string) {
+  return normalizeText(value)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function normalizeCategoryFilterLabel(value?: string) {
+  return canonicalizeCategoryName(cleanFilterValue(value));
+}
+
 function parsePrice(value?: string) {
   const digits = value?.replace(/[^\d]/g, "") || "";
   return digits ? Number(digits) : undefined;
@@ -138,11 +144,32 @@ function adfSheets(product: CatalogProduct) {
 }
 
 function productCategoryBucket(product: CatalogProduct) {
+  if (product.category) {
+    const categoryValue = slugifyFilterValue(normalizeCategoryFilterLabel(product.category));
+    if (categoryValue) return categoryValue;
+  }
+
   const text = normalizeText(`${product.productType || ""} ${product.category || ""} ${product.title || ""}`);
   if (text.includes("scan")) return "may-scan";
   if (text.includes("photocopy") || text.includes("photo") || text.includes("copy")) return "photocopy";
   if (text.includes("may in") || text.includes("printer") || text.includes("laserjet")) return "may-in";
   return "";
+}
+
+function buildCategoryOptions(products: CatalogProduct[]): FilterOption[] {
+  const categoryMap = new Map<string, FilterOption>();
+
+  for (const product of products) {
+    const label = normalizeCategoryFilterLabel(product.category);
+    if (!label) continue;
+
+    const value = slugifyFilterValue(label);
+    if (!value || categoryMap.has(value)) continue;
+
+    categoryMap.set(value, { label, value });
+  }
+
+  return Array.from(categoryMap.values()).sort((a, b) => a.label.localeCompare(b.label, "vi"));
 }
 
 function hasDuplex(product: CatalogProduct) {
@@ -237,10 +264,10 @@ function emptyFilters(): Filters {
   };
 }
 
-function initialFiltersFromParams(searchParams: URLSearchParams): Filters {
+function initialFiltersFromParams(searchParams: URLSearchParams, categoryOptions: FilterOption[]): Filters {
   const category = cleanFilterValue(searchParams.get("category"));
   const brand = cleanFilterValue(searchParams.get("brand"));
-  const categoryValue = CATEGORY_OPTIONS.find((option) => option.label === category || option.value === category)?.value;
+  const categoryValue = categoryOptions.find((option) => option.label === category || option.value === category)?.value;
 
   return {
     ...emptyFilters(),
@@ -266,8 +293,12 @@ function activeFilterCount(filters: Filters) {
 function sortProducts(products: CatalogProduct[], sort: SortValue) {
   const ranked = [...products];
   ranked.sort((a, b) => {
-    if (sort === "price-asc") return (a.priceValue ?? parsePrice(a.price) ?? Number.MAX_SAFE_INTEGER) - (b.priceValue ?? parsePrice(b.price) ?? Number.MAX_SAFE_INTEGER);
-    if (sort === "price-desc") return (b.priceValue ?? parsePrice(b.price) ?? 0) - (a.priceValue ?? parsePrice(a.price) ?? 0);
+    if (sort === "price-asc") {
+      return (a.priceValue ?? parsePrice(a.price) ?? Number.MAX_SAFE_INTEGER) - (b.priceValue ?? parsePrice(b.price) ?? Number.MAX_SAFE_INTEGER);
+    }
+    if (sort === "price-desc") {
+      return (b.priceValue ?? parsePrice(b.price) ?? 0) - (a.priceValue ?? parsePrice(a.price) ?? 0);
+    }
     if (sort === "popular") return (b.reviewCount || 0) - (a.reviewCount || 0);
     if (sort === "newest") return String(b.id || "").localeCompare(String(a.id || ""), "vi");
     return (b.reviewCount || 0) - (a.reviewCount || 0) || (b.priceValue ?? parsePrice(b.price) ?? 0) - (a.priceValue ?? parsePrice(a.price) ?? 0);
@@ -281,7 +312,7 @@ function FilterSection({
   defaultOpen = true,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
   defaultOpen?: boolean;
 }) {
   return (
@@ -320,6 +351,7 @@ function FilterCheckbox({
 
 function ProductFilters({
   products,
+  categoryOptions,
   filters,
   onToggle,
   onPriceChange,
@@ -327,6 +359,7 @@ function ProductFilters({
   onApply,
 }: {
   products: CatalogProduct[];
+  categoryOptions: FilterOption[];
   filters: Filters;
   onToggle: (key: MultiFilterKey, value: string) => void;
   onPriceChange: (key: "priceMin" | "priceMax", value: string) => void;
@@ -336,7 +369,7 @@ function ProductFilters({
   const brandOptions = Array.from(new Set([...BRAND_OPTIONS, ...products.map((item) => item.brand).filter((brand): brand is string => Boolean(brand))]))
     .sort((a, b) => a.localeCompare(b, "vi"))
     .map((brand) => ({ label: brand, value: brand, count: countOption(products, "brands", brand) }));
-  const categoryOptions = CATEGORY_OPTIONS.map((option) => ({ ...option, count: countOption(products, "categories", option.value) }));
+  const categoryOptionsWithCount = categoryOptions.map((option) => ({ ...option, count: countOption(products, "categories", option.value) }));
   const scanSpeedOptions = SCAN_SPEED_OPTIONS.map((option) => ({ ...option, count: countOption(products, "scanSpeeds", option.value) }));
   const duplexOptions = DUPLEX_OPTIONS.map((option) => ({ ...option, count: countOption(products, "duplex", option.value) }));
   const adfOptions = ADF_OPTIONS.map((option) => ({ ...option, count: countOption(products, "adf", option.value) }));
@@ -362,7 +395,7 @@ function ProductFilters({
         </button>
       </div>
 
-      <FilterSection title="Danh mục">{renderOptions("categories", categoryOptions)}</FilterSection>
+      <FilterSection title="Danh mục">{renderOptions("categories", categoryOptionsWithCount)}</FilterSection>
       <FilterSection title="Thương hiệu">{renderOptions("brands", brandOptions)}</FilterSection>
       <FilterSection title="Tốc độ scan">{renderOptions("scanSpeeds", scanSpeedOptions)}</FilterSection>
       <FilterSection title="Scan hai mặt">{renderOptions("duplex", duplexOptions)}</FilterSection>
@@ -422,12 +455,14 @@ export default function ProductListClient({ products }: ProductListClientProps) 
   const safeSearchParams = searchParams ?? new URLSearchParams();
   const queryKey = safeSearchParams.toString();
   const initialSearch = cleanFilterValue(safeSearchParams.get("search"));
-  const initialFilters = initialFiltersFromParams(safeSearchParams);
+  const categoryOptions = useMemo(() => buildCategoryOptions(products), [products]);
+  const initialFilters = initialFiltersFromParams(safeSearchParams, categoryOptions);
 
   return (
     <ProductListInner
       key={queryKey}
       products={products}
+      categoryOptions={categoryOptions}
       initialSearch={initialSearch}
       initialFilters={initialFilters}
     />
@@ -436,9 +471,11 @@ export default function ProductListClient({ products }: ProductListClientProps) 
 
 function ProductListInner({
   products,
+  categoryOptions,
   initialSearch,
   initialFilters,
 }: ProductListClientProps & {
+  categoryOptions: FilterOption[];
   initialSearch: string;
   initialFilters: Filters;
 }) {
@@ -522,6 +559,7 @@ function ProductListInner({
           <div className="sticky top-28">
             <ProductFilters
               products={products}
+              categoryOptions={categoryOptions}
               filters={filters}
               onToggle={toggleFilter}
               onPriceChange={updatePrice}
@@ -580,7 +618,7 @@ function ProductListInner({
                 ) : null}
                 {filters.categories.map((value) => (
                   <button key={value} type="button" onClick={() => removeChip("categories", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
-                    {CATEGORY_OPTIONS.find((item) => item.value === value)?.label || value} <X size={14} />
+                    {categoryOptions.find((item) => item.value === value)?.label || value} <X size={14} />
                   </button>
                 ))}
                 {filters.brands.map((value) => (
@@ -608,7 +646,7 @@ function ProductListInner({
                     {value.toUpperCase()} <X size={14} />
                   </button>
                 ))}
-                {(filters.priceMin || filters.priceMax) ? (
+                {filters.priceMin || filters.priceMax ? (
                   <button type="button" onClick={() => updateFilter(() => setFilters((current) => ({ ...current, priceMin: "", priceMax: "" })))} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
                     {filters.priceMin ? `Từ ${formatVND(Number(filters.priceMin))}` : ""} {filters.priceMax ? `Đến ${formatVND(Number(filters.priceMax))}` : ""} <X size={14} />
                   </button>
@@ -658,6 +696,7 @@ function ProductListInner({
             </div>
             <ProductFilters
               products={products}
+              categoryOptions={categoryOptions}
               filters={filters}
               onToggle={toggleFilter}
               onPriceChange={updatePrice}

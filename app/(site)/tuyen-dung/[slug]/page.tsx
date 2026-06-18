@@ -1,8 +1,6 @@
-import type { ComponentProps } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RichText } from "@payloadcms/richtext-lexical/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,6 +14,7 @@ import {
   getRecruitmentPostBySlugFromPayload,
 } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
+import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 
 export const revalidate = 300;
 
@@ -94,10 +93,7 @@ export default async function RecruitmentDetailPage({ params }: RecruitmentDetai
           </Link>
 
           {job.content ? (
-            <RichText
-              data={job.content as ComponentProps<typeof RichText>["data"]}
-              className="prose prose-slate mt-7 max-w-none prose-headings:text-[#102b62] prose-a:text-[#0A4BFF]"
-            />
+            <PayloadRichText data={job.content} className="mt-7 [&_h1]:text-[#102b62] [&_h2]:text-[#102b62] [&_h3]:text-[#102b62]" />
           ) : job.summary ? (
             <section className="mt-7">
               <h2 className="text-xl font-black uppercase text-[#102b62]">Thông tin vị trí</h2>

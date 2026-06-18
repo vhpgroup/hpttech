@@ -13,6 +13,7 @@ import {
   relationID,
   type AttributeDataType,
 } from "../lib/catalog-schema.ts";
+import { SOFTWARE_CATEGORY_NAME } from "../lib/product-category.ts";
 import { seoField } from "../lib/payload/fields/seo.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
@@ -22,7 +23,7 @@ const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Photocopy", value: "photocopier" },
-  { label: "Phần mềm", value: "software" },
+  { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "Khác / nhập thủ công", value: "other" },
 ];
 

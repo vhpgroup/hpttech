@@ -136,7 +136,7 @@ main {
 .subpage-main {
   width: var(--shell-width);
   margin: 0 auto;
-  padding: 48px 0 52px;
+  padding: 24px 0 52px;
 }
 
 .utility-topbar {

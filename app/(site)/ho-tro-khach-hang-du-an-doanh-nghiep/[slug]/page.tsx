@@ -1,7 +1,5 @@
-import type { ComponentProps } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { RichText } from "@payloadcms/richtext-lexical/react";
 import {
   Archive,
   Bot,
@@ -38,6 +36,7 @@ import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { getEnterpriseServiceBySlugFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { phoneHref } from "@/lib/site-settings";
+import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 
 export const revalidate = 300;
 
@@ -109,10 +108,7 @@ export default async function EnterpriseServiceDetailPage({ params }: PageProps)
             ) : null}
 
             {service.content ? (
-              <RichText
-                data={service.content as ComponentProps<typeof RichText>["data"]}
-                className="prose prose-slate mt-8 max-w-none prose-headings:text-[#102b62] prose-a:text-blue-700"
-              />
+              <PayloadRichText data={service.content} className="mt-8 [&_h1]:text-[#102b62] [&_h2]:text-[#102b62] [&_h3]:text-[#102b62]" />
             ) : (
               <div className="mt-8 space-y-4 leading-7 text-slate-700">
                 <p>{service.summary}</p>

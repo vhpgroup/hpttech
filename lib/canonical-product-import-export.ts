@@ -2,6 +2,10 @@ import type { Payload, Where } from "payload";
 import ExcelJS from "exceljs";
 import { getPayloadClient } from "@/lib/payload";
 import { relationID } from "@/lib/catalog-schema";
+import {
+  canonicalizeCategoryName,
+  canonicalizeCategorySlug,
+} from "@/lib/product-category";
 import { formatSlug } from "@/lib/payload/utils/slugify";
 import { parseCSV, type ProductExportProfile } from "@/lib/product-import-export";
 
@@ -529,19 +533,24 @@ async function resolveTaxonomy(
   slug?: string,
   name?: string,
 ) {
-  const normalizedSlug = slug || (name ? formatSlug(name) : undefined);
-  if (!normalizedSlug && !name) return undefined;
+  const normalizedName =
+    collection === "categories" ? canonicalizeCategoryName(name) : name;
+  const normalizedSlug =
+    collection === "categories"
+      ? canonicalizeCategorySlug(slug, normalizedName)
+      : slug || (name ? formatSlug(name) : undefined);
+  if (!normalizedSlug && !normalizedName) return undefined;
   const existing = await findOne(payload, collection, {
     or: [
       ...(normalizedSlug ? [{ slug: { equals: normalizedSlug } }] : []),
-      ...(name ? [{ name: { equals: name } }] : []),
+      ...(normalizedName ? [{ name: { equals: normalizedName } }] : []),
     ],
   });
   if (existing?.id !== undefined) return existing.id;
   const created = await payload.create({
     collection,
     data: {
-      name: name || normalizedSlug,
+      name: normalizedName || normalizedSlug,
       slug: normalizedSlug,
     },
     overrideAccess: true,

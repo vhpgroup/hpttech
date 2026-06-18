@@ -37,7 +37,9 @@ export type CatalogProduct = {
   stockQuantity?: number;
   detail?: string;
   description?: string;
+  descriptionRichText?: unknown;
   usageGuide?: string;
+  usageGuideRichText?: unknown;
   warranty?: string;
   origin?: string;
   images?: Array<{ id?: string | number; url?: string; alt?: string }>;

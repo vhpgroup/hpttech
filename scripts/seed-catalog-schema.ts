@@ -1,3 +1,4 @@
+import { SOFTWARE_CATEGORY_NAME } from "../lib/product-category";
 import { loadEnvConfig } from "@next/env";
 import type { Where } from "payload";
 import { lexicalParagraphs } from "../lib/scraper/text.ts";
@@ -162,7 +163,7 @@ const schemas: Record<
     ],
   },
   software: {
-    name: "Phần mềm",
+    name: SOFTWARE_CATEGORY_NAME,
     description: "Phần mềm bản quyền, ứng dụng văn phòng, hệ điều hành và bảo mật.",
     attributes: [],
   },
