@@ -139,11 +139,6 @@ function PaymentInfoCard() {
             <dt className="inline font-semibold text-slate-900">Mã số thuế: </dt>
             <dd className="inline text-slate-950">{PAYMENT_INFO.taxCode}</dd>
           </div>
-          <div>
-            <dt className="inline font-semibold text-slate-900">Đại diện pháp luật: </dt>
-            <dd className="inline text-slate-950">{PAYMENT_INFO.legalRepresentative}</dd>
-            <p className="mt-1 text-slate-600">Chức vụ: {PAYMENT_INFO.legalRepresentativeTitle}</p>
-          </div>
         </dl>
       </div>
 

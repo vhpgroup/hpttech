@@ -114,10 +114,13 @@ function SidebarSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex items-center gap-2 border-b border-slate-200 px-5 py-4">
-        <Icon size={16} className="text-red-600" />
-        <h2 className="text-sm font-extrabold uppercase tracking-[0.12em] text-slate-950">{title}</h2>
+    <section className="border-b border-slate-100 last:border-b-0">
+      <div className="px-5 pt-5">
+        <div className="flex items-center gap-2">
+          <Icon size={18} className="text-red-600" />
+          <h2 className="text-base font-extrabold uppercase tracking-[0.04em] text-red-600">{title}</h2>
+        </div>
+        <div className="mt-3 h-0.5 w-12 rounded-full bg-red-600" />
       </div>
       <div className="p-5">{children}</div>
     </section>
@@ -304,56 +307,54 @@ function NewsDetail({
         ]}
       />
       <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <div className="p-6 sm:p-8">
-          <div className="max-w-4xl">
-            <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-500">
-              <span className="inline-flex items-center gap-2">
-                <CalendarDays size={16} />
-                {post.date}
-              </span>
-              {post.category?.fullTitle ? <span>{post.category.fullTitle}</span> : null}
+        <div className="grid items-stretch gap-8 p-6 sm:p-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="min-w-0">
+            <div>
+              <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-500">
+                <span className="inline-flex items-center gap-2">
+                  <CalendarDays size={16} />
+                  {post.date}
+                </span>
+                {post.category?.fullTitle ? <span>{post.category.fullTitle}</span> : null}
+              </div>
+              <h1 className="mt-4 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl">
+                {post.title}
+              </h1>
+              {post.tags?.length ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.map((tag) => (
+                    <span key={tag.slug} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+              {post.summary ? (
+                <div className="mt-6 space-y-4 text-base leading-8 text-slate-700">
+                  <p>{post.summary}</p>
+                </div>
+              ) : null}
             </div>
-            <h1 className="mt-4 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl">
-              {post.title}
-            </h1>
-            {post.tags?.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <span key={tag.slug} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                    {tag.name}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-            {post.summary ? (
-              <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-slate-700">
-                <p>{post.summary}</p>
-              </div>
-            ) : null}
-          </div>
 
-          <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="min-w-0">
-              <PayloadRichText data={post.content} className="max-w-3xl" />
-            </div>
-            <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
-              {recentPosts.length ? (
-                <SidebarSection title="Tin mới nhất" icon={Newspaper}>
-                  <PostSidebarList posts={recentPosts} />
-                </SidebarSection>
-              ) : null}
-              {mostViewedPosts.length ? (
-                <SidebarSection title="Bài viết nhiều người xem" icon={Eye}>
-                  <PostSidebarList posts={mostViewedPosts} showViewCount />
-                </SidebarSection>
-              ) : null}
-              {bestSellingProducts.length ? (
-                <SidebarSection title="Sản phẩm bán chạy nhất" icon={ShoppingBag}>
-                  <ProductSidebarList products={bestSellingProducts} />
-                </SidebarSection>
-              ) : null}
-            </aside>
+            <PayloadRichText data={post.content} className="mt-8" />
           </div>
+          <aside className="flex h-full min-h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            {recentPosts.length ? (
+              <SidebarSection title="Tin mới nhất" icon={Newspaper}>
+                <PostSidebarList posts={recentPosts} />
+              </SidebarSection>
+            ) : null}
+            {mostViewedPosts.length ? (
+              <SidebarSection title="Bài viết nhiều người xem" icon={Eye}>
+                <PostSidebarList posts={mostViewedPosts} showViewCount />
+              </SidebarSection>
+            ) : null}
+            {bestSellingProducts.length ? (
+              <SidebarSection title="Sản phẩm bán chạy nhất" icon={ShoppingBag}>
+                <ProductSidebarList products={bestSellingProducts} />
+              </SidebarSection>
+            ) : null}
+          </aside>
         </div>
       </article>
     </main>

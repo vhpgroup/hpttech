@@ -1,5 +1,6 @@
 import type { ComponentProps } from "react";
 import { RichText } from "@payloadcms/richtext-lexical/react";
+import { getPayloadClient } from "@/lib/payload";
 
 type PayloadRichTextProps = {
   className?: string;
@@ -25,12 +26,109 @@ const baseClassName = [
   "[&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-100 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:font-bold",
 ].join(" ");
 
-export function PayloadRichText({ className, data }: PayloadRichTextProps) {
+type RichTextRecord = Record<string, unknown>;
+type MediaLookup = Map<string, RichTextRecord>;
+
+function isRecord(value: unknown): value is RichTextRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function uploadID(value: unknown) {
+  return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
+}
+
+function collectUploadIDs(value: unknown, ids = new Set<string>()) {
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectUploadIDs(item, ids));
+    return ids;
+  }
+
+  if (!isRecord(value)) return ids;
+
+  if (value.type === "upload") {
+    const id = uploadID(value.value);
+    if (id) ids.add(id);
+  }
+
+  Object.values(value).forEach((item) => collectUploadIDs(item, ids));
+  return ids;
+}
+
+async function getMediaLookup(ids: string[]): Promise<MediaLookup> {
+  if (!ids.length) return new Map();
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "media",
+      depth: 0,
+      limit: ids.length,
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+    });
+
+    return new Map(
+      res.docs.map((doc) => [String(doc.id), doc as RichTextRecord]),
+    );
+  } catch (error) {
+    console.warn("[rich-text] Cannot populate embedded media.", error);
+    return new Map();
+  }
+}
+
+function hasMediaURL(value: unknown) {
+  return isRecord(value) && typeof value.url === "string" && value.url.length > 0;
+}
+
+function sanitizeRichTextData(value: unknown, mediaLookup: MediaLookup): unknown {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => sanitizeRichTextData(item, mediaLookup))
+      .filter((item) => item !== null);
+  }
+
+  if (!isRecord(value)) return value;
+
+  if (value.type === "upload") {
+    const id = uploadID(value.value);
+    const media = id ? mediaLookup.get(id) : value.value;
+    if (!hasMediaURL(media)) return null;
+
+    return {
+      ...value,
+      value: media,
+      fields: sanitizeRichTextData(value.fields, mediaLookup),
+    };
+  }
+
+  const next = Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [key, sanitizeRichTextData(item, mediaLookup)]),
+  );
+
+  if ((next.type === "link" || next.type === "autolink") && isRecord(next.fields)) {
+    next.fields = {
+      ...next.fields,
+      url: typeof next.fields.url === "string" && next.fields.url ? next.fields.url : "#",
+    };
+  }
+
+  return next;
+}
+
+export async function PayloadRichText({ className, data }: PayloadRichTextProps) {
   if (!data || typeof data !== "object") return null;
+
+  const uploadIDs = Array.from(collectUploadIDs(data));
+  const mediaLookup = await getMediaLookup(uploadIDs);
+  const safeData = sanitizeRichTextData(data, mediaLookup);
+  if (!safeData || typeof safeData !== "object") return null;
 
   return (
     <RichText
-      data={data as ComponentProps<typeof RichText>["data"]}
+      data={safeData as ComponentProps<typeof RichText>["data"]}
       className={[baseClassName, className].filter(Boolean).join(" ")}
     />
   );
