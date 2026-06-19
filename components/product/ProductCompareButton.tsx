@@ -59,3 +59,50 @@ export default function ProductCompareButton({ product }: { product: CatalogProd
     </button>
   );
 }
+
+export function ProductCompareInlineButton({ product }: { product: CatalogProduct }) {
+  const [added, setAdded] = useState(false);
+  const key = productKey(product);
+
+  useEffect(() => {
+    const handleResult = (event: Event) => {
+      const result = (event as CustomEvent<CompareResult>).detail;
+      if (!result || result.key !== key) return;
+      if (result.status === "added" || result.status === "duplicate") setAdded(true);
+    };
+    const handleState = (event: Event) => {
+      const items = (event as CustomEvent<CatalogProduct[]>).detail;
+      if (!Array.isArray(items)) return;
+      setAdded(items.some((item) => productKey(item) === key));
+    };
+
+    window.addEventListener("hpt:compare:result", handleResult);
+    window.addEventListener("hpt:compare:state", handleState);
+    window.dispatchEvent(new CustomEvent("hpt:compare:request-state"));
+    return () => {
+      window.removeEventListener("hpt:compare:result", handleResult);
+      window.removeEventListener("hpt:compare:state", handleState);
+    };
+  }, [key]);
+
+  const handleClick = () => {
+    if (added) {
+      window.dispatchEvent(new CustomEvent("hpt:compare:open"));
+      return;
+    }
+
+    window.dispatchEvent(new CustomEvent<CatalogProduct>("hpt:compare:add", { detail: product }));
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-100"
+      aria-label={added ? "Xem danh sách so sánh" : "Thêm vào danh sách so sánh"}
+      title={added ? "Xem danh sách so sánh" : "Thêm vào danh sách so sánh"}
+    >
+      {added ? <Check size={14} strokeWidth={3} /> : <Scale size={14} />}
+    </button>
+  );
+}

@@ -72,6 +72,25 @@ async function createPostRedirect(args: {
   }
 }
 
+function isViewCountOnlyUpdate(args: {
+  operation: string;
+  doc?: Record<string, unknown>;
+  previousDoc?: Record<string, unknown>;
+}) {
+  if (args.operation !== "update" || !args.doc || !args.previousDoc) return false;
+
+  const nextEntries = Object.entries(args.doc).filter(([key]) => key !== "updatedAt" && key !== "createdAt");
+  const prevEntries = Object.entries(args.previousDoc).filter(([key]) => key !== "updatedAt" && key !== "createdAt");
+
+  if (nextEntries.length !== prevEntries.length) return false;
+
+  const changedKeys = nextEntries
+    .filter(([key, value]) => JSON.stringify(args.previousDoc?.[key]) !== JSON.stringify(value))
+    .map(([key]) => key);
+
+  return changedKeys.length === 1 && changedKeys[0] === "viewCount";
+}
+
 export const Posts: CollectionConfig = {
   slug: "posts",
   labels: {
@@ -89,7 +108,7 @@ export const Posts: CollectionConfig = {
     },
   },
   admin: {
-    defaultColumns: ["title", "category", "postType", "publishedAt", "status"],
+    defaultColumns: ["title", "category", "postType", "publishedAt", "viewCount", "status"],
     group: "Tin tức",
     useAsTitle: "title",
   },
@@ -110,6 +129,7 @@ export const Posts: CollectionConfig = {
     afterChange: [
       async (args) => {
         await createPostRedirect(args as Parameters<typeof createPostRedirect>[0]);
+        if (isViewCountOnlyUpdate(args)) return;
         await revalidateCollection(args);
       },
     ],
@@ -214,6 +234,18 @@ export const Posts: CollectionConfig = {
       name: "summary",
       label: "Tóm tắt",
       type: "textarea",
+    },
+    {
+      name: "viewCount",
+      label: "Lượt xem",
+      type: "number",
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        position: "sidebar",
+        readOnly: true,
+        description: "Tự động tăng khi người dùng mở bài viết.",
+      },
     },
     {
       name: "guideMeta",

@@ -13,7 +13,7 @@ export const Projects: CollectionConfig = {
     read: () => true,
   },
   admin: {
-    defaultColumns: ["name", "client", "industry", "completedAt"],
+    defaultColumns: ["name", "category", "client", "industry", "completedAt"],
     group: "Nội dung",
     useAsTitle: "name",
   },
@@ -36,6 +36,12 @@ export const Projects: CollectionConfig = {
       },
     },
     { name: "client", label: "Khách hàng", type: "text" },
+    {
+      name: "category",
+      label: "Danh mục dự án",
+      type: "relationship",
+      relationTo: "project-categories",
+    },
     { name: "industry", label: "Lĩnh vực", type: "text" },
     { name: "completedAt", label: "Ngày hoàn thành", type: "date" },
     { name: "summary", label: "Tóm tắt", type: "textarea" },

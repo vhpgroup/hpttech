@@ -48,6 +48,14 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "");
 }
 
+function projectCategoryLabel(project: PublicProject) {
+  return project.category?.name?.trim() || project.industry?.trim() || "";
+}
+
+function projectCategorySlug(project: PublicProject) {
+  return project.category?.slug || slugify(projectCategoryLabel(project));
+}
+
 function RelatedProjectCard({ project }: { project: PublicProject }) {
   return (
     <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
@@ -67,7 +75,7 @@ function RelatedProjectCard({ project }: { project: PublicProject }) {
         )}
       </Link>
       <div className="p-4">
-        {project.industry ? <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">{project.industry}</p> : null}
+        {projectCategoryLabel(project) ? <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">{projectCategoryLabel(project)}</p> : null}
         <h3 className="mt-2 line-clamp-2 text-base font-bold leading-6 text-slate-900">
           <Link href={`/du-an/${project.slug}`} className="hover:text-[#0A4BFF]">{project.title}</Link>
         </h3>
@@ -105,9 +113,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   ]);
   if (!project) notFound();
 
+  const projectCategory = projectCategoryLabel(project);
   const completedAt = formatDate(project.completedAt);
   const relatedProjects = projects
-    .filter((item) => item.slug !== project.slug && project.industry && item.industry === project.industry)
+    .filter((item) => item.slug !== project.slug && projectCategory && projectCategoryLabel(item) === projectCategory)
     .slice(0, 4);
 
   return (
@@ -123,7 +132,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       <article className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <header className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            {project.industry ? <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0A4BFF]">{project.industry}</p> : null}
+            {projectCategory ? <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0A4BFF]">{projectCategory}</p> : null}
             <h1 className="mt-3 max-w-4xl text-3xl font-black leading-tight text-[#102b62] sm:text-4xl">{project.title}</h1>
             {project.summary ? <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">{project.summary}</p> : null}
           </div>
@@ -146,7 +155,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           </div>
         ) : null}
 
-        {(project.client || project.industry || completedAt) ? (
+        {(project.client || projectCategory || project.industry || completedAt) ? (
           <section className="grid gap-3 border-b border-slate-100 bg-slate-50/70 p-6 sm:grid-cols-3 sm:p-8">
             {project.client ? (
               <div className="flex items-start gap-3">
@@ -157,12 +166,12 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                 </div>
               </div>
             ) : null}
-            {project.industry ? (
+            {projectCategory ? (
               <div className="flex items-start gap-3">
                 <BriefcaseBusiness size={19} className="mt-0.5 text-[#0A4BFF]" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Lĩnh vực</p>
-                  <p className="mt-1 text-sm font-bold text-slate-800">{project.industry}</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Danh mục dự án</p>
+                  <p className="mt-1 text-sm font-bold text-slate-800">{projectCategory}</p>
                 </div>
               </div>
             ) : null}
@@ -233,8 +242,8 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         <section className="mt-10">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-black uppercase text-[#102b62]">Dự án liên quan</h2>
-            <Link href={`/du-an?linh-vuc=${slugify(project.industry || "")}`} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A4BFF]">
-              Xem cùng lĩnh vực <ArrowRight size={15} />
+            <Link href={`/du-an?danh-muc=${projectCategorySlug(project)}`} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A4BFF]">
+              Xem cùng danh mục <ArrowRight size={15} />
             </Link>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

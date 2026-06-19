@@ -24,6 +24,7 @@ import { PostTags } from "./collections/PostTags.ts";
 import { Posts } from "./collections/Posts.ts";
 import { Products } from "./collections/Products.ts";
 import { Projects } from "./collections/Projects.ts";
+import { ProjectCategories } from "./collections/ProjectCategories.ts";
 import { ScraperJobs } from "./collections/ScraperJobs.ts";
 import { Solutions } from "./collections/Solutions.ts";
 import { StaticPages } from "./collections/StaticPages.ts";
@@ -116,6 +117,7 @@ export default buildConfig({
     PostTags,
     NewsRedirects,
     Posts,
+    ProjectCategories,
     DownloadCategories,
     Downloads,
     Projects,

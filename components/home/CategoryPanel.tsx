@@ -22,7 +22,7 @@ import {
   Wrench,
   Workflow,
 } from "lucide-react";
-import { HPT_DATA } from "@/lib/data";
+import type { ProductCategoryNavItem } from "@/lib/catalog-payload";
 
 type MegaColumn = {
   title: string;
@@ -32,114 +32,129 @@ type MegaColumn = {
   }>;
 };
 
+function buildCategoryFilterHref(category: string, options?: { search?: string; brand?: string }) {
+  const params = new URLSearchParams();
+  params.set("category", category);
+  if (options?.search) params.set("search", options.search);
+  if (options?.brand) params.set("brand", options.brand);
+  return `/san-pham?${params.toString()}`;
+}
+
 const defaultMegaColumns: MegaColumn[] = [
   {
     title: "Theo nhu cầu",
     links: [
-      catalogSearch("Văn phòng"),
-      catalogSearch("Doanh nghiệp"),
-      catalogSearch("Hiệu suất cao"),
-      catalogSearch("Dịch vụ kỹ thuật"),
+      { label: "Văn phòng", href: "/san-pham?search=V%C4%83n%20ph%C3%B2ng" },
+      { label: "Doanh nghiệp", href: "/san-pham?search=Doanh%20nghi%E1%BB%87p" },
+      { label: "Hiệu suất cao", href: "/san-pham?search=Hi%E1%BB%87u%20su%E1%BA%A5t%20cao" },
+      { label: "Dịch vụ kỹ thuật", href: "/san-pham?search=D%E1%BB%8Bch%20v%E1%BB%A5%20k%E1%BB%B9%20thu%E1%BA%ADt" },
     ],
   },
   {
     title: "Thương hiệu",
-    links: [catalogBrand("HP"), catalogBrand("Brother"), catalogBrand("Epson"), catalogBrand("Ricoh")],
+    links: [
+      { label: "HP", href: "/san-pham?brand=HP" },
+      { label: "Brother", href: "/san-pham?brand=Brother" },
+      { label: "Epson", href: "/san-pham?brand=Epson" },
+      { label: "Ricoh", href: "/san-pham?brand=Ricoh" },
+    ],
   },
   {
     title: "Thiết bị",
-    links: [catalogCategory("Máy scan"), catalogCategory("Máy in"), catalogSearch("Thiết bị văn phòng"), catalogSearch("Phụ kiện")],
+    links: [
+      { label: "Máy scan", href: "/san-pham?category=M%C3%A1y%20scan" },
+      { label: "Máy in", href: "/san-pham?category=M%C3%A1y%20in" },
+      { label: "Thiết bị văn phòng", href: "/san-pham?search=Thi%E1%BA%BFt%20b%E1%BB%8B%20v%C4%83n%20ph%C3%B2ng" },
+      { label: "Phụ kiện", href: "/san-pham?search=Ph%E1%BB%A5%20ki%E1%BB%87n" },
+    ],
   },
 ];
 
-const megaByCategory: Record<string, MegaColumn[]> = {
-  "Laptop doanh nghiệp": [
-    {
-      title: "Laptop",
-      links: [catalogSearch("Laptop doanh nghiệp"), catalogSearch("Laptop văn phòng"), catalogSearch("Laptop di động"), catalogSearch("Laptop hiệu năng cao")],
-    },
-    {
-      title: "Theo nhu cầu",
-      links: [catalogSearch("Làm việc văn phòng"), catalogSearch("Di chuyển nhiều"), catalogSearch("Thiết kế"), catalogSearch("Doanh nghiệp SMB")],
-    },
-    {
-      title: "Thương hiệu",
-      links: [catalogBrand("HP"), catalogBrand("Fujitsu"), catalogBrand("Brother"), catalogBrand("Epson")],
-    },
-  ],
-  "Máy tính để bàn": [
-    {
-      title: "Máy bộ",
-      links: [catalogSearch("Máy bộ"), catalogSearch("PC văn phòng"), catalogSearch("PC học tập"), catalogSearch("PC làm việc")],
-    },
-    {
-      title: "Màn hình",
-      links: [catalogSearch("Màn hình"), catalogSearch("Màn hình văn phòng"), catalogSearch("Màn hình doanh nghiệp"), catalogSearch("Màn hình đồ họa")],
-    },
-    {
-      title: "Phụ kiện",
-      links: [catalogSearch("Linh kiện"), catalogSearch("Thiết bị lưu trữ"), catalogSearch("UPS"), catalogSearch("Nguồn điện")],
-    },
-  ],
-  "Thiết bị văn phòng": [
-    {
-      title: "Máy in",
-      links: [catalogCategory("Máy in"), catalogBrand("HP"), catalogBrand("Brother"), catalogBrand("Epson")],
-    },
-    {
-      title: "Máy scan",
-      links: [catalogCategory("Máy scan"), catalogBrand("Ricoh"), catalogBrand("Plustek"), catalogBrand("Microtek")],
-    },
-    {
-      title: "Vật tư",
-      links: [catalogSearch("Mực in"), catalogSearch("Giấy"), catalogSearch("Máy photocopy"), catalogSearch("Thiết bị văn phòng")],
-    },
-  ],
-  "Máy in": [
-    {
-      title: "Máy in",
-      links: [catalogCategory("Máy in"), catalogBrand("HP"), catalogBrand("Brother"), catalogBrand("Epson")],
-    },
-    {
-      title: "Nhu cầu in",
-      links: [catalogSearch("Laser"), catalogSearch("In màu"), catalogSearch("Đa năng"), catalogSearch("WiFi")],
-    },
-    {
-      title: "Vật tư",
-      links: [catalogSearch("Mực in"), catalogSearch("PaperOne"), catalogSearch("OJI Paper"), catalogSearch("Bảo trì")],
-    },
-  ],
-  "Máy scan": [
-    {
-      title: "Máy scan",
-      links: [catalogCategory("Máy scan"), catalogBrand("Ricoh"), catalogBrand("Brother"), catalogBrand("Epson")],
-    },
-    {
-      title: "Khổ giấy",
-      links: [catalogSearch("A4"), catalogSearch("A3"), catalogSearch("ADF"), catalogSearch("Flatbed")],
-    },
-    {
-      title: "Số hóa",
-      links: [catalogSearch("Số hóa tài liệu"), catalogSearch("Scan 2 mặt"), catalogSearch("Công suất cao"), catalogSearch("Văn phòng")],
-    },
-  ],
-};
+const scannerMegaColumns: MegaColumn[] = [
+  {
+    title: "Theo nhu cầu",
+    links: [
+      { label: "Văn phòng", href: buildCategoryFilterHref("Máy scan", { search: "Văn phòng" }) },
+      { label: "Doanh nghiệp", href: buildCategoryFilterHref("Máy scan", { search: "Doanh nghiệp" }) },
+      { label: "Tốc độ cao", href: buildCategoryFilterHref("Máy scan", { search: "Tốc độ cao" }) },
+      { label: "Di động", href: buildCategoryFilterHref("Máy scan", { search: "Di động" }) },
+      { label: "Scan mạng", href: buildCategoryFilterHref("Máy scan", { search: "Scan mạng" }) },
+      { label: "Số hóa tài liệu", href: buildCategoryFilterHref("Máy scan", { search: "Số hóa tài liệu" }) },
+    ],
+  },
+  {
+    title: "Loại máy scan",
+    links: [
+      { label: "ADF", href: buildCategoryFilterHref("Máy scan", { search: "ADF" }) },
+      { label: "Flatbed", href: buildCategoryFilterHref("Máy scan", { search: "Flatbed" }) },
+      { label: "Scan 2 mặt", href: buildCategoryFilterHref("Máy scan", { search: "Scan 2 mặt" }) },
+      { label: "Duplex", href: buildCategoryFilterHref("Máy scan", { search: "Duplex" }) },
+      { label: "Sheet-fed", href: buildCategoryFilterHref("Máy scan", { search: "Sheet-fed" }) },
+      { label: "Network scanner", href: buildCategoryFilterHref("Máy scan", { search: "Network scanner" }) },
+    ],
+  },
+  {
+    title: "Khổ giấy / tính năng",
+    links: [
+      { label: "A4", href: buildCategoryFilterHref("Máy scan", { search: "A4" }) },
+      { label: "A3", href: buildCategoryFilterHref("Máy scan", { search: "A3" }) },
+      { label: "WiFi", href: buildCategoryFilterHref("Máy scan", { search: "WiFi" }) },
+      { label: "USB", href: buildCategoryFilterHref("Máy scan", { search: "USB" }) },
+      { label: "LAN", href: buildCategoryFilterHref("Máy scan", { search: "LAN" }) },
+      { label: "Màn hình cảm ứng", href: buildCategoryFilterHref("Máy scan", { search: "Màn hình cảm ứng" }) },
+    ],
+  },
+  {
+    title: "Thương hiệu",
+    links: [
+      { label: "Ricoh", href: buildCategoryFilterHref("Máy scan", { brand: "Ricoh" }) },
+      { label: "Brother", href: buildCategoryFilterHref("Máy scan", { brand: "Brother" }) },
+      { label: "Epson", href: buildCategoryFilterHref("Máy scan", { brand: "Epson" }) },
+      { label: "Plustek", href: buildCategoryFilterHref("Máy scan", { brand: "Plustek" }) },
+      { label: "Microtek", href: buildCategoryFilterHref("Máy scan", { brand: "Microtek" }) },
+    ],
+  },
+  {
+    title: "Thương hiệu khác",
+    links: [
+      { label: "Canon", href: buildCategoryFilterHref("Máy scan", { brand: "Canon" }) },
+      { label: "HP", href: buildCategoryFilterHref("Máy scan", { brand: "HP" }) },
+      { label: "Kodak", href: buildCategoryFilterHref("Máy scan", { brand: "Kodak" }) },
+      { label: "Fujitsu", href: buildCategoryFilterHref("Máy scan", { brand: "Fujitsu" }) },
+      { label: "Avision", href: buildCategoryFilterHref("Máy scan", { brand: "Avision" }) },
+    ],
+  },
+];
 
-function catalogSearch(label: string) {
-  return { label, href: `/san-pham?search=${encodeURIComponent(label)}` };
+function categoryLandingHref(category: { name: string; slug?: string }) {
+  return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
 
-function catalogCategory(label: string) {
-  return { label, href: `/san-pham?category=${encodeURIComponent(label)}` };
-}
+function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
+  if (category.name.trim().toLowerCase() === "máy scan") {
+    return scannerMegaColumns;
+  }
 
-function catalogBrand(label: string) {
-  return { label, href: `/san-pham?brand=${encodeURIComponent(label)}` };
-}
+  if (!category.children.length) {
+    return defaultMegaColumns;
+  }
 
-function categoryLandingHref(label: string) {
-  const hasMatchingProducts = ["Máy in", "Máy scan"].includes(label);
-  return hasMatchingProducts ? `/san-pham?category=${encodeURIComponent(label)}` : `/san-pham?search=${encodeURIComponent(label)}`;
+  const columnCount = Math.min(3, category.children.length);
+  const chunkSize = Math.ceil(category.children.length / columnCount);
+  const columns: MegaColumn[] = [];
+
+  for (let index = 0; index < category.children.length; index += chunkSize) {
+    const chunk = category.children.slice(index, index + chunkSize);
+    columns.push({
+      title: index === 0 ? category.name : `Nhóm ${columns.length + 1}`,
+      links: chunk.map((child) => ({
+        label: child.name,
+        href: categoryLandingHref(child),
+      })),
+    });
+  }
+
+  return columns;
 }
 
 function getCategoryIcon(iconName: string, size = 20) {
@@ -185,16 +200,20 @@ function getCategoryIcon(iconName: string, size = 20) {
   }
 }
 
-export default function CategoryPanel() {
+export default function CategoryPanel({ categories }: { categories: ProductCategoryNavItem[] }) {
   return (
     <aside className="category-panel desktop-only" id="categoryPanel">
-      {HPT_DATA.categories.map((cat, index) => (
-        <article className="category-item" key={cat.name} style={{ ["--menu-index" as string]: index } as CSSProperties}>
-          <Link href={categoryLandingHref(cat.name)}>
-            {getCategoryIcon(cat.icon)}
-            <span>{cat.name}</span>
+      {categories.map((category, index) => (
+        <article
+          className="category-item"
+          key={category.slug || category.name}
+          style={{ ["--menu-index" as string]: index } as CSSProperties}
+        >
+          <Link href={categoryLandingHref(category)}>
+            {getCategoryIcon(category.icon || "")}
+            <span>{category.name}</span>
           </Link>
-          <CategoryMegaPanel columns={megaByCategory[cat.name] || defaultMegaColumns} />
+          <CategoryMegaPanel columns={buildMegaColumns(category)} />
         </article>
       ))}
       <article className="category-item">
@@ -202,7 +221,6 @@ export default function CategoryPanel() {
           <List size={20} />
           <span>Xem tất cả danh mục</span>
         </Link>
-        <CategoryMegaPanel columns={defaultMegaColumns} />
       </article>
     </aside>
   );

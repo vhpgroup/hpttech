@@ -56,7 +56,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row">
-      {images.length ? (
+      {hasMultiple ? (
         <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:max-h-[560px] lg:w-[84px] lg:flex-col lg:overflow-y-auto lg:pb-0">
           {images.map((img, idx) => (
             <button

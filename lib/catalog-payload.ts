@@ -11,8 +11,10 @@ import {
   loadCanonicalCommercialProjections,
   type CanonicalCommercialProjection,
 } from "@/lib/catalog-projection";
+import { HPT_DATA } from "@/lib/data";
 
 type PayloadProductDoc = Record<string, unknown>;
+type PayloadCategoryDoc = Record<string, unknown>;
 
 type RawProductHTML = {
   descriptionHTML?: string;
@@ -32,6 +34,18 @@ export type ProductListPageResult = {
   totalPages: number;
 };
 
+export type ProductCategoryNavItem = {
+  name: string;
+  slug: string;
+  icon?: string;
+  sortOrder: number;
+  children: Array<{
+    name: string;
+    slug: string;
+    sortOrder: number;
+  }>;
+};
+
 function normalizeSearchText(value?: string) {
   return (value || "")
     .normalize("NFD")
@@ -39,6 +53,12 @@ function normalizeSearchText(value?: string) {
     .replace(/Ä‘/g, "d")
     .replace(/Ä/g, "D")
     .toLowerCase();
+}
+
+function normalizeCategoryNavKey(value?: string) {
+  return normalizeSearchText(value)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function loadLocalCatalogFixtures(): CatalogProduct[] {
@@ -89,6 +109,25 @@ function numberField(doc: PayloadProductDoc, key: string) {
 function booleanField(doc: PayloadProductDoc, key: string) {
   const value = doc[key];
   return typeof value === "boolean" ? value : undefined;
+}
+
+function categoryTextField(doc: PayloadCategoryDoc, key: string) {
+  const value = doc[key];
+  return typeof value === "string" ? value : undefined;
+}
+
+function categoryNumberField(doc: PayloadCategoryDoc, key: string) {
+  const value = doc[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function categoryRelationId(value: unknown) {
+  if (typeof value === "string" || typeof value === "number") return String(value);
+  if (value && typeof value === "object" && "id" in value) {
+    const id = (value as { id?: string | number }).id;
+    if (typeof id === "string" || typeof id === "number") return String(id);
+  }
+  return undefined;
 }
 
 function stripHTML(value?: string) {
@@ -750,6 +789,101 @@ const getCachedProductsFromPayload = unstable_cache(
 
 export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
   return getCachedProductsFromPayload();
+}
+
+async function loadProductCategoryNavFromPayload(): Promise<ProductCategoryNavItem[]> {
+  const localFallback: ProductCategoryNavItem[] = HPT_DATA.categories.map((category, index) => ({
+    name: category.name,
+    slug: "",
+    icon: category.icon,
+    sortOrder: index,
+    children: [],
+  }));
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "categories",
+      depth: 0,
+      limit: 200,
+      sort: "sortOrder",
+    });
+
+    const docs = res.docs as unknown as PayloadCategoryDoc[];
+    const categories = docs.map((doc, index) => ({
+      id:
+        typeof doc.id === "string" || typeof doc.id === "number"
+          ? String(doc.id)
+          : `category-${index}`,
+      name: categoryTextField(doc, "name") || "",
+      slug: categoryTextField(doc, "slug") || "",
+      icon: categoryTextField(doc, "icon"),
+      sortOrder: categoryNumberField(doc, "sortOrder") ?? index,
+      parentId: categoryRelationId(doc.parent),
+    }));
+
+    const roots = categories
+      .filter((category) => !category.parentId)
+      .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, "vi"));
+
+    const dbNavItems = roots.map((parent) => ({
+      name: parent.name,
+      slug: parent.slug,
+      icon: parent.icon,
+      sortOrder: parent.sortOrder,
+      children: categories
+        .filter((category) => category.parentId === parent.id)
+        .sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name, "vi"))
+        .map((child) => ({
+          name: child.name,
+          slug: child.slug,
+          sortOrder: child.sortOrder,
+        })),
+    }));
+
+    const dbByKey = new Map<string, ProductCategoryNavItem>();
+    for (const item of dbNavItems) {
+      const keys = [normalizeCategoryNavKey(item.slug), normalizeCategoryNavKey(item.name)].filter(Boolean);
+      for (const key of keys) {
+        dbByKey.set(key, item);
+      }
+    }
+
+    return HPT_DATA.categories.map((category, index) => {
+      const match = dbByKey.get(normalizeCategoryNavKey(category.name));
+
+      if (!match) {
+        return {
+          name: category.name,
+          slug: "",
+          icon: category.icon,
+          sortOrder: index,
+          children: [],
+        };
+      }
+
+      return {
+        name: match.name || category.name,
+        slug: match.slug,
+        icon: match.icon || category.icon,
+        sortOrder: index,
+        children: match.children,
+      };
+    });
+  } catch (error) {
+    handlePayloadReadError("product-categories-nav", error);
+    return localFallback;
+  }
+}
+
+const getCachedProductCategoryNavFromPayload = unstable_cache(
+  loadProductCategoryNavFromPayload,
+  ["product-categories-nav"],
+  { revalidate: 300, tags: ["categories"] },
+);
+
+export async function getProductCategoryNavFromPayload(): Promise<ProductCategoryNavItem[]> {
+  return getCachedProductCategoryNavFromPayload();
 }
 
 async function loadProductListPageFromPayload({

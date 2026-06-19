@@ -12,6 +12,7 @@ export const metadata = pageMetadata({
 
 type ProjectsPageProps = {
   searchParams: Promise<{
+    "danh-muc"?: string;
     "linh-vuc"?: string;
     q?: string;
     "sap-xep"?: string;
@@ -26,6 +27,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   return (
     <ProjectsPageClient
       projects={projects}
+      initialCategory={params["danh-muc"] || params["linh-vuc"]}
       initialIndustry={params["linh-vuc"]}
       initialQuery={params.q}
       initialSort={params["sap-xep"]}

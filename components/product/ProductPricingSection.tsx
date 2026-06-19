@@ -1,6 +1,6 @@
 import { CheckCircle2, Star } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
-import ProductCompareButton from "@/components/product/ProductCompareButton";
+import { ProductCompareInlineButton } from "@/components/product/ProductCompareButton";
 import ProductPromotionsPanel from "@/components/product/ProductPromotionsPanel";
 import QuoteButton from "@/components/quote/QuoteButton";
 import { Button } from "@/components/ui/Button";
@@ -77,6 +77,7 @@ export default function ProductPricingSection({
             Lượt xem:{" "}
             {typeof viewCount === "number" ? viewCount.toLocaleString("vi-VN") : "đang cập nhật"}
           </span>
+          <ProductCompareInlineButton product={product} />
         </div>
       </div>
 
@@ -157,8 +158,6 @@ export default function ProductPricingSection({
             <a href={phoneHref}>Tư vấn ngay</a>
           </Button>
         </div>
-
-        <ProductCompareButton product={product} />
       </div>
     </section>
   );

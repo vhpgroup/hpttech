@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import type { ProductCategoryNavItem } from "@/lib/catalog-payload";
 import type { PublicBanner } from "@/lib/content-payload";
 import CategoryPanel from "@/components/home/CategoryPanel";
 
 type HomeHeroClientProps = {
   banners: PublicBanner[];
+  categories: ProductCategoryNavItem[];
 };
 
-export default function HomeHeroClient({ banners }: HomeHeroClientProps) {
+export default function HomeHeroClient({ banners, categories }: HomeHeroClientProps) {
   const [activeBanner, setActiveBanner] = useState(0);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function HomeHeroClient({ banners }: HomeHeroClientProps) {
 
   return (
     <section className="hero-section">
-      <CategoryPanel />
+      <CategoryPanel categories={categories} />
 
       <div className="hero-commerce-area">
         <section className="hero hero-banner" aria-label="Banner HPT Tech" style={{ position: "relative" }}>

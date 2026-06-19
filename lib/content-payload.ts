@@ -43,6 +43,7 @@ export type PublicPost = {
   publishedAt?: string;
   href?: string;
   summary?: string;
+  viewCount?: number;
   category?: PublicPostCategory;
   tags?: PublicPostTag[];
   postType?: string;
@@ -70,6 +71,7 @@ export type PublicPostTag = {
 export type PublicProject = {
   title: string;
   slug: string;
+  category?: PublicProjectCategory;
   client?: string;
   industry?: string;
   completedAt?: string;
@@ -82,6 +84,13 @@ export type PublicProject = {
     slug: string;
     image?: string;
   }>;
+};
+
+export type PublicProjectCategory = {
+  id?: string;
+  name: string;
+  slug: string;
+  description?: string;
 };
 
 export type PublicFAQ = {
@@ -272,6 +281,7 @@ type PublicCollectionSlug =
   | "solutions"
   | "enterprise-services"
   | "posts"
+  | "project-categories"
   | "post-categories"
   | "post-tags"
   | "news-redirects"
@@ -282,6 +292,11 @@ type PublicCollectionSlug =
 function textField(doc: PayloadDoc, key: string) {
   const value = doc[key];
   return typeof value === "string" ? value : undefined;
+}
+
+function numberField(doc: PayloadDoc, key: string) {
+  const value = doc[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 function mediaURL(value: unknown) {
@@ -366,6 +381,7 @@ function mapPost(doc: PayloadDoc): PublicPost {
     publishedAt: textField(doc, "publishedAt"),
     href: `/tin-tuc/${fullPath}`,
     summary: textField(doc, "summary"),
+    viewCount: numberField(doc, "viewCount"),
     category: postCategory(doc.category),
     tags: postTags(doc.tags),
     postType: textField(doc, "postType"),
@@ -688,11 +704,34 @@ async function loadPostsFromPayload(): Promise<PublicPost[]> {
   return mergeLocalBySlug(res.docs.map(mapPost), loadLocalContentFixtures().posts);
 }
 
+function projectCategory(doc: unknown): PublicProjectCategory | undefined {
+  const category = relationDoc(doc);
+  if (!category) return undefined;
+  return {
+    id: docID(category),
+    name: textField(category, "name") || "",
+    slug: textField(category, "slug") || "",
+    description: textField(category, "description"),
+  };
+}
+
 export const getPostsFromPayload = unstable_cache(
   loadPostsFromPayload,
   ["posts"],
   { revalidate: 300, tags: ["posts"] },
 );
+
+export async function getMostViewedPostsFromPayload(limit = 5): Promise<PublicPost[]> {
+  const posts = await getPostsFromPayload();
+  return [...posts]
+    .sort(
+      (a, b) =>
+        (b.viewCount || 0) - (a.viewCount || 0) ||
+        Number(Boolean(b.featured)) - Number(Boolean(a.featured)) ||
+        (b.publishedAt ? new Date(b.publishedAt).getTime() : 0) - (a.publishedAt ? new Date(a.publishedAt).getTime() : 0),
+    )
+    .slice(0, limit);
+}
 
 async function loadPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
   const localPost = loadLocalContentFixtures().posts.find((post) => post.slug === slug);
@@ -842,6 +881,7 @@ function mapProject(doc: PayloadDoc): PublicProject {
   return {
     title: textField(doc, "name") || "",
     slug: textField(doc, "slug") || "",
+    category: projectCategory(doc.category),
     client: textField(doc, "client"),
     industry: textField(doc, "industry"),
     completedAt: textField(doc, "completedAt"),
@@ -903,6 +943,19 @@ export async function getProjectBySlugFromPayload(slug: string): Promise<PublicP
   });
   const doc = res.docs[0];
   return doc ? mapProjectDetail(doc) : null;
+}
+
+export async function getProjectCategoriesFromPayload(): Promise<PublicProjectCategory[]> {
+  const res = await findDocs("project-categories", {
+    sort: "sortOrder",
+  });
+
+  return res.docs.map((doc) => ({
+    id: docID(doc),
+    name: textField(doc, "name") || "",
+    slug: textField(doc, "slug") || "",
+    description: textField(doc, "description"),
+  }));
 }
 
 async function loadFAQsFromPayload(): Promise<PublicFAQ[]> {

@@ -1,4 +1,5 @@
 import type { CatalogProduct } from "@/lib/catalog";
+import type { ProductCategoryNavItem } from "@/lib/catalog-payload";
 import type { PublicBanner, PublicSolution } from "@/lib/content-payload";
 import HomeHeroClient from "@/components/home/HomeHeroClient";
 import HomeProductShowcaseClient from "@/components/home/HomeProductShowcaseClient";
@@ -7,6 +8,7 @@ import HomeStaticSections, { TrustStrip } from "@/components/home/HomeStaticSect
 
 type HomePageClientProps = {
   initialProducts: CatalogProduct[];
+  categories: ProductCategoryNavItem[];
   initialBanners: PublicBanner[];
   initialSolutions: PublicSolution[];
   quoteEmail: string;
@@ -14,13 +16,14 @@ type HomePageClientProps = {
 
 export default function HomePageClient({
   initialProducts,
+  categories,
   initialBanners,
   initialSolutions,
   quoteEmail,
 }: HomePageClientProps) {
   return (
     <main>
-      <HomeHeroClient banners={initialBanners} />
+      <HomeHeroClient banners={initialBanners} categories={categories} />
       <TrustStrip />
       <HomeProductShowcaseClient products={initialProducts} quoteEmail={quoteEmail} />
       <HomeCategoryCarouselsClient products={initialProducts} />

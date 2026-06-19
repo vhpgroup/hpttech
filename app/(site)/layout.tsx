@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Inter } from "next/font/google";
-import "../globals.css";
 import DesktopStage, { DesktopStageScript } from "@/components/layout/DesktopStage";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -50,26 +49,25 @@ export default async function SiteLayout({
   const settings = await getSiteSettingsFromPayload().then(normalizeSiteSettings);
 
   return (
-    <html lang="vi" suppressHydrationWarning style={{ "--desktop-scale": "1" } as React.CSSProperties}>
-      <body>
-        <div className={`${inter.variable} ${geist.variable} site-shell`}>
-          <DesktopStageScript />
-          <CartProvider>
-            <QuoteProvider>
-              <ProductInfoPopupLayer>
-                <DesktopStage>
-                  <Header settings={settings} />
-                  <Navbar />
-                  {children}
-                  <Footer settings={settings} />
-                </DesktopStage>
-                <GlobalCompareDock />
-                <FloatingContactDockLoader settings={settings} />
-              </ProductInfoPopupLayer>
-            </QuoteProvider>
-          </CartProvider>
-        </div>
-      </body>
-    </html>
+    <div
+      className={`${inter.variable} ${geist.variable} site-shell`}
+      style={{ "--desktop-scale": "1" } as React.CSSProperties}
+    >
+      <DesktopStageScript />
+      <CartProvider>
+        <QuoteProvider>
+          <ProductInfoPopupLayer>
+            <DesktopStage>
+              <Header settings={settings} />
+              <Navbar />
+              {children}
+              <Footer settings={settings} />
+            </DesktopStage>
+            <GlobalCompareDock />
+            <FloatingContactDockLoader settings={settings} />
+          </ProductInfoPopupLayer>
+        </QuoteProvider>
+      </CartProvider>
+    </div>
   );
 }

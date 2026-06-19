@@ -17,7 +17,7 @@ import type { PublicProject } from "@/lib/content-payload";
 import { cn } from "@/lib/cn";
 
 const PAGE_SIZE = 12;
-const INDUSTRY_LIMIT = 6;
+const CATEGORY_LIMIT = 6;
 
 type SortValue = "newest" | "oldest";
 
@@ -47,9 +47,17 @@ function projectYear(project: PublicProject) {
   return Number.isFinite(year) ? String(year) : undefined;
 }
 
-function updateURL(industry?: string, query?: string, sort?: SortValue, page = 1) {
+function projectCategoryLabel(project: PublicProject) {
+  return project.category?.name?.trim() || project.industry?.trim() || "";
+}
+
+function projectCategorySlug(project: PublicProject) {
+  return project.category?.slug || slugify(projectCategoryLabel(project));
+}
+
+function updateURL(category?: string, query?: string, sort?: SortValue, page = 1) {
   const params = new URLSearchParams();
-  if (industry) params.set("linh-vuc", slugify(industry));
+  if (category) params.set("danh-muc", category);
   if (query) params.set("q", query);
   if (sort === "oldest") params.set("sap-xep", "cu-nhat");
   if (page > 1) params.set("page", String(page));
@@ -124,9 +132,9 @@ function FeaturedProjects({ projects }: { projects: PublicProject[] }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-          {primary.industry ? (
+          {projectCategoryLabel(primary) ? (
             <span className="inline-flex rounded bg-[#0A4BFF] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide">
-              {primary.industry}
+              {projectCategoryLabel(primary)}
             </span>
           ) : null}
           <h2 className="mt-3 max-w-3xl text-2xl font-black leading-tight sm:text-3xl">{primary.title}</h2>
@@ -155,7 +163,7 @@ function FeaturedProjects({ projects }: { projects: PublicProject[] }) {
                 />
               </div>
               <div className="flex min-w-0 flex-col justify-center p-4">
-                {project.industry ? <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">{project.industry}</p> : null}
+                {projectCategoryLabel(project) ? <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">{projectCategoryLabel(project)}</p> : null}
                 <h3 className="mt-1.5 line-clamp-2 text-sm font-bold leading-5 text-slate-900 group-hover:text-[#0A4BFF]">{project.title}</h3>
                 <ProjectMeta project={project} />
               </div>
@@ -176,9 +184,9 @@ function ProjectCard({ project }: { project: PublicProject }) {
           sizes="(max-width: 639px) 100vw, (max-width: 1199px) 50vw, 25vw"
           className="transition duration-300 motion-reduce:transition-none group-hover:scale-[1.04]"
         />
-        {project.industry ? (
+        {projectCategoryLabel(project) ? (
           <span className="absolute bottom-3 left-3 rounded bg-white/95 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF] shadow-sm">
-            {project.industry}
+            {projectCategoryLabel(project)}
           </span>
         ) : null}
       </Link>
@@ -199,24 +207,34 @@ function ProjectCard({ project }: { project: PublicProject }) {
 
 export function ProjectsPageClient({
   projects,
+  initialCategory,
   initialIndustry,
   initialQuery = "",
   initialSort,
   initialPage = 1,
 }: {
   projects: PublicProject[];
+  initialCategory?: string;
   initialIndustry?: string;
   initialQuery?: string;
   initialSort?: string;
   initialPage?: number;
 }) {
-  const industries = useMemo(
-    () => Array.from(new Set(projects.map((project) => project.industry?.trim()).filter((value): value is string => Boolean(value)))),
+  const categories = useMemo(
+    () => Array.from(new Set(projects.map((project) => projectCategoryLabel(project)).filter(Boolean))),
     [projects],
   );
-  const matchedInitialIndustry = industries.find((industry) => slugify(industry) === initialIndustry);
-  const [industry, setIndustry] = useState(matchedInitialIndustry || "");
-  const [showAllIndustries, setShowAllIndustries] = useState(Boolean(matchedInitialIndustry && industries.indexOf(matchedInitialIndustry) >= INDUSTRY_LIMIT));
+  const matchedInitialCategory = categories.find(
+    (category) => slugify(category) === initialCategory || projects.some((project) => projectCategoryLabel(project) === category && projectCategorySlug(project) === initialCategory),
+  );
+  const matchedInitialIndustry = categories.find((category) => slugify(category) === initialIndustry);
+  const [category, setCategory] = useState(matchedInitialCategory || matchedInitialIndustry || "");
+  const [showAllCategories, setShowAllCategories] = useState(
+    Boolean(
+      (matchedInitialCategory || matchedInitialIndustry) &&
+        categories.indexOf(matchedInitialCategory || matchedInitialIndustry || "") >= CATEGORY_LIMIT,
+    ),
+  );
   const [input, setInput] = useState(initialQuery);
   const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<SortValue>(initialSort === "cu-nhat" ? "oldest" : "newest");
@@ -231,31 +249,32 @@ export function ProjectsPageClient({
   }, [input]);
 
   useEffect(() => {
-    updateURL(industry || undefined, query, sort, page);
-  }, [industry, page, query, sort]);
+    const activeCategory = projects.find((project) => projectCategoryLabel(project) === category);
+    updateURL(activeCategory ? projectCategorySlug(activeCategory) : undefined, query, sort, page);
+  }, [category, page, projects, query, sort]);
 
   const filteredProjects = useMemo(() => {
     const normalizedQuery = normalizeText(query);
     return projects
-      .filter((project) => !industry || project.industry === industry)
+      .filter((project) => !category || projectCategoryLabel(project) === category)
       .filter((project) => {
         if (!normalizedQuery) return true;
-        return normalizeText(`${project.title} ${project.client || ""} ${project.industry || ""} ${project.summary || ""}`).includes(normalizedQuery);
+        return normalizeText(`${project.title} ${project.client || ""} ${project.category?.name || ""} ${project.industry || ""} ${project.summary || ""}`).includes(normalizedQuery);
       })
       .sort((a, b) => sort === "newest" ? projectTime(b) - projectTime(a) : projectTime(a) - projectTime(b));
-  }, [industry, projects, query, sort]);
+  }, [category, projects, query, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProjects.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const visibleProjects = filteredProjects.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-  const visibleIndustries = showAllIndustries ? industries : industries.slice(0, INDUSTRY_LIMIT);
+  const visibleCategories = showAllCategories ? categories : categories.slice(0, CATEGORY_LIMIT);
 
   useEffect(() => {
     if (safePage !== page) setPage(safePage);
   }, [page, safePage]);
 
   const clearFilters = () => {
-    setIndustry("");
+    setCategory("");
     setInput("");
     setQuery("");
     setSort("newest");
@@ -310,35 +329,35 @@ export function ProjectsPageClient({
           </label>
         </div>
 
-        {industries.length ? (
+        {categories.length ? (
           <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
             <button
               type="button"
               onClick={() => {
-                setIndustry("");
+                setCategory("");
                 setPage(1);
               }}
-              className={cn("shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition", !industry ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
+              className={cn("shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition", !category ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
             >
               Tất cả dự án
             </button>
-            {visibleIndustries.map((value) => (
+            {visibleCategories.map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => {
-                  setIndustry(value);
+                  setCategory(value);
                   setPage(1);
                 }}
-                className={cn("shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition", industry === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
+                className={cn("shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition", category === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
               >
                 {value}
               </button>
             ))}
-            {industries.length > INDUSTRY_LIMIT ? (
-              <button type="button" onClick={() => setShowAllIndustries((value) => !value)} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-[#0A4BFF] hover:border-blue-300">
-                {showAllIndustries ? "Thu gọn" : "Xem thêm"}
-                <ChevronDown size={15} className={cn("transition-transform", showAllIndustries && "rotate-180")} />
+            {categories.length > CATEGORY_LIMIT ? (
+              <button type="button" onClick={() => setShowAllCategories((value) => !value)} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-[#0A4BFF] hover:border-blue-300">
+                {showAllCategories ? "Thu gọn" : "Xem thêm"}
+                <ChevronDown size={15} className={cn("transition-transform", showAllCategories && "rotate-180")} />
               </button>
             ) : null}
           </div>
@@ -357,7 +376,7 @@ export function ProjectsPageClient({
           <BriefcaseBusiness className="mx-auto text-slate-300" size={42} />
           <h2 className="mt-4 text-xl font-bold text-slate-900">{projects.length ? "Không tìm thấy dự án phù hợp" : "Dự án đang được cập nhật"}</h2>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
-            {projects.length ? "Hãy thử từ khóa hoặc lĩnh vực khác." : "Các dự án mới sẽ được hiển thị ngay khi dữ liệu được cập nhật."}
+            {projects.length ? "Hãy thử từ khóa hoặc danh mục khác." : "Các dự án mới sẽ được hiển thị ngay khi dữ liệu được cập nhật."}
           </p>
           {projects.length ? <button type="button" onClick={clearFilters} className="mt-5 rounded-lg bg-[#0A4BFF] px-5 py-2.5 text-sm font-bold text-white">Xóa bộ lọc</button> : null}
         </section>
