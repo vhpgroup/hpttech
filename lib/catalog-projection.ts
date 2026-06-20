@@ -156,12 +156,13 @@ export async function loadCanonicalCommercialProjections(
     );
 
     const regularPrice =
-      typeof offer?.price === "number" && Number.isFinite(offer.price)
+      typeof offer?.price === "number" && Number.isFinite(offer.price) && offer.price > 0
         ? offer.price
         : undefined;
     const promotionPrice =
       typeof offer?.promotionPrice === "number" &&
-      Number.isFinite(offer.promotionPrice)
+      Number.isFinite(offer.promotionPrice) &&
+      offer.promotionPrice > 0
         ? offer.promotionPrice
         : undefined;
     const currency =
@@ -175,10 +176,10 @@ export async function loadCanonicalCommercialProjections(
           : undefined,
       currency,
       price:
-        offer?.saleStatus === "contact"
-          ? "Liên hệ"
-          : effectivePrice !== undefined
-            ? formatMoney(effectivePrice, currency)
+        effectivePrice !== undefined
+          ? formatMoney(effectivePrice, currency)
+          : offer?.saleStatus === "contact"
+            ? "Liên hệ"
             : undefined,
       priceValue: effectivePrice,
       promotionPriceValue: promotionPrice,

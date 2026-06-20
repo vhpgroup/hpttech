@@ -96,18 +96,22 @@ const uploadDisplayWidths: Record<string, string> = {
 
 
 
+function toSnakeCase(key: string) {
+  return key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+}
+
 function textField(doc: PayloadProductDoc, key: string) {
-  const value = doc[key];
+  const value = doc[key] ?? doc[toSnakeCase(key)];
   return typeof value === "string" ? value : undefined;
 }
 
 function numberField(doc: PayloadProductDoc, key: string) {
-  const value = doc[key];
+  const value = doc[key] ?? doc[toSnakeCase(key)];
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
 function booleanField(doc: PayloadProductDoc, key: string) {
-  const value = doc[key];
+  const value = doc[key] ?? doc[toSnakeCase(key)];
   return typeof value === "boolean" ? value : undefined;
 }
 
@@ -490,6 +494,19 @@ function normalizeSellingPoints(value: unknown, html?: string) {
   return points.length ? points : extractSellingPoints(html);
 }
 
+function displayPrice(commercialPrice?: string, legacyPrice?: string) {
+  const commercial = commercialPrice?.trim();
+  const legacy = legacyPrice?.trim();
+  const commercialIsContact = commercial
+    ? commercial
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase() === "lien he"
+    : false;
+
+  return commercial && (!commercialIsContact || !legacy) ? commercial : legacy;
+}
+
 function normalizeProduct(
   doc: PayloadProductDoc,
   includeRelated = true,
@@ -517,7 +534,7 @@ function normalizeProduct(
     productType: relationCode(doc.productType),
     brand: relationName(doc.brand),
     category: relationName(doc.category),
-    price: commercial?.price || textField(doc, "price"),
+    price: displayPrice(commercial?.price, textField(doc, "price")),
     priceValue: commercial?.priceValue,
     compareAtPrice: commercial?.compareAtPrice || textField(doc, "compareAtPrice"),
     rating: numberField(doc, "rating"),
@@ -586,7 +603,7 @@ function toProductCardData(
     productType: relationCode(doc.productType),
     brand: relationName(doc.brand),
     category: relationName(doc.category),
-    price: commercial?.price || textField(doc, "price"),
+    price: displayPrice(commercial?.price, textField(doc, "price")),
     priceValue: commercial?.priceValue,
     compareAtPrice: commercial?.compareAtPrice || textField(doc, "compareAtPrice"),
     rating: numberField(doc, "rating"),
