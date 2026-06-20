@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
   ArrowRight,
   BriefcaseBusiness,
   Building2,
@@ -39,10 +38,10 @@ function formatDate(value?: string) {
 
 function slugify(value: string) {
   return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -75,9 +74,15 @@ function RelatedProjectCard({ project }: { project: PublicProject }) {
         )}
       </Link>
       <div className="p-4">
-        {projectCategoryLabel(project) ? <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">{projectCategoryLabel(project)}</p> : null}
+        {projectCategoryLabel(project) ? (
+          <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">
+            {projectCategoryLabel(project)}
+          </p>
+        ) : null}
         <h3 className="mt-2 line-clamp-2 text-base font-bold leading-6 text-slate-900">
-          <Link href={`/du-an/${project.slug}`} className="hover:text-[#0A4BFF]">{project.title}</Link>
+          <Link href={`/du-an/${project.slug}`} className="hover:text-[#0A4BFF]">
+            {project.title}
+          </Link>
         </h3>
       </div>
     </article>
@@ -130,27 +135,15 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       </nav>
 
       <article className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <header className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
-          <div>
-            {projectCategory ? <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0A4BFF]">{projectCategory}</p> : null}
-            <h1 className="mt-3 max-w-4xl text-3xl font-black leading-tight text-[#102b62] sm:text-4xl">{project.title}</h1>
-            {project.summary ? <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">{project.summary}</p> : null}
-          </div>
-          <Link href="/du-an" className="inline-flex items-center gap-2 text-sm font-bold text-[#0A4BFF]">
-            <ArrowLeft size={16} />
-            Tất cả dự án
-          </Link>
-        </header>
-
         {project.image ? (
-          <div className="relative aspect-[16/7] overflow-hidden bg-slate-100">
+          <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
             <Image
               src={project.image}
               alt={project.title}
               fill
               priority
               sizes="(max-width: 1199px) 100vw, 1200px"
-              className="object-cover"
+              className="object-contain"
             />
           </div>
         ) : null}
@@ -226,7 +219,15 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                   >
                     <Link href={`/san-pham/${product.slug}`} className="group block h-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
                       <div className="relative aspect-square bg-slate-50">
-                        {product.image ? <Image src={product.image} alt={product.title} fill sizes="25vw" className="object-contain p-4 transition group-hover:scale-[1.03]" /> : null}
+                        {product.image ? (
+                          <Image
+                            src={product.image}
+                            alt={product.title}
+                            fill
+                            sizes="25vw"
+                            className="object-contain p-4 transition group-hover:scale-[1.03]"
+                          />
+                        ) : null}
                       </div>
                       <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-[#0A4BFF]">{product.title}</h3>
                     </Link>
@@ -257,7 +258,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <div>
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-300">Tư vấn triển khai</p>
             <h2 className="mt-2 text-2xl font-black">Bạn cần triển khai giải pháp tương tự?</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Trao đổi nhu cầu với HPT Tech để nhận phương án phù hợp với quy mô và hạ tầng hiện tại.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+              Trao đổi nhu cầu với HPT Tech để nhận phương án phù hợp với quy mô và hạ tầng hiện tại.
+            </p>
           </div>
           <Link href="/lien-he" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#102b62] transition hover:bg-blue-50">
             Liên hệ tư vấn

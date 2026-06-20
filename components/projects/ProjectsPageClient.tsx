@@ -4,29 +4,52 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
+  Banknote,
   BriefcaseBusiness,
+  Building2,
   CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
+  Factory,
+  GraduationCap,
+  Headphones,
+  Landmark,
+  LockKeyhole,
   Search,
+  ShieldCheck,
   X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { PublicProject } from "@/lib/content-payload";
 import { cn } from "@/lib/cn";
 
-const PAGE_SIZE = 12;
-const CATEGORY_LIMIT = 6;
+const PAGE_SIZE = 8;
+const CATEGORY_LIMIT = 8;
 
 type SortValue = "newest" | "oldest";
 
+type ProjectsPageClientProps = {
+  projects: PublicProject[];
+  initialCategory?: string;
+  initialIndustry?: string;
+  initialQuery?: string;
+  initialSort?: string;
+  initialPage?: number;
+};
+
+function parseSort(value?: string): SortValue {
+  return value === "oldest" || value === "cu-nhat" ? "oldest" : "newest";
+}
+
 function normalizeText(value: string) {
   return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
 }
@@ -65,6 +88,27 @@ function updateURL(category?: string, query?: string, sort?: SortValue, page = 1
   window.history.replaceState(null, "", value ? `/du-an?${value}` : "/du-an");
 }
 
+function categoryIcon(label: string): LucideIcon {
+  const normalized = normalizeText(label);
+  if (normalized.includes("cong an") || normalized.includes("an ninh")) return ShieldCheck;
+  if (normalized.includes("tai chinh") || normalized.includes("ngan hang")) return Banknote;
+  if (normalized.includes("giao duc") || normalized.includes("hoc")) return GraduationCap;
+  if (normalized.includes("y te") || normalized.includes("benh")) return Building2;
+  if (normalized.includes("doanh nghiep") || normalized.includes("dien")) return Factory;
+  return Landmark;
+}
+
+function categoryLogo(slug: string, label: string) {
+  const normalized = `${slug} ${normalizeText(label)}`;
+  if (normalized.includes("bo-cong-an") || normalized.includes("cong an")) {
+    return "/assets/logo/bocongan.png";
+  }
+  if (normalized.includes("bo-tai-chinh") || normalized.includes("tai chinh")) {
+    return "/assets/logo/botaichinh.png";
+  }
+  return undefined;
+}
+
 function ProjectImage({
   project,
   priority = false,
@@ -96,16 +140,20 @@ function ProjectImage({
   );
 }
 
-function ProjectMeta({ project, light = false }: { project: PublicProject; light?: boolean }) {
+function ProjectMeta({ project, className }: { project: PublicProject; className?: string }) {
   const year = projectYear(project);
-  if (!project.client && !year) return null;
 
   return (
-    <div className={cn("mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium", light ? "text-slate-200" : "text-slate-500")}>
-      {project.client ? <span>{project.client}</span> : null}
+    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600", className)}>
+      {project.client ? (
+        <span className="inline-flex items-center gap-1.5">
+          <Building2 size={14} className="text-[#0A4BFF]" />
+          {project.client}
+        </span>
+      ) : null}
       {year ? (
         <span className="inline-flex items-center gap-1.5">
-          <CalendarDays size={13} />
+          <CalendarDays size={14} className="text-[#0A4BFF]" />
           {year}
         </span>
       ) : null}
@@ -113,92 +161,52 @@ function ProjectMeta({ project, light = false }: { project: PublicProject; light
   );
 }
 
-function FeaturedProjects({ projects }: { projects: PublicProject[] }) {
-  const primary = projects[0];
-  const secondary = projects.slice(1, 4);
-  if (!primary) return null;
-
+function StatCard({ iconSrc, value, label }: { iconSrc: string; value: string; label: string }) {
   return (
-    <section className="mt-5 grid gap-4 lg:grid-cols-[2fr_1fr]">
-      <Link
-        href={`/du-an/${primary.slug}`}
-        className="group relative min-h-[430px] overflow-hidden rounded-2xl bg-slate-900 text-white"
-      >
-        <ProjectImage
-          project={primary}
-          priority
-          sizes="(max-width: 1023px) 100vw, 67vw"
-          className="transition duration-500 group-hover:scale-[1.03]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-          {projectCategoryLabel(primary) ? (
-            <span className="inline-flex rounded bg-[#0A4BFF] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide">
-              {projectCategoryLabel(primary)}
-            </span>
-          ) : null}
-          <h2 className="mt-3 max-w-3xl text-2xl font-black leading-tight sm:text-3xl">{primary.title}</h2>
-          {primary.summary ? <p className="mt-3 max-w-2xl line-clamp-2 text-sm leading-6 text-slate-200">{primary.summary}</p> : null}
-          <ProjectMeta project={primary} light />
-          <span className="mt-5 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-bold text-[#0A4BFF]">
-            Xem chi tiết dự án
-            <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-          </span>
-        </div>
-      </Link>
-
-      {secondary.length ? (
-        <div className="grid gap-3">
-          {secondary.map((project) => (
-            <Link
-              key={project.slug}
-              href={`/du-an/${project.slug}`}
-              className="group grid min-h-[130px] grid-cols-[120px_1fr] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md sm:grid-cols-[160px_1fr]"
-            >
-              <div className="relative overflow-hidden bg-slate-100">
-                <ProjectImage
-                  project={project}
-                  sizes="160px"
-                  className="transition duration-300 group-hover:scale-[1.04]"
-                />
-              </div>
-              <div className="flex min-w-0 flex-col justify-center p-4">
-                {projectCategoryLabel(project) ? <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">{projectCategoryLabel(project)}</p> : null}
-                <h3 className="mt-1.5 line-clamp-2 text-sm font-bold leading-5 text-slate-900 group-hover:text-[#0A4BFF]">{project.title}</h3>
-                <ProjectMeta project={project} />
-              </div>
-            </Link>
-          ))}
-        </div>
-      ) : null}
-    </section>
+    <div className="flex items-center gap-4 border-slate-200 px-6 py-5 md:border-r last:md:border-r-0">
+      <div className="grid size-11 shrink-0 place-items-center rounded-full bg-blue-50">
+        <Image src={iconSrc} alt="" width={24} height={24} className="size-6 object-contain" />
+      </div>
+      <div>
+        <div className="text-2xl font-black leading-none text-[#0A4BFF]">{value}</div>
+        <div className="mt-1 text-xs font-semibold leading-5 text-slate-600">{label}</div>
+      </div>
+    </div>
   );
 }
 
 function ProjectCard({ project }: { project: PublicProject }) {
+  const categoryLabel = projectCategoryLabel(project);
+
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition motion-reduce:transition-none hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
-      <Link href={`/du-an/${project.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-slate-100">
-        <ProjectImage
-          project={project}
-          sizes="(max-width: 639px) 100vw, (max-width: 1199px) 50vw, 25vw"
-          className="transition duration-300 motion-reduce:transition-none group-hover:scale-[1.04]"
-        />
-        {projectCategoryLabel(project) ? (
-          <span className="absolute bottom-3 left-3 rounded bg-white/95 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF] shadow-sm">
-            {projectCategoryLabel(project)}
-          </span>
-        ) : null}
+    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_18px_45px_rgba(10,75,255,0.13)]">
+      <Link href={`/du-an/${project.slug}`} className="block">
+        <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+          <ProjectImage
+            project={project}
+            sizes="(min-width: 1280px) 280px, (min-width: 640px) 50vw, 100vw"
+            className="transition duration-500 group-hover:scale-105"
+          />
+          {categoryLabel ? (
+            <span className="absolute left-4 top-4 rounded-md bg-[#0A4BFF] px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white shadow-lg">
+              {categoryLabel}
+            </span>
+          ) : null}
+        </div>
       </Link>
-      <div className="p-4">
-        <h2 className="line-clamp-2 min-h-[48px] text-base font-bold leading-6 text-slate-900">
-          <Link href={`/du-an/${project.slug}`} className="transition hover:text-[#0A4BFF]">{project.title}</Link>
-        </h2>
-        <ProjectMeta project={project} />
-        {project.summary ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500">{project.summary}</p> : null}
-        <Link href={`/du-an/${project.slug}`} className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[#0A4BFF]">
-          Xem dự án
-          <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
+      <div className="p-5">
+        <Link href={`/du-an/${project.slug}`} className="line-clamp-2 text-base font-black leading-6 text-slate-950 transition group-hover:text-[#0A4BFF]">
+          {project.title}
+        </Link>
+        <ProjectMeta project={project} className="mt-4" />
+        {project.summary ? (
+          <p className="mt-4 line-clamp-3 border-l-2 border-blue-100 pl-3 text-sm leading-6 text-slate-600">
+            {project.summary}
+          </p>
+        ) : null}
+        <Link href={`/du-an/${project.slug}`} className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#0A4BFF]">
+          Xem chi tiết dự án
+          <ArrowRight size={16} className="transition group-hover:translate-x-1" />
         </Link>
       </div>
     </article>
@@ -209,69 +217,90 @@ export function ProjectsPageClient({
   projects,
   initialCategory,
   initialIndustry,
-  initialQuery = "",
+  initialQuery,
   initialSort,
   initialPage = 1,
-}: {
-  projects: PublicProject[];
-  initialCategory?: string;
-  initialIndustry?: string;
-  initialQuery?: string;
-  initialSort?: string;
-  initialPage?: number;
-}) {
-  const categories = useMemo(
-    () => Array.from(new Set(projects.map((project) => projectCategoryLabel(project)).filter(Boolean))),
-    [projects],
-  );
-  const matchedInitialCategory = categories.find(
-    (category) => slugify(category) === initialCategory || projects.some((project) => projectCategoryLabel(project) === category && projectCategorySlug(project) === initialCategory),
-  );
-  const matchedInitialIndustry = categories.find((category) => slugify(category) === initialIndustry);
-  const [category, setCategory] = useState(matchedInitialCategory || matchedInitialIndustry || "");
-  const [showAllCategories, setShowAllCategories] = useState(
-    Boolean(
-      (matchedInitialCategory || matchedInitialIndustry) &&
-        categories.indexOf(matchedInitialCategory || matchedInitialIndustry || "") >= CATEGORY_LIMIT,
-    ),
-  );
-  const [input, setInput] = useState(initialQuery);
-  const [query, setQuery] = useState(initialQuery);
-  const [sort, setSort] = useState<SortValue>(initialSort === "cu-nhat" ? "oldest" : "newest");
-  const [page, setPage] = useState(Math.max(1, initialPage));
+}: ProjectsPageClientProps) {
+  const startingCategory = initialCategory || initialIndustry || "";
+  const startingQuery = initialQuery || "";
+  const [input, setInput] = useState(startingQuery);
+  const [query, setQuery] = useState(startingQuery);
+  const [category, setCategory] = useState(startingCategory);
+  const [sort, setSort] = useState<SortValue>(parseSort(initialSort));
+  const [page, setPage] = useState(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialCategory = params.get("danh-muc") || "";
+    const initialQuery = params.get("q") || "";
+    const initialSort: SortValue = params.get("sap-xep") === "cu-nhat" ? "oldest" : "newest";
+    const initialPage = Number.parseInt(params.get("page") || "1", 10);
+
+    setCategory(initialCategory);
+    setInput(initialQuery);
+    setQuery(initialQuery);
+    setSort(initialSort);
+    setPage(Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1);
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setQuery(input.trim());
       setPage(1);
-    }, 300);
+    }, 250);
+
     return () => window.clearTimeout(timer);
   }, [input]);
 
-  useEffect(() => {
-    const activeCategory = projects.find((project) => projectCategoryLabel(project) === category);
-    updateURL(activeCategory ? projectCategorySlug(activeCategory) : undefined, query, sort, page);
-  }, [category, page, projects, query, sort]);
+  const categories = useMemo(() => {
+    const map = new Map<string, string>();
+    projects.forEach((project) => {
+      const label = projectCategoryLabel(project);
+      if (!label) return;
+      map.set(projectCategorySlug(project), label);
+    });
+    return Array.from(map, ([slug, label]) => ({ slug, label }));
+  }, [projects]);
 
   const filteredProjects = useMemo(() => {
     const normalizedQuery = normalizeText(query);
     return projects
-      .filter((project) => !category || projectCategoryLabel(project) === category)
       .filter((project) => {
+        const categoryMatches = !category || projectCategorySlug(project) === category || projectCategoryLabel(project) === category;
+        if (!categoryMatches) return false;
+
         if (!normalizedQuery) return true;
-        return normalizeText(`${project.title} ${project.client || ""} ${project.category?.name || ""} ${project.industry || ""} ${project.summary || ""}`).includes(normalizedQuery);
+        const haystack = normalizeText(
+          [
+            project.title,
+            project.summary,
+            project.client,
+            project.industry,
+            projectCategoryLabel(project),
+          ]
+            .filter(Boolean)
+            .join(" "),
+        );
+        return haystack.includes(normalizedQuery);
       })
-      .sort((a, b) => sort === "newest" ? projectTime(b) - projectTime(a) : projectTime(a) - projectTime(b));
+      .sort((a, b) => (sort === "newest" ? projectTime(b) - projectTime(a) : projectTime(a) - projectTime(b)));
   }, [category, projects, query, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProjects.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const visibleProjects = filteredProjects.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const visibleCategories = showAllCategories ? categories : categories.slice(0, CATEGORY_LIMIT);
+  const clientCount = Math.max(new Set(projects.map((project) => project.client).filter(Boolean)).size, projects.length, 1);
+  const fieldCount = Math.max(categories.length, 1);
 
   useEffect(() => {
-    if (safePage !== page) setPage(safePage);
+    if (page !== safePage) setPage(safePage);
   }, [page, safePage]);
+
+  useEffect(() => {
+    updateURL(category, query, sort, safePage);
+  }, [category, query, safePage, sort]);
 
   const clearFilters = () => {
     setCategory("");
@@ -282,45 +311,133 @@ export function ProjectsPageClient({
   };
 
   return (
-    <main className="subpage-main bg-slate-50/70 pb-20">
-      <nav className="flex items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
-        <Link href="/" className="transition hover:text-[#0A4BFF]">Trang chủ</Link>
-        <ChevronRight size={13} className="text-slate-300" />
+    <main className="mx-auto max-w-[1180px] px-4 pb-14 pt-5 sm:px-6">
+      <nav className="mb-5 flex items-center gap-2 text-xs text-slate-500">
+        <Link href="/" className="hover:text-[#0A4BFF]">Trang chủ</Link>
+        <ChevronRight size={14} />
         <span>Dự án</span>
       </nav>
 
-      <header className="mt-6 max-w-3xl">
-        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#0A4BFF]">Năng lực triển khai thực tế</p>
-        <h1 className="mt-2 text-3xl font-black uppercase tracking-tight text-[#102b62]">Dự án tiêu biểu</h1>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          Khám phá các dự án công nghệ, thiết bị văn phòng và giải pháp số hóa HPT Tech đã triển khai cho khách hàng.
-        </p>
-      </header>
+      <section className="relative overflow-hidden rounded-t-[28px] bg-[#062b5f] text-white shadow-[0_24px_80px_rgba(4,27,61,0.22)]">
+        <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
+          <Image
+            src="/assets/anhcongty/mattruoc.jpg"
+            alt="Mặt trước showroom HPT Tech"
+            fill
+            priority
+            sizes="680px"
+            className="object-cover object-[50%_28%] opacity-70"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#062b5f] via-[#062b5f]/75 to-[#062b5f]/20" />
+        </div>
+        <div className="relative max-w-3xl px-6 py-12 sm:px-10 lg:py-16">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-300">Dự án tiêu biểu</p>
+          <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">
+            Dự án tiêu biểu đã triển khai cho khối Nhà nước, Tài chính, Ngân hàng và Doanh nghiệp lớn
+          </h1>
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-blue-50/90 sm:text-base">
+            HPT Tech cung cấp thiết bị CNTT, máy scan, giải pháp số hóa tài liệu và hạ tầng công nghệ cho các đơn vị yêu cầu cao về tiến độ, bảo mật và năng lực triển khai.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href="#project-list" className="inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-[#062b5f] transition hover:bg-yellow-300">
+              Xem dự án tiêu biểu
+              <ArrowRight size={16} />
+            </a>
+            <Link href="/lien-he" className="inline-flex items-center gap-2 rounded-md border border-white/35 bg-white/5 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-white/10">
+              Liên hệ tư vấn hồ sơ thầu
+              <ClipboardCheck size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
 
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <label className="relative flex-1">
+      <section className="grid overflow-hidden rounded-b-[26px] border border-t-0 border-slate-200 bg-white shadow-sm md:grid-cols-4">
+        <StatCard iconSrc="/assets/logo/adward.png" value="10+" label="Năm kinh nghiệm triển khai" />
+        <StatCard iconSrc="/assets/logo/folderopen.png" value={`${clientCount}+`} label="Hồ sơ dự án, tổ chức, doanh nghiệp" />
+        <StatCard iconSrc="/assets/logo/lanmark.png" value={`${fieldCount}+`} label="Nhóm khách hàng và lĩnh vực" />
+        <StatCard iconSrc="/assets/logo/headset.png" value="24/7" label="Hỗ trợ kỹ thuật sau triển khai" />
+      </section>
+
+      <section className="mt-8 rounded-[18px] border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
+          <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto pb-1 xl:pb-0">
+            <button
+              type="button"
+              onClick={() => {
+                setCategory("");
+                setPage(1);
+              }}
+              className={cn("inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition", !category ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
+            >
+              <span className="grid size-5 place-items-center overflow-hidden rounded-full bg-white/90">
+                <Image src="/assets/logo/grid.webp" alt="" width={18} height={18} className="size-[18px] object-contain" />
+              </span>
+              Tất cả dự án
+            </button>
+            {visibleCategories.map(({ slug, label }) => {
+              const Icon = categoryIcon(label);
+              const logo = categoryLogo(slug, label);
+              return (
+                <button
+                  key={slug}
+                  type="button"
+                  onClick={() => {
+                    setCategory(slug);
+                    setPage(1);
+                  }}
+                  className={cn("inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition", category === slug ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
+                >
+                  {logo ? (
+                    <span className="grid size-5 place-items-center overflow-hidden rounded-full bg-white/90">
+                      <Image src={logo} alt="" width={18} height={18} className="size-[18px] object-contain" />
+                    </span>
+                  ) : (
+                    <Icon size={15} />
+                  )}
+                  {label}
+                </button>
+              );
+            })}
+            {categories.length > CATEGORY_LIMIT ? (
+              <button
+                type="button"
+                onClick={() => setShowAllCategories((value) => !value)}
+                className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-4 text-sm font-bold text-[#0A4BFF] hover:border-blue-300"
+              >
+                {showAllCategories ? "Thu gọn" : "Xem thêm"}
+                <ChevronDown size={15} className={cn("transition-transform", showAllCategories && "rotate-180")} />
+              </button>
+            ) : null}
+          </div>
+
+          <label className="relative w-full shrink-0 xl:ml-auto xl:w-[340px] 2xl:w-[380px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Tìm kiếm dự án, khách hàng, giải pháp..."
-              className="h-12 w-full rounded-xl border border-slate-200 pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100"
+              placeholder="Tìm dự án, khách hàng..."
+              className="h-11 w-full rounded-xl border border-slate-200 pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100"
             />
             {input ? (
-              <button type="button" aria-label="Xóa tìm kiếm" onClick={() => setInput("")} className="absolute right-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+              <button
+                type="button"
+                aria-label="Xóa tìm kiếm"
+                onClick={() => setInput("")}
+                className="absolute right-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              >
                 <X size={16} />
               </button>
             ) : null}
           </label>
-          <label className="relative">
+
+          <label className="relative shrink-0">
             <select
               value={sort}
               onChange={(event) => {
                 setSort(event.target.value as SortValue);
                 setPage(1);
               }}
-              className="h-12 min-w-40 appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100"
+              className="h-11 w-full min-w-36 appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100 xl:w-auto"
             >
               <option value="newest">Mới nhất</option>
               <option value="oldest">Cũ nhất</option>
@@ -328,49 +445,12 @@ export function ProjectsPageClient({
             <ChevronDown size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
           </label>
         </div>
-
-        {categories.length ? (
-          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
-            <button
-              type="button"
-              onClick={() => {
-                setCategory("");
-                setPage(1);
-              }}
-              className={cn("shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition", !category ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
-            >
-              Tất cả dự án
-            </button>
-            {visibleCategories.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => {
-                  setCategory(value);
-                  setPage(1);
-                }}
-                className={cn("shrink-0 rounded-lg border px-4 py-2 text-sm font-bold transition", category === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
-              >
-                {value}
-              </button>
-            ))}
-            {categories.length > CATEGORY_LIMIT ? (
-              <button type="button" onClick={() => setShowAllCategories((value) => !value)} className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-[#0A4BFF] hover:border-blue-300">
-                {showAllCategories ? "Thu gọn" : "Xem thêm"}
-                <ChevronDown size={15} className={cn("transition-transform", showAllCategories && "rotate-180")} />
-              </button>
-            ) : null}
-          </div>
-        ) : null}
       </section>
 
       {filteredProjects.length ? (
-        <>
-          {safePage === 1 ? <FeaturedProjects projects={filteredProjects.slice(0, 4)} /> : null}
-          <section className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {visibleProjects.map((project) => <ProjectCard key={project.slug} project={project} />)}
-          </section>
-        </>
+        <section id="project-list" className="mt-7 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {visibleProjects.map((project) => <ProjectCard key={project.slug} project={project} />)}
+        </section>
       ) : (
         <section className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
           <BriefcaseBusiness className="mx-auto text-slate-300" size={42} />
@@ -378,24 +458,65 @@ export function ProjectsPageClient({
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-500">
             {projects.length ? "Hãy thử từ khóa hoặc danh mục khác." : "Các dự án mới sẽ được hiển thị ngay khi dữ liệu được cập nhật."}
           </p>
-          {projects.length ? <button type="button" onClick={clearFilters} className="mt-5 rounded-lg bg-[#0A4BFF] px-5 py-2.5 text-sm font-bold text-white">Xóa bộ lọc</button> : null}
+          {projects.length ? (
+            <button type="button" onClick={clearFilters} className="mt-5 rounded-lg bg-[#0A4BFF] px-5 py-2.5 text-sm font-bold text-white">
+              Xóa bộ lọc
+            </button>
+          ) : null}
         </section>
       )}
 
       {totalPages > 1 ? (
         <nav className="mt-8 flex flex-wrap items-center justify-center gap-2" aria-label="Phân trang dự án">
-          <button type="button" disabled={safePage === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white disabled:opacity-40"><ChevronLeft size={17} /></button>
+          <button type="button" disabled={safePage === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white disabled:opacity-40">
+            <ChevronLeft size={17} />
+          </button>
           {Array.from({ length: totalPages }, (_, index) => index + 1)
             .filter((value) => value === 1 || value === totalPages || Math.abs(value - safePage) <= 2)
             .map((value, index, values) => (
               <span key={value} className="contents">
-                {index > 0 && value - values[index - 1] > 1 ? <span className="px-1 text-slate-400">…</span> : null}
-                <button type="button" onClick={() => setPage(value)} className={cn("size-9 rounded-lg border text-sm font-bold", safePage === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-300")}>{value}</button>
+                {index > 0 && value - values[index - 1] > 1 ? <span className="px-1 text-slate-400">...</span> : null}
+                <button type="button" onClick={() => setPage(value)} className={cn("size-9 rounded-lg border text-sm font-bold", safePage === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-300")}>
+                  {value}
+                </button>
               </span>
             ))}
-          <button type="button" disabled={safePage === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white disabled:opacity-40"><ChevronRight size={17} /></button>
+          <button type="button" disabled={safePage === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white disabled:opacity-40">
+            <ChevronRight size={17} />
+          </button>
         </nav>
       ) : null}
+
+      <section className="mt-10 overflow-hidden rounded-[28px] bg-[#062b5f] text-white shadow-[0_24px_70px_rgba(4,27,61,0.18)]">
+        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:p-10">
+          <div>
+            <p className="text-sm font-black">Cam kết từ HPT Tech</p>
+            <div className="mt-6 grid gap-5 sm:grid-cols-4">
+              {[
+                { label: "Sản phẩm chính hãng, đầy đủ CQ, CO", icon: ShieldCheck },
+                { label: "Giải pháp an toàn, bảo mật, đáp ứng tiêu chuẩn", icon: LockKeyhole },
+                { label: "Triển khai đúng tiến độ, đảm bảo chất lượng", icon: ClipboardCheck },
+                { label: "Hỗ trợ kỹ thuật tận nơi, bảo hành nhanh chóng", icon: Headphones },
+              ].map(({ label, icon: Icon }) => (
+                <div key={label} className="border-white/10 sm:border-r sm:pr-5 last:sm:border-r-0">
+                  <Icon className="text-yellow-300" size={26} strokeWidth={1.8} />
+                  <p className="mt-3 text-xs font-semibold leading-6 text-blue-50/90">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-white/15 bg-white/5 p-6">
+            <h2 className="text-xl font-black leading-7">Bạn cần tư vấn giải pháp cho dự án của mình?</h2>
+            <p className="mt-3 text-sm leading-6 text-blue-50/80">
+              Đội ngũ kỹ thuật của HPT Tech phối hợp khảo sát, tư vấn và cung cấp hồ sơ năng lực theo yêu cầu.
+            </p>
+            <Link href="/lien-he" className="mt-5 inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-[#062b5f] transition hover:bg-yellow-300">
+              Liên hệ ngay
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
