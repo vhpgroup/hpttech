@@ -1,7 +1,10 @@
 import { importCanonicalProductsRows } from "@/lib/canonical-product-import-export";
 import { relationID } from "@/lib/catalog-schema";
 import { getPayloadClient } from "@/lib/payload";
-import { buildCanonicalImportRow } from "./canonical-row";
+import {
+  buildCanonicalImportRow,
+  inferScrapedProductTypeCode,
+} from "./canonical-row";
 import { importScrapedImagesWithReport } from "./media";
 import { evaluatePublicationGate } from "./publication-gate";
 import { generateSeo } from "./seo-generator";
@@ -118,10 +121,14 @@ export async function importBatchProduct(
   productTypeCode: string,
   options: { bypassPublicationGate?: boolean; publish?: boolean } = {},
 ) {
-  const row = buildCanonicalImportRow(input, product, productTypeCode, options);
+  const effectiveProductTypeCode = inferScrapedProductTypeCode(
+    input.name,
+    productTypeCode,
+  );
+  const row = buildCanonicalImportRow(input, product, effectiveProductTypeCode, options);
   const normalizedSpecs = normalizeScrapedSpecs(
     product.data.specs,
-    productTypeCode,
+    effectiveProductTypeCode,
   );
   const displayProduct: ScrapedProduct = {
     ...product,
@@ -145,7 +152,7 @@ export async function importBatchProduct(
     depth: 0,
     limit: 1,
     overrideAccess: true,
-    where: { code: { equals: productTypeCode } },
+    where: { code: { equals: effectiveProductTypeCode } },
   });
   const productTypeId = productTypes.docs[0]?.id;
   if (productTypeId !== undefined) {
@@ -192,7 +199,7 @@ export async function importBatchProduct(
     : product.generated.description || product.data.description || "";
   const summaryText = productShortDescription(displayProduct.data.title, displayProduct.data.specs);
   const sellingPoints =
-    productTypeCode === "software"
+    effectiveProductTypeCode === "software"
       ? (product.data.sellingPoints?.length
           ? product.data.sellingPoints
           : normalizedSpecs.specs.map(
@@ -246,11 +253,11 @@ export async function importBatchProduct(
   const publish = Boolean(options.publish && gateAllowsPublish);
   const seoSummaryHTML = summaryHTML(summaryText);
   const typedSpecs =
-    productTypeCode === "scanner"
+    effectiveProductTypeCode === "scanner"
       ? { scannerSpecs: normalizedSpecs.scannerSpecs }
-      : productTypeCode === "printer"
+      : effectiveProductTypeCode === "printer"
         ? { printerSpecs: normalizedSpecs.printerSpecs }
-        : productTypeCode === "photocopier"
+        : effectiveProductTypeCode === "photocopier"
           ? { photocopierSpecs: normalizedSpecs.photocopierSpecs }
           : {};
   const updated = await payload.update({
@@ -258,7 +265,7 @@ export async function importBatchProduct(
     data: {
       ...typedSpecs,
       compareAtPrice:
-        productTypeCode === "software" && compareAtPriceValue
+        effectiveProductTypeCode === "software" && compareAtPriceValue
           ? formatVnd(compareAtPriceValue)
           : scraperPriceTarget() === "compareAtPrice" && priceValue
             ? formatVnd(normalizeScannerPrice(priceValue))
@@ -303,7 +310,7 @@ export async function importBatchProduct(
       promoText: product.data.promoText,
       sellingPoints: sellingPoints.map((text) => ({ text })),
       shortDescription: summaryText,
-      specProfile: productTypeCode,
+      specProfile: effectiveProductTypeCode,
       specs: manualSpecs,
       status: publish ? "published" : "draft",
       _status: publish ? "published" : "draft",

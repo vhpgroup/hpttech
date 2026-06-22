@@ -2,6 +2,12 @@ import type { ExcelRow, ScrapedProduct } from "./types";
 import { extractRequestedModel } from "./model-identity";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
 import {
+  PHOTOCOPIER_CATEGORY_NAME,
+  PRINTER_CATEGORY_NAME,
+  SCANNER_CATEGORY_NAME,
+  SOFTWARE_CATEGORY_NAME,
+} from "@/lib/product-category";
+import {
   sourceIdentityKey,
   sourceVariantSku,
 } from "./source-identity";
@@ -56,6 +62,28 @@ function normalized(value: string) {
     .toLowerCase();
 }
 
+export function inferScrapedProductTypeCode(inputName: string, requestedTypeCode: string) {
+  const text = normalized(inputName);
+  if (/\bmay\s+photocopy\b/.test(text) || /\bphotocop(y|ier)\b/.test(text)) {
+    return "photocopier";
+  }
+  if (/\bmay\s+scan\b/.test(text) || /\bscanner\b/.test(text)) {
+    return "scanner";
+  }
+  if (/\bphan\s+mem\b/.test(text) || /\bsoftware\b/.test(text)) {
+    return "software";
+  }
+  return requestedTypeCode;
+}
+
+function categoryNameForProductType(productTypeCode: string, fallback: string) {
+  if (productTypeCode === "photocopier") return PHOTOCOPIER_CATEGORY_NAME;
+  if (productTypeCode === "printer") return PRINTER_CATEGORY_NAME;
+  if (productTypeCode === "scanner") return SCANNER_CATEGORY_NAME;
+  if (productTypeCode === "software") return SOFTWARE_CATEGORY_NAME;
+  return fallback;
+}
+
 function photocopierModel(inputName: string, fallback?: string) {
   const model = extractRequestedModel(inputName) || fallback || modelFromTitle(inputName);
   if (!model) return undefined;
@@ -81,10 +109,14 @@ export function buildCanonicalImportRow(
   productTypeCode: string,
   options: { publish?: boolean } = {},
 ): CanonicalScraperRow {
+  const effectiveProductTypeCode = inferScrapedProductTypeCode(
+    input.name,
+    productTypeCode,
+  );
   const model =
-    productTypeCode === "photocopier"
+    effectiveProductTypeCode === "photocopier"
       ? photocopierModel(input.name, product.data.sku?.trim())
-      : productTypeCode === "software" && product.data.sku?.trim()
+      : effectiveProductTypeCode === "software" && product.data.sku?.trim()
         ? product.data.sku.trim()
       : extractRequestedModel(input.name) ||
         product.data.sku?.trim() ||
@@ -95,16 +127,16 @@ export function buildCanonicalImportRow(
   }
   const normalizedSpecs = normalizeScrapedSpecs(
     product.data.specs,
-    productTypeCode,
+    effectiveProductTypeCode,
   );
   const price = vndPrice(product.data.price);
   const useCompareAtPrice =
-    productTypeCode !== "software" && priceTarget() === "compareAtPrice";
+    effectiveProductTypeCode !== "software" && priceTarget() === "compareAtPrice";
 
   return {
     attributesJSON: JSON.stringify(normalizedSpecs.attributes),
     brandName: product.source.brand,
-    categoryName: input.category,
+    categoryName: categoryNameForProductType(effectiveProductTypeCode, input.category),
     currency: "VND",
     internalId: product.source.identity?.key || sourceIdentityKey(product.source.url),
     isPrimary: "true",
@@ -112,7 +144,7 @@ export function buildCanonicalImportRow(
     price: useCompareAtPrice ? "" : price,
     productName: input.name,
     productStatus: "draft",
-    productTypeCode,
+    productTypeCode: effectiveProductTypeCode,
     quantity: "0",
     saleStatus: !useCompareAtPrice && price ? "active" : "contact",
     sku: product.source.url.includes("anphatpc.com.vn")

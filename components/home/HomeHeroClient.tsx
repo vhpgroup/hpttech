@@ -83,9 +83,6 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                 (e.currentTarget as HTMLImageElement).hidden = true;
               }}
             />
-            <span className="commercial-products">Máy scan</span>
-            <strong>Số hóa tài liệu</strong>
-            <small>Ricoh, Fujitsu, Epson, Plustek cho văn phòng hiện đại</small>
           </a>
           <a className="commercial-tile printer" href="/san-pham">
             <Image
@@ -99,9 +96,6 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                 (e.currentTarget as HTMLImageElement).hidden = true;
               }}
             />
-            <span className="commercial-products">Máy in</span>
-            <strong>In ấn doanh nghiệp</strong>
-            <small>HP, Brother, Epson, Kyocera chính hãng, dễ triển khai</small>
           </a>
         </aside>
 
@@ -118,9 +112,6 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                 (e.currentTarget as HTMLImageElement).hidden = true;
               }}
             />
-            <span className="commercial-products">Thiết bị văn phòng</span>
-            <strong>Combo tối ưu chi phí</strong>
-            <small>Tư vấn cấu hình theo quy mô đội nhóm</small>
           </a>
           <a className="commercial-tile solution" href="/giai-phap">
             <Image
@@ -134,9 +125,6 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                 (e.currentTarget as HTMLImageElement).hidden = true;
               }}
             />
-            <span className="commercial-products">Giải pháp</span>
-            <strong>Triển khai trọn gói</strong>
-            <small>Hạ tầng, mạng, bảo mật và thiết bị đồng bộ</small>
           </a>
           <a className="commercial-tile service" href="/dich-vu">
             <Image
@@ -150,9 +138,6 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                 (e.currentTarget as HTMLImageElement).hidden = true;
               }}
             />
-            <span className="commercial-products">Dịch vụ</span>
-            <strong>Hỗ trợ tận nơi</strong>
-            <small>Lắp đặt, bảo hành, bảo trì nhanh cho doanh nghiệp</small>
           </a>
         </section>
       </div>
