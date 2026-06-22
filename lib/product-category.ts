@@ -33,7 +33,8 @@ function isPrinterCategoryValue(value?: string) {
   return (
     normalized === "may in" ||
     normalized === "printer" ||
-    normalized === "may in theo chuc nang"
+    normalized === "may in theo chuc nang" ||
+    normalized === "may in cac hang"
   );
 }
 
