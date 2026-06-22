@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { buildCanonicalImportRow } from "../lib/scraper/canonical-row";
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
+import { extractRequestedModel } from "../lib/scraper/model-identity";
 import { normalizeScrapedSpecs } from "../lib/scraper/spec-normalizer";
 import {
   sourceIdentityKey,
@@ -97,6 +98,23 @@ assert.equal(decimalPriceRow.price, "14000000");
 assert.equal(decimalPriceRow.saleStatus, "active");
 assert.equal(commonProductTypeCode("Máy in đa năng"), "printer");
 assert.equal(commonProductTypeCode("Máy photocopy A3"), "photocopier");
+assert.equal(
+  extractRequestedModel("Máy in HP Laser MFP 136w (A4/A5 | In, Scan, Copy | Wifi)"),
+  "136W",
+);
+assert.equal(
+  extractRequestedModel("Máy in HP 4103fdw 2Z629A (A4 | Scan ADF 2 mặt | LAN | WiFi)"),
+  "2Z629A",
+);
+assert.equal(
+  extractRequestedModel("Máy in Canon LBP 6030W (A4 | USB | Wifi)"),
+  "6030W",
+);
+assert.equal(
+  extractRequestedModel("Máy in HP Laser MFP 136w 4ZB86A (A4 | In, Scan, Copy | Wifi)"),
+  "4ZB86A",
+);
+assert.equal(extractRequestedModel("Máy in A5 test fake model"), undefined);
 
 const normalizedSpecs = normalizeScrapedSpecs(
   [
