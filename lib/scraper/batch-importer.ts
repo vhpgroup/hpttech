@@ -262,7 +262,9 @@ export async function importBatchProduct(
           ? formatVnd(compareAtPriceValue)
           : scraperPriceTarget() === "compareAtPrice" && priceValue
             ? formatVnd(normalizeScannerPrice(priceValue))
-            : product.data.compareAtPrice,
+            : compareAtPriceValue
+              ? formatVnd(compareAtPriceValue)
+              : product.data.compareAtPrice,
       description: lexicalParagraphs(descriptionText),
       ...(imageReport.images.length
         ? { images: imageReport.images.map((image) => image.id) }

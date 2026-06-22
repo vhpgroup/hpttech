@@ -523,8 +523,12 @@ function displayPrice(commercialPrice?: string, legacyPrice?: string) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase() === "lien he"
     : false;
-
-  return commercial && (!commercialIsContact || !legacy) ? commercial : legacy;
+  const selected = commercial && (!commercialIsContact || !legacy) ? commercial : legacy;
+  if (!selected) return selected;
+  const digits = selected.replace(/[^\d]/g, "");
+  if (!digits || digits.length < 6) return selected;
+  const amount = Number(digits);
+  return Number.isFinite(amount) ? `${amount.toLocaleString("vi-VN")}đ` : selected;
 }
 
 function normalizeProduct(
