@@ -27,7 +27,7 @@ import {
   sourceMatchMethod,
 } from "./source-identity";
 import { cleanText } from "./text";
-import type { ScrapedProduct } from "./types";
+import type { ScrapedImage, ScrapedProduct } from "./types";
 import { validateExtractedProduct } from "./validator";
 
 let hpttechSitemapPromise: Promise<string[]> | undefined;
@@ -246,9 +246,9 @@ function anphatSyntheticHTML(product: AnphatCategoryProduct) {
     })
     .join("");
   const image =
-    product.productImage?.large ||
-    product.productImage?.medium ||
-    product.productImage?.small ||
+    anphatOriginalProductImageUrl(product.productImage?.large) ||
+    anphatOriginalProductImageUrl(product.productImage?.medium) ||
+    anphatOriginalProductImageUrl(product.productImage?.small) ||
     "";
   return `
     <html>
@@ -293,6 +293,39 @@ function anphatSummarySellingPoints(product: AnphatCategoryProduct) {
     .split(/\r?\n/)
     .map((line) => cleanText(line))
     .filter(Boolean);
+}
+
+function anphatOriginalProductImageUrl(url?: string) {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (!/anphat/i.test(parsed.hostname) || !/\/media\/product\//i.test(parsed.pathname)) {
+      return url;
+    }
+    parsed.pathname = parsed.pathname.replace(
+      /\/media\/product\/(?:75|120|250)_/i,
+      "/media/product/",
+    );
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function prioritizeAnphatImages(images: ScrapedImage[]) {
+  return [...images].sort((left, right) => {
+    const score = (image: ScrapedImage) => {
+      let total = 0;
+      if (/\/media\/product\/(?:75|120|250)_/i.test(image.url)) total += 50;
+      if (image.source === "json-ld") total += 20;
+      if (image.source === "meta") total += 10;
+      if (image.source === "gallery") total -= 10;
+      if (/\/media\/product\/\d+_/i.test(image.url)) total -= 5;
+      if (/\/media\/lib\//i.test(image.url)) total -= 3;
+      return total;
+    };
+    return score(left) - score(right);
+  });
 }
 
 function mergeAnphatSpecs(
@@ -462,16 +495,16 @@ async function searchProductFromCategory(
   };
   data.descriptionHTML = data.descriptionHTML || extractAnphatDescriptionHTML(html, productName);
   const apiImage =
-    match.productImage?.large ||
-    match.productImage?.medium ||
-    match.productImage?.small;
-  const images = [
+    anphatOriginalProductImageUrl(match.productImage?.large) ||
+    anphatOriginalProductImageUrl(match.productImage?.medium) ||
+    anphatOriginalProductImageUrl(match.productImage?.small);
+  const images = prioritizeAnphatImages([
+    ...extractProductImagesFromHtml(url, html),
+    ...extractProductImagesFromHtml(url, syntheticHTML),
     ...(apiImage
       ? [{ alt: data.title, source: "gallery" as const, url: apiImage }]
       : []),
-    ...extractProductImagesFromHtml(url, html),
-    ...extractProductImagesFromHtml(url, syntheticHTML),
-  ];
+  ]);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);
   const validation = validateExtractedProduct(data, true, {
