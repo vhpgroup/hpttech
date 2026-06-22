@@ -520,11 +520,26 @@ async function upsert(
         overrideAccess: true,
       })
   }
-  return payload.create({
-    collection: collection as never,
-    data,
-    overrideAccess: true,
-  });
+  try {
+    return await payload.create({
+      collection: collection as never,
+      data,
+      overrideAccess: true,
+    });
+  } catch (error) {
+    const recovered = await findOne(payload, collection, where);
+    if (recovered?.id === undefined) throw error;
+    const updateData = { ...data };
+    if (collection === "product-variants") {
+      delete updateData.isPrimary;
+    }
+    return payload.update({
+      collection: collection as never,
+      id: recovered.id,
+      data: updateData,
+      overrideAccess: true,
+    });
+  }
 }
 
 async function resolveTaxonomy(

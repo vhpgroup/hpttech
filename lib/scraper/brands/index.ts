@@ -414,6 +414,42 @@ export const brandConfigs = [
     name: "Xprinter",
     slug: "xprinter",
   },
+  {
+    aliases: ["pantum"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "pantum.com",
+    extraDomains: ["pantum.com"],
+    name: "Pantum",
+    slug: "pantum",
+  },
+  {
+    aliases: ["zebra"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "zebra.com",
+    extraDomains: ["zebra.com"],
+    name: "Zebra",
+    slug: "zebra",
+  },
+  {
+    aliases: ["apos", "apos-p", "apos-"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "anphatpc.com.vn",
+    extraDomains: ["anphatpc.com.vn"],
+    name: "APOS",
+    slug: "apos",
+  },
+  {
+    aliases: ["atp", "atp-"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "anphatpc.com.vn",
+    extraDomains: ["anphatpc.com.vn"],
+    name: "ATP",
+    slug: "atp",
+  },
 ] satisfies BrandConfig[];
 
 export function findBrandByName(productName: string) {

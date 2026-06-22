@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { extractRequestedModel, textContainsModel } from "./model-identity";
 
 type SourceCandidate = {
   productName: string;
@@ -49,6 +50,20 @@ export function sourceVariantSku(sourceUrl: string, sourceSku?: string) {
   return sourceIdentityKey(sourceUrl);
 }
 
+function modelFilteredCandidates<T extends SourceCandidate>(candidates: T[], query: string) {
+  const requestedModel = extractRequestedModel(query);
+  if (!requestedModel) return [];
+
+  return candidates.filter((candidate) => {
+    const sku = usableSourceSku(candidate.productSKU);
+    return (
+      textContainsModel(candidate.productName, requestedModel) ||
+      textContainsModel(candidate.productUrl, requestedModel) ||
+      (sku ? textContainsModel(sku, requestedModel) : false)
+    );
+  });
+}
+
 export function findExactSourceCandidate<T extends SourceCandidate>(
   candidates: T[],
   query: string,
@@ -59,8 +74,7 @@ export function findExactSourceCandidate<T extends SourceCandidate>(
     : undefined;
   if (queryUrl) {
     const byUrl = candidates.find(
-      (candidate) =>
-        normalizeSourceUrl(candidate.productUrl, baseUrl) === queryUrl,
+      (candidate) => normalizeSourceUrl(candidate.productUrl, baseUrl) === queryUrl,
     );
     if (byUrl) return byUrl;
     throw new Error(`Không tìm thấy URL sản phẩm chính xác: ${query}`);
@@ -72,18 +86,21 @@ export function findExactSourceCandidate<T extends SourceCandidate>(
   );
   if (exactNames.length === 1) return exactNames[0];
   if (exactNames.length > 1) {
+    const exactModelMatches = modelFilteredCandidates(exactNames, query);
+    if (exactModelMatches.length === 1) return exactModelMatches[0];
     throw new Error(`Tên sản phẩm không duy nhất trong nguồn: ${query}`);
   }
 
   const querySku = usableSourceSku(query);
   if (querySku) {
     const exactSkus = candidates.filter(
-      (candidate) =>
-        usableSourceSku(candidate.productSKU)?.toLowerCase() ===
-        querySku.toLowerCase(),
+      (candidate) => usableSourceSku(candidate.productSKU)?.toLowerCase() === querySku.toLowerCase(),
     );
     if (exactSkus.length === 1) return exactSkus[0];
   }
+
+  const modelMatches = modelFilteredCandidates(candidates, query);
+  if (modelMatches.length === 1) return modelMatches[0];
 
   throw new Error(
     `Không tìm thấy sản phẩm khớp chính xác: ${query}. Không dùng fuzzy match để tránh ghép nhầm biến thể.`,
@@ -99,10 +116,7 @@ export function sourceMatchMethod(
   query: string,
 ): "name" | "sku" | "url" {
   if (/^https?:\/\//i.test(query)) return "url";
-  if (
-    usableSourceSku(candidate.productSKU)?.toLowerCase() ===
-    query.trim().toLowerCase()
-  ) {
+  if (usableSourceSku(candidate.productSKU)?.toLowerCase() === query.trim().toLowerCase()) {
     return "sku";
   }
   return "name";
