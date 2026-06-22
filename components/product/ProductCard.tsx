@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Star } from "lucide-react";
+import { Check, ImageIcon, Plus, Star } from "lucide-react";
 import { useEffect, useState, type MouseEvent } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -53,10 +53,15 @@ export function ProductCard({ product, className, isComparing = false, onCompare
   const router = useRouter();
   const [globalComparing, setGlobalComparing] = useState(isComparing);
   const href = productHref(product);
-  const image = product.images?.[0]?.url || product.image;
+  const initialImage = product.images?.[0]?.url || product.image;
+  const [image, setImage] = useState(initialImage);
   const promotionCount = product.promotionCount ?? product.promotions?.length ?? (product.promoText ? 1 : 0);
   const stock = stockLabel(product.stockStatus);
   const selected = onCompare ? isComparing : globalComparing;
+
+  useEffect(() => {
+    setImage(initialImage);
+  }, [initialImage]);
 
   useEffect(() => {
     if (onCompare) return;
@@ -111,9 +116,13 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             height={170}
             className="max-h-[148px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 45vw, (max-width: 1280px) 20vw, 220px"
+            onError={() => setImage(undefined)}
           />
         ) : (
-          <div className="h-28 w-full rounded-[10px] bg-slate-100" />
+          <div className="flex h-28 w-full flex-col items-center justify-center rounded-[10px] bg-gradient-to-br from-slate-50 to-blue-50 text-slate-400 ring-1 ring-slate-100">
+            <ImageIcon size={34} strokeWidth={1.4} />
+            <span className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Chưa có ảnh</span>
+          </div>
         )}
       </Link>
 

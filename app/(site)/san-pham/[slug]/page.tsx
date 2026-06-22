@@ -127,7 +127,7 @@ function ProductHTMLContent({ html }: { html?: string }) {
 
   return (
     <div
-      className="product-description-content rounded-[18px] bg-slate-50 p-6 text-[15px] leading-7 text-slate-700 [&_a]:font-semibold [&_a]:text-blue-700 [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_img]:mx-auto [&_img]:h-auto [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-3 [&_picture]:mx-auto [&_picture]:block [&_ul]:mb-4 [&_ol]:mb-4"
+      className="product-description-content rounded-[18px] bg-white p-6 text-[15px] leading-7 text-slate-700 shadow-sm ring-1 ring-slate-200/80 [&_a]:font-semibold [&_a]:text-blue-700 [&_figure]:my-6 [&_h2]:mb-3 [&_h2]:mt-7 [&_h2]:border-l-4 [&_h2]:border-blue-600 [&_h2]:pl-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-slate-950 [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-slate-900 [&_img]:mx-auto [&_img]:my-5 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-200 [&_img]:bg-white [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-4 [&_picture]:mx-auto [&_picture]:block [&_table]:my-5 [&_table]:w-full [&_table]:overflow-hidden [&_table]:rounded-xl [&_table]:border [&_table]:border-slate-200 [&_td]:border [&_td]:border-slate-200 [&_td]:p-3 [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-100 [&_th]:p-3 [&_ul]:mb-4 [&_ol]:mb-4"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
@@ -192,7 +192,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     (spec) => spec.label?.trim() && spec.value?.trim(),
   );
   const schemaPrice = parseVNDPrice(product.price);
-  const productDescription = product.descriptionRichText || product.description || product.detail;
+  const productDescription = product.description || product.descriptionRichText || product.detail;
   const assignedRelatedProducts = uniqueProducts((product.relatedProducts ?? []).filter((item) => item.slug !== product.slug));
   const relatedProducts = assignedRelatedProducts.slice(0, 15);
   const relationSections: ProductRelationSection[] = [
@@ -287,10 +287,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
       id: "description",
       label: "Mô tả sản phẩm",
       content: productDescription ? (
-        product.descriptionRichText ? (
-          <PayloadRichText data={product.descriptionRichText} className="rounded-[18px] bg-slate-50 p-6 text-[15px]" />
+        product.description ? (
+          <ProductHTMLContent html={product.description} />
+        ) : product.descriptionRichText ? (
+          <PayloadRichText data={product.descriptionRichText} className="rounded-[18px] bg-white p-6 text-[15px] shadow-sm ring-1 ring-slate-200/80" />
         ) : (
-          <ProductHTMLContent html={product.description || textToHTML(product.detail)} />
+          <ProductHTMLContent html={textToHTML(product.detail)} />
         )
       ) : (
         <EmptyProductSection message="Sản phẩm này chưa có mô tả chi tiết. Vui lòng bổ sung nội dung trong Payload CMS." />

@@ -295,6 +295,22 @@ function anphatSummarySellingPoints(product: AnphatCategoryProduct) {
     .filter(Boolean);
 }
 
+function mergeAnphatSpecs(
+  summarySpecs: Array<{ label: string; value: string }>,
+  extractedSpecs: Array<{ label: string; value: string }>,
+) {
+  const seen = new Set<string>();
+  return [...extractedSpecs, ...summarySpecs].filter((spec) => {
+    const key = cleanText(spec.label)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function anphatPromotionText(product: AnphatCategoryProduct) {
   const preferred = [
     ...(product.specialOffer?.service || []),
@@ -440,10 +456,8 @@ async function searchProductFromCategory(
     price: match.price !== undefined ? String(match.price) : extracted.price,
     promoText: anphatPromotionText(match),
     sellingPoints: anphatSummarySellingPoints(match),
-    sku: match.productSKU || extracted.sku,
-    specs: match.productSummary?.trim()
-      ? anphatSummarySpecs(match)
-      : extracted.specs,
+    sku: extracted.sku,
+    specs: mergeAnphatSpecs(anphatSummarySpecs(match), extracted.specs),
     title: productName,
   };
   data.descriptionHTML = data.descriptionHTML || extractAnphatDescriptionHTML(html, productName);
@@ -452,11 +466,11 @@ async function searchProductFromCategory(
     match.productImage?.medium ||
     match.productImage?.small;
   const images = [
-    ...extractProductImagesFromHtml(url, syntheticHTML),
-    ...extractProductImagesFromHtml(url, html),
     ...(apiImage
       ? [{ alt: data.title, source: "gallery" as const, url: apiImage }]
       : []),
+    ...extractProductImagesFromHtml(url, html),
+    ...extractProductImagesFromHtml(url, syntheticHTML),
   ];
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);

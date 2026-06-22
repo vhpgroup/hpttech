@@ -12,6 +12,7 @@ import {
   updateProductSeoHTML,
 } from "./seo-article";
 import {
+  cleanText,
   lexicalParagraphs,
   productShortDescription,
   productSellingPoints,
@@ -185,7 +186,10 @@ export async function importBatchProduct(
 
   const sourceUrls = product.source.urls || [product.source.url];
   const manualSpecs = normalizedSpecs.specs;
-  const descriptionText = product.generated.description || product.data.description || "";
+  const sourceDescriptionHTML = product.data.descriptionHTML?.trim();
+  const descriptionText = sourceDescriptionHTML
+    ? cleanText(sourceDescriptionHTML)
+    : product.generated.description || product.data.description || "";
   const summaryText = productShortDescription(displayProduct.data.title, displayProduct.data.specs);
   const sellingPoints =
     productTypeCode === "software"
@@ -197,7 +201,12 @@ export async function importBatchProduct(
         )
           .filter((text) => text.length >= 5 && text.length <= 700)
           .slice(0, 8)
-      : productSellingPoints(product.data.description, normalizedSpecs.specs);
+      : (product.data.sellingPoints?.length
+          ? product.data.sellingPoints
+          : productSellingPoints(product.data.description, normalizedSpecs.specs)
+        )
+          .filter((text) => text.length >= 5 && text.length <= 700)
+          .slice(0, 8);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
   const priceValue = vndPriceNumber(product.data.price);
   const compareAtPriceValue = vndPriceNumber(product.data.compareAtPrice);
@@ -225,7 +234,7 @@ export async function importBatchProduct(
     ? imageReport.images
     : existingImages;
   const imageWarning = imageReport.warnings.join(" | ");
-  const descriptionHTML = buildProductSeoArticleHTML(displayProduct, articleImages);
+  const descriptionHTML = sourceDescriptionHTML || buildProductSeoArticleHTML(displayProduct, articleImages);
   const publicationGate = evaluatePublicationGate({
     articleHTML: descriptionHTML,
     imageCount: articleImages.length,

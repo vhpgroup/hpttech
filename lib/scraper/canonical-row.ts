@@ -44,6 +44,10 @@ function priceTarget() {
     : "price";
 }
 
+function hptSku(model: string) {
+  return `HPT-${model.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toUpperCase()}`;
+}
+
 function normalized(value: string) {
   return value
     .normalize("NFD")
@@ -111,7 +115,9 @@ export function buildCanonicalImportRow(
     productTypeCode,
     quantity: "0",
     saleStatus: !useCompareAtPrice && price ? "active" : "contact",
-    sku: sourceVariantSku(product.source.url, product.data.sku),
+    sku: product.source.url.includes("anphatpc.com.vn")
+      ? hptSku(model)
+      : sourceVariantSku(product.source.url, product.data.sku),
     sourceType: "scraper",
     sourceUrl: product.source.url,
     stockStatus: "unknown",

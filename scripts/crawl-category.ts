@@ -21,15 +21,13 @@ function integerOption(args: string[], name: string, defaultValue?: number) {
 
 async function createCategoryWorkbook(
   categoryUrl: string,
-  rows: Array<{ productName: string }>,
-  categoryName: string,
-  productType: string,
+  rows: Array<{ categoryName: string; productName: string; productType: string }>,
 ) {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Products");
   sheet.addRow(["Tên sản phẩm", "Danh mục", "Loại sản phẩm"]);
   for (const row of rows) {
-    sheet.addRow([row.productName.trim(), categoryName, productType]);
+    sheet.addRow([row.productName.trim(), row.categoryName, row.productType]);
   }
   const host = new URL(categoryUrl).hostname.replace(/^www\./, "");
   const filePath = path.resolve(
@@ -38,6 +36,30 @@ async function createCategoryWorkbook(
   );
   await workbook.xlsx.writeFile(filePath);
   return filePath;
+}
+
+function classifyCategoryProduct(categoryTitle: string, productName: string) {
+  const categoryType = commonProductTypeCode(categoryTitle);
+  const categoryKey = categoryTitle
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  const isMixedNetworkingCameraCategory =
+    categoryKey.includes("thiet bi mang") && categoryKey.includes("camera");
+  const detected = isMixedNetworkingCameraCategory
+    ? commonProductTypeCode(productName) || categoryType
+    : categoryType || commonProductTypeCode(productName);
+  if (detected === "camera") {
+    return { categoryName: "Camera & An ninh", productType: "camera" };
+  }
+  if (detected === "networking") {
+    return { categoryName: "Thiết bị mạng", productType: "networking" };
+  }
+  if (detected === "printer") {
+    return { categoryName: "Máy in", productType: "printer" };
+  }
+  if (!detected) return undefined;
+  return { categoryName: categoryTitle, productType: detected };
 }
 
 async function main() {
@@ -50,12 +72,6 @@ async function main() {
   }
 
   const category = await discoverSourceCategory(categoryUrl);
-  const productType = commonProductTypeCode(category.title);
-  if (!productType) {
-    throw new Error(
-      `Chưa nhận diện được loại sản phẩm từ danh mục "${category.title}".`,
-    );
-  }
   const skip = integerOption(args, "skip", 0) || 0;
   const limit = integerOption(args, "limit");
   const selected = category.products.slice(
@@ -64,11 +80,23 @@ async function main() {
   );
   if (!selected.length) throw new Error("Danh mục không có sản phẩm để chạy.");
 
+  const rows = selected.map((product) => {
+    const classified = classifyCategoryProduct(category.title, product.productName);
+    if (!classified) {
+      throw new Error(
+        `Chưa nhận diện được loại sản phẩm "${product.productName}" từ danh mục "${category.title}".`,
+      );
+    }
+    return {
+      categoryName: classified.categoryName,
+      productName: product.productName,
+      productType: classified.productType,
+    };
+  });
+
   const filePath = await createCategoryWorkbook(
     category.url,
-    selected,
-    category.title,
-    productType,
+    rows,
   );
   const { runBulkImport } = await import("../lib/scraper/batch-runner");
   const result = await runBulkImport({

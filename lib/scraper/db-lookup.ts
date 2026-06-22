@@ -32,6 +32,30 @@ export function commonProductTypeCode(value: string) {
   ) {
     return "software";
   }
+  if (
+    normalized.includes("camera") ||
+    normalized.includes("dau ghi") ||
+    normalized.includes("nvr") ||
+    normalized.includes("cctv")
+  ) {
+    return "camera";
+  }
+  if (
+    normalized.includes("thiet bi mang") ||
+    normalized.includes("router") ||
+    normalized.includes("switch") ||
+    normalized.includes("wifi") ||
+    normalized.includes("access point") ||
+    normalized.includes("bo phat") ||
+    normalized.includes("chia mang") ||
+    normalized.includes("firewall") ||
+    normalized.includes("card mang") ||
+    normalized.includes("can bang tai") ||
+    normalized.includes("load balancer") ||
+    normalized.includes("poe")
+  ) {
+    return "networking";
+  }
   return undefined;
 }
 

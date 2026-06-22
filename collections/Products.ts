@@ -23,6 +23,8 @@ const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Photocopy", value: "photocopier" },
+  { label: "Thiết bị mạng", value: "networking" },
+  { label: "Camera", value: "camera" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "Khác / nhập thủ công", value: "other" },
 ];

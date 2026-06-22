@@ -292,12 +292,29 @@ function relationCode(value: unknown) {
 function mediaURL(value: unknown) {
   if (!value || typeof value !== "object") return undefined;
   if ("filename" in value && typeof value.filename === "string") {
+    const isLocalServer =
+      process.env.NODE_ENV !== "production" ||
+      /localhost|127\.0\.0\.1/i.test(process.env.NEXT_PUBLIC_SERVER_URL || "");
+    if (isLocalServer) {
+      return localMediaFileExists(value.filename)
+        ? `/api/media/file/${encodeURIComponent(value.filename)}`
+        : undefined;
+    }
+  }
+  if ("url" in value && typeof value.url === "string") return value.url;
+  if ("filename" in value && typeof value.filename === "string") {
     const generated = mediaPublicURL(value.filename);
     if (generated) return generated;
     return mediaProxyURL(value.filename);
   }
-  if ("url" in value && typeof value.url === "string") return value.url;
   return undefined;
+}
+
+function localMediaFileExists(filename: string) {
+  const mediaRoot = path.resolve(process.cwd(), "media");
+  const target = path.resolve(mediaRoot, filename);
+  if (!target.startsWith(mediaRoot + path.sep)) return false;
+  return fs.existsSync(target);
 }
 
 function mediaPublicURL(filename: string) {
@@ -310,6 +327,9 @@ function mediaPublicURL(filename: string) {
 }
 
 function mediaProxyURL(filename: string) {
+  if (process.env.NODE_ENV !== "production") {
+    return `/api/media/file/${encodeURIComponent(filename)}`;
+  }
   if (
     !process.env.R2_BUCKET ||
     !process.env.R2_ACCESS_KEY_ID ||

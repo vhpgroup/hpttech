@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, ImageIcon, X, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 interface ProductImageGalleryProps {
@@ -13,17 +13,41 @@ interface ProductImageGalleryProps {
 
 export function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [failedImages, setFailedImages] = useState<Set<string>>(() => new Set());
   const [isZoomed, setIsZoomed] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const hasMultiple = images.length > 1;
-  const activeImage = images[activeIndex];
+  const visibleImages = useMemo(
+    () => images.filter((image) => !failedImages.has(image.url)),
+    [failedImages, images],
+  );
+  const hasMultiple = visibleImages.length > 1;
+  const activeImage = visibleImages[activeIndex];
   const activeImageUnoptimized = activeImage?.url.startsWith("/api/r2-media/") === true;
+  const markImageFailed = useCallback((url: string) => {
+    setFailedImages((current) => {
+      if (current.has(url)) return current;
+      const next = new Set(current);
+      next.add(url);
+      return next;
+    });
+  }, []);
 
   const goTo = useCallback((index: number) => {
-    const next = (index + images.length) % images.length;
+    if (!visibleImages.length) return;
+    const next = (index + visibleImages.length) % visibleImages.length;
     setActiveIndex(next);
-  }, [images.length]);
+  }, [visibleImages.length]);
+
+  useEffect(() => {
+    setFailedImages(new Set());
+    setActiveIndex(0);
+  }, [images]);
+
+  useEffect(() => {
+    if (activeIndex < visibleImages.length) return;
+    setActiveIndex(Math.max(visibleImages.length - 1, 0));
+  }, [activeIndex, visibleImages.length]);
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -44,12 +68,9 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   if (!activeImage) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-[20px] bg-slate-50 text-slate-300">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-          <rect x="3" y="3" width="18" height="18" rx="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
+      <div className="flex aspect-square flex-col items-center justify-center rounded-[20px] bg-gradient-to-br from-slate-50 to-blue-50 text-slate-400 ring-1 ring-slate-100">
+        <ImageIcon size={64} strokeWidth={1.2} />
+        <span className="mt-3 text-sm font-semibold uppercase tracking-[0.16em]">Chưa có ảnh</span>
       </div>
     );
   }
@@ -58,7 +79,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
     <div className="flex flex-col gap-3 lg:flex-row">
       {hasMultiple ? (
         <div className="order-2 flex gap-2 overflow-x-auto pb-1 lg:order-1 lg:max-h-[560px] lg:w-[84px] lg:flex-col lg:overflow-y-auto lg:pb-0">
-          {images.map((img, idx) => (
+          {visibleImages.map((img, idx) => (
             <button
               key={idx}
               type="button"
@@ -78,6 +99,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 className="object-contain p-2"
                 sizes="84px"
                 unoptimized={img.url.startsWith("/api/r2-media/")}
+                onError={() => markImageFailed(img.url)}
               />
             </button>
           ))}
@@ -98,6 +120,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           sizes="(max-width: 1024px) 100vw, 520px"
           priority
           unoptimized={activeImageUnoptimized}
+          onError={() => markImageFailed(activeImage.url)}
         />
         <button
           type="button"
@@ -137,6 +160,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                 className="h-auto max-h-[calc(100vh-150px)] w-[min(82vw,760px)] object-contain"
                 sizes="(max-width: 768px) 82vw, 760px"
                 unoptimized={activeImageUnoptimized}
+                onError={() => markImageFailed(activeImage.url)}
               />
               {hasMultiple ? (
                 <>
@@ -152,7 +176,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
             {hasMultiple ? (
               <div className="mt-3 flex justify-center gap-2 overflow-x-auto pb-1">
-                {images.map((img, idx) => (
+                {visibleImages.map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -163,7 +187,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
                       activeIndex === idx ? "ring-2 ring-white" : "opacity-70 hover:opacity-100",
                     )}
                   >
-                    <Image src={img.url} alt={img.alt || `${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="56px" unoptimized={img.url.startsWith("/api/r2-media/")} />
+                    <Image src={img.url} alt={img.alt || `${productName} ${idx + 1}`} fill className="object-contain p-1" sizes="56px" unoptimized={img.url.startsWith("/api/r2-media/")} onError={() => markImageFailed(img.url)} />
                   </button>
                 ))}
               </div>

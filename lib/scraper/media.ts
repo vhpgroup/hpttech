@@ -126,7 +126,7 @@ export async function importScrapedImagesWithReport(
   product: ScrapedProduct,
 ): Promise<ImageImportReport> {
   const payload = await getPayloadClient();
-  const maxImages = Number(process.env.SCRAPER_IMPORT_MAX_IMAGES || 3);
+  const maxImages = Number(process.env.SCRAPER_IMPORT_MAX_IMAGES || 1);
   const seen = new Set<string>();
   const images = (product.images || [])
     .filter((image) => {
