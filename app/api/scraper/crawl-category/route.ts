@@ -134,6 +134,7 @@ export async function POST(request: Request) {
       };
 
       const imported = await importBatchProduct(excelRow, scraped, productTypeCode, {
+        bypassPublicationGate: forcePublish,
         publish: forcePublish || scraped.confidence >= 0.75,
       });
 

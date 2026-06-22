@@ -116,7 +116,7 @@ export async function importBatchProduct(
   input: ExcelRow,
   product: ScrapedProduct,
   productTypeCode: string,
-  options: { publish?: boolean } = {},
+  options: { bypassPublicationGate?: boolean; publish?: boolean } = {},
 ) {
   const row = buildCanonicalImportRow(input, product, productTypeCode, options);
   const normalizedSpecs = normalizeScrapedSpecs(
@@ -241,7 +241,9 @@ export async function importBatchProduct(
     imageWarning,
     product: displayProduct,
   });
-  const publish = Boolean(options.publish && publicationGate.allowed);
+  const gateAllowsPublish =
+    publicationGate.allowed || Boolean(options.bypassPublicationGate);
+  const publish = Boolean(options.publish && gateAllowsPublish);
   const seoSummaryHTML = summaryHTML(summaryText);
   const typedSpecs =
     productTypeCode === "scanner"
