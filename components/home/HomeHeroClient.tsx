@@ -50,6 +50,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                   alt={banner.title || "HPT Tech banner"}
                   width={804}
                   height={470}
+                  unoptimized
                   priority={index === 0}
                 />
               ) : null}
@@ -78,6 +79,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
               alt="Commercial block máy scan"
               width={360}
               height={228}
+              unoptimized
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).hidden = true;
@@ -91,6 +93,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
               alt="Commercial block máy in"
               width={360}
               height={228}
+              unoptimized
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).hidden = true;
@@ -107,6 +110,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
               alt="Commercial block thiết bị văn phòng"
               width={386}
               height={190}
+              unoptimized
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).hidden = true;
@@ -120,6 +124,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
               alt="Commercial block giải pháp"
               width={386}
               height={190}
+              unoptimized
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).hidden = true;
@@ -133,6 +138,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
               alt="Commercial block dịch vụ"
               width={386}
               height={190}
+              unoptimized
               loading="lazy"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).hidden = true;
