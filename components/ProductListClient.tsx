@@ -2,16 +2,15 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { startTransition, useMemo, useState } from "react";
 import { ChevronDown, Filter, Search, SlidersHorizontal, X } from "lucide-react";
 import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
 import { ProductCard } from "@/components/product/ProductCard";
 import type { CatalogProduct } from "@/lib/catalog";
 import { canonicalizeCategoryName } from "@/lib/product-category";
-
-const PAGE_SIZE = 12;
+import type { ProductListFacets } from "@/lib/catalog-payload";
 
 type MultiFilterKey =
   | "categories"
@@ -37,6 +36,10 @@ type FilterOption = {
 
 type ProductListClientProps = {
   products: CatalogProduct[];
+  facets?: ProductListFacets;
+  page: number;
+  totalPages: number;
+  totalProducts: number;
 };
 
 const BRAND_OPTIONS = ["Brother", "Ricoh", "Epson", "HP", "Canon", "Fujitsu"];
@@ -48,27 +51,11 @@ const SCAN_SPEED_OPTIONS: FilterOption[] = [
   { label: "Trên 60 trang/phút", value: "over-60" },
 ];
 
-const DUPLEX_OPTIONS: FilterOption[] = [
-  { label: "Có", value: "yes" },
-  { label: "Không", value: "no" },
-];
-
 const ADF_OPTIONS: FilterOption[] = [
   { label: "50 tờ", value: "50" },
   { label: "60 tờ", value: "60" },
   { label: "80 tờ", value: "80" },
   { label: "Trên 100 tờ", value: "over-100" },
-];
-
-const CONNECTIVITY_OPTIONS: FilterOption[] = [
-  { label: "USB", value: "usb" },
-  { label: "LAN", value: "lan" },
-  { label: "WiFi", value: "wifi" },
-];
-
-const PAPER_OPTIONS: FilterOption[] = [
-  { label: "A4", value: "a4" },
-  { label: "A3", value: "a3" },
 ];
 
 const SORT_OPTIONS: Array<{ label: string; value: SortValue }> = [
@@ -100,11 +87,6 @@ function slugifyFilterValue(value?: string) {
 
 function normalizeCategoryFilterLabel(value?: string) {
   return canonicalizeCategoryName(cleanFilterValue(value));
-}
-
-function parsePrice(value?: string) {
-  const digits = value?.replace(/[^\d]/g, "") || "";
-  return digits ? Number(digits) : undefined;
 }
 
 function formatVND(value: number) {
@@ -207,36 +189,6 @@ function matchesPaper(product: CatalogProduct, value: string) {
   return specHaystack(product).includes(value);
 }
 
-function productSearchText(product: CatalogProduct) {
-  return normalizeText([
-    product.title,
-    product.sku,
-    product.model,
-    product.brand,
-    product.category,
-    product.detail,
-    (product.specs || []).map((spec) => `${spec.label} ${spec.value}`).join(" "),
-  ].join(" "));
-}
-
-function productMatchesFilters(product: CatalogProduct, filters: Filters) {
-  const price = product.priceValue ?? parsePrice(product.price);
-  const min = Number(filters.priceMin || 0);
-  const max = Number(filters.priceMax || 0);
-
-  if (filters.categories.length && !filters.categories.includes(productCategoryBucket(product))) return false;
-  if (filters.brands.length && !filters.brands.includes(product.brand || "")) return false;
-  if (filters.scanSpeeds.length && !filters.scanSpeeds.some((value) => matchesScanSpeed(product, value))) return false;
-  if (filters.duplex.length && !filters.duplex.includes(hasDuplex(product) || "")) return false;
-  if (filters.adf.length && !filters.adf.some((value) => matchesAdf(product, value))) return false;
-  if (filters.connectivity.length && !filters.connectivity.some((value) => matchesConnectivity(product, value))) return false;
-  if (filters.paperSizes.length && !filters.paperSizes.some((value) => matchesPaper(product, value))) return false;
-  if (min > 0 && (!price || price < min)) return false;
-  if (max > 0 && (!price || price > max)) return false;
-
-  return true;
-}
-
 function countOption(products: CatalogProduct[], key: MultiFilterKey, value: string) {
   return products.filter((product) => {
     if (key === "categories") return productCategoryBucket(product) === value;
@@ -290,22 +242,6 @@ function activeFilterCount(filters: Filters) {
   );
 }
 
-function sortProducts(products: CatalogProduct[], sort: SortValue) {
-  const ranked = [...products];
-  ranked.sort((a, b) => {
-    if (sort === "price-asc") {
-      return (a.priceValue ?? parsePrice(a.price) ?? Number.MAX_SAFE_INTEGER) - (b.priceValue ?? parsePrice(b.price) ?? Number.MAX_SAFE_INTEGER);
-    }
-    if (sort === "price-desc") {
-      return (b.priceValue ?? parsePrice(b.price) ?? 0) - (a.priceValue ?? parsePrice(a.price) ?? 0);
-    }
-    if (sort === "popular") return (b.reviewCount || 0) - (a.reviewCount || 0);
-    if (sort === "newest") return String(b.id || "").localeCompare(String(a.id || ""), "vi");
-    return (b.reviewCount || 0) - (a.reviewCount || 0) || (b.priceValue ?? parsePrice(b.price) ?? 0) - (a.priceValue ?? parsePrice(a.price) ?? 0);
-  });
-  return ranked;
-}
-
 function FilterSection({
   title,
   children,
@@ -352,6 +288,7 @@ function FilterCheckbox({
 function ProductFilters({
   products,
   categoryOptions,
+  brandOptions,
   filters,
   onToggle,
   onPriceChange,
@@ -360,21 +297,14 @@ function ProductFilters({
 }: {
   products: CatalogProduct[];
   categoryOptions: FilterOption[];
+  brandOptions: FilterOption[];
   filters: Filters;
   onToggle: (key: MultiFilterKey, value: string) => void;
   onPriceChange: (key: "priceMin" | "priceMax", value: string) => void;
   onClear: () => void;
   onApply?: () => void;
 }) {
-  const brandOptions = Array.from(new Set([...BRAND_OPTIONS, ...products.map((item) => item.brand).filter((brand): brand is string => Boolean(brand))]))
-    .sort((a, b) => a.localeCompare(b, "vi"))
-    .map((brand) => ({ label: brand, value: brand, count: countOption(products, "brands", brand) }));
-  const categoryOptionsWithCount = categoryOptions.map((option) => ({ ...option, count: countOption(products, "categories", option.value) }));
-  const scanSpeedOptions = SCAN_SPEED_OPTIONS.map((option) => ({ ...option, count: countOption(products, "scanSpeeds", option.value) }));
-  const duplexOptions = DUPLEX_OPTIONS.map((option) => ({ ...option, count: countOption(products, "duplex", option.value) }));
-  const adfOptions = ADF_OPTIONS.map((option) => ({ ...option, count: countOption(products, "adf", option.value) }));
-  const connectivityOptions = CONNECTIVITY_OPTIONS.map((option) => ({ ...option, count: countOption(products, "connectivity", option.value) }));
-  const paperOptions = PAPER_OPTIONS.map((option) => ({ ...option, count: countOption(products, "paperSizes", option.value) }));
+  const categoryOptionsWithCount = categoryOptions.map((option) => ({ ...option, count: option.count ?? countOption(products, "categories", option.value) }));
 
   const renderOptions = (key: MultiFilterKey, options: FilterOption[]) =>
     options.map((option) => (
@@ -397,11 +327,6 @@ function ProductFilters({
 
       <FilterSection title="Danh mục">{renderOptions("categories", categoryOptionsWithCount)}</FilterSection>
       <FilterSection title="Thương hiệu">{renderOptions("brands", brandOptions)}</FilterSection>
-      <FilterSection title="Tốc độ scan">{renderOptions("scanSpeeds", scanSpeedOptions)}</FilterSection>
-      <FilterSection title="Scan hai mặt">{renderOptions("duplex", duplexOptions)}</FilterSection>
-      <FilterSection title="Khay nạp ADF">{renderOptions("adf", adfOptions)}</FilterSection>
-      <FilterSection title="Kết nối">{renderOptions("connectivity", connectivityOptions)}</FilterSection>
-      <FilterSection title="Khổ giấy">{renderOptions("paperSizes", paperOptions)}</FilterSection>
 
       <FilterSection title="Khoảng giá">
         <div className="grid grid-cols-2 gap-2">
@@ -450,21 +375,41 @@ function removeValue(values: string[], value: string) {
   return values.filter((item) => item !== value);
 }
 
-export default function ProductListClient({ products }: ProductListClientProps) {
+export default function ProductListClient({ products, facets, page, totalPages, totalProducts }: ProductListClientProps) {
   const searchParams = useSearchParams();
   const safeSearchParams = searchParams ?? new URLSearchParams();
   const queryKey = safeSearchParams.toString();
   const initialSearch = cleanFilterValue(safeSearchParams.get("search"));
-  const categoryOptions = useMemo(() => buildCategoryOptions(products), [products]);
+  const initialSort = (cleanFilterValue(safeSearchParams.get("sort")) || "best") as SortValue;
+  const categoryOptions = useMemo(
+    () => facets?.categories.length ? facets.categories : buildCategoryOptions(products),
+    [facets?.categories, products],
+  );
+  const brandOptions = useMemo(
+    () =>
+      facets?.brands.length
+        ? facets.brands
+        : Array.from(new Set([...BRAND_OPTIONS, ...products.map((item) => item.brand).filter((brand): brand is string => Boolean(brand))]))
+            .sort((a, b) => a.localeCompare(b, "vi"))
+            .map((brand) => ({ label: brand, value: brand, count: countOption(products, "brands", brand) })),
+    [facets?.brands, products],
+  );
   const initialFilters = initialFiltersFromParams(safeSearchParams, categoryOptions);
+  initialFilters.priceMin = cleanFilterValue(safeSearchParams.get("priceMin"));
+  initialFilters.priceMax = cleanFilterValue(safeSearchParams.get("priceMax"));
 
   return (
     <ProductListInner
       key={queryKey}
       products={products}
       categoryOptions={categoryOptions}
+      brandOptions={brandOptions}
       initialSearch={initialSearch}
       initialFilters={initialFilters}
+      initialSort={initialSort}
+      page={page}
+      totalPages={totalPages}
+      totalProducts={totalProducts}
     />
   );
 }
@@ -472,63 +417,92 @@ export default function ProductListClient({ products }: ProductListClientProps) 
 function ProductListInner({
   products,
   categoryOptions,
+  brandOptions,
   initialSearch,
   initialFilters,
+  initialSort,
+  page,
+  totalPages,
+  totalProducts,
 }: ProductListClientProps & {
   categoryOptions: FilterOption[];
+  brandOptions: FilterOption[];
   initialSearch: string;
   initialFilters: Filters;
+  initialSort: SortValue;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState(initialSearch);
   const [filters, setFilters] = useState<Filters>(initialFilters);
-  const [sort, setSort] = useState<SortValue>("best");
-  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortValue>(initialSort);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [compareProducts, setCompareProducts] = useState<CatalogProduct[]>([]);
 
-  const filteredProducts = useMemo(() => {
-    const q = normalizeText(query.trim());
-    const matched = products.filter((product) => {
-      const matchesQuery = !q || productSearchText(product).includes(q);
-      return matchesQuery && productMatchesFilters(product, filters);
-    });
-    return sortProducts(matched, sort);
-  }, [filters, products, query, sort]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
-  const visibleProducts = filteredProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const activeCount = activeFilterCount(filters);
   const selectedKeys = useMemo(() => new Set(compareProducts.map(productKey)), [compareProducts]);
 
-  const updateFilter = (fn: () => void) => {
-    fn();
-    setPage(1);
+  const pushCatalogState = (next: {
+    filters?: Filters;
+    query?: string;
+    sort?: SortValue;
+    page?: number;
+  }) => {
+    const nextFilters = next.filters ?? filters;
+    const params = new URLSearchParams(searchParams?.toString());
+    const nextQuery = next.query ?? query;
+    const nextSort = next.sort ?? sort;
+    const nextPage = next.page ?? 1;
+
+    params.delete("category");
+    params.delete("brand");
+    params.delete("priceMin");
+    params.delete("priceMax");
+    params.delete("search");
+    params.delete("sort");
+    params.delete("page");
+
+    if (nextFilters.categories[0]) params.set("category", nextFilters.categories[0]);
+    if (nextFilters.brands[0]) params.set("brand", nextFilters.brands[0]);
+    if (nextFilters.priceMin) params.set("priceMin", nextFilters.priceMin);
+    if (nextFilters.priceMax) params.set("priceMax", nextFilters.priceMax);
+    if (nextQuery.trim()) params.set("search", nextQuery.trim());
+    if (nextSort !== "best") params.set("sort", nextSort);
+    if (nextPage > 1) params.set("page", String(nextPage));
+
+    const href = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    startTransition(() => router.push(href, { scroll: false }));
   };
 
   const toggleFilter = (key: MultiFilterKey, value: string) => {
-    updateFilter(() => {
-      setFilters((current) => {
-        const exists = current[key].includes(value);
-        return {
-          ...current,
-          [key]: exists ? current[key].filter((item) => item !== value) : [...current[key], value],
-        };
-      });
-    });
+    const exists = filters[key].includes(value);
+    const nextFilters = {
+      ...filters,
+      [key]: exists ? filters[key].filter((item) => item !== value) : [value],
+    };
+    setFilters(nextFilters);
+    pushCatalogState({ filters: nextFilters });
   };
 
   const updatePrice = (key: "priceMin" | "priceMax", value: string) => {
-    updateFilter(() => setFilters((current) => ({ ...current, [key]: value.replace(/[^\d]/g, "") })));
+    const nextFilters = { ...filters, [key]: value.replace(/[^\d]/g, "") };
+    setFilters(nextFilters);
+    pushCatalogState({ filters: nextFilters });
   };
 
   const clearFilters = () => {
-    setFilters(emptyFilters());
+    const nextFilters = emptyFilters();
+    setFilters(nextFilters);
     setQuery("");
-    setPage(1);
+    setSort("best");
+    pushCatalogState({ filters: nextFilters, query: "", sort: "best" });
   };
 
   const removeChip = (key: MultiFilterKey, value: string) => {
-    updateFilter(() => setFilters((current) => ({ ...current, [key]: removeValue(current[key], value) })));
+    const nextFilters = { ...filters, [key]: removeValue(filters[key], value) };
+    setFilters(nextFilters);
+    pushCatalogState({ filters: nextFilters });
   };
 
   const toggleCompare = (product: CatalogProduct) => {
@@ -547,7 +521,7 @@ function ProductListInner({
         eyebrow="Catalog thiết bị"
         title="Sản phẩm"
         description="Danh mục máy scan, máy in và thiết bị văn phòng cho doanh nghiệp."
-        badge={`${filteredProducts.length} sản phẩm`}
+        badge={`${totalProducts} sản phẩm`}
         breadcrumbs={[
           { label: "Trang chủ", href: "/" },
           { label: "Sản phẩm" },
@@ -560,6 +534,7 @@ function ProductListInner({
             <ProductFilters
               products={products}
               categoryOptions={categoryOptions}
+              brandOptions={brandOptions}
               filters={filters}
               onToggle={toggleFilter}
               onPriceChange={updatePrice}
@@ -576,7 +551,11 @@ function ProductListInner({
                 <input
                   className="w-full bg-transparent text-sm outline-none"
                   value={query}
-                  onChange={(event) => updateFilter(() => setQuery(event.target.value))}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") pushCatalogState({ query });
+                  }}
+                  onBlur={() => pushCatalogState({ query })}
                   placeholder="Tìm máy scan 2 mặt tốc độ 40 trang/phút..."
                   type="search"
                 />
@@ -596,7 +575,11 @@ function ProductListInner({
                   <select
                     className="w-full bg-transparent text-sm font-semibold text-slate-800 outline-none"
                     value={sort}
-                    onChange={(event) => updateFilter(() => setSort(event.target.value as SortValue))}
+                    onChange={(event) => {
+                      const nextSort = event.target.value as SortValue;
+                      setSort(nextSort);
+                      pushCatalogState({ sort: nextSort });
+                    }}
                   >
                     {SORT_OPTIONS.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -612,7 +595,10 @@ function ProductListInner({
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
                 <span className="font-semibold text-slate-700">Đang lọc:</span>
                 {query.trim() ? (
-                  <button type="button" onClick={() => updateFilter(() => setQuery(""))} className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-3 py-1.5 font-semibold text-slate-700">
+                  <button type="button" onClick={() => {
+                    setQuery("");
+                    pushCatalogState({ query: "" });
+                  }} className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-3 py-1.5 font-semibold text-slate-700">
                     {query.trim()} <X size={14} />
                   </button>
                 ) : null}
@@ -647,7 +633,11 @@ function ProductListInner({
                   </button>
                 ))}
                 {filters.priceMin || filters.priceMax ? (
-                  <button type="button" onClick={() => updateFilter(() => setFilters((current) => ({ ...current, priceMin: "", priceMax: "" })))} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button type="button" onClick={() => {
+                    const nextFilters = { ...filters, priceMin: "", priceMax: "" };
+                    setFilters(nextFilters);
+                    pushCatalogState({ filters: nextFilters });
+                  }} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
                     {filters.priceMin ? `Từ ${formatVND(Number(filters.priceMin))}` : ""} {filters.priceMax ? `Đến ${formatVND(Number(filters.priceMax))}` : ""} <X size={14} />
                   </button>
                 ) : null}
@@ -659,7 +649,7 @@ function ProductListInner({
           </div>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {visibleProducts.length ? visibleProducts.map((product) => (
+            {products.length ? products.map((product) => (
               <ProductQuickInfoTrigger key={productKey(product)} product={product}>
                 <ProductCard
                   product={product}
@@ -678,8 +668,8 @@ function ProductListInner({
           <div className="mt-6 flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 text-sm shadow-sm">
             <span className="font-medium text-slate-600">Trang {page}/{totalPages}</span>
             <div className="flex gap-2">
-              <button className="rounded-lg border border-slate-200 px-4 py-2 font-bold disabled:opacity-40" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))}>Trước</button>
-              <button className="rounded-lg border border-slate-200 px-4 py-2 font-bold disabled:opacity-40" disabled={page >= totalPages} onClick={() => setPage((current) => Math.min(totalPages, current + 1))}>Sau</button>
+              <button className="rounded-lg border border-slate-200 px-4 py-2 font-bold disabled:opacity-40" disabled={page <= 1} onClick={() => pushCatalogState({ page: Math.max(1, page - 1) })}>Trước</button>
+              <button className="rounded-lg border border-slate-200 px-4 py-2 font-bold disabled:opacity-40" disabled={page >= totalPages} onClick={() => pushCatalogState({ page: Math.min(totalPages, page + 1) })}>Sau</button>
             </div>
           </div>
         </section>
@@ -697,6 +687,7 @@ function ProductListInner({
             <ProductFilters
               products={products}
               categoryOptions={categoryOptions}
+              brandOptions={brandOptions}
               filters={filters}
               onToggle={toggleFilter}
               onPriceChange={updatePrice}

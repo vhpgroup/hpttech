@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getProductsFromPayload } from "@/lib/catalog-payload";
+import { getProductSearchPageFromPayload, type ProductSearchParams } from "@/lib/catalog-payload";
 import ProductListClient from "@/components/ProductListClient";
 import { pageMetadata } from "@/lib/seo";
 
@@ -11,12 +11,48 @@ export const metadata = pageMetadata({
   path: "/san-pham",
 });
 
-export default async function ProductsPage() {
-  const products = await getProductsFromPayload();
+type ProductsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parseProductsSearchParams(params: Record<string, string | string[] | undefined>): ProductSearchParams {
+  const sort = firstParam(params.sort);
+
+  return {
+    page: Number(firstParam(params.page) || 1),
+    search: firstParam(params.search) || "",
+    category: firstParam(params.category) || "",
+    brand: firstParam(params.brand) || "",
+    sort:
+      sort === "price-asc" ||
+      sort === "price-desc" ||
+      sort === "newest" ||
+      sort === "popular" ||
+      sort === "best"
+        ? sort
+        : "best",
+    priceMin: firstParam(params.priceMin) || "",
+    priceMax: firstParam(params.priceMax) || "",
+  };
+}
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const result = await getProductSearchPageFromPayload(parseProductsSearchParams(resolvedSearchParams));
 
   return (
     <Suspense fallback={null}>
-      <ProductListClient products={products} />
+      <ProductListClient
+        products={result.products}
+        facets={result.facets}
+        page={result.page}
+        totalPages={result.totalPages}
+        totalProducts={result.totalProducts}
+      />
     </Suspense>
   );
 }

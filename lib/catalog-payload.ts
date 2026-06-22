@@ -32,6 +32,7 @@ export type ProductListPageResult = {
   limit: number;
   totalProducts: number;
   totalPages: number;
+  facets?: ProductListFacets;
 };
 
 export type ProductCategoryNavItem = {
@@ -44,6 +45,28 @@ export type ProductCategoryNavItem = {
     slug: string;
     sortOrder: number;
   }>;
+};
+
+export type ProductFacetOption = {
+  label: string;
+  value: string;
+  count: number;
+};
+
+export type ProductListFacets = {
+  categories: ProductFacetOption[];
+  brands: ProductFacetOption[];
+};
+
+export type ProductSearchParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  brand?: string;
+  sort?: "best" | "price-asc" | "price-desc" | "newest" | "popular";
+  priceMin?: string;
+  priceMax?: string;
 };
 
 function normalizeSearchText(value?: string) {
@@ -988,9 +1011,246 @@ async function loadProductListPageFromPayload({
   }
 }
 
+function cleanCatalogParam(value?: string) {
+  return (value || "").trim().slice(0, 160);
+}
+
+function safePositiveInt(value: unknown, fallback: number, max: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.min(Math.floor(parsed), max);
+}
+
+function productSearchOrder(sort?: ProductSearchParams["sort"]) {
+  if (sort === "price-asc") return "effective_price asc nulls last, p.updated_at desc";
+  if (sort === "price-desc") return "effective_price desc nulls last, p.updated_at desc";
+  if (sort === "newest") return "p.updated_at desc, p.created_at desc";
+  if (sort === "popular") return "p.review_count desc nulls last, p.view_count desc nulls last, p.updated_at desc";
+  return "p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
+}
+
+function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
+  const where = ["p.status = 'published'", "p._status = 'published'"];
+  const search = cleanCatalogParam(params.search);
+  const category = cleanCatalogParam(params.category);
+  const brand = cleanCatalogParam(params.brand);
+  const priceMin = Number(cleanCatalogParam(params.priceMin));
+  const priceMax = Number(cleanCatalogParam(params.priceMax));
+
+  if (search) {
+    values.push(`%${search.toLowerCase()}%`);
+    const idx = values.length;
+    where.push(`(
+      lower(coalesce(p.name, '')) like $${idx}
+      or lower(coalesce(p.sku, '')) like $${idx}
+      or lower(coalesce(p.model, '')) like $${idx}
+      or lower(coalesce(c.name, '')) like $${idx}
+      or lower(coalesce(b.name, '')) like $${idx}
+    )`);
+  }
+
+  if (category) {
+    values.push(category);
+    where.push(`c.slug = $${values.length}`);
+  }
+
+  if (brand) {
+    values.push(brand);
+    const idx = values.length;
+    where.push(`(b.name = $${idx} or b.slug = $${idx})`);
+  }
+
+  if (Number.isFinite(priceMin) && priceMin > 0) {
+    values.push(priceMin);
+    where.push(`effective_price >= $${values.length}`);
+  }
+
+  if (Number.isFinite(priceMax) && priceMax > 0) {
+    values.push(priceMax);
+    where.push(`effective_price <= $${values.length}`);
+  }
+
+  return where.join(" and ");
+}
+
+async function loadProductListFacets(): Promise<ProductListFacets> {
+  const pool = getPgPool();
+  if (!pool) return { categories: [], brands: [] };
+
+  const [categoriesResult, brandsResult] = await Promise.all([
+    pool.query<{ label: string; value: string; count: string }>(`
+      select c.name as label, c.slug as value, count(*)::text as count
+      from products p
+      join categories c on c.id = p.category_id
+      where p.status = 'published' and p._status = 'published'
+      group by c.id, c.name, c.slug
+      order by c.sort_order asc nulls last, c.name asc
+    `),
+    pool.query<{ label: string; value: string; count: string }>(`
+      select b.name as label, b.name as value, count(*)::text as count
+      from products p
+      join brands b on b.id = p.brand_id
+      where p.status = 'published' and p._status = 'published'
+      group by b.id, b.name
+      order by b.name asc
+    `),
+  ]);
+
+  return {
+    categories: categoriesResult.rows.map((row) => ({
+      label: row.label,
+      value: row.value,
+      count: Number(row.count) || 0,
+    })),
+    brands: brandsResult.rows.map((row) => ({
+      label: row.label,
+      value: row.value,
+      count: Number(row.count) || 0,
+    })),
+  };
+}
+
+async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}): Promise<ProductListPageResult> {
+  const safePage = safePositiveInt(params.page, 1, 10000);
+  const safeLimit = safePositiveInt(params.limit, DEFAULT_PRODUCT_LIST_LIMIT, 60);
+  const pool = getPgPool();
+  const localProducts = loadLocalCatalogFixtures();
+
+  if (!pool) {
+    const start = (safePage - 1) * safeLimit;
+    const products = localProducts.slice(start, start + safeLimit);
+    return {
+      products,
+      page: safePage,
+      limit: safeLimit,
+      totalProducts: localProducts.length,
+      totalPages: Math.max(1, Math.ceil(localProducts.length / safeLimit)),
+      facets: { categories: [], brands: [] },
+    };
+  }
+
+  const values: unknown[] = [];
+  const whereSQL = productSearchWhere(params, values);
+  const orderSQL = productSearchOrder(params.sort);
+  const offset = (safePage - 1) * safeLimit;
+  values.push(safeLimit, offset);
+  const limitIndex = values.length - 1;
+  const offsetIndex = values.length;
+
+  try {
+    const [idsResult, facets] = await Promise.all([
+      pool.query<{ id: string | number; total: string }>(
+        `
+          select p.id, count(*) over()::text as total
+          from products p
+          left join categories c on c.id = p.category_id
+          left join brands b on b.id = p.brand_id
+          left join lateral (
+            select coalesce(o.promotion_price, o.price) as effective_price
+            from product_variants v
+            left join product_offers o on o.variant_id = v.id
+            where v.product_id = p.id
+              and (v.is_primary = true or v.status = 'active')
+              and (o.sale_status is null or o.sale_status in ('active', 'contact'))
+            order by v.is_primary desc nulls last, o.updated_at desc nulls last
+            limit 1
+          ) pricing on true
+          where ${whereSQL}
+          order by ${orderSQL}
+          limit $${limitIndex} offset $${offsetIndex}
+        `,
+        values,
+      ),
+      loadProductListFacets(),
+    ]);
+
+    const ids = idsResult.rows.map((row) => row.id);
+    const totalProducts = Number(idsResult.rows[0]?.total) || 0;
+    if (!ids.length) {
+      return {
+        products: [],
+        page: safePage,
+        limit: safeLimit,
+        totalProducts,
+        totalPages: Math.max(1, Math.ceil(totalProducts / safeLimit)),
+        facets,
+      };
+    }
+
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 1,
+      limit: safeLimit,
+      where: { id: { in: ids } },
+    });
+
+    const order = new Map(ids.map((id, index) => [String(id), index]));
+    const docs = (res.docs as unknown as PayloadProductDoc[]).sort(
+      (a, b) => (order.get(String(a.id)) ?? 0) - (order.get(String(b.id)) ?? 0),
+    );
+    const productIDs = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+    const products = docs.map((doc) =>
+      toProductListData(
+        doc,
+        doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+      ),
+    );
+
+    return {
+      products,
+      page: safePage,
+      limit: safeLimit,
+      totalProducts,
+      totalPages: Math.max(1, Math.ceil(totalProducts / safeLimit)),
+      facets,
+    };
+  } catch (error) {
+    handlePayloadReadError("product-search-page", error);
+    const start = (safePage - 1) * safeLimit;
+    const products = localProducts.slice(start, start + safeLimit);
+    return {
+      products,
+      page: safePage,
+      limit: safeLimit,
+      totalProducts: localProducts.length,
+      totalPages: Math.max(1, Math.ceil(localProducts.length / safeLimit)),
+      facets: { categories: [], brands: [] },
+    };
+  }
+}
+
 const getCachedProductListPageFromPayload = unstable_cache(
   (page?: number, limit?: number) => loadProductListPageFromPayload({ page, limit }),
   ["product-list-page"],
+  { revalidate: 300, tags: ["products"] },
+);
+
+const getCachedProductSearchPageFromPayload = unstable_cache(
+  (
+    page?: number,
+    limit?: number,
+    search?: string,
+    category?: string,
+    brand?: string,
+    sort?: ProductSearchParams["sort"],
+    priceMin?: string,
+    priceMax?: string,
+  ) =>
+    loadProductSearchPageFromPayload({
+      page,
+      limit,
+      search,
+      category,
+      brand,
+      sort,
+      priceMin,
+      priceMax,
+    }),
+  ["product-search-page"],
   { revalidate: 300, tags: ["products"] },
 );
 
@@ -1002,6 +1262,28 @@ export async function getProductListPageFromPayload({
   limit?: number;
 } = {}): Promise<ProductListPageResult> {
   return getCachedProductListPageFromPayload(page, limit);
+}
+
+export async function getProductSearchPageFromPayload({
+  page = 1,
+  limit = DEFAULT_PRODUCT_LIST_LIMIT,
+  search = "",
+  category = "",
+  brand = "",
+  sort = "best",
+  priceMin = "",
+  priceMax = "",
+}: ProductSearchParams = {}): Promise<ProductListPageResult> {
+  return getCachedProductSearchPageFromPayload(
+    page,
+    limit,
+    search,
+    category,
+    brand,
+    sort,
+    priceMin,
+    priceMax,
+  );
 }
 
 async function loadRelatedProductsFromPayload({
