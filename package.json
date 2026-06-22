@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/vercel-init-payload-schema.cjs && next build",
+    "build": "node scripts/build-with-heartbeat.cjs",
     "cron:create-news": "tsx scripts/cron-create-news.ts",
     "payload": "payload",
     "payload:audit-catalog": "tsx scripts/audit-catalog-readiness.ts",
