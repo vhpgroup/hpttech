@@ -4,6 +4,7 @@ import { searchProductMultiSource } from "@/lib/scraper/engine";
 import { importBatchProduct } from "@/lib/scraper/batch-importer";
 import { resolveProductTypeCode } from "@/lib/scraper/db-lookup";
 import { discoverSourceCategory } from "@/lib/scraper/engine";
+import { LAPTOP_GAMING_CATEGORY_NAME } from "@/lib/product-category";
 import type { ExcelRow } from "@/lib/scraper/types";
 
 export const runtime = "nodejs";
@@ -41,6 +42,11 @@ function adminUrl(productId: string | number) {
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function importCategoryName(productTypeCode: string, sourceCategoryTitle: string) {
+  if (productTypeCode === "laptop") return LAPTOP_GAMING_CATEGORY_NAME;
+  return sourceCategoryTitle;
 }
 
 /**
@@ -127,7 +133,7 @@ export async function POST(request: Request) {
       // categoryName: use the resolved An Phát category title so resolveTaxonomy
       // can find-or-create the right Category record in Payload.
       const excelRow: ExcelRow = {
-        category: category.title,
+        category: importCategoryName(productTypeCode, category.title),
         name: productName,
         productType,
         rowNumber: skip + index + 1,
