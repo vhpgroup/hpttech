@@ -771,12 +771,16 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
         staffAttributes.length ? staffAttributes : compatibilityAttributes,
       );
       const internalId = text(row, "internalId");
+      const sourceUrl = text(row, "sourceUrl");
       const slug = text(row, "slug") || formatSlug(productName);
-      const existingVariant = await findOne(payload, "product-variants", {
-        sku: { equals: sku },
-      });
+      const hasSourceIdentity = Boolean(internalId || sourceUrl);
+      const existingVariant = hasSourceIdentity
+        ? undefined
+        : await findOne(payload, "product-variants", {
+            sku: { equals: sku },
+          });
       const existingProductFromSKU =
-        existingVariant && relationID(existingVariant.product) !== undefined
+        !hasSourceIdentity && existingVariant && relationID(existingVariant.product) !== undefined
           ? await findOne(payload, "products", {
               id: { equals: relationID(existingVariant.product) },
             })
@@ -787,9 +791,9 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
               internalId: { equals: internalId },
             })
           : undefined) ||
-        (text(row, "sourceUrl")
+        (sourceUrl
           ? await findOne(payload, "products", {
-              "source.url": { equals: text(row, "sourceUrl") },
+              "source.url": { equals: sourceUrl },
             })
           : undefined) ||
         existingProductFromSKU ||
@@ -819,7 +823,7 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
         slug,
         source: {
           type: text(row, "sourceType") || "import",
-          url: text(row, "sourceUrl"),
+          url: sourceUrl,
           verified: false,
         },
         status: "draft",

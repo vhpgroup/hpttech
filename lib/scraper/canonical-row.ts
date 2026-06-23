@@ -152,7 +152,7 @@ export function buildCanonicalImportRow(
     productTypeCode: effectiveProductTypeCode,
     quantity: "0",
     saleStatus: !useCompareAtPrice && price ? "active" : "contact",
-    sku: product.source.url.includes("anphatpc.com.vn")
+    sku: product.source.url.includes("anphatpc.com.vn") && effectiveProductTypeCode !== "laptop"
       ? hptSku(model)
       : sourceVariantSku(product.source.url, product.data.sku),
     sourceType: "scraper",
