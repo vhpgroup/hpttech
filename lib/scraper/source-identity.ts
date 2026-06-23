@@ -36,16 +36,14 @@ export function usableSourceSku(value?: string) {
 
 export function sourceIdentityKey(sourceUrl: string) {
   const normalized = normalizeSourceUrl(sourceUrl);
-  const host = new URL(normalized).hostname.split(".")[0].toUpperCase();
   const hash = createHash("sha1").update(normalized).digest("hex").slice(0, 16).toUpperCase();
-  return `${host}-${hash}`;
+  return `HPT-${hash}`;
 }
 
 export function sourceVariantSku(sourceUrl: string, sourceSku?: string) {
   const sku = usableSourceSku(sourceSku);
   if (sku) {
-    const host = new URL(normalizeSourceUrl(sourceUrl)).hostname.split(".")[0].toUpperCase();
-    return `${host}-${sku.toUpperCase()}`;
+    return `HPT-${sku.toUpperCase()}`;
   }
   return sourceIdentityKey(sourceUrl);
 }
