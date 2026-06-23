@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   BadgeCheck,
+  Building2,
   ChevronUp,
+  FileText,
   Globe2,
   Mail,
   MapPin,
@@ -13,6 +15,9 @@ import { helpLinks } from "@/lib/help-links";
 import { phoneHref } from "@/lib/site-settings";
 
 const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
+const HPT_LEGAL_NAME = "Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT";
+const HPT_TAX_CODE = "0202253444";
+const HPT_PUBLIC_PHONE = "0967286889";
 
 type FooterLink = {
   label: string;
@@ -63,8 +68,10 @@ const footerColumns: FooterColumn[] = [
 ];
 
 export default function Footer({ settings }: { settings: Required<PublicSiteSettings> }) {
-  const phone = settings.hotline || settings.phone;
+  const phone = HPT_PUBLIC_PHONE;
   const contactItems: ContactItem[] = [
+    { label: "Công ty", value: HPT_LEGAL_NAME, icon: Building2 },
+    { label: "Mã số thuế", value: HPT_TAX_CODE, icon: FileText },
     { label: "Địa chỉ", value: "SB04 Vinhomes Marina, phường An Biên, thành phố Hải Phòng.", icon: MapPin },
     { label: "Hotline", value: phone, href: phoneHref(phone), icon: Phone },
     { label: "Email", value: settings.email, href: `mailto:${settings.email}`, icon: Mail },

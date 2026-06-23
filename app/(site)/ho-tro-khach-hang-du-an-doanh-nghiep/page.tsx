@@ -30,7 +30,7 @@ export const revalidate = 300;
 
 const title = "Hỗ trợ khách hàng dự án và doanh nghiệp";
 const companyName = "Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT";
-const hotline = "0918 87 14 14";
+const hotline = "0967286889";
 const email = "bach.pv@hpttech.vn";
 const address = "SB.04 Vinhomes Marina, P. An Biên, TP. Hải Phòng";
 const directionsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;

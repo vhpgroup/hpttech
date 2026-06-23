@@ -49,7 +49,7 @@ const quickBuyItems = [
 const consultantItems = [
   {
     name: "Phạm Văn Bách",
-    phone: "0918 87 14 14",
+    phone: "0967286889",
     email: "bach.pv@hpttech.vn",
     initials: "PB",
     color: "#16A34A",

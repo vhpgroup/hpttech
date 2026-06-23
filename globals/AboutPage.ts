@@ -128,7 +128,7 @@ export const defaultAboutPage = {
     primaryCtaLabel: "Liên hệ tư vấn",
     primaryCtaHref: "/lien-he",
     secondaryCtaLabel: "Gọi ngay",
-    secondaryCtaHref: "tel:0876645432",
+    secondaryCtaHref: "tel:0967286889",
   },
 };
 

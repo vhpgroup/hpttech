@@ -19,7 +19,9 @@ export function normalizeCategoryText(value?: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
+    .replace(/\?+/g, " ")
     .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
 }
@@ -58,7 +60,13 @@ function isPhotocopierCategoryValue(value?: string) {
 }
 
 export function isLaptopGamingCategoryValue(value?: string) {
-  return normalizeCategoryText(value) === "laptop gaming do hoa";
+  const normalized = normalizeCategoryText(value);
+  return (
+    normalized === "laptop gaming do hoa" ||
+    normalized === "laptop gaming h a" ||
+    normalized === "laptop gaming ha" ||
+    (normalized.startsWith("laptop gaming") && /\bdo\s*hoa\b/.test(normalized))
+  );
 }
 
 export function isLaptopCategoryValue(value?: string) {

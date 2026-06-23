@@ -41,7 +41,7 @@ import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 export const revalidate = 300;
 
 const basePath = "/ho-tro-khach-hang-du-an-doanh-nghiep";
-const hotline = "0918 87 14 14";
+const hotline = "0967286889";
 const email = "bach.pv@hpttech.vn";
 
 type PageProps = {

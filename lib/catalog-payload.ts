@@ -12,6 +12,7 @@ import {
   type CanonicalCommercialProjection,
 } from "@/lib/catalog-projection";
 import { HPT_DATA } from "@/lib/data";
+import { canonicalizeCategoryName } from "@/lib/product-category";
 
 type PayloadProductDoc = Record<string, unknown>;
 type PayloadCategoryDoc = Record<string, unknown>;
@@ -305,6 +306,41 @@ function relationName(value: unknown) {
   return typeof value === "string" ? value : undefined;
 }
 
+function relationCategoryName(value: unknown) {
+  const name = relationName(value);
+  return name ? canonicalizeCategoryName(name) : undefined;
+}
+
+function cleanProductDescriptionHTML(html?: string) {
+  if (!html) return undefined;
+  const text = stripHTML(html) || "";
+  const normalized = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/gi, "d")
+    .toLowerCase();
+  const hasStructuredBlocks = /<(h2|h3|ul|ol|li|figure|table)\b/i.test(html);
+  const flattenedSeoHeadings = [
+    "gioi thieu san pham",
+    "diem noi bat",
+    "thiet ke",
+    "thong so ky thuat",
+    "chinh sach ban hang",
+  ].filter((heading) => normalized.includes(heading)).length;
+  const repeatedConnectorMentions =
+    (normalized.match(/usb type-c/g) || []).length +
+    (normalized.match(/thunderbolt/g) || []).length +
+    (normalized.match(/displayport over usb-c/g) || []).length +
+    (normalized.match(/usb charging/g) || []).length;
+  const paragraphCount = (html.match(/<p\b/gi) || []).length;
+
+  if (/NEED_REVIEW/i.test(html)) return undefined;
+  if (!hasStructuredBlocks && flattenedSeoHeadings >= 3) return undefined;
+  if (text.length > 2500 && paragraphCount <= 2) return undefined;
+  if (text.length > 1200 && repeatedConnectorMentions >= 12) return undefined;
+  return html;
+}
+
 function relationCode(value: unknown) {
   if (value && typeof value === "object" && "code" in value && typeof value.code === "string") {
     return value.code;
@@ -569,7 +605,8 @@ function normalizeProduct(
         .filter((image: { url?: string }) => Boolean(image.url))
     : [];
   const id = doc.id;
-  const descriptionHTML = htmlOrTextField(doc, "descriptionHTML", "description");
+  const rawDescriptionHTML = htmlOrTextField(doc, "descriptionHTML", "description");
+  const descriptionHTML = cleanProductDescriptionHTML(rawDescriptionHTML);
 
   return {
     id: typeof id === "string" || typeof id === "number" ? id : undefined,
@@ -580,7 +617,7 @@ function normalizeProduct(
     model: textField(doc, "model"),
     productType: relationCode(doc.productType),
     brand: relationName(doc.brand),
-    category: relationName(doc.category),
+    category: relationCategoryName(doc.category),
     price: displayPrice(commercial?.price, textField(doc, "price")),
     priceValue: commercial?.priceValue,
     compareAtPrice: commercial?.compareAtPrice || textField(doc, "compareAtPrice"),
@@ -598,7 +635,7 @@ function normalizeProduct(
       textField(doc, "shortDescription") ||
       stripHTML(htmlOrTextField(doc, "summaryHTML", "summary")),
     description: descriptionHTML,
-    descriptionRichText: doc.description,
+    descriptionRichText: descriptionHTML ? doc.description : undefined,
     usageGuide: htmlOrTextField(doc, "usageGuideHTML", "usageGuide"),
     usageGuideRichText: doc.usageGuide,
     warranty: commercial?.warranty || textField(doc, "warranty"),
@@ -649,7 +686,7 @@ function toProductCardData(
     model: textField(doc, "model"),
     productType: relationCode(doc.productType),
     brand: relationName(doc.brand),
-    category: relationName(doc.category),
+    category: relationCategoryName(doc.category),
     price: displayPrice(commercial?.price, textField(doc, "price")),
     priceValue: commercial?.priceValue,
     compareAtPrice: commercial?.compareAtPrice || textField(doc, "compareAtPrice"),
@@ -1104,7 +1141,7 @@ async function loadProductListFacets(): Promise<ProductListFacets> {
 
   return {
     categories: categoriesResult.rows.map((row) => ({
-      label: row.label,
+      label: canonicalizeCategoryName(row.label),
       value: row.value,
       count: Number(row.count) || 0,
     })),
@@ -1469,7 +1506,7 @@ async function loadProductBySlugFromPayload(slug: string): Promise<CatalogProduc
     );
     if (typeof id === "string" || typeof id === "number") {
       const raw = await getCachedRawProductHTML(id);
-      product.description = raw.descriptionHTML || product.description;
+      product.description = cleanProductDescriptionHTML(raw.descriptionHTML) || product.description;
       product.detail =
         raw.shortDescription ||
         stripHTML(raw.summaryHTML) ||

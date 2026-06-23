@@ -25,7 +25,7 @@ import { analyzeAISearchQuestion, filterAISearchProducts } from "@/lib/ai-search
 const CONTACT = {
   phone: "0918 871 414",
   email: "lienhe@hpttech.vn",
-  zaloHref: "https://zalo.me/0918871414",
+  zaloHref: "https://zalo.me/0967286889",
 };
 
 export default function AISearchPage() {

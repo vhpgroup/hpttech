@@ -1009,7 +1009,7 @@ export const getSiteSettingsFromPayload = unstable_cache(
 async function loadAboutPageFromPayload(): Promise<PublicAboutPage> {
   try {
     const payload = await getPayloadClient();
-    const page = (await payload.findGlobal({ slug: "about-page", depth: 2 })) as PayloadDoc;
+    const page = (await payload.findGlobal({ slug: "about-page", depth: 1 })) as PayloadDoc;
     return normalizeAboutPage(page);
   } catch (error) {
     handlePayloadReadError("about-page", error);

@@ -795,7 +795,7 @@ function sampleRecord(profile: ProductExportProfile): CsvRecord {
       brandSlug: "asus",
       brandName: "ASUS",
       categorySlug: "laptop-gaming-do-hoa",
-      categoryName: "Laptop Gaming - Do Hoa",
+      categoryName: "Laptop Gaming - Đồ Họa",
       specProfile: "laptop",
       status: "published",
       stockStatus: "in_stock",

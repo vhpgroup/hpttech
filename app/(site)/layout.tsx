@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "../globals.css";
 import { Geist, Inter } from "next/font/google";
 import DesktopStage, { DesktopStageScript } from "@/components/layout/DesktopStage";
@@ -35,6 +36,9 @@ export const metadata: Metadata = {
     shortcut: "/assets/logo/hptlogo.png",
     apple: "/assets/logo/hptlogo.png",
   },
+  verification: {
+    google: "uSw_FL3iLj0w-MjCqh8DQI1aPEKi6g0ozC-KgHFxUls",
+  },
   ...pageMetadata({
     title: "HPT Tech - Thiết bị văn phòng & giải pháp số hóa",
     description:
@@ -48,10 +52,27 @@ export default async function SiteLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSiteSettingsFromPayload().then(normalizeSiteSettings);
+  const googleAnalyticsId = settings.googleAnalyticsId.trim();
 
   return (
     <html lang="vi" suppressHydrationWarning>
       <body>
+        {googleAnalyticsId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${googleAnalyticsId}');
+              `}
+            </Script>
+          </>
+        ) : null}
         <div
           className={`${inter.variable} ${geist.variable} site-shell`}
           style={{ "--desktop-scale": "1" } as React.CSSProperties}

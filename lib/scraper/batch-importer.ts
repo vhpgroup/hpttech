@@ -256,7 +256,9 @@ export async function importBatchProduct(
       : buildProductSeoArticleHTML(displayProduct, articleImages));
   const descriptionText =
     effectiveProductTypeCode === "laptop"
-      ? cleanText(descriptionHTML)
+      ? sourceDescriptionHTML
+        ? cleanText(sourceDescriptionHTML)
+        : summaryText
       : sourceDescriptionHTML
         ? cleanText(sourceDescriptionHTML)
         : product.generated.description || product.data.description || "";

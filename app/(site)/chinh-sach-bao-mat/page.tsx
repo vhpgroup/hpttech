@@ -12,7 +12,7 @@ export const metadata = pageMetadata({
   path: "/chinh-sach-bao-mat",
 });
 
-const hotline = "0918 87 14 14";
+const hotline = "0967286889";
 const email = "bach.pv@hpttech.vn";
 const address = "SB.04 Vinhomes Marina, P. An Biên, TP. Hải Phòng";
 

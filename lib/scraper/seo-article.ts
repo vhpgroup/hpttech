@@ -211,7 +211,7 @@ function specsHTML(specs: ProductSpec[], kind: ProductKind) {
 }
 
 function imageHTML(image?: UploadedImage, alt?: string) {
-  if (!image?.url) return `<p>NEED_REVIEW_BLOCKING: product_image</p>`;
+  if (!image?.url) return "";
   return `<figure class="hpt-product-article-image"><img src="${escapeHTML(image.url)}" alt="${escapeHTML(alt || "Ảnh sản phẩm")}" loading="lazy" /></figure>`;
 }
 

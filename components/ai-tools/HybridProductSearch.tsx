@@ -438,7 +438,7 @@ export default function HybridProductSearch() {
                   <MessageCircle size={15} />
                   Chat Zalo với chuyên viên
                 </Link>
-                <a className="inline-flex h-9 items-center justify-center rounded bg-blue-700 text-xs font-bold text-white hover:bg-blue-800" href="tel:0918871414">
+                <a className="inline-flex h-9 items-center justify-center rounded bg-blue-700 text-xs font-bold text-white hover:bg-blue-800" href="tel:0967286889">
                   Gọi ngay: 0918 871 414
                 </a>
               </div>
