@@ -11,6 +11,7 @@ import { generateSeo } from "./seo-generator";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
 import {
   buildProductSeoArticleHTML,
+  buildProductSeoArticleHTMLWithOptions,
   summaryHTML,
   updateProductSeoHTML,
 } from "./seo-article";
@@ -69,6 +70,10 @@ function scraperPriceTarget() {
 
 function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
   return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
+}
+
+function shouldPublishSourceDescriptionHTML(productTypeCode: string) {
+  return productTypeCode !== "laptop";
 }
 
 async function upsertAIMetadata(
@@ -193,11 +198,11 @@ export async function importBatchProduct(
 
   const sourceUrls = product.source.urls || [product.source.url];
   const manualSpecs = normalizedSpecs.specs;
-  const sourceDescriptionHTML = product.data.descriptionHTML?.trim();
-  const descriptionText = sourceDescriptionHTML
-    ? cleanText(sourceDescriptionHTML)
-    : product.generated.description || product.data.description || "";
+  const sourceDescriptionHTML = shouldPublishSourceDescriptionHTML(effectiveProductTypeCode)
+    ? product.data.descriptionHTML?.trim()
+    : "";
   const summaryText = productShortDescription(displayProduct.data.title, displayProduct.data.specs);
+  const sellingPointLimit = effectiveProductTypeCode === "laptop" ? 20 : 8;
   const sellingPoints =
     effectiveProductTypeCode === "software"
       ? (product.data.sellingPoints?.length
@@ -207,13 +212,13 @@ export async function importBatchProduct(
             )
         )
           .filter((text) => text.length >= 5 && text.length <= 700)
-          .slice(0, 8)
+          .slice(0, sellingPointLimit)
       : (product.data.sellingPoints?.length
           ? product.data.sellingPoints
           : productSellingPoints(product.data.description, normalizedSpecs.specs)
         )
           .filter((text) => text.length >= 5 && text.length <= 700)
-          .slice(0, 8);
+          .slice(0, sellingPointLimit);
   const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
   const priceValue = vndPriceNumber(product.data.price);
   const compareAtPriceValue = vndPriceNumber(product.data.compareAtPrice);
@@ -241,7 +246,20 @@ export async function importBatchProduct(
     ? imageReport.images
     : existingImages;
   const imageWarning = imageReport.warnings.join(" | ");
-  const descriptionHTML = sourceDescriptionHTML || buildProductSeoArticleHTML(displayProduct, articleImages);
+  const descriptionHTML =
+    sourceDescriptionHTML ||
+    (effectiveProductTypeCode === "laptop"
+      ? buildProductSeoArticleHTMLWithOptions(displayProduct, articleImages, {
+          compact: true,
+          includeMainImage: true,
+        })
+      : buildProductSeoArticleHTML(displayProduct, articleImages));
+  const descriptionText =
+    effectiveProductTypeCode === "laptop"
+      ? cleanText(descriptionHTML)
+      : sourceDescriptionHTML
+        ? cleanText(sourceDescriptionHTML)
+        : product.generated.description || product.data.description || "";
   const publicationGate = evaluatePublicationGate({
     articleHTML: descriptionHTML,
     imageCount: articleImages.length,
@@ -257,8 +275,10 @@ export async function importBatchProduct(
       ? { scannerSpecs: normalizedSpecs.scannerSpecs }
       : effectiveProductTypeCode === "printer"
         ? { printerSpecs: normalizedSpecs.printerSpecs }
-        : effectiveProductTypeCode === "photocopier"
-          ? { photocopierSpecs: normalizedSpecs.photocopierSpecs }
+      : effectiveProductTypeCode === "photocopier"
+        ? { photocopierSpecs: normalizedSpecs.photocopierSpecs }
+        : effectiveProductTypeCode === "laptop"
+          ? { laptopSpecs: normalizedSpecs.laptopSpecs }
           : {};
   const updated = await payload.update({
     collection: "products",

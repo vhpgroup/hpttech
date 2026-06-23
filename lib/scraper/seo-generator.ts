@@ -12,12 +12,16 @@ function normalize(value: string) {
 
 function inferProductKind(title: string, specsText = "") {
   const lower = normalize(`${title} ${specsText}`);
+  const isSoftware = /\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(lower);
+  const isLaptopLike = /\b(laptop|notebook|rtx|geforce|radeon|gpu)\b/.test(lower);
   if (/\b(photocopy|copier|may photo|may photocopy|copy)\b/.test(lower)) return "Máy photocopy";
   if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(lower)) return "Máy scan";
   if (/\b(may in|printer|muc in|toner|cartridge)\b/.test(lower)) return "Máy in";
+  if (isSoftware && !isLaptopLike) return SOFTWARE_CATEGORY_NAME;
+  if (/\b(laptop|notebook|pc|server|workstation|cpu|ram|ssd|rtx|geforce|radeon)\b/.test(lower)) return "Laptop";
   if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(lower)) return "Camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(lower)) return "Thiết bị mạng";
-  if (/\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(lower)) return SOFTWARE_CATEGORY_NAME;
+  if (isSoftware) return SOFTWARE_CATEGORY_NAME;
   if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(lower)) return "Thiết bị máy tính";
   return "Sản phẩm";
 }

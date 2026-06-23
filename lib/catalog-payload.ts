@@ -1045,13 +1045,14 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
       or lower(coalesce(p.sku, '')) like $${idx}
       or lower(coalesce(p.model, '')) like $${idx}
       or lower(coalesce(c.name, '')) like $${idx}
+      or lower(coalesce(pc.name, '')) like $${idx}
       or lower(coalesce(b.name, '')) like $${idx}
     )`);
   }
 
   if (category) {
     values.push(category);
-    where.push(`c.slug = $${values.length}`);
+    where.push(`(c.slug = $${values.length} or pc.slug = $${values.length})`);
   }
 
   if (brand) {
@@ -1079,12 +1080,17 @@ async function loadProductListFacets(): Promise<ProductListFacets> {
 
   const [categoriesResult, brandsResult] = await Promise.all([
     pool.query<{ label: string; value: string; count: string }>(`
-      select c.name as label, c.slug as value, count(*)::text as count
+      select
+        coalesce(pc.name, c.name) as label,
+        coalesce(pc.slug, c.slug) as value,
+        count(*)::text as count,
+        min(coalesce(pc.sort_order, c.sort_order)) as sort_order
       from products p
       join categories c on c.id = p.category_id
+      left join categories pc on pc.id = c.parent_id
       where p.status = 'published' and p._status = 'published'
-      group by c.id, c.name, c.slug
-      order by c.sort_order asc nulls last, c.name asc
+      group by coalesce(pc.name, c.name), coalesce(pc.slug, c.slug)
+      order by min(coalesce(pc.sort_order, c.sort_order)) asc nulls last, coalesce(pc.name, c.name) asc
     `),
     pool.query<{ label: string; value: string; count: string }>(`
       select b.name as label, b.name as value, count(*)::text as count
@@ -1144,6 +1150,7 @@ async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}
           select p.id, count(*) over()::text as total
           from products p
           left join categories c on c.id = p.category_id
+          left join categories pc on pc.id = c.parent_id
           left join brands b on b.id = p.brand_id
           left join lateral (
             select coalesce(o.promotion_price, o.price) as effective_price

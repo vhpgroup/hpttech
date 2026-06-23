@@ -14,6 +14,7 @@ export function inferScrapedProductType(product: ScrapedProduct) {
     [
       product.data.title,
       product.data.description || "",
+      product.source.url,
       ...product.data.specs.map((spec) => `${spec.label} ${spec.value}`),
     ].join(" "),
   );
@@ -24,6 +25,9 @@ export function inferScrapedProductType(product: ScrapedProduct) {
     return "printer";
   }
   if (/\b(may scan|scanner|scan speed|adf|ocr)\b/.test(text)) return "scanner";
+  if (/\b(laptop|notebook|rtx|geforce|intel core|amd ryzen|ssd|ddr|wuxga)\b/.test(text)) {
+    return "laptop";
+  }
   if (/\b(camera|ptz|cmos|nvr|dau ghi|hong ngoai)\b/.test(text)) return "camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|ethernet|card mang|thiet bi mang|bo phat|chia mang|can bang tai|load balancer)\b/.test(text)) {
     return "networking";

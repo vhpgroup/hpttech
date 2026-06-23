@@ -33,6 +33,13 @@ export function commonProductTypeCode(value: string) {
     return "software";
   }
   if (
+    normalized.includes("laptop") ||
+    normalized.includes("notebook") ||
+    normalized.includes("may tinh xach tay")
+  ) {
+    return "laptop";
+  }
+  if (
     normalized.includes("camera") ||
     normalized.includes("dau ghi") ||
     normalized.includes("nvr") ||

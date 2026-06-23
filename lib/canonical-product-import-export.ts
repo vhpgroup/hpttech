@@ -127,6 +127,16 @@ const SPEC_COLUMNS: SpecColumn[] = [
   { profile: "photocopier", code: "photocopier_max_paper_size", label: "Khổ giấy tối đa photocopy", dataType: "enum", example: "A3" },
   { profile: "photocopier", code: "photocopier_connectivity", label: "Kết nối photocopy", dataType: "enum_list", example: "LAN, USB" },
   { profile: "photocopier", code: "photocopier_monthly_duty", label: "Công suất photocopy/tháng", dataType: "number", example: "100000" },
+  { profile: "laptop", code: "laptop_cpu", label: "CPU laptop", dataType: "text", example: "Intel Core 7 240H" },
+  { profile: "laptop", code: "laptop_gpu", label: "GPU laptop", dataType: "text", example: "NVIDIA GeForce RTX 5060 8GB" },
+  { profile: "laptop", code: "laptop_ram_gb", label: "RAM laptop (GB)", dataType: "number", example: "16" },
+  { profile: "laptop", code: "laptop_storage", label: "Lưu trữ laptop", dataType: "text", example: "1TB SSD NVMe" },
+  { profile: "laptop", code: "laptop_screen_size_inch", label: "Màn hình laptop (inch)", dataType: "number", example: "16" },
+  { profile: "laptop", code: "laptop_screen_resolution", label: "Độ phân giải màn hình laptop", dataType: "text", example: "WUXGA 1920 x 1200" },
+  { profile: "laptop", code: "laptop_refresh_rate_hz", label: "Tần số quét laptop (Hz)", dataType: "number", example: "144" },
+  { profile: "laptop", code: "laptop_panel", label: "Tấm nền laptop", dataType: "text", example: "IPS" },
+  { profile: "laptop", code: "laptop_os", label: "Hệ điều hành laptop", dataType: "text", example: "Windows 11" },
+  { profile: "laptop", code: "laptop_weight_kg", label: "Trọng lượng laptop (kg)", dataType: "number", example: "2.2" },
 ];
 
 const COLUMN_BY_LABEL = new Map(
@@ -285,7 +295,7 @@ function columnHelp(column: string) {
     return "Nhập theo giá trị gợi ý";
   }
   const hints: Record<string, string> = {
-    productTypeCode: "scanner / printer / photocopier / software",
+    productTypeCode: "scanner / printer / photocopier / laptop / software",
     productStatus: "draft / published / archived",
     sourceType: "import / manual / scraper / api",
     isPrimary: "Có / Không",
@@ -308,7 +318,7 @@ function dropdownOptions(column: string) {
     return undefined;
   }
   const options: Record<string, string[]> = {
-    productTypeCode: ["scanner", "printer", "photocopier", "software"],
+    productTypeCode: ["scanner", "printer", "photocopier", "laptop", "software"],
     productStatus: ["draft", "published", "archived"],
     sourceType: ["import", "manual", "scraper", "api"],
     isPrimary: ["Có", "Không"],

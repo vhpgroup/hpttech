@@ -8,6 +8,10 @@ export const SCANNER_CATEGORY_NAME = "Máy scan";
 export const SCANNER_CATEGORY_SLUG = "may-scan";
 export const PHOTOCOPIER_CATEGORY_NAME = "Máy photocopy";
 export const PHOTOCOPIER_CATEGORY_SLUG = "may-photocopy";
+export const LAPTOP_CATEGORY_NAME = "Laptop";
+export const LAPTOP_CATEGORY_SLUG = "laptop";
+export const LAPTOP_GAMING_CATEGORY_NAME = "Laptop Gaming - Đồ Họa";
+export const LAPTOP_GAMING_CATEGORY_SLUG = "laptop-gaming-do-hoa";
 
 export function normalizeCategoryText(value?: string) {
   return (value || "")
@@ -53,11 +57,28 @@ function isPhotocopierCategoryValue(value?: string) {
   );
 }
 
+export function isLaptopGamingCategoryValue(value?: string) {
+  return normalizeCategoryText(value) === "laptop gaming do hoa";
+}
+
+export function isLaptopCategoryValue(value?: string) {
+  const normalized = normalizeCategoryText(value);
+  return (
+    normalized === "laptop" ||
+    normalized === "notebook" ||
+    normalized === "may tinh xach tay" ||
+    normalized === "laptop gaming" ||
+    isLaptopGamingCategoryValue(value)
+  );
+}
+
 export function canonicalizeCategoryName(value?: string) {
   if (isSoftwareCategoryValue(value)) return SOFTWARE_CATEGORY_NAME;
   if (isPrinterCategoryValue(value)) return PRINTER_CATEGORY_NAME;
   if (isScannerCategoryValue(value)) return SCANNER_CATEGORY_NAME;
   if (isPhotocopierCategoryValue(value)) return PHOTOCOPIER_CATEGORY_NAME;
+  if (isLaptopGamingCategoryValue(value)) return LAPTOP_GAMING_CATEGORY_NAME;
+  if (isLaptopCategoryValue(value)) return LAPTOP_CATEGORY_NAME;
   return (value || "").trim();
 }
 
@@ -73,6 +94,12 @@ export function canonicalizeCategorySlug(slug?: string, name?: string) {
   }
   if (isPhotocopierCategoryValue(slug) || isPhotocopierCategoryValue(name)) {
     return PHOTOCOPIER_CATEGORY_SLUG;
+  }
+  if (isLaptopGamingCategoryValue(slug) || isLaptopGamingCategoryValue(name)) {
+    return LAPTOP_GAMING_CATEGORY_SLUG;
+  }
+  if (isLaptopCategoryValue(slug) || isLaptopCategoryValue(name)) {
+    return LAPTOP_CATEGORY_SLUG;
   }
 
   const cleanedSlug = (slug || "").trim();

@@ -23,6 +23,7 @@ const specProfileOptions = [
   { label: "Máy scan", value: "scanner" },
   { label: "Máy in", value: "printer" },
   { label: "Photocopy", value: "photocopier" },
+  { label: "Laptop", value: "laptop" },
   { label: "Thiết bị mạng", value: "networking" },
   { label: "Camera", value: "camera" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
@@ -212,9 +213,11 @@ const validateCanonicalProduct: CollectionBeforeChangeHook = async ({
     product.specProfile === "scanner" ||
     product.specProfile === "printer" ||
     product.specProfile === "photocopier" ||
+    product.specProfile === "laptop" ||
     specProfileFromCategory(product.category) === "scanner" ||
     specProfileFromCategory(product.category) === "printer" ||
-    specProfileFromCategory(product.category) === "photocopier";
+    specProfileFromCategory(product.category) === "photocopier" ||
+    specProfileFromCategory(product.category) === "laptop";
   if (flexibleSpecProfile) {
     return data;
   }
@@ -272,10 +275,11 @@ function specProfileFromCategory(category: unknown) {
   if (text.includes("scan")) return "scanner";
   if (text.includes("photo") || text.includes("copy")) return "photocopier";
   if (text.includes("may in") || text.includes("printer")) return "printer";
+  if (text.includes("laptop") || text.includes("notebook")) return "laptop";
   return undefined;
 }
 
-function specCondition(profile: "scanner" | "printer" | "photocopier") {
+function specCondition(profile: "scanner" | "printer" | "photocopier" | "laptop") {
   return (data: ProductFormData = {}, siblingData: ProductFormData = {}) => {
     const categoryProfile = specProfileFromCategory(data.category ?? siblingData.category);
     return categoryProfile ? categoryProfile === profile : siblingData?.specProfile === profile;
@@ -522,6 +526,49 @@ const photocopierSpecsField: Field = {
     hiddenNumberSpec("adfSheets"),
     hiddenNumberSpec("standardPaperTraySheets"),
     hiddenNumberSpec("maxPaperTraySheets"),
+  ],
+};
+
+const laptopSpecsField: Field = {
+  name: "laptopSpecs",
+  label: "Bộ thông số Laptop",
+  type: "group",
+  admin: {
+    condition: specCondition("laptop"),
+    description:
+      "Các trường chuẩn hóa để lọc nhanh laptop. Raw specs từ nguồn vẫn được lưu đầy đủ ở bảng thông số kỹ thuật.",
+  },
+  fields: [
+    row([
+      textSpec("cpu", "CPU", "50%", "Ví dụ: Intel Core 7 240H."),
+      textSpec("gpu", "GPU", "50%", "Ví dụ: NVIDIA GeForce RTX 5060 8GB."),
+    ]),
+    row([
+      textSpec("ram", "RAM", "50%", "Ví dụ: 16GB DDR5."),
+      textSpec("storage", "Lưu trữ", "50%", "Ví dụ: 1TB SSD NVMe."),
+    ]),
+    row([
+      textSpec("screen", "Màn hình", "50%", "Ví dụ: 16 inch WUXGA 144Hz."),
+      textSpec("screenResolution", "Độ phân giải", "50%", "Ví dụ: WUXGA, 1920 x 1200."),
+    ]),
+    row([
+      numberSpec("screenSizeInch", "Kích thước màn hình", "50%", "Đơn vị inch, ví dụ: 16."),
+      numberSpec("refreshRateHz", "Tần số quét", "50%", "Đơn vị Hz, ví dụ: 144."),
+    ]),
+    row([
+      textSpec("panel", "Tấm nền", "50%", "Ví dụ: IPS, OLED."),
+      textSpec("os", "Hệ điều hành", "50%", "Ví dụ: Windows 11."),
+    ]),
+    row([
+      textSpec("connectivity", "Kết nối / cổng", "50%", "Ví dụ: WiFi, Bluetooth, USB-C, HDMI."),
+      textSpec("battery", "Pin", "50%"),
+    ]),
+    row([
+      textSpec("dimensions", "Kích thước", "50%"),
+      textSpec("weight", "Trọng lượng", "50%"),
+    ]),
+    hiddenNumberSpec("ramGb"),
+    hiddenNumberSpec("storageGb"),
   ],
 };
 
@@ -1127,6 +1174,7 @@ export const Products: CollectionConfig = {
             scannerSpecsField,
             printerSpecsField,
             photocopierSpecsField,
+            laptopSpecsField,
             {
               name: "specs",
               label: "Thông số kỹ thuật từ nguồn",

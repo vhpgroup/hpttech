@@ -1,39 +1,42 @@
 import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
 
-export const CATALOG_ADMIN_GROUP = "Catalog chuẩn";
+export const CATALOG_ADMIN_GROUP = "Catalog chuan";
 
 export const PRODUCT_TYPE_OPTIONS = [
-  { label: "Máy scan", value: "scanner" },
-  { label: "Máy in", value: "printer" },
-  { label: "Máy photocopy", value: "photocopier" },
+  { label: "May scan", value: "scanner" },
+  { label: "May in", value: "printer" },
+  { label: "May photocopy", value: "photocopier" },
+  { label: "Laptop", value: "laptop" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
-  { label: "Khác", value: "other" },
+  { label: "Khac", value: "other" },
 ] as const;
 
 export const ATTRIBUTE_DATA_TYPE_OPTIONS = [
-  { label: "Số", value: "number" },
-  { label: "Văn bản", value: "text" },
-  { label: "Có / Không", value: "boolean" },
-  { label: "Một lựa chọn", value: "enum" },
-  { label: "Nhiều lựa chọn", value: "enum_list" },
+  { label: "So", value: "number" },
+  { label: "Van ban", value: "text" },
+  { label: "Co / Khong", value: "boolean" },
+  { label: "Mot lua chon", value: "enum" },
+  { label: "Nhieu lua chon", value: "enum_list" },
 ] as const;
 
 export const ATTRIBUTE_UNIT_OPTIONS = [
-  { label: "Không có đơn vị", value: "none" },
-  { label: "Trang/phút (ppm)", value: "ppm" },
-  { label: "Ảnh/phút (ipm)", value: "ipm" },
-  { label: "Bản/phút (cpm)", value: "cpm" },
-  { label: "Tờ", value: "sheets" },
-  { label: "Trang/ngày", value: "pages_per_day" },
-  { label: "Trang/tháng", value: "pages_per_month" },
+  { label: "Khong co don vi", value: "none" },
+  { label: "Trang/phut (ppm)", value: "ppm" },
+  { label: "Anh/phut (ipm)", value: "ipm" },
+  { label: "Ban/phut (cpm)", value: "cpm" },
+  { label: "To", value: "sheets" },
+  { label: "Trang/ngay", value: "pages_per_day" },
+  { label: "Trang/thang", value: "pages_per_month" },
   { label: "dpi", value: "dpi" },
   { label: "Millimet", value: "mm" },
+  { label: "Inch", value: "inch" },
+  { label: "Hertz", value: "hz" },
   { label: "Kilogram", value: "kg" },
   { label: "Megabyte", value: "mb" },
   { label: "Gigabyte", value: "gb" },
   { label: "Watt", value: "w" },
   { label: "Volt", value: "v" },
-  { label: "Phần trăm", value: "percent" },
+  { label: "Phan tram", value: "percent" },
 ] as const;
 
 export const CURRENCY_OPTIONS = [
@@ -42,9 +45,9 @@ export const CURRENCY_OPTIONS = [
 ] as const;
 
 export const PRODUCT_STATUS_OPTIONS = [
-  { label: "Bản nháp", value: "draft" },
-  { label: "Đã xuất bản", value: "published" },
-  { label: "Lưu trữ", value: "archived" },
+  { label: "Ban nhap", value: "draft" },
+  { label: "Da xuat ban", value: "published" },
+  { label: "Luu tru", value: "archived" },
 ] as const;
 
 export type AttributeDataType =
@@ -63,9 +66,11 @@ export function normalizeCatalogCode(value: string) {
 }
 
 export function validateCatalogCode(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) return "Mã không được để trống.";
+  if (typeof value !== "string" || !value.trim()) {
+    return "Ma khong duoc de trong.";
+  }
   if (!/^[a-z][a-z0-9_]*$/.test(value)) {
-    return "Mã chỉ gồm chữ thường, số và dấu gạch dưới; phải bắt đầu bằng chữ.";
+    return "Ma chi gom chu thuong, so va dau gach duoi; phai bat dau bang chu.";
   }
   return true;
 }

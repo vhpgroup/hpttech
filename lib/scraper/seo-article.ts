@@ -63,13 +63,16 @@ function wordCount(value: string) {
 
 function inferProductKind(title: string, specs: ProductSpec[]): ProductKind {
   const text = normalize(`${title} ${specs.map((spec) => `${spec.label} ${spec.value}`).join(" ")}`);
+  const isSoftware = /\b(phan mem|software|license|ban quyen|office|microsoft|windows|copilot|acrobat|kaspersky|bullguard|antivirus|chatgpt)\b/.test(text);
+  const isLaptopLike = /\b(laptop|notebook|rtx|geforce|radeon|gpu)\b/.test(text);
   if (/\b(photocopy|copier|may photo|may photocopy|copy)\b/.test(text)) return "photocopier";
   if (/\b(scan|scanner|may quet|adf|ocr|duplex scan)\b/.test(text)) return "scanner";
   if (/\b(may in|printer|muc in|cartridge|toner|drum)\b/.test(text)) return "printer";
+  if (isSoftware && !isLaptopLike) return "software";
+  if (/\b(laptop|notebook|pc|may tinh|server|workstation|cpu|ram|ssd|rtx|geforce|radeon)\b/.test(text)) return "computer";
   if (/\b(camera|ip camera|dau ghi|nvr|cctv|hong ngoai)\b/.test(text)) return "camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|mang lan|ethernet)\b/.test(text)) return "network";
-  if (/\b(phan mem|software|license|ban quyen|office|microsoft|windows|copilot|acrobat|kaspersky|bullguard|antivirus|chatgpt)\b/.test(text)) return "software";
-  if (/\b(laptop|pc|may tinh|server|workstation|cpu|ram|ssd)\b/.test(text)) return "computer";
+  if (isSoftware) return "software";
   if (/\b(cap|cable|adapter|phu kien|pin|sac)\b/.test(text)) return "accessory";
   return "office";
 }
@@ -99,6 +102,8 @@ function productNoun(kind: ProductKind) {
 
 function productDisplayName(title: string) {
   const cleaned = cleanText(title).replace(/[.!?]+$/, "");
+  const withoutTrailingSpecs = cleaned.replace(/\s*\([^)]{24,}\)\s*$/, "").trim();
+  if (withoutTrailingSpecs.length >= 8) return withoutTrailingSpecs;
   const [beforeDash] = cleaned.split(/\s+[–-]\s+/);
   if (beforeDash && beforeDash.length >= 8 && beforeDash.length <= 80) {
     return beforeDash.trim();
@@ -463,16 +468,45 @@ function ensureArticleLength(html: string, title: string) {
 }
 
 export function buildProductSeoArticleHTML(product: ScrapedProduct, images: UploadedImage[]) {
+  return buildProductSeoArticleHTMLWithOptions(product, images);
+}
+
+export function buildProductSeoArticleHTMLWithOptions(
+  product: ScrapedProduct,
+  images: UploadedImage[],
+  options: { compact?: boolean; includeMainImage?: boolean } = {},
+) {
   const title = productDisplayName(product.data.title);
   const specs = product.data.specs;
   const kind = inferProductKind(title, specs);
   const shortDescription = productShortDescription(title, specs);
   const mainImage = images[0];
   const intro = introParagraphs(title, kind, shortDescription, specs);
+  if (options.compact) {
+    const compactHTML = `<div class="payload-richtext" data-content-rule="hpt-product-seo-v1.3-compact">
+<h2>Giới thiệu sản phẩm</h2>
+${paragraphHTML(intro)}
+${options.includeMainImage === false ? "" : imageHTML(mainImage, title)}
+<h2>Điểm nổi bật</h2>
+${htmlList(highlights(product, kind))}
+<h2>Thiết kế, tính năng và hiệu năng</h2>
+${paragraphHTML(designParagraphs(title, kind, specs))}
+<h2>${escapeHTML(usageTitle(kind))}</h2>
+${paragraphHTML(practicalParagraphs(title, kind, specs))}
+<h2>Kết nối, phần mềm và khả năng mở rộng</h2>
+<p>${escapeHTML(integrationParagraph(title, kind, specs))}</p>
+<h2>Thông số kỹ thuật đáng chú ý</h2>
+${specsHTML(specs, kind)}
+<h2>Chính sách bán hàng tại HPT Tech</h2>
+<p>${escapeHTML(hptPolicy(title))}</p>
+</div>`;
+
+    return ensureArticleLength(stripBannedWords(compactHTML), title);
+  }
   const descriptionHTML = `<div class="payload-richtext" data-content-rule="hpt-product-seo-v1.3">
 <h2>Giới thiệu sản phẩm</h2>
 ${paragraphHTML(intro)}
-${imageHTML(mainImage, title)}
+${options.includeMainImage === false ? "" : imageHTML(mainImage, title)}
 <h2>Đặc điểm nổi bật</h2>
 ${htmlList(highlights(product, kind))}
 <h2>Thiết kế, tính năng và hiệu năng</h2>

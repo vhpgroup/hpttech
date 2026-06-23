@@ -15,6 +15,10 @@ export type ImageImportReport = {
   warnings: string[];
 };
 
+type ImageImportOptions = {
+  maxImages?: number;
+};
+
 const imageMimeExtensions: Record<string, string> = {
   "image/avif": ".avif",
   "image/gif": ".gif",
@@ -110,6 +114,9 @@ async function downloadImage(image: ScrapedImage) {
 function uploadedMediaURL(created: Record<string, unknown>, fallback: string) {
   const filename =
     typeof created.filename === "string" ? created.filename : undefined;
+  if (filename && process.env.NODE_ENV !== "production") {
+    return `/api/media/file/${encodeURIComponent(filename)}`;
+  }
   if (filename && process.env.R2_BUCKET && process.env.R2_ENDPOINT) {
     const publicBase =
       process.env.R2_PUBLIC_URL ||
@@ -124,9 +131,10 @@ function uploadedMediaURL(created: Record<string, unknown>, fallback: string) {
 
 export async function importScrapedImagesWithReport(
   product: ScrapedProduct,
+  options: ImageImportOptions = {},
 ): Promise<ImageImportReport> {
   const payload = await getPayloadClient();
-  const maxImages = Number(process.env.SCRAPER_IMPORT_MAX_IMAGES || 1);
+  const maxImages = options.maxImages ?? Number(process.env.SCRAPER_IMPORT_MAX_IMAGES || 1);
   const seen = new Set<string>();
   const images = (product.images || [])
     .filter((image) => {

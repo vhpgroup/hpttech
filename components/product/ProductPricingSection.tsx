@@ -1,6 +1,7 @@
-import { CheckCircle2, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import { ProductCompareInlineButton } from "@/components/product/ProductCompareButton";
+import { ProductSellingPoints } from "@/components/product/ProductSellingPoints";
 import ProductPromotionsPanel from "@/components/product/ProductPromotionsPanel";
 import QuoteButton from "@/components/quote/QuoteButton";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +15,21 @@ type ProductPricingSectionProps = {
 };
 
 function pickSellingSpecs(product: CatalogProduct) {
+  const crawledSellingPoints = product.sellingPoints
+    ?.map((point) => point.trim())
+    .filter(Boolean)
+    .map((point) => {
+      const separatorIndex = point.indexOf(":");
+      if (separatorIndex <= 0) return { value: point };
+
+      return {
+        label: point.slice(0, separatorIndex).trim(),
+        value: point.slice(separatorIndex + 1).trim(),
+      };
+    });
+
+  if (crawledSellingPoints?.length) return crawledSellingPoints;
+
   const specs = product.specs ?? [];
   const preferred = ["chức năng", "độ phân giải", "tốc độ", "kết nối"];
   const selected = preferred
@@ -82,19 +98,7 @@ export default function ProductPricingSection({
       </div>
 
       <div className="px-5 py-4 sm:px-6">
-        <div className="space-y-2">
-          {sellingSpecs.map((spec) => (
-            <div
-              key={`${spec.label}-${spec.value}`}
-              className="flex gap-2 text-sm leading-6 text-slate-700"
-            >
-              <CheckCircle2 size={17} className="mt-1 shrink-0 fill-orange-500 text-white" />
-              <span>
-                {spec.label}: <strong className="font-semibold text-slate-950">{spec.value}</strong>
-              </span>
-            </div>
-          ))}
-        </div>
+        <ProductSellingPoints items={sellingSpecs} />
       </div>
 
       <div className="bg-slate-100 px-5 py-5 sm:px-6">

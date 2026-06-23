@@ -10,6 +10,7 @@ type TypedSpecs = Record<string, boolean | number | string>;
 
 export type NormalizedScrapedSpecs = {
   attributes: CanonicalAttribute[];
+  laptopSpecs?: TypedSpecs;
   photocopierSpecs?: TypedSpecs;
   printerSpecs?: TypedSpecs;
   scannerSpecs?: TypedSpecs;
@@ -629,6 +630,173 @@ function derivePhotocopierSpecs(specs: ProductSpec[]) {
   return Object.keys(photocopierSpecs).length ? photocopierSpecs : undefined;
 }
 
+function laptopRamGb(value: string) {
+  const match = value.match(/(\d+(?:[.,]\d+)?)\s*(?:gb|g)\b/i);
+  if (!match) return undefined;
+  const parsed = Number(match[1].replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function laptopStorageGb(value: string) {
+  const tbMatch = value.match(/(\d+(?:[.,]\d+)?)\s*tb\b/i);
+  if (tbMatch) {
+    const parsed = Number(tbMatch[1].replace(",", "."));
+    return Number.isFinite(parsed) ? parsed * 1024 : undefined;
+  }
+  const gbMatch = value.match(/(\d+(?:[.,]\d+)?)\s*(?:gb|g)\b/i);
+  if (!gbMatch) return undefined;
+  const parsed = Number(gbMatch[1].replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function laptopScreenSizeInch(value: string) {
+  const match = value.match(/(\d+(?:[.,]\d+)?)\s*(?:-|–|—)?\s*(?:inch|in\b|")/i);
+  if (!match) return undefined;
+  const parsed = Number(match[1].replace(",", "."));
+  return Number.isFinite(parsed) && parsed >= 7 && parsed <= 35 ? parsed : undefined;
+}
+
+function deriveLaptopSpecs(specs: ProductSpec[]) {
+  const laptopSpecs: TypedSpecs = {};
+  const attributes: CanonicalAttribute[] = [];
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+    const combined = `${label} ${normalizedValue}`;
+    const graphicsLabel =
+      label.includes("card man hinh") ||
+      label.includes("vga") ||
+      label.includes("gpu") ||
+      label.includes("graphics") ||
+      label.includes("do hoa");
+
+    if (
+      label.includes("cpu") ||
+      label.includes("processor") ||
+      label.includes("bo xu ly") ||
+      label.includes("chip")
+    ) {
+      ensureTextField(laptopSpecs, "cpu", value);
+      addAttribute(attributes, "laptop_cpu", value);
+    }
+
+    if (
+      label.includes("gpu") ||
+      label.includes("vga") ||
+      label.includes("card man hinh") ||
+      label.includes("graphics") ||
+      label.includes("do hoa")
+    ) {
+      ensureTextField(laptopSpecs, "gpu", value);
+      addAttribute(attributes, "laptop_gpu", value);
+    }
+
+    const looksLikeCache =
+      label.includes("cache") ||
+      label.includes("dem") ||
+      normalizedValue.includes("cache");
+    const looksLikeRam =
+      label.includes("ram") ||
+      (!looksLikeCache &&
+        (label.includes("memory") || label.includes("bo nho") || label.includes("dung luong")) &&
+        /\b(ddr|ram|\d+(?:[.,]\d+)?\s*gb)\b/i.test(value));
+    if (looksLikeRam) {
+      ensureTextField(laptopSpecs, "ram", value);
+      const ram = laptopRamGb(value);
+      if (ram !== undefined) {
+        laptopSpecs.ramGb = ram;
+        addAttribute(attributes, "laptop_ram_gb", ram);
+      }
+    }
+
+    if (
+      label.includes("ssd") ||
+      label.includes("hdd") ||
+      label.includes("o cung") ||
+      label.includes("storage") ||
+      label.includes("luu tru")
+    ) {
+      ensureTextField(laptopSpecs, "storage", value);
+      const storage = laptopStorageGb(value);
+      if (storage !== undefined) laptopSpecs.storageGb = storage;
+      addAttribute(attributes, "laptop_storage", value);
+    }
+
+    if (
+      (label.includes("man hinh") && !graphicsLabel) ||
+      label.includes("display") ||
+      label.includes("screen")
+    ) {
+      ensureTextField(laptopSpecs, "screen", value);
+      const size = laptopScreenSizeInch(value);
+      if (size !== undefined) {
+        laptopSpecs.screenSizeInch = size;
+        addAttribute(attributes, "laptop_screen_size_inch", size);
+      }
+      const refresh = unitNumber(normalizedValue, "hz");
+      if (refresh !== undefined) {
+        laptopSpecs.refreshRateHz = refresh;
+        addAttribute(attributes, "laptop_refresh_rate_hz", refresh);
+      }
+      if (/\b(wuxga|fhd|full hd|qhd|2k|3k|4k|uhd|1920|2560|3840)\b/.test(normalizedValue)) {
+        ensureTextField(laptopSpecs, "screenResolution", value);
+        addAttribute(attributes, "laptop_screen_resolution", value);
+      }
+      if (/\b(ips|oled|tn|va|mini led|micro led)\b/.test(normalizedValue)) {
+        ensureTextField(laptopSpecs, "panel", value);
+        addAttribute(attributes, "laptop_panel", value);
+      }
+    }
+
+    if (label.includes("do phan giai") || label.includes("resolution")) {
+      ensureTextField(laptopSpecs, "screenResolution", value);
+      addAttribute(attributes, "laptop_screen_resolution", value);
+    }
+
+    if (label.includes("tan so") || label.includes("refresh") || combined.includes("hz")) {
+      const refresh = unitNumber(normalizedValue, "hz");
+      if (refresh !== undefined) {
+        laptopSpecs.refreshRateHz = refresh;
+        addAttribute(attributes, "laptop_refresh_rate_hz", refresh);
+      }
+    }
+
+    if (label.includes("he dieu hanh") || label.includes("os") || combined.includes("windows")) {
+      ensureTextField(laptopSpecs, "os", value);
+      addAttribute(attributes, "laptop_os", value);
+    }
+
+    if (
+      label.includes("ket noi") ||
+      label.includes("cong giao tiep") ||
+      label.includes("wireless") ||
+      /\b(wifi|wi-fi|bluetooth|usb|hdmi|lan|thunderbolt)\b/.test(combined)
+    ) {
+      ensureTextField(laptopSpecs, "connectivity", value);
+    }
+
+    if (label.includes("pin") || label.includes("battery")) {
+      ensureTextField(laptopSpecs, "battery", value);
+    }
+
+    if (isDimensionsSpec(label, value)) {
+      ensureTextField(laptopSpecs, "dimensions", value);
+    }
+    if (isWeightSpec(label, value)) {
+      ensureTextField(laptopSpecs, "weight", value);
+      const weight = unitNumber(normalizedValue, "kg");
+      if (weight !== undefined) addAttribute(attributes, "laptop_weight_kg", weight);
+    }
+  }
+
+  return {
+    attributes,
+    laptopSpecs: Object.keys(laptopSpecs).length ? laptopSpecs : undefined,
+  };
+}
+
 export function normalizeScrapedSpecs(
   input: ProductSpec[],
   productTypeCode: string,
@@ -658,6 +826,15 @@ export function normalizeScrapedSpecs(
     return {
       attributes: [],
       photocopierSpecs: derivePhotocopierSpecs(specs),
+      specs,
+    };
+  }
+
+  if (productTypeCode === "laptop") {
+    const laptop = deriveLaptopSpecs(specs);
+    return {
+      attributes: laptop.attributes,
+      laptopSpecs: laptop.laptopSpecs,
       specs,
     };
   }

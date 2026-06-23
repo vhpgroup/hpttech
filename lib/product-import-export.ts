@@ -84,6 +84,20 @@ const PRODUCT_COLUMNS = [
   "photocopier.connectivity",
   "photocopier.monthlyDuty",
   "photocopier.dimensionsWeight",
+  "laptop.cpu",
+  "laptop.gpu",
+  "laptop.ram",
+  "laptop.storage",
+  "laptop.screen",
+  "laptop.screenResolution",
+  "laptop.screenSizeInch",
+  "laptop.refreshRateHz",
+  "laptop.panel",
+  "laptop.os",
+  "laptop.connectivity",
+  "laptop.battery",
+  "laptop.dimensions",
+  "laptop.weight",
   "specs",
   "internalNote",
 ] as const;
@@ -96,6 +110,7 @@ export type ProductExportProfile =
   | "scanner"
   | "printer"
   | "photocopier"
+  | "laptop"
   | "software";
 
 const COMMON_COLUMNS: ProductColumn[] = [
@@ -128,6 +143,7 @@ const COMMON_COLUMNS: ProductColumn[] = [
 const SCANNER_COLUMNS = PRODUCT_COLUMNS.filter((column) => column.startsWith("scanner.")) as ProductColumn[];
 const PRINTER_COLUMNS = PRODUCT_COLUMNS.filter((column) => column.startsWith("printer.")) as ProductColumn[];
 const PHOTOCOPIER_COLUMNS = PRODUCT_COLUMNS.filter((column) => column.startsWith("photocopier.")) as ProductColumn[];
+const LAPTOP_COLUMNS = PRODUCT_COLUMNS.filter((column) => column.startsWith("laptop.")) as ProductColumn[];
 const EXTRA_COLUMNS: ProductColumn[] = ["specs", "internalNote"];
 
 const PRODUCT_COLUMN_LABELS: Record<ProductColumn, string> = {
@@ -208,6 +224,20 @@ const PRODUCT_COLUMN_LABELS: Record<ProductColumn, string> = {
   "photocopier.connectivity": "Kết nối photocopy",
   "photocopier.monthlyDuty": "Công suất/tháng photocopy",
   "photocopier.dimensionsWeight": "Kích thước / Trọng lượng photocopy",
+  "laptop.cpu": "CPU laptop",
+  "laptop.gpu": "GPU laptop",
+  "laptop.ram": "RAM laptop",
+  "laptop.storage": "Lưu trữ laptop",
+  "laptop.screen": "Màn hình laptop",
+  "laptop.screenResolution": "Độ phân giải màn hình laptop",
+  "laptop.screenSizeInch": "Kích thước màn hình laptop",
+  "laptop.refreshRateHz": "Tần số quét laptop",
+  "laptop.panel": "Tấm nền laptop",
+  "laptop.os": "Hệ điều hành laptop",
+  "laptop.connectivity": "Kết nối laptop",
+  "laptop.battery": "Pin laptop",
+  "laptop.dimensions": "Kích thước laptop",
+  "laptop.weight": "Trọng lượng laptop",
   specs: "Thông số bổ sung",
   internalNote: "Ghi chú nội bộ",
 };
@@ -220,6 +250,7 @@ function columnsForProfile(profile: ProductExportProfile = "all") {
   if (profile === "scanner") return [...COMMON_COLUMNS, ...SCANNER_COLUMNS, ...EXTRA_COLUMNS];
   if (profile === "printer") return [...COMMON_COLUMNS, ...PRINTER_COLUMNS, ...EXTRA_COLUMNS];
   if (profile === "photocopier") return [...COMMON_COLUMNS, ...PHOTOCOPIER_COLUMNS, ...EXTRA_COLUMNS];
+  if (profile === "laptop") return [...COMMON_COLUMNS, ...LAPTOP_COLUMNS, ...EXTRA_COLUMNS];
   return PRODUCT_COLUMNS;
 }
 
@@ -227,6 +258,7 @@ function profileLabel(profile: ProductExportProfile) {
   if (profile === "scanner") return "may-scan";
   if (profile === "printer") return "may-in";
   if (profile === "photocopier") return "photocopy";
+  if (profile === "laptop") return "laptop";
   return "tat-ca";
 }
 
@@ -235,6 +267,7 @@ function normalizeProfile(value: string | null): ProductExportProfile {
     value === "scanner" ||
     value === "printer" ||
     value === "photocopier" ||
+    value === "laptop" ||
     value === "software"
   ) {
     return value;
@@ -507,7 +540,7 @@ function docText(doc: unknown, key: string) {
   return typeof doc === "object" && doc && key in doc ? String((doc as Record<string, unknown>)[key] || "") : "";
 }
 
-function group(record: CsvRecord, prefix: "scanner" | "printer" | "photocopier", keys: string[]) {
+function group(record: CsvRecord, prefix: "scanner" | "printer" | "photocopier" | "laptop", keys: string[]) {
   const data: Record<string, string | number> = {};
   for (const key of keys) {
     const column = `${prefix}.${key}` as ProductColumn;
@@ -678,6 +711,22 @@ function productData(record: CsvRecord, brand: string | number, category: string
       "monthlyDuty",
       "dimensionsWeight",
     ]),
+    laptopSpecs: group(record, "laptop", [
+      "cpu",
+      "gpu",
+      "ram",
+      "storage",
+      "screen",
+      "screenResolution",
+      "screenSizeInch",
+      "refreshRateHz",
+      "panel",
+      "os",
+      "connectivity",
+      "battery",
+      "dimensions",
+      "weight",
+    ]),
     specs: specsFromText(value(record, "specs")),
     internalNote: value(record, "internalNote"),
   };
@@ -738,6 +787,31 @@ function sampleRecord(profile: ProductExportProfile): CsvRecord {
     };
   }
 
+  if (profile === "laptop") {
+    return {
+      sku: "LAPTOP-001",
+      title: "Laptop gaming do hoa mau",
+      model: "LAPTOP-001",
+      brandSlug: "asus",
+      brandName: "ASUS",
+      categorySlug: "laptop-gaming-do-hoa",
+      categoryName: "Laptop Gaming - Do Hoa",
+      specProfile: "laptop",
+      status: "published",
+      stockStatus: "in_stock",
+      price: "25900000",
+      warranty: "24 thang",
+      featured: "false",
+      "laptop.cpu": "Intel Core 7 240H",
+      "laptop.gpu": "NVIDIA GeForce RTX 5060 8GB",
+      "laptop.ram": "16GB",
+      "laptop.storage": "1TB SSD",
+      "laptop.screen": "16 inch WUXGA 144Hz",
+      "laptop.os": "Windows 11",
+      specs: "CPU: Intel Core 7 240H | GPU: RTX 5060 8GB | RAM: 16GB",
+    };
+  }
+
   return {
       sku: "ADS-4300N",
       title: "Brother ADS-4300N Scanner",
@@ -773,6 +847,7 @@ function matchesProfile(record: CsvRecord, profile: ProductExportProfile) {
   const haystack = `${record.specProfile} ${record.categorySlug} ${record.categoryName}`.toLowerCase();
   if (profile === "scanner") return haystack.includes("scanner") || haystack.includes("scan");
   if (profile === "printer") return haystack.includes("printer") || haystack.includes("may-in") || haystack.includes("máy in");
+  if (profile === "laptop") return haystack.includes("laptop") || haystack.includes("notebook");
   return haystack.includes("photo") || haystack.includes("copy");
 }
 
@@ -791,6 +866,7 @@ export async function exportProductsCSV(profile: ProductExportProfile = "all") {
     const scanner = (doc.scannerSpecs || {}) as Record<string, unknown>;
     const printer = (doc.printerSpecs || {}) as Record<string, unknown>;
     const photocopier = (doc.photocopierSpecs || {}) as Record<string, unknown>;
+    const laptop = (doc.laptopSpecs || {}) as Record<string, unknown>;
     const record: CsvRecord = {
       sku: docText(doc, "sku"),
       slug: docText(doc, "slug"),
@@ -823,6 +899,7 @@ export async function exportProductsCSV(profile: ProductExportProfile = "all") {
     for (const [key, item] of Object.entries(scanner)) record[`scanner.${key}`] = String(item ?? "");
     for (const [key, item] of Object.entries(printer)) record[`printer.${key}`] = String(item ?? "");
     for (const [key, item] of Object.entries(photocopier)) record[`photocopier.${key}`] = String(item ?? "");
+    for (const [key, item] of Object.entries(laptop)) record[`laptop.${key}`] = String(item ?? "");
 
     return record;
   }).filter((record) => matchesProfile(record, profile));
@@ -845,6 +922,7 @@ export async function exportProductsExcel(profile: ProductExportProfile = "all")
     const scanner = (doc.scannerSpecs || {}) as Record<string, unknown>;
     const printer = (doc.printerSpecs || {}) as Record<string, unknown>;
     const photocopier = (doc.photocopierSpecs || {}) as Record<string, unknown>;
+    const laptop = (doc.laptopSpecs || {}) as Record<string, unknown>;
     const record: CsvRecord = {
       sku: docText(doc, "sku"),
       slug: docText(doc, "slug"),
@@ -877,6 +955,7 @@ export async function exportProductsExcel(profile: ProductExportProfile = "all")
     for (const [key, item] of Object.entries(scanner)) record[`scanner.${key}`] = String(item ?? "");
     for (const [key, item] of Object.entries(printer)) record[`printer.${key}`] = String(item ?? "");
     for (const [key, item] of Object.entries(photocopier)) record[`photocopier.${key}`] = String(item ?? "");
+    for (const [key, item] of Object.entries(laptop)) record[`laptop.${key}`] = String(item ?? "");
 
     return record;
   }).filter((record) => matchesProfile(record, profile));

@@ -51,15 +51,19 @@ function inferProductKind(title: string, specs: ProductSpec[]) {
   const normalizedTitle = normalizedText(title);
   const specsText = normalizedText(specs.map((spec) => `${spec.label} ${spec.value}`).join(" "));
   const text = `${normalizedTitle} ${specsText}`;
+  const isSoftware = /\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(text);
+  const isLaptopLike = /\b(laptop|notebook|rtx|geforce|radeon|gpu)\b/.test(text);
   if (/\b(may in|printer|muc in|cartridge|toner)\b/.test(normalizedTitle)) return "máy in";
   if (/\b(photocopy|copier|may photo|may photocopy)\b/.test(normalizedTitle)) return "máy photocopy";
   if (/\b(scan|scanner|may quet)\b/.test(normalizedTitle)) return "máy scan";
   if (/\b(may in|printer|muc in|cartridge|toner)\b/.test(text)) return "máy in";
   if (/\b(photocopy|copier|may photo|may photocopy)\b/.test(text)) return "máy photocopy";
   if (/\b(scan|scanner|may quet|adf|ocr)\b/.test(text)) return "máy scan";
+  if (isSoftware && !isLaptopLike) return SOFTWARE_CATEGORY_NAME.toLowerCase();
+  if (/\b(laptop|notebook|pc|server|workstation|cpu|ram|ssd|rtx|geforce|radeon)\b/.test(text)) return "laptop";
   if (/\b(camera|ip camera|cctv|dau ghi|nvr)\b/.test(text)) return "camera";
   if (/\b(router|switch|wifi|access point|poe|firewall|ethernet)\b/.test(text)) return "thiết bị mạng";
-  if (/\b(phan mem|software|microsoft office|windows|antivirus|ban quyen|license)\b/.test(text)) return SOFTWARE_CATEGORY_NAME.toLowerCase();
+  if (isSoftware) return SOFTWARE_CATEGORY_NAME.toLowerCase();
   if (/\b(laptop|pc|server|workstation|cpu|ram|ssd)\b/.test(text)) return "thiết bị máy tính";
   return "sản phẩm";
 }

@@ -316,6 +316,7 @@ function prioritizeAnphatImages(images: ScrapedImage[]) {
   return [...images].sort((left, right) => {
     const score = (image: ScrapedImage) => {
       let total = 0;
+      if (image.source === "api") total -= 100;
       if (/\/media\/product\/(?:75|120|250)_/i.test(image.url)) total += 50;
       if (image.source === "json-ld") total += 20;
       if (image.source === "meta") total += 10;
@@ -499,11 +500,11 @@ async function searchProductFromCategory(
     anphatOriginalProductImageUrl(match.productImage?.medium) ||
     anphatOriginalProductImageUrl(match.productImage?.small);
   const images = prioritizeAnphatImages([
+    ...(apiImage
+      ? [{ alt: data.title, source: "api" as const, url: apiImage }]
+      : []),
     ...extractProductImagesFromHtml(url, html),
     ...extractProductImagesFromHtml(url, syntheticHTML),
-    ...(apiImage
-      ? [{ alt: data.title, source: "gallery" as const, url: apiImage }]
-      : []),
   ]);
   const generated = await enrichProductContent(data, brand.name);
   const seo = generateSeo(data, brand.name);

@@ -2,6 +2,7 @@ import { loadEnvConfig } from "@next/env";
 import ExcelJS from "exceljs";
 import path from "node:path";
 
+import { LAPTOP_GAMING_CATEGORY_NAME } from "../lib/product-category";
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
 import { discoverSourceCategory } from "../lib/scraper/engine";
 
@@ -57,6 +58,9 @@ function classifyCategoryProduct(categoryTitle: string, productName: string) {
   }
   if (detected === "printer") {
     return { categoryName: "Máy in", productType: "printer" };
+  }
+  if (detected === "laptop") {
+    return { categoryName: LAPTOP_GAMING_CATEGORY_NAME, productType: "laptop" };
   }
   if (!detected) return undefined;
   return { categoryName: categoryTitle, productType: detected };
