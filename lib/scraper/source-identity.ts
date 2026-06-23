@@ -42,8 +42,10 @@ export function sourceIdentityKey(sourceUrl: string) {
 
 export function sourceVariantSku(sourceUrl: string, sourceSku?: string) {
   const sku = usableSourceSku(sourceSku);
+  const normalized = normalizeSourceUrl(sourceUrl);
+  const hash = createHash("sha1").update(normalized).digest("hex").slice(0, 6).toUpperCase();
   if (sku) {
-    return `HPT-${sku.toUpperCase()}`;
+    return `HPT-${sku.toUpperCase()}-${hash}`;
   }
   return sourceIdentityKey(sourceUrl);
 }
