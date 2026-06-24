@@ -145,7 +145,7 @@ export async function POST(request: Request) {
       // searchProductMultiSource with categoryUrl → uses searchProductFromCategory path
       // which leverages the already-fetched category data (cached in module-level Map).
       // The category products list is already in memory from step 1, so no extra fetch.
-      const scraped = await searchProductMultiSource(productName, categoryUrl);
+      const scraped = await searchProductMultiSource(sourceUrl, categoryUrl);
 
       // categoryName: use the resolved An Phát category title so resolveTaxonomy
       // can find-or-create the right Category record in Payload.

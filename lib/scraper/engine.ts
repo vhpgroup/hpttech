@@ -608,7 +608,6 @@ async function searchProductFromCategory(
   productName: string,
   categoryUrl: string,
 ): Promise<ScrapedProduct> {
-  const brand = await detectBrand(productName);
   const category = await discoverSourceCategory(categoryUrl);
   const match = findExactSourceCandidate(
     category.products,
@@ -616,6 +615,10 @@ async function searchProductFromCategory(
     category.url,
   );
   const url = normalizeSourceUrl(match.productUrl, category.url);
+  const requestedName = /^https?:\/\//i.test(productName)
+    ? match.productName
+    : productName;
+  const brand = findBrandByUrl(url) || (await detectBrand(requestedName));
   const html = await crawlProductSource(url, "fetch");
   if (!html) throw new Error(`Trang nguồn không có HTML: ${url}`);
 
@@ -627,7 +630,7 @@ async function searchProductFromCategory(
       { html, sourceType: "retailer", url },
       { html: syntheticHTML, sourceType: "retailer", url },
     ],
-    productName,
+    requestedName,
   );
   const data = {
     ...extracted,
@@ -638,10 +641,10 @@ async function searchProductFromCategory(
     sellingPoints: isAnphat ? anphatSummarySellingPoints(match) : undefined,
     sku: extracted.sku,
     specs: isAnphat ? mergeAnphatSpecs(anphatSummarySpecs(match), extracted.specs) : extracted.specs,
-    title: productName,
+    title: requestedName,
   };
   data.descriptionHTML =
-    data.descriptionHTML || (isAnphat ? extractAnphatDescriptionHTML(html, productName) : undefined);
+    data.descriptionHTML || (isAnphat ? extractAnphatDescriptionHTML(html, requestedName) : undefined);
   const apiImage =
     anphatOriginalProductImageUrl(match.productImage?.large) ||
     anphatOriginalProductImageUrl(match.productImage?.medium) ||
@@ -674,7 +677,7 @@ async function searchProductFromCategory(
         key: sourceIdentityKey(url),
         method: sourceMatchMethod(match, productName),
       },
-      searchQuery: productName,
+      searchQuery: requestedName,
       url,
       urls: [url],
     },

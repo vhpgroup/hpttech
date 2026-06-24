@@ -649,11 +649,26 @@ export function findBrandBySlug(slug: string) {
 
 export function findBrandByUrl(url: string) {
   try {
-    const hostname = new URL(url).hostname.replace(/^www\./, "");
-    return brandConfigs.find((brand) => {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.replace(/^www\./, "");
+    const domainMatch = brandConfigs.find((brand) => {
       const domain = brand.domain.replace(/^www\./, "").replace(/\/.*$/, "");
       return hostname.includes(domain);
     });
+    if (domainMatch) return domainMatch;
+
+    if (hostname === "vietbis.vn") {
+      const pathTokens = parsed.pathname
+        .toLowerCase()
+        .split("/")
+        .map((token) => token.trim())
+        .filter(Boolean);
+      return brandConfigs.find((brand) =>
+        [brand.slug, ...brand.aliases]
+          .map((alias) => alias.toLowerCase().replace(/\s+/g, "-"))
+          .some((alias) => pathTokens.includes(alias)),
+      );
+    }
   } catch {
     return undefined;
   }
