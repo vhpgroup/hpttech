@@ -114,7 +114,7 @@ export type BatchResult = {
   productId?: string | number;
   productName: string;
   sourceUrls: string[];
-  status: "draft" | "failed" | "published" | "searched";
+  status: "draft" | "failed" | "published" | "searched" | "skipped";
   warnings: string[];
 };
 
@@ -125,5 +125,6 @@ export type BatchSummary = {
   published: number;
   results: BatchResult[];
   searched: number;
+  skipped: number;
   total: number;
 };

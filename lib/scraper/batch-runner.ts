@@ -4,8 +4,9 @@ import type { BulkImportOptions } from "./batch-options";
 import { resolveProductTypeCode } from "./db-lookup";
 import { validateExpectedProductType } from "./product-type-guard";
 import { assertScraperDatabaseReady } from "./database-preflight";
-import { searchProductMultiSource } from "./engine";
+import { discoverSourceCategory, searchProductMultiSource } from "./engine";
 import { parseExcelInput } from "./excel-parser";
+import { findExistingProductForSourceCandidate } from "./duplicate-check";
 import { buildReportPath, generateReport } from "./report";
 import {
   selectProductSources,
@@ -115,6 +116,7 @@ function summarize(results: BatchResult[], durationMs: number): BatchSummary {
     published: results.filter((result) => result.status === "published").length,
     results,
     searched: results.filter((result) => result.status === "searched").length,
+    skipped: results.filter((result) => result.status === "skipped").length,
     total: results.length,
   };
 }
@@ -151,6 +153,28 @@ async function processRow(
   options: RunBulkImportOptions,
 ): Promise<BatchResult> {
   if (options.searchOnly) return searchOnly(row);
+
+  if (options.categoryUrl) {
+    const category = await discoverSourceCategory(options.categoryUrl);
+    const candidate = category.products.find((product) => product.productName === row.name);
+    if (candidate) {
+      const existing = await findExistingProductForSourceCandidate(candidate, category.url);
+      if (existing?.id !== undefined) {
+        const slug = typeof existing.slug === "string" ? existing.slug : undefined;
+        return {
+          adminUrl: adminUrl(existing.id),
+          productId: existing.id,
+          productName: row.name,
+          productReport: { productUrl: productUrl(slug) },
+          sourceUrls: [candidate.productUrl],
+          status: "skipped",
+          warnings: [
+            `Skipped duplicate product already in Payload: ${existing.title || existing.name || existing.id}.`,
+          ],
+        };
+      }
+    }
+  }
 
   const product = await searchProductMultiSource(row.name, options.categoryUrl);
   validateExpectedProductType(row.productType, product);

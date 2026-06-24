@@ -1,4 +1,5 @@
 import { detectBrand } from "./brand-detector";
+import { decodeHTML } from "entities";
 import { crawlProductPage, crawlProductSource, normalizeProductSourceUrl } from "./crawler";
 import { enrichProductContent } from "./enricher";
 import {
@@ -35,6 +36,10 @@ const anphatCategoryProductsPromises = new Map<
   string,
   Promise<AnphatCategoryProduct[]>
 >();
+const vietbisCategoryProductsPromises = new Map<
+  string,
+  Promise<AnphatCategoryProduct[]>
+>();
 
 type AnphatCategoryProduct = {
   marketPrice?: string | number;
@@ -59,6 +64,21 @@ type AnphatPromotion = {
   description?: string;
   id?: string;
 };
+
+function vietbisOriginalProductImageUrl(url?: string) {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.replace(/^www\./, "") !== "vietbis.vn") return url;
+    parsed.pathname = parsed.pathname.replace(
+      /\/Image\/_thumbs\/Picture\//i,
+      "/Image/Picture/",
+    );
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
 
 async function fetchSourceWithRetry(
   url: string,
@@ -209,9 +229,104 @@ async function fetchAnphatCategoryProducts(categoryUrl: string) {
   return pending;
 }
 
+async function fetchVietbisCategoryProducts(categoryUrl: string): Promise<AnphatCategoryProduct[]> {
+  const normalizedCategoryUrl = normalizeSourceUrl(categoryUrl);
+  let pending = vietbisCategoryProductsPromises.get(normalizedCategoryUrl);
+  if (!pending) {
+    pending = (async () => {
+      const firstPageResponse = await fetchSourceWithRetry(normalizedCategoryUrl, {
+        headers: {
+          "accept-language": "vi,en;q=0.8",
+          "user-agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36",
+        },
+      });
+      if (!firstPageResponse.ok) {
+        throw new Error(`Khong tai duoc danh muc Vietbis (${firstPageResponse.status}).`);
+      }
+
+      const firstPageHtml = await firstPageResponse.text();
+      const pageCount = Number(firstPageHtml.match(/\bclass=["']Paging["'][^>]*\bpages=["'](\d+)["']/i)?.[1] || 1);
+      const products = parseVietbisCategoryProducts(firstPageHtml, normalizedCategoryUrl);
+      for (let page = 2; page <= pageCount; page += 1) {
+        const response = await fetchSourceWithRetry(vietbisPageUrl(normalizedCategoryUrl, page), {
+          headers: {
+            "accept-language": "vi,en;q=0.8",
+            "user-agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/123 Safari/537.36",
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`Khong tai duoc danh muc Vietbis trang ${page} (${response.status}).`);
+        }
+        products.push(...parseVietbisCategoryProducts(await response.text(), normalizedCategoryUrl));
+      }
+      const seen = new Set<string>();
+      return products.filter((product) => {
+        const key = product.productUrl;
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    })();
+    vietbisCategoryProductsPromises.set(normalizedCategoryUrl, pending);
+  }
+  return pending;
+}
+
+function vietbisPageUrl(categoryUrl: string, page: number) {
+  if (page <= 1) return categoryUrl;
+  const url = new URL(categoryUrl);
+  url.pathname = url.pathname.replace(/(?:-pi=\d+)?\.html$/i, `-pi=${page}.html`);
+  return url.toString();
+}
+
+function parseVietbisCategoryProducts(html: string, normalizedCategoryUrl: string): AnphatCategoryProduct[] {
+  return [...html.matchAll(/<a\b[^>]*class=["'][^"']*\bcenter-block\b[^"']*["'][^>]*href=["']([^"']+)["'][^>]*title=["']([^"']+)["'][\s\S]*?<\/a>\s*<button\b/gi)]
+    .map((match) => {
+      const block = match[0];
+      const productName =
+        cleanText(block.match(/<h3\b[^>]*class=["'][^"']*\bProductName\b[^"']*["'][^>]*>([\s\S]*?)<\/h3>/i)?.[1]) ||
+        cleanText(decodeHTML(match[2]));
+      const productUrl = normalizeSourceUrl(decodeHTML(match[1]), normalizedCategoryUrl);
+      const productSKU =
+        cleanText(block.match(/<span\b[^>]*class=["'][^"']*\bProductSerial\b[^"']*["'][^>]*>([\s\S]*?)<\/span>/i)?.[1]) ||
+        cleanText(block.match(/<span\b[^>]*class=["'][^"']*\bProductId\b[^"']*["'][^>]*>([\s\S]*?)<\/span>/i)?.[1]) ||
+        undefined;
+      const priceData = block.match(/<b\b[^>]*class=["'][^"']*\bProductPriceNew\b[^"']*["'][^>]*\bdata=["']([^"']*)["'][^>]*>/i)?.[1];
+      const priceText = cleanText(block.match(/<b\b[^>]*class=["'][^"']*\bProductPriceNew\b[^"']*["'][^>]*>([\s\S]*?)<\/b>/i)?.[1]);
+      const image = block.match(/<img\b[^>]*(?:data-original|src)=["']([^"']+)["'][^>]*>/i)?.[1];
+      return {
+        price: priceData && priceData !== "0" ? priceData : priceText || undefined,
+        productImage: image
+          ? {
+              large:
+                vietbisOriginalProductImageUrl(
+                  normalizeSourceUrl(decodeHTML(image), normalizedCategoryUrl),
+                ) || normalizeSourceUrl(decodeHTML(image), normalizedCategoryUrl),
+            }
+          : undefined,
+        productName,
+        productSKU,
+        productUrl,
+      };
+    })
+    .filter((product) => {
+      const normalizedName = product.productName
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      return product.productName && product.productUrl && !normalizedName.startsWith("dich vu sua chua");
+    });
+}
+
 export async function discoverSourceCategory(categoryUrl: string) {
   const url = normalizeSourceUrl(categoryUrl);
-  const products = await fetchAnphatCategoryProducts(url);
+  const host = new URL(url).hostname.replace(/^www\./, "");
+  const products =
+    host === "vietbis.vn"
+      ? await fetchVietbisCategoryProducts(url)
+      : await fetchAnphatCategoryProducts(url);
   const response = await fetchSourceWithRetry(url, {
     headers: {
       "accept-language": "vi,en;q=0.8",
@@ -269,6 +384,35 @@ function anphatSyntheticHTML(product: AnphatCategoryProduct) {
         <h1>${product.productName}</h1>
         <p>${product.productSummary || ""}</p>
         <table>${specs}</table>
+      </body>
+    </html>
+  `;
+}
+
+function categorySyntheticHTML(product: AnphatCategoryProduct) {
+  const image =
+    anphatOriginalProductImageUrl(product.productImage?.large) ||
+    anphatOriginalProductImageUrl(product.productImage?.medium) ||
+    anphatOriginalProductImageUrl(product.productImage?.small) ||
+    "";
+  return `
+    <html>
+      <head>
+        <meta property="og:title" content="${product.productName}">
+        <meta property="og:image" content="${image}">
+        <script type="application/ld+json">
+          ${JSON.stringify({
+            "@type": "Product",
+            image,
+            name: product.productName,
+            offers: { price: product.price },
+            sku: product.productSKU,
+          })}
+        </script>
+      </head>
+      <body>
+        <h1>${product.productName}</h1>
+        <p>${product.productSummary || ""}</p>
       </body>
     </html>
   `;
@@ -475,7 +619,9 @@ async function searchProductFromCategory(
   const html = await crawlProductSource(url, "fetch");
   if (!html) throw new Error(`Trang nguồn không có HTML: ${url}`);
 
-  const syntheticHTML = anphatSyntheticHTML(match);
+  const isAnphat =
+    new URL(category.url).hostname.replace(/^www\./, "") === "anphatpc.com.vn";
+  const syntheticHTML = isAnphat ? anphatSyntheticHTML(match) : categorySyntheticHTML(match);
   const extracted = await gptExtractProduct(
     [
       { html, sourceType: "retailer", url },
@@ -488,13 +634,14 @@ async function searchProductFromCategory(
     compareAtPrice:
       match.marketPrice !== undefined ? String(match.marketPrice) : extracted.compareAtPrice,
     price: match.price !== undefined ? String(match.price) : extracted.price,
-    promoText: anphatPromotionText(match),
-    sellingPoints: anphatSummarySellingPoints(match),
+    promoText: isAnphat ? anphatPromotionText(match) : undefined,
+    sellingPoints: isAnphat ? anphatSummarySellingPoints(match) : undefined,
     sku: extracted.sku,
-    specs: mergeAnphatSpecs(anphatSummarySpecs(match), extracted.specs),
+    specs: isAnphat ? mergeAnphatSpecs(anphatSummarySpecs(match), extracted.specs) : extracted.specs,
     title: productName,
   };
-  data.descriptionHTML = data.descriptionHTML || extractAnphatDescriptionHTML(html, productName);
+  data.descriptionHTML =
+    data.descriptionHTML || (isAnphat ? extractAnphatDescriptionHTML(html, productName) : undefined);
   const apiImage =
     anphatOriginalProductImageUrl(match.productImage?.large) ||
     anphatOriginalProductImageUrl(match.productImage?.medium) ||

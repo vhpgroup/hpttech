@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { assertScraperAccess } from "@/lib/scraper/auth";
 import { searchProductMultiSource } from "@/lib/scraper/engine";
 import { importBatchProduct } from "@/lib/scraper/batch-importer";
+import { findExistingProductForSourceCandidate } from "@/lib/scraper/duplicate-check";
 import { resolveProductTypeCode } from "@/lib/scraper/db-lookup";
 import { discoverSourceCategory } from "@/lib/scraper/engine";
 import { LAPTOP_GAMING_CATEGORY_NAME } from "@/lib/product-category";
@@ -125,6 +126,22 @@ export async function POST(request: Request) {
     const sourceUrl = candidate.productUrl;
 
     try {
+      const existing = await findExistingProductForSourceCandidate(candidate, category.url);
+      if (existing?.id !== undefined) {
+        results.push({
+          adminUrl: adminUrl(existing.id),
+          productId: existing.id,
+          productName,
+          slug: typeof existing.slug === "string" ? existing.slug : undefined,
+          sourceUrl,
+          status: "skipped",
+          warnings: [
+            `Skipped duplicate product already in Payload: ${existing.title || existing.name || existing.id}.`,
+          ],
+        });
+        continue;
+      }
+
       // searchProductMultiSource with categoryUrl → uses searchProductFromCategory path
       // which leverages the already-fetched category data (cached in module-level Map).
       // The category products list is already in memory from step 1, so no extra fetch.
@@ -183,6 +200,7 @@ export async function POST(request: Request) {
     failed: results.filter((r) => r.status === "failed").length,
     published: results.filter((r) => r.status === "published").length,
     results,
+    skipped: results.filter((r) => r.status === "skipped").length,
     total: results.length,
     totalInCategory: allProducts.length,
   };

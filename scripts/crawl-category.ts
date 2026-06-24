@@ -123,6 +123,7 @@ async function main() {
           draft: result.summary.draft,
           failed: result.summary.failed,
           published: result.summary.published,
+          skipped: result.summary.skipped,
         },
       },
       null,

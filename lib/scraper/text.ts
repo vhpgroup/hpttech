@@ -145,12 +145,21 @@ export function extractHighlightBulletPoints(value?: string) {
     .split(/\s+(?:[-•]|[0-9]+\.)\s+/)
     .map((item) => item.replace(/^[-•]\s*/, "").trim())
     .filter(Boolean)
-    .slice(0, 8);
+    .slice(0, 10);
 }
 
 function isConciseHighlight(value: string) {
   const text = cleanText(value);
   if (text.length < 5 || text.length > 180) return false;
+  if (/\b(hpt tech|mua hang|mua tại|lien he|liên hệ|giao hang|tra gop|trả góp)\b/i.test(normalizedText(text))) {
+    return false;
+  }
+  return (text.match(/[.!?]/g) || []).length <= 1;
+}
+
+function isFallbackHighlight(value: string) {
+  const text = cleanText(value);
+  if (text.length < 5 || text.length > 260) return false;
   if (/\b(hpt tech|mua hang|mua tại|lien he|liên hệ|giao hang|tra gop|trả góp)\b/i.test(normalizedText(text))) {
     return false;
   }
@@ -175,28 +184,34 @@ function uniqueHighlights(items: string[]) {
   });
 }
 
+function specPointText(spec: ProductSpec) {
+  return `${cleanText(spec.label).replace(/[:：]\s*$/, "")}: ${cleanText(spec.value)}`;
+}
+
 export function productSellingPoints(description: string | undefined, specs: ProductSpec[]) {
   const descriptionPoints = extractHighlightBulletPoints(description)
     .map(cleanText)
     .filter(isConciseHighlight);
   const preferredSpecs = [
-    [/cau hinh/, /chuc nang/, /function/],
-    [/^kho giay$/, /kich thuoc giay/, /paper size/],
+    [/cau hinh/, /chuc nang/, /function/, /loai may quet/, /loai may scan/, /scanner type/],
+    [/^kho giay$/, /kich thuoc giay/, /kich thuoc tai lieu/, /paper size/, /document size/],
     [/dao mat/, /hai mat/, /duplex/],
-    [/^adf$/, /khay nap/, /khay nap ban goc/],
+    [/^adf$/, /dung luong adf/, /khay nap/, /khay nap ban goc/],
     [/cong giao tiep/, /giao tiep/, /ket noi/, /interface/, /connect/],
     [/thu phong/, /zoom/],
     [/dung muc/, /^muc$/, /toner/],
-    [/toc do copy/, /toc do sao/, /toc do in/, /copy speed/, /print speed/],
+    [/toc do quet/, /toc do scan/, /toc do copy/, /toc do sao/, /toc do in/, /scan speed/, /copy speed/, /print speed/],
     [/do phan giai/, /resolution/],
+    [/khoi luong du kien hang ngay/, /cong suat ngay/, /daily duty/],
   ];
   const specPoints = preferredSpecs
     .map((patterns) => specHighlight(specs, patterns))
     .filter((spec): spec is ProductSpec => Boolean(spec))
-    .map((spec) => `${cleanText(spec.label).replace(/[:：]\s*$/, "")}: ${cleanText(spec.value)}`)
+    .map(specPointText)
     .filter(isConciseHighlight);
+  const fallbackSpecPoints = specs.map(specPointText).filter(isFallbackHighlight);
 
-  return uniqueHighlights([...specPoints, ...descriptionPoints]).slice(0, 8);
+  return uniqueHighlights([...specPoints, ...descriptionPoints, ...fallbackSpecPoints]).slice(0, 10);
 }
 
 export function lexicalParagraphs(value: string) {

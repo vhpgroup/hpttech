@@ -90,7 +90,7 @@ async function upsertAIMetadata(
     where: { product: { equals: productId } },
   });
   const data = {
-    advantages: sellingPoints.slice(0, 8).map((value) => ({ value })),
+    advantages: sellingPoints.slice(0, 10).map((value) => ({ value })),
     aiGenerated: true,
     keywords: [
       product.data.title,
@@ -202,7 +202,7 @@ export async function importBatchProduct(
     ? product.data.descriptionHTML?.trim()
     : "";
   const summaryText = productShortDescription(displayProduct.data.title, displayProduct.data.specs);
-  const sellingPointLimit = effectiveProductTypeCode === "laptop" ? 20 : 8;
+  const sellingPointLimit = effectiveProductTypeCode === "laptop" ? 20 : 10;
   const sellingPoints =
     effectiveProductTypeCode === "software"
       ? (product.data.sellingPoints?.length

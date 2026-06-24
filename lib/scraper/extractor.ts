@@ -94,12 +94,18 @@ function isProductImage(url: string) {
     /https?:\/\/(?:www\.)?anphat(?:pc)?\.com\.vn\/media\/product\/(?:\d+_)?\d+_[^/?]*$/i.test(
       normalized,
     );
+  const isVietbisProductImage =
+    /https?:\/\/(?:www\.)?vietbis\.vn\/image\/(?:_thumbs\/)?picture\//i.test(
+      normalized,
+    );
   return (
     (/\/media\/\d+\/catalog\//.test(normalized) ||
-      /\/media\/product\//.test(normalized)) &&
+      /\/media\/product\//.test(normalized) ||
+      isVietbisProductImage) &&
     !normalized.includes("default-image") &&
     (/\.(avif|gif|jpe?g|png|webp)(?:$|\?)/i.test(normalized) ||
-      isAnphatProductImage)
+      isAnphatProductImage ||
+      isVietbisProductImage)
   );
 }
 
@@ -198,18 +204,50 @@ export function extractProductImagesFromHtml(
 function extractSpecs(html: string) {
   const specs: Array<{ label: string; value: string }> = [];
   const rowMatches = html.matchAll(/<tr[\s\S]*?<\/tr>/gi);
+  const addSpec = (label?: string, value?: string) => {
+    const cleanLabel = cleanSpecText(label).replace(/[:：]\s*$/, "");
+    const cleanValue = cleanSpecText(value);
+    if (!cleanLabel || !cleanValue) return;
+    if (specs.some((spec) => spec.label.toLowerCase() === cleanLabel.toLowerCase())) return;
+    specs.push({ label: cleanLabel, value: cleanValue });
+  };
 
   for (const row of rowMatches) {
     const cells = [...row[0].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)].map((cell) =>
       cleanText(cell[1]),
     );
     if (cells.length >= 2 && cells[0] && cells[1]) {
-      specs.push({ label: cells[0], value: cells.slice(1).join(" ") });
+      addSpec(cells[0], cells.slice(1).join(" "));
     }
     if (specs.length >= 40) break;
   }
 
+  if (specs.length < 40) {
+    const listHtml =
+      html.match(/<div\b[^>]*id=["']Context["'][^>]*>([\s\S]*?)(?=<section\b|<span\b[^>]*id=["']ProductValue["']|<\/div>\s*<div id=["']SOCIAL["'])/i)?.[1] ||
+      html;
+    for (const match of listHtml.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)) {
+      const item = match[1];
+      const strongMatch = item.match(/<strong\b[^>]*>([\s\S]*?)<\/strong>([\s\S]*)/i);
+      if (strongMatch) {
+        addSpec(strongMatch[1], strongMatch[2]);
+      } else {
+        const text = cleanSpecText(item);
+        const [label, ...rest] = text.split(":");
+        if (rest.length) addSpec(label, rest.join(":"));
+      }
+      if (specs.length >= 40) break;
+    }
+  }
+
   return specs;
+}
+
+function cleanSpecText(value?: string | null) {
+  return decodeHTML(String(value || ""))
+    .replace(/<\/?[a-z][^>]*>/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function stripUnsafeDescriptionHtml(value: string) {

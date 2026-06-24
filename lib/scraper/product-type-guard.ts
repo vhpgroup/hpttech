@@ -10,6 +10,7 @@ function normalized(value: string) {
 }
 
 export function inferScrapedProductType(product: ScrapedProduct) {
+  const titleAndUrl = normalized([product.data.title, product.source.url].join(" "));
   const text = normalized(
     [
       product.data.title,
@@ -18,13 +19,16 @@ export function inferScrapedProductType(product: ScrapedProduct) {
       ...product.data.specs.map((spec) => `${spec.label} ${spec.value}`),
     ].join(" "),
   );
+  if (/\b(may scan|scanner|scanjet|scansnap|may-scan|scan)\b/.test(titleAndUrl)) {
+    return "scanner";
+  }
   if (/\b(photocopy|copier|sao chup|copy speed)\b/.test(text)) {
     return "photocopier";
   }
+  if (/\b(may scan|scanner|scan speed|adf|ocr)\b/.test(text)) return "scanner";
   if (/\b(may in|printer|print speed|muc in|toner|cartridge)\b/.test(text)) {
     return "printer";
   }
-  if (/\b(may scan|scanner|scan speed|adf|ocr)\b/.test(text)) return "scanner";
   if (/\b(laptop|notebook|rtx|geforce|intel core|amd ryzen|ssd|ddr|wuxga)\b/.test(text)) {
     return "laptop";
   }
