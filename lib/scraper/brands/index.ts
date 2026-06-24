@@ -496,6 +496,15 @@ export const brandConfigs = [
     slug: "inotec",
   },
   {
+    aliases: ["zeutschel", "os a1", "os q0", "os c1", "os c2", "zeta", "os 12000", "os 12002", "os 15000", "os 16000"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "zeutschel.de",
+    extraDomains: ["zeutschel.com", "zeutschel.de", "vietbis.vn"],
+    name: "Zeutschel",
+    slug: "zeutschel",
+  },
+  {
     aliases: ["kodak", "alaris", "scanmate"],
     crawlMethod: "fetch",
     delayMs: 2000,

@@ -20,6 +20,7 @@
     "prices:import-gsheet": "node scripts/sync-price-sheet.cjs import",
     "prices:sync-gsheet": "node scripts/sync-price-sheet.cjs sync",
     "products:bulk-import": "tsx scripts/bulk-import.ts",
+    "products:clean-retailer-specs": "node scripts/clean-retailer-service-specs.cjs",
     "products:crawl-category": "tsx scripts/crawl-category.ts",
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
