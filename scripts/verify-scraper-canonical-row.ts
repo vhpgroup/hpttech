@@ -167,6 +167,8 @@ const filteredSpecs = normalizeScrapedSpecs(
     { label: "Ho ten", value: "So dien thoai" },
     { label: "'+ item.fullname +'", value: "'+ item.mobile +'" },
     { label: "Gia khuyen mai:", value: "6.999.000 d" },
+    { label: "Bao hanh", value: "03 thang tai Vietbis" },
+    { label: "Giao hang", value: "Mien phi Ha Noi" },
   ],
   "scanner",
 );

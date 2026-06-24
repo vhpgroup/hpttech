@@ -348,6 +348,7 @@ function deriveScannerSpecs(scannerSpecs: TypedSpecs, specs: ProductSpec[]) {
 
 function isUsefulSpec(spec: ProductSpec) {
   const label = normalize(spec.label);
+  const value = normalize(spec.value);
   if (
     spec.label.length > 180 ||
     /item\.[a-z]+/i.test(`${spec.label} ${spec.value}`)
@@ -360,7 +361,10 @@ function isUsefulSpec(spec: ProductSpec) {
     /^(facebook|ho ten|ma bao ve)$/.test(label) ||
     /^(kho hang|nhap thong tin de binh luan)/.test(label) ||
     /^(phong ban hang|phong du an)/.test(label) ||
-    label.includes("thong tin cong ty")
+    label.includes("thong tin cong ty") ||
+    /^(bao hanh|warranty)$/.test(label) ||
+    /^(giao hang|van chuyen|shipping|delivery)$/.test(label) ||
+    /\b(mien phi ha noi|vietbis|hotline|doi tra|nguyen dai|nguyen kien|ho tro 24\/?7)\b/.test(value)
   );
 }
 
