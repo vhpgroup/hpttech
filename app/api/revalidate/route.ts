@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 const collectionPaths: Record<string, string[]> = {
   banners: ["/"],
   solutions: ["/", "/giai-phap", "/dich-vu"],
-  products: ["/", "/san-pham", "/compare"],
+  products: ["/", "/san-pham", "/compare", "/google-merchant.xml"],
   posts: ["/", "/tin-tuc"],
   projects: ["/du-an"],
   faq: ["/dich-vu"],
