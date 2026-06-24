@@ -116,7 +116,13 @@ function parsePriceInput(value: string) {
     : { isContact: false, value: undefined };
 }
 
-function normalizeSaleStatus(value: string, isContact: boolean) {
+function normalizeSaleStatus(
+  value: string,
+  isContact: boolean,
+  hasNumericPrice: boolean,
+) {
+  if (hasNumericPrice && !isContact) return "active";
+
   const text = String(value || "").trim().toLowerCase();
   if (!text) return isContact ? "contact" : "active";
   if (
@@ -493,6 +499,7 @@ async function importFromSheet() {
     const saleStatus = normalizeSaleStatus(
       row.saleStatus,
       price.isContact || listPrice.isContact,
+      price.value !== undefined,
     );
     const product =
       productsById.get(String(row.productId).trim()) ||
