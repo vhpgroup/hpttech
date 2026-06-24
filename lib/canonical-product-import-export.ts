@@ -681,7 +681,7 @@ async function mapAttributes(
     definitions.map((definition) => [String(definition.code), definition]),
   );
 
-  return imported.map(({ code, value }) => {
+  return imported.flatMap(({ code, value }) => {
     const definition = byCode.get(code);
     if (!definition?.id) throw new Error(`Không tìm thấy Attribute Definition: ${code}.`);
     const dataType = String(definition.dataType);
@@ -700,12 +700,7 @@ async function mapAttributes(
     }
     if (dataType === "enum_list") {
       if (!Array.isArray(value)) throw new Error(`${code} phải là string[].`);
-      return {
-        ...base,
-        enumListValue: value.map((item) => ({
-          value: normalizeEnumValue(definition, String(item)),
-        })),
-      };
+      return [];
     }
     if (typeof value !== "string") throw new Error(`${code} phải là string.`);
     return dataType === "enum"
@@ -773,14 +768,11 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
       const internalId = text(row, "internalId");
       const sourceUrl = text(row, "sourceUrl");
       const slug = text(row, "slug") || formatSlug(productName);
-      const hasSourceIdentity = Boolean(internalId || sourceUrl);
-      const existingVariant = hasSourceIdentity
-        ? undefined
-        : await findOne(payload, "product-variants", {
-            sku: { equals: sku },
-          });
+      const existingVariant = await findOne(payload, "product-variants", {
+        sku: { equals: sku },
+      });
       const existingProductFromSKU =
-        !hasSourceIdentity && existingVariant && relationID(existingVariant.product) !== undefined
+        existingVariant && relationID(existingVariant.product) !== undefined
           ? await findOne(payload, "products", {
               id: { equals: relationID(existingVariant.product) },
             })
