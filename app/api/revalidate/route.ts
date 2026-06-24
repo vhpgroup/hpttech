@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 const collectionPaths: Record<string, string[]> = {
@@ -26,6 +26,9 @@ export async function POST(request: NextRequest) {
   const paths = new Set<string>(["/"]);
   if (collection) {
     for (const path of collectionPaths[collection] || []) paths.add(path);
+    if (collection === "products" || collection === "product-offers") {
+      revalidateTag("products");
+    }
   }
 
   if (collection === "products" && slug) paths.add(`/san-pham/${slug}`);

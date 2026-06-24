@@ -379,6 +379,34 @@ async function withDb(callback) {
   }
 }
 
+async function postRevalidate(payload) {
+  const baseURL =
+    process.env.NEXT_PUBLIC_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const secret = process.env.REVALIDATE_SECRET;
+
+  if (!baseURL || !secret) return;
+
+  const url = baseURL.startsWith("http") ? baseURL : `https://${baseURL}`;
+
+  try {
+    const response = await fetch(`${url}/api/revalidate`, {
+      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+        "x-revalidate-secret": secret,
+      },
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.warn(`[price-sheet-sync] revalidate failed: ${response.status} ${body}`);
+    }
+  } catch (error) {
+    console.warn("[price-sheet-sync] revalidate request failed", error);
+  }
+}
+
 async function loadPriceContext(client) {
   const productsResult = await client.query(`
     select
@@ -899,10 +927,15 @@ async function importFromSheet() {
       updated += 1;
     }
 
+    if (updated > 0) {
+      await postRevalidate({ collection: "products" });
+    }
+
     console.log(
       JSON.stringify(
         {
           imported: rows.length,
+          revalidated: updated > 0,
           skipped,
           updated,
         },
