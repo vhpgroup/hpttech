@@ -51,8 +51,15 @@ function priceTarget() {
     : "price";
 }
 
-function hptSku(model: string) {
-  return `HPT-${model.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toUpperCase()}`;
+function hptSku(model: string, sourceUrl?: string) {
+  const normalizedModel = model
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .toUpperCase();
+  const sourceSuffix = sourceUrl
+    ? `-${sourceIdentityKey(sourceUrl).replace(/^HPT-/, "").slice(0, 4)}`
+    : "";
+  return `HPT-${normalizedModel}${sourceSuffix}`;
 }
 
 function normalized(value: string) {
@@ -153,7 +160,7 @@ export function buildCanonicalImportRow(
     quantity: "0",
     saleStatus: !useCompareAtPrice && price ? "active" : "contact",
     sku: (product.source.url.includes("anphatpc.com.vn") || product.source.url.includes("vietbis.vn")) && effectiveProductTypeCode !== "laptop"
-      ? hptSku(model)
+      ? hptSku(model, product.source.url)
       : sourceVariantSku(product.source.url, product.data.sku),
     sourceType: "scraper",
     sourceUrl: product.source.url,
