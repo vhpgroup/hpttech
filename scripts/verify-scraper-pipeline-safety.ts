@@ -118,6 +118,14 @@ assert.equal(
   }).allowed,
   true,
 );
+assert.equal(
+  evaluatePublicationGate({
+    articleHTML: `<p>${Array.from({ length: 1839 }, (_, index) => `tu${index}`).join(" ")}</p>`,
+    imageCount: 1,
+    product,
+  }).allowed,
+  true,
+);
 const softwareProduct: ScrapedProduct = {
   ...product,
   data: {

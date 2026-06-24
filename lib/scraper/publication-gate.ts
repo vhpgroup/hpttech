@@ -46,7 +46,7 @@ export function evaluatePublicationGate(input: PublicationGateInput) {
   const { product } = input;
   const wordCount = seoArticleWordCount(input.articleHTML);
   const minWords = Number(process.env.SCRAPER_MIN_ARTICLE_WORDS || 1000);
-  const maxWords = Number(process.env.SCRAPER_MAX_ARTICLE_WORDS || 1500);
+  const maxWords = Number(process.env.SCRAPER_MAX_ARTICLE_WORDS || 1900);
   const softwareProduct = isSoftwareProduct(product);
 
   if (product.reviewStatus !== "ready_to_review") {
