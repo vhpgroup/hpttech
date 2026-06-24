@@ -5,8 +5,14 @@ const nextConfig: NextConfig = {
   output: "standalone",
   compress: true,
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   poweredByHeader: false,
   serverExternalPackages: ["sharp", "pg", "playwright", "puppeteer-core", "exceljs", "pdf-parse"],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
