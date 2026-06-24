@@ -240,6 +240,10 @@ function extractSpecs(html: string) {
     }
   }
 
+  if (specs.length < 5) {
+    extractLooseSpecLines(html, addSpec);
+  }
+
   return specs;
 }
 
@@ -248,6 +252,73 @@ function cleanSpecText(value?: string | null) {
     .replace(/<\/?[a-z][^>]*>/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function normalizedSpecText(value: string) {
+  return cleanSpecText(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/Ä‘/gi, "d")
+    .replace(/đ/gi, "d")
+    .toLowerCase();
+}
+
+function htmlTextLines(html: string) {
+  return decodeHTML(html)
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<(?:br|\/p|\/div|\/li|\/tr|\/h[1-6])\b[^>]*>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .split(/\n+/)
+    .map((line) => cleanSpecText(line))
+    .filter(Boolean);
+}
+
+function isSpecSectionHeader(line: string) {
+  const normalized = normalizedSpecText(line);
+  return normalized.includes("thong so ky thuat") || normalized.includes("technical specifications");
+}
+
+function shouldStopLooseSpecs(line: string) {
+  const normalized = normalizedSpecText(line);
+  return (
+    normalized.includes("san pham lien quan") ||
+    normalized.includes("san pham cung") ||
+    normalized.includes("binh luan") ||
+    normalized.includes("danh gia") ||
+    normalized.includes("social") ||
+    normalized.includes("tags")
+  );
+}
+
+function extractLooseSpecLines(
+  html: string,
+  addSpec: (label?: string, value?: string) => void,
+) {
+  const lines = htmlTextLines(html);
+  const start = lines.findIndex(isSpecSectionHeader);
+  if (start < 0) return;
+
+  let current: { label: string; value: string } | undefined;
+  for (const line of lines.slice(start + 1)) {
+    if (isSpecSectionHeader(line)) continue;
+    if (shouldStopLooseSpecs(line)) break;
+
+    const match = line.match(/^(.{2,90}?)[：:]\s*(.+)$/);
+    if (match) {
+      current = {
+        label: match[1],
+        value: match[2],
+      };
+      addSpec(current.label, current.value);
+      continue;
+    }
+
+    if (current && line.length <= 180 && !/^[-–—•]/.test(line)) {
+      current.value = `${current.value} ${line}`;
+      addSpec(current.label, current.value);
+    }
+  }
 }
 
 function stripUnsafeDescriptionHtml(value: string) {

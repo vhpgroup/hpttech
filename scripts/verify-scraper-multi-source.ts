@@ -114,6 +114,31 @@ async function main() {
   assert.deepEqual(merged.specs, [{ label: "Tốc độ", value: "40 ppm" }]);
   assert.equal("imageUrls" in merged, false);
 
+  const vietbisLooseSpecs = await extractProductFromUrl(
+    "https://vietbis.vn/zeutschel/may-scan/may-scan-ban-tu-dong-kho-a2-os-15000-advanced-plus-17536.html",
+    "May scan ban tu dong OS 15000 Advanced Plus",
+    `
+      <html>
+        <body>
+          <div>THONG SO KY THUAT</div>
+          <div><b>Kho quet toi da:</b> 635 x 460 mm (&gt; DIN A2)</div>
+          <div><b>Kieu scanner:</b> Quet tu tren cao (Overhead scanner)</div>
+          <div><b>Toc do quet:</b> &le; 2,4 giay/1 scan (tai 300 ppi)</div>
+          <div><b>Do phan giai quang hoc:</b> 300 ppi (600 ppi tuy chon)</div>
+          <div><b>Giao tiep:</b> Gig E</div>
+          <div><b>Xuat xu:</b> Chau Au</div>
+        </body>
+      </html>
+    `,
+  );
+  assert.deepEqual(vietbisLooseSpecs.specs.slice(0, 5), [
+    { label: "Kho quet toi da", value: "635 x 460 mm (> DIN A2)" },
+    { label: "Kieu scanner", value: "Quet tu tren cao (Overhead scanner)" },
+    { label: "Toc do quet", value: "≤ 2,4 giay/1 scan (tai 300 ppi)" },
+    { label: "Do phan giai quang hoc", value: "300 ppi (600 ppi tuy chon)" },
+    { label: "Giao tiep", value: "Gig E" },
+  ]);
+
   console.log("scraper multi-source verification passed");
 }
 
