@@ -17,6 +17,7 @@ type CrawlRequest = {
   forcePublish?: boolean;
   limit?: number;
   productType?: string;
+  refreshExistingDrafts?: boolean;
   skip?: number;
 };
 
@@ -78,6 +79,7 @@ export async function POST(request: Request) {
     limit = 5,
     skip = 0,
     forcePublish = false,
+    refreshExistingDrafts = false,
   } = body;
 
   if (!categoryUrl || !productType) {
@@ -127,7 +129,15 @@ export async function POST(request: Request) {
 
     try {
       const existing = await findExistingProductForSourceCandidate(candidate, category.url);
-      if (existing?.id !== undefined) {
+      const existingStatus =
+        typeof existing?.status === "string"
+          ? existing.status
+          : typeof existing?._status === "string"
+            ? existing._status
+            : "";
+      const shouldRefreshExisting =
+        refreshExistingDrafts && existing?.id !== undefined && existingStatus === "draft";
+      if (existing?.id !== undefined && !shouldRefreshExisting) {
         results.push({
           adminUrl: adminUrl(existing.id),
           productId: existing.id,
