@@ -537,7 +537,21 @@ async function upsert(
       overrideAccess: true,
     });
   } catch (error) {
-    const recovered = await findOne(payload, collection, where);
+    const recovered =
+      (await findOne(payload, collection, where)) ||
+      (collection === "product-variants" && relationID(data.product) !== undefined
+        ? await findOne(payload, collection, {
+            and: [
+              { product: { equals: relationID(data.product) } },
+              { isPrimary: { equals: true } },
+            ],
+          })
+        : undefined) ||
+      (collection === "product-offers" && relationID(data.variant) !== undefined
+        ? await findOne(payload, collection, {
+            variant: { equals: relationID(data.variant) },
+          })
+        : undefined);
     if (recovered?.id === undefined) throw error;
     const updateData = { ...data };
     if (collection === "product-variants") {
@@ -836,10 +850,10 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
             });
 
       const existingPrimaryVariant =
-        existingProduct?.id !== undefined && !existingVariant
+        product?.id !== undefined && !existingVariant
           ? await findOne(payload, "product-variants", {
               and: [
-                { product: { equals: existingProduct.id } },
+                { product: { equals: product.id } },
                 { isPrimary: { equals: true } },
               ],
             })

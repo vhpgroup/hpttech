@@ -523,6 +523,15 @@ export const brandConfigs = [
     slug: "treventus",
   },
   {
+    aliases: ["gp", "gp3400id", "gp2600af"],
+    crawlMethod: "fetch",
+    delayMs: 2000,
+    domain: "vietbis.vn",
+    extraDomains: ["vietbis.vn"],
+    name: "GP",
+    slug: "gp",
+  },
+  {
     aliases: ["kodak", "alaris", "scanmate"],
     crawlMethod: "fetch",
     delayMs: 2000,
