@@ -24,18 +24,10 @@ type PageProps = {
   params: Promise<{
     segments: string[];
   }>;
-  searchParams?: Promise<{
-    page?: string;
-  }>;
 };
 
 function newsPath(segments: string[]) {
   return segments.join("/");
-}
-
-function parsePage(value?: string) {
-  const page = Number(value);
-  return Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
 }
 
 export function generateStaticParams() {
@@ -75,9 +67,8 @@ export async function generateMetadata({ params }: PageProps) {
   });
 }
 
-export default async function NewsNestedPage({ params, searchParams }: PageProps) {
+export default async function NewsNestedPage({ params }: PageProps) {
   const { segments } = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : {};
   const path = newsPath(segments);
   const post = await getPostByPathFromPayload(path);
 
@@ -106,7 +97,7 @@ export default async function NewsNestedPage({ params, searchParams }: PageProps
 
   const [allCategories, posts] = await Promise.all([
     getPostCategoriesFromPayload(),
-    getPostsByCategoryPathFromPayload(path, { page: parsePage(resolvedSearchParams.page), limit: 12 }),
+    getPostsByCategoryPathFromPayload(path, { page: 1, limit: 12 }),
   ]);
   const subcategories = allCategories.filter((item) => item.parent === category.id);
 
