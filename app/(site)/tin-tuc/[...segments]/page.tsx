@@ -30,6 +30,14 @@ function newsPath(segments: string[]) {
   return segments.join("/");
 }
 
+function splitNewsPaging(segments: string[]): { pathSegments: string[]; page: number } {
+  if (segments.length >= 2 && segments[segments.length - 2] === "trang") {
+    const n = Number(segments[segments.length - 1]);
+    if (Number.isInteger(n) && n > 0) return { pathSegments: segments.slice(0, -2), page: n };
+  }
+  return { pathSegments: segments, page: 1 };
+}
+
 export function generateStaticParams() {
   return [];
 }
@@ -49,12 +57,14 @@ export async function generateMetadata({ params }: PageProps) {
     });
   }
 
-  const category = await getPostCategoryByPathFromPayload(path);
+  const { pathSegments } = splitNewsPaging(segments);
+  const categoryPath = newsPath(pathSegments);
+  const category = await getPostCategoryByPathFromPayload(categoryPath);
   if (category) {
     return pageMetadata({
       title: category.fullTitle || category.name,
       description: category.description || "Tin tuc, huong dan va kien thuc tu HPT Tech.",
-      path: `/tin-tuc/${category.fullSlug || path}`,
+      path: `/tin-tuc/${path}`,
       image: category.image,
     });
   }
@@ -92,12 +102,17 @@ export default async function NewsNestedPage({ params }: PageProps) {
   const redirectRule = await getNewsRedirectFromPayload(path);
   if (redirectRule) redirect(redirectRule.destination);
 
-  const category = await getPostCategoryByPathFromPayload(path);
+  const { pathSegments, page } = splitNewsPaging(segments);
+  const categoryPath = newsPath(pathSegments);
+  const category = await getPostCategoryByPathFromPayload(categoryPath);
   if (!category) notFound();
+  if (segments.length >= 2 && segments[segments.length - 2] === "trang" && segments[segments.length - 1] === "1") {
+    redirect(`/tin-tuc/${categoryPath}`);
+  }
 
   const [allCategories, posts] = await Promise.all([
     getPostCategoriesFromPayload(),
-    getPostsByCategoryPathFromPayload(path, { page: 1, limit: 12 }),
+    getPostsByCategoryPathFromPayload(categoryPath, { page, limit: 12 }),
   ]);
   const subcategories = allCategories.filter((item) => item.parent === category.id);
 
@@ -360,6 +375,8 @@ function NewsCategory({
   posts: Awaited<ReturnType<typeof getPostsByCategoryPathFromPayload>>;
 }) {
   const featured = posts.posts.find((post) => post.featured) || posts.posts[0];
+  const catBase = `/tin-tuc/${category.fullSlug || category.slug}`;
+  const pageHref = (n: number) => (n <= 1 ? catBase : `${catBase}/trang/${n}`);
 
   return (
     <main className="subpage-main">
@@ -432,7 +449,7 @@ function NewsCategory({
         <nav className="mt-8 flex items-center justify-center gap-3" aria-label="Phân trang bài viết">
           {posts.hasPrevPage ? (
             <Link
-              href={`/tin-tuc/${category.fullSlug || category.slug}?page=${posts.page - 1}`}
+              href={pageHref(posts.page - 1)}
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
             >
               Trang trước
@@ -443,7 +460,7 @@ function NewsCategory({
           </span>
           {posts.hasNextPage ? (
             <Link
-              href={`/tin-tuc/${category.fullSlug || category.slug}?page=${posts.page + 1}`}
+              href={pageHref(posts.page + 1)}
               className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
             >
               Trang sau
