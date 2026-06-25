@@ -28,7 +28,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
             <article className="h-full rounded-lg border border-slate-100 bg-slate-50 p-3 transition hover:border-blue-200 hover:bg-blue-50/60">
               <Link href={product.href || `/san-pham/${product.slug}`} className="grid h-28 place-items-center rounded-md bg-white p-2">
                 {product.image ? (
-                  <Image src={product.image} alt={product.title} width={150} height={110} className="max-h-24 w-auto object-contain" />
+                  <Image src={product.image} alt={product.title} width={150} height={110} sizes="150px" className="max-h-24 w-auto object-contain" />
                 ) : (
                   <div className="h-20 w-24 rounded-md bg-slate-200" />
                 )}

@@ -26,6 +26,36 @@ type RawProductHTML = {
 const DEFAULT_HOME_PRODUCTS_LIMIT = 96;
 const HOME_PRODUCTS_POOL_LIMIT = 500;
 const DEFAULT_PRODUCT_LIST_LIMIT = 24;
+const PRODUCT_LIST_SELECT = {
+  id: true,
+  internalId: true,
+  name: true,
+  title: true,
+  slug: true,
+  sku: true,
+  model: true,
+  productType: true,
+  brand: true,
+  category: true,
+  price: true,
+  compareAtPrice: true,
+  rating: true,
+  reviewCount: true,
+  vatIncluded: true,
+  discountBadge: true,
+  promoText: true,
+  stockStatus: true,
+  shortDescription: true,
+  summary: true,
+  summaryHTML: true,
+  warranty: true,
+  origin: true,
+  images: true,
+  specs: true,
+  tag: true,
+  featured: true,
+  viewCount: true,
+} as const;
 
 export type ProductListPageResult = {
   products: CatalogProduct[];
@@ -622,12 +652,6 @@ function normalizeProduct(
   };
 }
 
-const getCachedRawProductHTML = unstable_cache(
-  async (id: string | number): Promise<RawProductHTML> => loadRawProductHTML(id),
-  ["raw-product-html"],
-  { revalidate: 300, tags: ["products"] },
-);
-
 function toProductCardData(
   doc: PayloadProductDoc,
   commercial?: CanonicalCommercialProjection,
@@ -732,7 +756,7 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
 export const getHomeProductsFromPayload = unstable_cache(
   loadHomeProductsFromPayload,
   ["home-products"],
-  { revalidate: 300, tags: ["products"] },
+  { revalidate: 300, tags: ["products:list"] },
 );
 
 function selectHomeProducts(products: CatalogProduct[], limit: number) {
@@ -854,11 +878,102 @@ async function loadProductsFromPayload(): Promise<CatalogProduct[]> {
 const getCachedProductsFromPayload = unstable_cache(
   loadProductsFromPayload,
   ["all-products"],
-  { revalidate: 300, tags: ["products"] },
+  { revalidate: 300, tags: ["products:list"] },
 );
 
 export async function getProductsFromPayload(): Promise<CatalogProduct[]> {
   return getCachedProductsFromPayload();
+}
+
+export async function getBestSellingProductsFromPayload(limit = 5): Promise<CatalogProduct[]> {
+  const safeLimit = Math.max(1, Math.min(Math.floor(limit) || 5, 24));
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 1,
+      limit: safeLimit,
+      select: PRODUCT_LIST_SELECT,
+      sort: "-reviewCount",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
+      },
+    });
+
+    const docs = res.docs as unknown as PayloadProductDoc[];
+    const productIDs = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+
+    return docs
+      .map((doc) =>
+        toProductListData(
+          doc,
+          doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+        ),
+      )
+      .sort(
+        (a, b) =>
+          (b.reviewCount || 0) - (a.reviewCount || 0) ||
+          (b.viewCount || 0) - (a.viewCount || 0),
+      )
+      .slice(0, safeLimit);
+  } catch (error) {
+    handlePayloadReadError("products:best-selling", error);
+    return loadLocalCatalogFixtures()
+      .sort(
+        (a, b) =>
+          (b.reviewCount || 0) - (a.reviewCount || 0) ||
+          (b.viewCount || 0) - (a.viewCount || 0),
+      )
+      .slice(0, safeLimit);
+  }
+}
+
+export async function getProductsBySlugsFromPayload(slugs: string[], limit = 8): Promise<CatalogProduct[]> {
+  const requested = Array.from(new Set(slugs.map((slug) => slug.trim()).filter(Boolean))).slice(0, limit);
+  if (!requested.length) return [];
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 1,
+      limit: requested.length,
+      select: PRODUCT_LIST_SELECT,
+      where: {
+        and: [
+          { slug: { in: requested } },
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
+      },
+    });
+    const docs = res.docs as unknown as PayloadProductDoc[];
+    const productIDs = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, productIDs);
+    const order = new Map(requested.map((slug, index) => [slug, index]));
+
+    return docs
+      .map((doc) =>
+        toProductListData(
+          doc,
+          doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+        ),
+      )
+      .sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
+  } catch (error) {
+    handlePayloadReadError("products:compare-slugs", error);
+    const requestedSet = new Set(requested);
+    return loadLocalCatalogFixtures().filter((product) => requestedSet.has(product.slug)).slice(0, limit);
+  }
 }
 
 async function loadProductCategoryNavFromPayload(): Promise<ProductCategoryNavItem[]> {
@@ -949,7 +1064,7 @@ async function loadProductCategoryNavFromPayload(): Promise<ProductCategoryNavIt
 const getCachedProductCategoryNavFromPayload = unstable_cache(
   loadProductCategoryNavFromPayload,
   ["product-categories-nav"],
-  { revalidate: 300, tags: ["categories"] },
+  { revalidate: 300, tags: ["categories:list"] },
 );
 
 export async function getProductCategoryNavFromPayload(): Promise<ProductCategoryNavItem[]> {
@@ -974,6 +1089,7 @@ async function loadProductListPageFromPayload({
       depth: 1,
       limit: safeLimit,
       page: safePage,
+      select: PRODUCT_LIST_SELECT,
       sort: "-updatedAt",
       where: {
         and: [
@@ -1047,12 +1163,8 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     values.push(`%${search.toLowerCase()}%`);
     const idx = values.length;
     where.push(`(
-      lower(coalesce(p.name, '')) like $${idx}
-      or lower(coalesce(p.sku, '')) like $${idx}
-      or lower(coalesce(p.model, '')) like $${idx}
-      or lower(coalesce(c.name, '')) like $${idx}
-      or lower(coalesce(pc.name, '')) like $${idx}
-      or lower(coalesce(b.name, '')) like $${idx}
+      lower(coalesce(p.name, '') || ' ' || coalesce(p.sku, '') || ' ' || coalesce(p.model, '')) like $${idx}
+      or lower(coalesce(c.name, '') || ' ' || coalesce(pc.name, '') || ' ' || coalesce(b.name, '')) like $${idx}
     )`);
   }
 
@@ -1195,6 +1307,7 @@ async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}
       collection: "products",
       depth: 1,
       limit: safeLimit,
+      select: PRODUCT_LIST_SELECT,
       where: { id: { in: ids } },
     });
 
@@ -1239,7 +1352,7 @@ async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}
 const getCachedProductListPageFromPayload = unstable_cache(
   (page?: number, limit?: number) => loadProductListPageFromPayload({ page, limit }),
   ["product-list-page"],
-  { revalidate: 300, tags: ["products"] },
+  { revalidate: 300, tags: ["products:list"] },
 );
 
 const getCachedProductSearchPageFromPayload = unstable_cache(
@@ -1264,7 +1377,7 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       priceMax,
     }),
   ["product-search-page"],
-  { revalidate: 300, tags: ["products"] },
+  { revalidate: 300, tags: ["products:list"] },
 );
 
 export async function getProductListPageFromPayload({
@@ -1346,6 +1459,7 @@ async function loadRelatedProductsFromPayload({
       collection: "products",
       depth: 1,
       limit: Math.max(1, Math.min(limit, 24)),
+      select: PRODUCT_LIST_SELECT,
       sort: "-updatedAt",
       where: {
         and: [
@@ -1380,7 +1494,7 @@ async function loadRelatedProductsFromPayload({
 const getCachedRelatedProductsFromPayload = unstable_cache(
   loadRelatedProductsFromPayload,
   ["related-products"],
-  { revalidate: 300, tags: ["products"] },
+  { revalidate: 300, tags: ["products:list"] },
 );
 
 export function getProductsByCategoryFromPayload(
@@ -1443,6 +1557,68 @@ export async function getPublishedProductSlugs(limit = productStaticParamsLimit(
   }
 }
 
+export async function getPublishedProductSitemapCount(): Promise<number> {
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 0,
+      limit: 1,
+      select: { slug: true },
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
+      },
+    });
+
+    return res.totalDocs;
+  } catch (error) {
+    handlePayloadReadError("product-sitemap-count", error);
+    return loadLocalCatalogFixtures().filter((product) => product.slug).length;
+  }
+}
+
+export async function getPublishedProductSitemapEntries({
+  page = 1,
+  limit = 5000,
+}: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<Array<{ slug: string; updatedAt?: string }>> {
+  const safePage = Math.max(1, Math.floor(page) || 1);
+  const safeLimit = Math.max(1, Math.min(Math.floor(limit) || 5000, 5000));
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "products",
+      depth: 0,
+      limit: safeLimit,
+      page: safePage,
+      select: { slug: true, updatedAt: true },
+      sort: "-updatedAt",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+        ],
+      },
+    });
+
+    return (res.docs as Array<{ slug?: string; updatedAt?: string }>)
+      .map((doc) => ({ slug: doc.slug || "", updatedAt: doc.updatedAt }))
+      .filter((entry) => entry.slug);
+  } catch (error) {
+    handlePayloadReadError("product-sitemap", error);
+    return loadLocalCatalogFixtures()
+      .filter((product) => product.slug)
+      .slice((safePage - 1) * safeLimit, safePage * safeLimit)
+      .map((product) => ({ slug: product.slug }));
+  }
+}
+
 async function loadProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
   const localProduct = loadLocalCatalogFixtures().find((product) => product.slug === slug) || null;
   try {
@@ -1487,7 +1663,7 @@ async function loadProductBySlugFromPayload(slug: string): Promise<CatalogProduc
       projections,
     );
     if (typeof id === "string" || typeof id === "number") {
-      const raw = await getCachedRawProductHTML(id);
+      const raw = await loadRawProductHTML(id);
       product.description = raw.descriptionHTML || product.description;
       product.detail =
         raw.shortDescription ||
@@ -1501,12 +1677,11 @@ async function loadProductBySlugFromPayload(slug: string): Promise<CatalogProduc
   }
 }
 
-const getCachedProductBySlugFromPayload = unstable_cache(
-  loadProductBySlugFromPayload,
-  ["product-by-slug"],
-  { revalidate: 300, tags: ["products"] },
-);
-
 export async function getProductBySlugFromPayload(slug: string): Promise<CatalogProduct | null> {
-  return getCachedProductBySlugFromPayload(slug);
+  const getCachedProductBySlug = unstable_cache(
+    () => loadProductBySlugFromPayload(slug),
+    ["product-by-slug", slug],
+    { revalidate: 300, tags: [`product:${slug}`] },
+  );
+  return getCachedProductBySlug();
 }

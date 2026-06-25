@@ -10,6 +10,11 @@ const connectionString =
 
 const statements = [
   "create extension if not exists pg_trgm",
+  "create extension if not exists unaccent",
+  `
+    create index concurrently if not exists products_published_updated_idx
+    on products (status, _status, updated_at desc)
+  `,
   `
     create index concurrently if not exists products_published_category_updated_idx
     on products (status, _status, category_id, updated_at desc)
@@ -33,6 +38,27 @@ const statements = [
         coalesce(name, '') || ' ' ||
         coalesce(sku, '') || ' ' ||
         coalesce(model, '')
+      ) gin_trgm_ops
+    )
+  `,
+  `
+    create index concurrently if not exists posts_published_category_date_idx
+    on posts (status, category_id, published_at desc)
+  `,
+  `
+    create index concurrently if not exists posts_published_type_date_idx
+    on posts (status, post_type, published_at desc)
+  `,
+  `
+    create index concurrently if not exists posts_full_path_idx
+    on posts (full_path)
+  `,
+  `
+    create index concurrently if not exists posts_search_title_summary_trgm_idx
+    on posts using gin (
+      lower(
+        coalesce(title, '') || ' ' ||
+        coalesce(summary, '')
       ) gin_trgm_ops
     )
   `,

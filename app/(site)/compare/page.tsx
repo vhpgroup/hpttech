@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
-import { getProductsFromPayload } from "@/lib/catalog-payload";
+import { getProductsBySlugsFromPayload } from "@/lib/catalog-payload";
 import type { CatalogProduct } from "@/lib/catalog";
 import { pageMetadata } from "@/lib/seo";
 import { SubpageHeader } from "@/components/layout/SubpageHeader";
@@ -117,10 +117,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
   const requestedKeys = params?.products
     ? params.products.split(",").map((key) => key.trim()).filter(Boolean)
     : [];
-  const products = await getProductsFromPayload();
-  const items = requestedKeys.length
-    ? products.filter((product) => requestedKeys.includes(product.slug || product.title))
-    : [];
+  const items = requestedKeys.length ? await getProductsBySlugsFromPayload(requestedKeys, 8) : [];
   const rows = getCompareRows(items);
 
   return (
@@ -162,7 +159,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
 
                     return (
                       <th key={item.slug || item.title}>
-                        {image ? <Image src={image} alt={item.title || "Sản phẩm"} width={120} height={90} /> : null}
+                        {image ? <Image src={image} alt={item.title || "Sản phẩm"} width={120} height={90} sizes="120px" /> : null}
                         <strong>{item.title || "Sản phẩm"}</strong>
                       </th>
                     );

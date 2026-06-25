@@ -1,6 +1,6 @@
-import { Client } from "pg";
+import { Pool } from "pg";
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 type MerchantProductRow = {
   brand: string | null;
@@ -37,6 +37,18 @@ function databaseURI() {
   const uri = process.env.DATABASE_URI || process.env.POSTGRES_URL;
   if (!uri) throw new Error("Missing DATABASE_URI or POSTGRES_URL.");
   return uri;
+}
+
+let pool: Pool | undefined;
+
+function getPool() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: databaseURI(),
+      max: 5,
+    });
+  }
+  return pool;
 }
 
 function escapeXML(value: string) {
@@ -184,11 +196,7 @@ function item(row: MerchantProductRow, base: string) {
 }
 
 async function loadProducts() {
-  const client = new Client({ connectionString: databaseURI() });
-  await client.connect();
-
-  try {
-    const result = await client.query<MerchantProductRow>(`
+  const result = await getPool().query<MerchantProductRow>(`
       select
         p.id,
         p.title,
@@ -232,10 +240,7 @@ async function loadProducts() {
       where p.status = 'published' and p._status = 'published'
       order by coalesce(p.name, p.title, '') asc, p.id asc
     `);
-    return result.rows;
-  } finally {
-    await client.end();
-  }
+  return result.rows;
 }
 
 export async function GET() {
@@ -256,7 +261,7 @@ export async function GET() {
       `</channel></rss>`,
     {
       headers: {
-        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300",
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=86400",
         "Content-Type": "application/xml; charset=utf-8",
       },
     },

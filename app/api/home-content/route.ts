@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getProductsFromPayload } from "@/lib/catalog-payload";
+import { getHomeProductsFromPayload } from "@/lib/catalog-payload";
 import { getBannersFromPayload, getSiteSettingsFromPayload, getSolutionsFromPayload } from "@/lib/content-payload";
 import { normalizeSiteSettings } from "@/lib/site-settings";
 
 export async function GET() {
   const [products, banners, solutions, settings] = await Promise.all([
-    getProductsFromPayload().catch(() => []),
+    getHomeProductsFromPayload().catch(() => []),
     getBannersFromPayload().catch(() => []),
     getSolutionsFromPayload().catch(() => []),
     getSiteSettingsFromPayload().then(normalizeSiteSettings).catch(() => normalizeSiteSettings()),
@@ -15,7 +15,7 @@ export async function GET() {
     { products, banners, solutions, settings },
     {
       headers: {
-        "Cache-Control": "s-maxage=300, stale-while-revalidate=60",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300",
       },
     },
   );

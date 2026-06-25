@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { getProductsFromPayload } from "@/lib/catalog-payload";
+import { getProductSearchPageFromPayload } from "@/lib/catalog-payload";
 import type { CatalogProduct } from "@/lib/catalog";
 
 export const revalidate = 300;
+const COMPARE_PICKER_LIMIT = 300;
 
 function toCompareProduct(product: CatalogProduct): CatalogProduct {
   const image = product.images?.[0]?.url || product.image;
@@ -22,7 +23,10 @@ function toCompareProduct(product: CatalogProduct): CatalogProduct {
 }
 
 export async function GET() {
-  const products = await getProductsFromPayload();
+  const { products } = await getProductSearchPageFromPayload({
+    limit: COMPARE_PICKER_LIMIT,
+    sort: "popular",
+  });
 
   return NextResponse.json(
     {
@@ -30,7 +34,7 @@ export async function GET() {
     },
     {
       headers: {
-        "Cache-Control": "s-maxage=300, stale-while-revalidate=60",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300",
       },
     },
   );

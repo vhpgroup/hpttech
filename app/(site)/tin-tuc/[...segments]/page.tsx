@@ -2,14 +2,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { CalendarDays, Eye, Newspaper, ShoppingBag } from "lucide-react";
-import { getProductsFromPayload } from "@/lib/catalog-payload";
+import { getBestSellingProductsFromPayload } from "@/lib/catalog-payload";
 import {
+  getLatestPostsFromPayload,
   getMostViewedPostsFromPayload,
   getNewsRedirectFromPayload,
   getPostByPathFromPayload,
   getPostCategoriesFromPayload,
   getPostCategoryByPathFromPayload,
-  getPostsFromPayload,
   getPostsByCategoryPathFromPayload,
 } from "@/lib/content-payload";
 import PostViewTracker from "@/components/news/PostViewTracker";
@@ -24,10 +24,18 @@ type PageProps = {
   params: Promise<{
     segments: string[];
   }>;
+  searchParams?: Promise<{
+    page?: string;
+  }>;
 };
 
 function newsPath(segments: string[]) {
   return segments.join("/");
+}
+
+function parsePage(value?: string) {
+  const page = Number(value);
+  return Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
 }
 
 export function generateStaticParams() {
@@ -67,16 +75,17 @@ export async function generateMetadata({ params }: PageProps) {
   });
 }
 
-export default async function NewsNestedPage({ params }: PageProps) {
+export default async function NewsNestedPage({ params, searchParams }: PageProps) {
   const { segments } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
   const path = newsPath(segments);
   const post = await getPostByPathFromPayload(path);
 
   if (post) {
     const [latestPosts, popularPosts, topProducts] = await Promise.all([
-      getPostsFromPayload(),
-      getMostViewedPostsFromPayload(6),
-      getProductsFromPayload(),
+      getLatestPostsFromPayload(5, post.slug),
+      getMostViewedPostsFromPayload(5, post.slug),
+      getBestSellingProductsFromPayload(5),
     ]);
 
     return (
@@ -97,7 +106,7 @@ export default async function NewsNestedPage({ params }: PageProps) {
 
   const [allCategories, posts] = await Promise.all([
     getPostCategoriesFromPayload(),
-    getPostsByCategoryPathFromPayload(path),
+    getPostsByCategoryPathFromPayload(path, { page: parsePage(resolvedSearchParams.page), limit: 12 }),
   ]);
   const subcategories = allCategories.filter((item) => item.parent === category.id);
 
@@ -152,6 +161,7 @@ function PostSidebarList({
                   alt={item.title}
                   width={92}
                   height={68}
+                  sizes="92px"
                   className="h-[68px] w-[92px] object-cover"
                 />
               </Link>
@@ -190,7 +200,7 @@ function PostSidebarList({
 function ProductSidebarList({
   products,
 }: {
-  products: Awaited<ReturnType<typeof getProductsFromPayload>>;
+  products: Awaited<ReturnType<typeof getBestSellingProductsFromPayload>>;
 }) {
   return (
     <div className="space-y-4">
@@ -210,6 +220,7 @@ function ProductSidebarList({
                   alt={product.title}
                   width={92}
                   height={68}
+                  sizes="92px"
                   className="max-h-[52px] w-auto object-contain"
                 />
               </Link>
@@ -247,26 +258,13 @@ function NewsDetail({
   topProducts,
 }: {
   post: NonNullable<Awaited<ReturnType<typeof getPostByPathFromPayload>>>;
-  latestPosts: Awaited<ReturnType<typeof getPostsFromPayload>>;
+  latestPosts: Awaited<ReturnType<typeof getLatestPostsFromPayload>>;
   popularPosts: Awaited<ReturnType<typeof getMostViewedPostsFromPayload>>;
-  topProducts: Awaited<ReturnType<typeof getProductsFromPayload>>;
+  topProducts: Awaited<ReturnType<typeof getBestSellingProductsFromPayload>>;
 }) {
-  const recentPosts = latestPosts
-    .filter((item) => item.slug !== post.slug)
-    .sort(
-      (a, b) =>
-        (b.publishedAt ? new Date(b.publishedAt).getTime() : 0) -
-        (a.publishedAt ? new Date(a.publishedAt).getTime() : 0),
-    )
-    .slice(0, 5);
-  const mostViewedPosts = popularPosts.filter((item) => item.slug !== post.slug).slice(0, 5);
-  const bestSellingProducts = [...topProducts]
-    .sort(
-      (a, b) =>
-        (b.reviewCount || 0) - (a.reviewCount || 0) ||
-        (b.viewCount || 0) - (a.viewCount || 0),
-    )
-    .slice(0, 5);
+  const recentPosts = latestPosts;
+  const mostViewedPosts = popularPosts;
+  const bestSellingProducts = topProducts;
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -370,7 +368,7 @@ function NewsCategory({
   subcategories: Awaited<ReturnType<typeof getPostCategoriesFromPayload>>;
   posts: Awaited<ReturnType<typeof getPostsByCategoryPathFromPayload>>;
 }) {
-  const featured = posts.find((post) => post.featured) || posts[0];
+  const featured = posts.posts.find((post) => post.featured) || posts.posts[0];
 
   return (
     <main className="subpage-main">
@@ -378,7 +376,7 @@ function NewsCategory({
         eyebrow="Danh mục tin tức"
         title={category.name}
         description={category.description}
-        badge={`${posts.length} bài viết`}
+        badge={`${posts.totalDocs} bài viết`}
         breadcrumbs={[
           { label: "Trang chủ", href: "/" },
           { label: "Tin tức", href: "/tin-tuc" },
@@ -388,7 +386,7 @@ function NewsCategory({
 
       {category.image ? (
         <section className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-          <Image className="h-56 w-full object-cover" src={category.image} alt={category.name} width={1200} height={224} priority />
+          <Image className="h-56 w-full object-cover" src={category.image} alt={category.name} width={1200} height={224} priority sizes="100vw" />
         </section>
       ) : null}
 
@@ -409,7 +407,7 @@ function NewsCategory({
       {featured ? (
         <section className="mt-6 grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm md:grid-cols-[1.15fr_1fr]">
           {featured.image ? (
-            <Image className="h-full min-h-72 w-full object-cover" src={featured.image} alt={featured.title} width={640} height={360} />
+            <Image className="h-full min-h-72 w-full object-cover" src={featured.image} alt={featured.title} width={640} height={360} sizes="(max-width: 767px) 100vw, 50vw" />
           ) : null}
           <div className="p-6 sm:p-8">
             <p className="text-sm font-extrabold uppercase tracking-[0.12em] text-red-600">Bài nổi bật</p>
@@ -422,10 +420,10 @@ function NewsCategory({
       ) : null}
 
       <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {posts.map((post) => (
+        {posts.posts.map((post) => (
           <article key={post.fullPath || post.slug} className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             <Link href={post.href || `/tin-tuc/${post.fullPath || post.slug}`}>
-              {post.image ? <Image className="h-44 w-full object-cover" src={post.image} alt={post.title} width={420} height={176} /> : null}
+              {post.image ? <Image className="h-44 w-full object-cover" src={post.image} alt={post.title} width={420} height={176} sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw" /> : null}
             </Link>
             <div className="p-5">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -439,6 +437,29 @@ function NewsCategory({
           </article>
         ))}
       </section>
+      {posts.totalPages > 1 ? (
+        <nav className="mt-8 flex items-center justify-center gap-3" aria-label="Phân trang bài viết">
+          {posts.hasPrevPage ? (
+            <Link
+              href={`/tin-tuc/${category.fullSlug || category.slug}?page=${posts.page - 1}`}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+            >
+              Trang trước
+            </Link>
+          ) : null}
+          <span className="text-sm font-semibold text-slate-500">
+            Trang {posts.page}/{posts.totalPages}
+          </span>
+          {posts.hasNextPage ? (
+            <Link
+              href={`/tin-tuc/${category.fullSlug || category.slug}?page=${posts.page + 1}`}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+            >
+              Trang sau
+            </Link>
+          ) : null}
+        </nav>
+      ) : null}
     </main>
   );
 }

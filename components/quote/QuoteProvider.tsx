@@ -202,6 +202,7 @@ function QuoteDocument({
                           alt={line.product.title}
                           width={96}
                           height={96}
+                          sizes="96px"
                           className="max-h-20 w-auto object-contain"
                         />
                       ) : null}

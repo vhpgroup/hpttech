@@ -1,8 +1,9 @@
-import { getProductsFromPayload } from "@/lib/catalog-payload";
-import { getPostCategoriesFromPayload, getPostsFromPayload } from "@/lib/content-payload";
-import { helpLinks } from "@/lib/help-links";
+import { getPublishedProductSitemapCount } from "@/lib/catalog-payload";
+import { getPublishedPostSitemapCount } from "@/lib/content-payload";
 
-export const revalidate = 300;
+export const revalidate = 86400;
+
+const SITEMAP_CHUNK_SIZE = 5000;
 
 function siteURL() {
   const raw = process.env.NEXT_PUBLIC_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || "https://hpttech.vn";
@@ -18,42 +19,38 @@ function escapeXML(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-function url(loc: string) {
-  return `<url><loc>${escapeXML(loc)}</loc></url>`;
+function sitemap(loc: string) {
+  return `<sitemap><loc>${escapeXML(loc)}</loc></sitemap>`;
+}
+
+function chunkCount(total: number) {
+  return Math.max(1, Math.ceil(total / SITEMAP_CHUNK_SIZE));
 }
 
 export async function GET() {
   const base = siteURL();
-  const [products, posts, postCategories] = await Promise.all([
-    getProductsFromPayload(),
-    getPostsFromPayload(),
-    getPostCategoriesFromPayload(),
+  const [productCount, postCount] = await Promise.all([
+    getPublishedProductSitemapCount(),
+    getPublishedPostSitemapCount(),
   ]);
-  const staticPaths = [
-    "/",
-    "/san-pham",
-    "/ai-search",
-    "/compare",
-    "/giai-phap",
-    "/thuong-hieu",
-    "/du-an",
-    "/dich-vu",
-    "/tin-tuc",
-    "/ve-hpt",
-    "/lien-he",
-    ...helpLinks.map((link) => link.href),
+
+  const sitemaps = [
+    sitemap(`${base}/sitemap/static`),
+    ...Array.from({ length: chunkCount(productCount) }, (_, index) =>
+      sitemap(`${base}/sitemap/products/${index + 1}`),
+    ),
+    ...Array.from({ length: chunkCount(postCount) }, (_, index) =>
+      sitemap(`${base}/sitemap/posts/${index + 1}`),
+    ),
   ];
 
-  const urls = [
-    ...staticPaths.map((path) => url(`${base}${path}`)),
-    ...products.filter((product) => product.slug).map((product) => url(`${base}/san-pham/${product.slug}`)),
-    ...postCategories.filter((category) => category.fullSlug).map((category) => url(`${base}/tin-tuc/${category.fullSlug}`)),
-    ...posts.filter((post) => post.fullPath || post.slug).map((post) => url(`${base}${post.href || `/tin-tuc/${post.slug}`}`)),
-  ];
-
-  return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join("")}</urlset>`, {
-    headers: {
-      "Content-Type": "application/xml",
+  return new Response(
+    `<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemaps.join("")}</sitemapindex>`,
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=86400",
+        "Content-Type": "application/xml; charset=utf-8",
+      },
     },
-  });
+  );
 }

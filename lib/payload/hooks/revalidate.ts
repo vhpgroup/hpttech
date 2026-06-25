@@ -25,7 +25,12 @@ async function postRevalidate(payload: Record<string, unknown>) {
 export const revalidateCollection: CollectionAfterChangeHook = async ({ collection, doc }) => {
   await postRevalidate({
     collection: collection.slug,
-    path: typeof doc?.fullPath === "string" ? doc.fullPath : undefined,
+    path:
+      typeof doc?.fullPath === "string"
+        ? doc.fullPath
+        : typeof doc?.fullSlug === "string"
+          ? doc.fullSlug
+          : undefined,
     slug: typeof doc?.slug === "string" ? doc.slug : undefined,
   });
 };

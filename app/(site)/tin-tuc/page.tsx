@@ -1,5 +1,5 @@
 import { NewsPageClient } from "@/components/news/NewsPageClient";
-import { getPostsFromPayload } from "@/lib/content-payload";
+import { getPostsPageFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
@@ -19,18 +19,31 @@ type NewsPageProps = {
   }>;
 };
 
+const NEWS_TYPES = new Set(["news", "guide", "case-study", "announcement"]);
+
 export default async function NewsPage({ searchParams }: NewsPageProps) {
   const params = await searchParams;
-  const posts = await getPostsFromPayload();
   const page = Number.parseInt(params.page || "1", 10);
+  const safePage = Number.isFinite(page) ? page : 1;
+  const sort = params["sap-xep"] === "oldest" ? "oldest" : "newest";
+  const type = params.loai && NEWS_TYPES.has(params.loai) ? params.loai : undefined;
+  const postsPage = await getPostsPageFromPayload({
+    limit: 12,
+    page: safePage,
+    q: params.q,
+    sort,
+    type,
+  });
 
   return (
     <NewsPageClient
-      posts={posts}
-      initialType={params.loai}
+      posts={postsPage.posts}
+      initialType={type}
       initialQuery={params.q}
-      initialSort={params["sap-xep"]}
-      initialPage={Number.isFinite(page) ? page : 1}
+      initialSort={sort}
+      initialPage={postsPage.page}
+      totalDocs={postsPage.totalDocs}
+      totalPages={postsPage.totalPages}
     />
   );
 }

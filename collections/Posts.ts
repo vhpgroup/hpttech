@@ -150,6 +150,7 @@ export const Posts: CollectionConfig = {
       label: "Đường dẫn bài viết",
       type: "text",
       required: true,
+      index: true,
       hooks: {
         beforeValidate: [({ data, value }) => value || (data?.title ? formatSlug(data.title) : value)],
       },
@@ -159,6 +160,7 @@ export const Posts: CollectionConfig = {
       label: "Đường dẫn đầy đủ",
       type: "text",
       unique: true,
+      index: true,
       admin: {
         readOnly: true,
         description: "Ví dụ: thiet-bi-giai-phap-van-phong/may-in/may-in-hp-bi-ket-giay",
@@ -174,6 +176,7 @@ export const Posts: CollectionConfig = {
       name: "publishedAt",
       label: "Ngày đăng",
       type: "date",
+      index: true,
       admin: {
         date: {
           pickerAppearance: "dayAndTime",
@@ -192,6 +195,7 @@ export const Posts: CollectionConfig = {
       type: "relationship",
       relationTo: "post-categories",
       required: true,
+      index: true,
       admin: {
         description: "Chọn danh mục con cuối cùng. Danh mục hiển thị dạng Cha > Con.",
       },
@@ -209,6 +213,7 @@ export const Posts: CollectionConfig = {
       type: "select",
       defaultValue: "news",
       required: true,
+      index: true,
       options: [
         { label: "Tin tức", value: "news" },
         { label: "Hướng dẫn", value: "guide" },
@@ -304,6 +309,7 @@ export const Posts: CollectionConfig = {
       label: "Trạng thái đăng",
       type: "select",
       defaultValue: "draft",
+      index: true,
       options: [
         { label: "Bản nháp", value: "draft" },
         { label: "Đã xuất bản", value: "published" },

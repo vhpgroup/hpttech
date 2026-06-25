@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { seoField } from "../lib/payload/fields/seo.ts";
+import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
 
 export const Categories: CollectionConfig = {
@@ -15,6 +16,10 @@ export const Categories: CollectionConfig = {
     defaultColumns: ["name", "slug", "parent", "sortOrder"],
     group: "Danh mục sản phẩm",
     useAsTitle: "name",
+  },
+  hooks: {
+    afterChange: [revalidateCollection],
+    afterDelete: [revalidateCollectionDelete],
   },
   fields: [
     {

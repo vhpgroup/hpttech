@@ -1,5 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { seoField } from "../lib/payload/fields/seo.ts";
+import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
 
 export const PostCategories: CollectionConfig = {
@@ -48,6 +49,8 @@ export const PostCategories: CollectionConfig = {
         };
       },
     ],
+    afterChange: [revalidateCollection],
+    afterDelete: [revalidateCollectionDelete],
   },
   fields: [
     {

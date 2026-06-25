@@ -155,7 +155,7 @@ function ProductImage({ product }: { product: AISearchProduct }) {
   return (
     <div className="grid h-20 w-24 shrink-0 place-items-center rounded-md bg-slate-50 p-2">
       {product.image ? (
-        <Image src={product.image} alt={product.title} width={120} height={90} className="max-h-16 w-auto object-contain" />
+        <Image src={product.image} alt={product.title} width={120} height={90} sizes="120px" className="max-h-16 w-auto object-contain" />
       ) : (
         <div className="h-14 w-16 rounded bg-slate-200" />
       )}

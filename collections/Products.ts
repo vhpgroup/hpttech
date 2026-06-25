@@ -664,6 +664,7 @@ export const Products: CollectionConfig = {
                   name: "name",
                   label: "Tên catalog",
                   type: "text",
+                  index: true,
                   admin: {
                     width: "50%",
                     description:
@@ -866,6 +867,7 @@ export const Products: CollectionConfig = {
                   name: "sku",
                   label: "Mã sản phẩm (SKU)",
                   type: "text",
+                  index: true,
                   admin: {
                     condition: legacyOnly,
                     width: "25%",
@@ -876,6 +878,7 @@ export const Products: CollectionConfig = {
                   name: "model",
                   label: "Model",
                   type: "text",
+                  index: true,
                   admin: {
                     width: "25%",
                     description: "Ví dụ: ADS-4300N, DS-790WN, LaserJet 4003dn.",
@@ -889,6 +892,7 @@ export const Products: CollectionConfig = {
               type: "text",
               required: true,
               unique: true,
+              index: true,
               admin: {
                 description: "Đường dẫn thân thiện dùng trên website.",
               },

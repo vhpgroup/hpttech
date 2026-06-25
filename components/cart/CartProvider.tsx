@@ -156,7 +156,7 @@ function CartDrawer() {
               {items.map((item) => (
                 <article key={item.key} className="grid grid-cols-[76px_1fr] gap-3 rounded-lg border border-slate-200 p-3">
                   <Link href={item.href || "#"} className="grid h-20 w-20 place-items-center rounded-md bg-slate-50" onClick={closeCart}>
-                    {item.image ? <Image src={item.image} alt={item.title} width={72} height={72} className="max-h-16 object-contain" /> : <ShoppingCart size={24} className="text-slate-300" />}
+                    {item.image ? <Image src={item.image} alt={item.title} width={72} height={72} sizes="72px" className="max-h-16 object-contain" /> : <ShoppingCart size={24} className="text-slate-300" />}
                   </Link>
                   <div className="min-w-0">
                     <Link href={item.href || "#"} className="line-clamp-2 text-sm font-semibold leading-5 text-slate-950" onClick={closeCart}>

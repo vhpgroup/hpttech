@@ -48,7 +48,7 @@ export default function HomeStaticSections({ solutions }: { solutions: PublicSol
         <div id="brandLogos">
           {HPT_DATA.brands.map((brand) => (
             <span key={brand.name}>
-              <Image src={`/${brand.logo}`} alt={brand.name} width={96} height={40} />
+              <Image src={`/${brand.logo}`} alt={brand.name} width={96} height={40} sizes="96px" />
               <b>{brand.name}</b>
             </span>
           ))}
@@ -93,7 +93,7 @@ export default function HomeStaticSections({ solutions }: { solutions: PublicSol
           {HPT_DATA.posts.map((post) => (
             <article key={post.title} className="post-card">
               <a href={post.href} target="_blank" rel="noreferrer">
-                <Image src={post.image} alt={post.title} width={360} height={200} />
+                <Image src={post.image} alt={post.title} width={360} height={200} sizes="(max-width: 767px) 100vw, 360px" />
               </a>
               <div className="post-info">
                 <span className="post-date">{post.date}</span>

@@ -106,7 +106,7 @@ export default function CompareDock({
                   <button className="compare-remove" type="button" aria-label={`Xóa ${item.title}`} onClick={() => onRemove(item)}>
                     ×
                   </button>
-                  {item.image ? <Image src={item.image} alt={item.title} width={96} height={72} /> : null}
+                  {item.image ? <Image src={item.image} alt={item.title} width={96} height={72} sizes="96px" /> : null}
                   <h3>{item.title}</h3>
                   <p>{item.price}</p>
                 </article>
@@ -180,7 +180,7 @@ export default function CompareDock({
                         setPickerOpen(false);
                       }}
                     >
-                      {product.image ? <Image src={product.image} alt={product.title} width={72} height={56} /> : null}
+                      {product.image ? <Image src={product.image} alt={product.title} width={72} height={56} sizes="72px" /> : null}
                       <span>
                         <strong>{product.title}</strong>
                         <small>

@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { unstable_cache } from "next/cache";
+import type { Where } from "payload";
+import { Pool } from "pg";
 import { HPT_DATA } from "@/lib/data";
 import { defaultAboutPage } from "@/globals/AboutPage";
 import { getPayloadClient } from "@/lib/payload";
@@ -49,6 +51,16 @@ export type PublicPost = {
   postType?: string;
   featured?: boolean;
   content?: unknown;
+};
+
+export type PublicPostsPage = {
+  posts: PublicPost[];
+  totalDocs: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 };
 
 export type PublicPostCategory = {
@@ -256,6 +268,34 @@ type PayloadDoc = Record<string, unknown>;
 type PayloadFindResult = {
   docs: PayloadDoc[];
 };
+
+export type PublicSitemapEntry = {
+  slug?: string;
+  fullPath?: string;
+  updatedAt?: string;
+};
+
+const PUBLIC_NEWS_POST_TYPES = ["news", "guide", "case-study", "announcement"] as const;
+
+function databaseURL() {
+  return (
+    process.env.DATABASE_URI ||
+    process.env.POSTGRES_URL ||
+    (!process.env.VERCEL
+      ? "postgres://payload:payload@127.0.0.1:5433/hpttech_payload"
+      : undefined)
+  );
+}
+
+let pgPool: Pool | undefined;
+
+function getPgPool() {
+  if (pgPool) return pgPool;
+  const connectionString = databaseURL();
+  if (!connectionString) return undefined;
+  pgPool = new Pool({ connectionString, max: 5 });
+  return pgPool;
+}
 
 const HERO_BANNER_DIR = path.join(process.cwd(), "public", "assets", "herobanner");
 const HERO_BANNER_PUBLIC_PATH = "/assets/herobanner";
@@ -704,6 +744,196 @@ async function loadPostsFromPayload(): Promise<PublicPost[]> {
   return mergeLocalBySlug(res.docs.map(mapPost), loadLocalContentFixtures().posts);
 }
 
+export type GetPostsPageOptions = {
+  page?: number;
+  limit?: number;
+  type?: string;
+  q?: string;
+  sort?: "newest" | "oldest";
+};
+
+const PUBLIC_POST_CARD_SELECT = {
+  title: true,
+  slug: true,
+  fullPath: true,
+  thumbnail: true,
+  publishedAt: true,
+  summary: true,
+  viewCount: true,
+  category: true,
+  tags: true,
+  postType: true,
+  featured: true,
+} as const;
+
+function clampPositiveInteger(value: unknown, fallback: number, max = 100) {
+  const number = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(number) || number < 1) return fallback;
+  return Math.min(Math.floor(number), max);
+}
+
+function sortPostsForPage(posts: PublicPost[], sort: "newest" | "oldest") {
+  return [...posts].sort((a, b) => {
+    const left = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+    const right = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+    return sort === "oldest" ? left - right : right - left;
+  });
+}
+
+function filterLocalPostsForPage(posts: PublicPost[], options: Required<Pick<GetPostsPageOptions, "sort">> & GetPostsPageOptions) {
+  const query = options.q?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  return sortPostsForPage(
+    posts
+      .filter((post) => post.postType !== "recruitment")
+      .filter((post) => !options.type || post.postType === options.type)
+      .filter((post) => {
+        if (!query) return true;
+        const value = `${post.title} ${post.summary || ""}`
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+        return value.includes(query);
+      }),
+    options.sort,
+  );
+}
+
+export async function getPostsPageFromPayload(options: GetPostsPageOptions = {}): Promise<PublicPostsPage> {
+  const page = clampPositiveInteger(options.page, 1, 100000);
+  const limit = clampPositiveInteger(options.limit, 12, 48);
+  const sort = options.sort === "oldest" ? "oldest" : "newest";
+  const q = options.q?.trim();
+  const where: Where[] = [
+    { status: { equals: "published" } },
+    { postType: { in: [...PUBLIC_NEWS_POST_TYPES] } },
+  ];
+
+  if (options.type) {
+    where.push({ postType: { equals: options.type } });
+  }
+
+  if (q) {
+    where.push({
+      or: [
+        { title: { like: q } },
+        { summary: { like: q } },
+      ],
+    });
+  }
+
+  try {
+    const payload = await getPayloadClient();
+    const pool = q ? getPgPool() : undefined;
+
+    if (q && pool) {
+      const values: unknown[] = [[...PUBLIC_NEWS_POST_TYPES]];
+      const sqlWhere = ["status = 'published'", "post_type = any($1)"];
+
+      if (options.type) {
+        values.push(options.type);
+        sqlWhere.push(`post_type = $${values.length}`);
+      }
+
+      values.push(`%${q.toLowerCase()}%`);
+      sqlWhere.push(`lower(coalesce(title, '') || ' ' || coalesce(summary, '')) like $${values.length}`);
+
+      const offset = (page - 1) * limit;
+      values.push(limit, offset);
+      const limitIndex = values.length - 1;
+      const offsetIndex = values.length;
+      const idsResult = await pool.query<{ id: string | number; total: string }>(
+        `
+          select id, count(*) over()::text as total
+          from posts
+          where ${sqlWhere.join(" and ")}
+          order by ${sort === "oldest" ? "published_at asc" : "published_at desc"} nulls last, id asc
+          limit $${limitIndex} offset $${offsetIndex}
+        `,
+        values,
+      );
+      const ids = idsResult.rows.map((row) => row.id);
+      const totalDocs = Number(idsResult.rows[0]?.total) || 0;
+      const totalPages = Math.max(1, Math.ceil(totalDocs / limit));
+
+      if (!ids.length) {
+        return {
+          posts: [],
+          totalDocs,
+          totalPages,
+          page: Math.min(page, totalPages),
+          limit,
+          hasNextPage: false,
+          hasPrevPage: page > 1,
+        };
+      }
+
+      const res = await payload.find({
+        collection: "posts",
+        depth: 2,
+        limit,
+        select: PUBLIC_POST_CARD_SELECT,
+        where: { id: { in: ids } },
+      });
+      const order = new Map(ids.map((id, index) => [String(id), index]));
+      const posts = (res.docs as PayloadDoc[])
+        .sort((a, b) => (order.get(String(a.id)) ?? 0) - (order.get(String(b.id)) ?? 0))
+        .map(mapPost);
+
+      return {
+        posts,
+        totalDocs,
+        totalPages,
+        page: Math.min(page, totalPages),
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      };
+    }
+
+    const res = await payload.find({
+      collection: "posts",
+      depth: 2,
+      limit,
+      page,
+      select: PUBLIC_POST_CARD_SELECT,
+      sort: sort === "oldest" ? "publishedAt" : "-publishedAt",
+      where: { and: where },
+    });
+
+    const localPosts = filterLocalPostsForPage(loadLocalContentFixtures().posts, { ...options, sort });
+    const localStart = (page - 1) * limit;
+    const localPage = localPosts.slice(localStart, localStart + limit);
+    const mergedPosts = mergeLocalBySlug(res.docs.map((doc) => mapPost(doc as PayloadDoc)), localPage).slice(0, limit);
+    const totalDocs = res.totalDocs + localPosts.length;
+    const totalPages = Math.max(1, Math.ceil(totalDocs / limit));
+
+    return {
+      posts: mergedPosts,
+      totalDocs,
+      totalPages,
+      page: Math.min(page, totalPages),
+      limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
+  } catch (error) {
+    handlePayloadReadError("posts", error);
+    const localPosts = filterLocalPostsForPage(loadLocalContentFixtures().posts, { ...options, sort });
+    const totalDocs = localPosts.length;
+    const totalPages = Math.max(1, Math.ceil(totalDocs / limit));
+    const safePage = Math.min(page, totalPages);
+    return {
+      posts: localPosts.slice((safePage - 1) * limit, safePage * limit),
+      totalDocs,
+      totalPages,
+      page: safePage,
+      limit,
+      hasNextPage: safePage < totalPages,
+      hasPrevPage: safePage > 1,
+    };
+  }
+}
+
 function projectCategory(doc: unknown): PublicProjectCategory | undefined {
   const category = relationDoc(doc);
   if (!category) return undefined;
@@ -718,19 +948,79 @@ function projectCategory(doc: unknown): PublicProjectCategory | undefined {
 export const getPostsFromPayload = unstable_cache(
   loadPostsFromPayload,
   ["posts"],
-  { revalidate: 300, tags: ["posts"] },
+  { revalidate: 300, tags: ["posts:list"] },
 );
 
-export async function getMostViewedPostsFromPayload(limit = 5): Promise<PublicPost[]> {
-  const posts = await getPostsFromPayload();
-  return [...posts]
-    .sort(
-      (a, b) =>
-        (b.viewCount || 0) - (a.viewCount || 0) ||
-        Number(Boolean(b.featured)) - Number(Boolean(a.featured)) ||
-        (b.publishedAt ? new Date(b.publishedAt).getTime() : 0) - (a.publishedAt ? new Date(a.publishedAt).getTime() : 0),
-    )
-    .slice(0, limit);
+export async function getLatestPostsFromPayload(limit = 5, excludeSlug?: string): Promise<PublicPost[]> {
+  const safeLimit = clampPositiveInteger(limit, 5, 24);
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "posts",
+      depth: 2,
+      limit: excludeSlug ? safeLimit + 1 : safeLimit,
+      select: PUBLIC_POST_CARD_SELECT,
+      sort: "-publishedAt",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { postType: { in: [...PUBLIC_NEWS_POST_TYPES] } },
+          ...(excludeSlug ? [{ slug: { not_in: [excludeSlug] } }] : []),
+        ],
+      },
+    });
+
+    return (res.docs as PayloadDoc[]).map(mapPost).slice(0, safeLimit);
+  } catch (error) {
+    handlePayloadReadError("posts:latest", error);
+    return filterLocalPostsForPage(loadLocalContentFixtures().posts, { sort: "newest" })
+      .filter((post) => post.slug !== excludeSlug)
+      .slice(0, safeLimit);
+  }
+}
+
+export async function getMostViewedPostsFromPayload(limit = 5, excludeSlug?: string): Promise<PublicPost[]> {
+  const safeLimit = clampPositiveInteger(limit, 5, 24);
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "posts",
+      depth: 2,
+      limit: excludeSlug ? safeLimit + 1 : safeLimit,
+      select: PUBLIC_POST_CARD_SELECT,
+      sort: "-viewCount",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { postType: { in: [...PUBLIC_NEWS_POST_TYPES] } },
+          ...(excludeSlug ? [{ slug: { not_in: [excludeSlug] } }] : []),
+        ],
+      },
+    });
+
+    return (res.docs as PayloadDoc[])
+      .map(mapPost)
+      .sort(
+        (a, b) =>
+          (b.viewCount || 0) - (a.viewCount || 0) ||
+          Number(Boolean(b.featured)) - Number(Boolean(a.featured)) ||
+          (b.publishedAt ? new Date(b.publishedAt).getTime() : 0) - (a.publishedAt ? new Date(a.publishedAt).getTime() : 0),
+      )
+      .slice(0, safeLimit);
+  } catch (error) {
+    handlePayloadReadError("posts:most-viewed", error);
+    return filterLocalPostsForPage(loadLocalContentFixtures().posts, { sort: "newest" })
+      .filter((post) => post.slug !== excludeSlug)
+      .sort(
+        (a, b) =>
+          (b.viewCount || 0) - (a.viewCount || 0) ||
+          Number(Boolean(b.featured)) - Number(Boolean(a.featured)) ||
+          (b.publishedAt ? new Date(b.publishedAt).getTime() : 0) - (a.publishedAt ? new Date(a.publishedAt).getTime() : 0),
+      )
+      .slice(0, safeLimit);
+  }
 }
 
 async function loadPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
@@ -748,14 +1038,13 @@ async function loadPostBySlugFromPayload(slug: string): Promise<PublicPost | nul
   return mapPostDetail(doc);
 }
 
-const getCachedPostBySlugFromPayload = unstable_cache(
-  loadPostBySlugFromPayload,
-  ["post-by-slug"],
-  { revalidate: 300, tags: ["posts"] },
-);
-
 export async function getPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
-  return getCachedPostBySlugFromPayload(slug);
+  const getCachedPostBySlug = unstable_cache(
+    () => loadPostBySlugFromPayload(slug),
+    ["post-by-slug", slug],
+    { revalidate: 300, tags: [`post:${slug}`] },
+  );
+  return getCachedPostBySlug();
 }
 
 export async function getRecruitmentPostBySlugFromPayload(slug: string): Promise<PublicPost | null> {
@@ -844,17 +1133,142 @@ export async function getPostCategoryByPathFromPayload(pathValue: string): Promi
   };
 }
 
-export async function getPostsByCategoryPathFromPayload(pathValue: string): Promise<PublicPost[]> {
+export async function getPostsByCategoryPathFromPayload(
+  pathValue: string,
+  options: { page?: number; limit?: number } = {},
+): Promise<PublicPostsPage> {
   const normalizedPath = normalizeNewsPath(pathValue);
-  const [categories, posts] = await Promise.all([getPostCategoriesFromPayload(), getPostsFromPayload()]);
-  const categoryIDs = new Set(
-    categories
-      .filter((category) => category.fullSlug === normalizedPath || category.fullSlug?.startsWith(`${normalizedPath}/`))
-      .map((category) => category.id)
-      .filter(Boolean),
-  );
+  const page = clampPositiveInteger(options.page, 1, 100000);
+  const limit = clampPositiveInteger(options.limit, 12, 48);
+  const categories = await getPostCategoriesFromPayload();
+  const categoryIDs = categories
+    .filter((category) => category.fullSlug === normalizedPath || category.fullSlug?.startsWith(`${normalizedPath}/`))
+    .map((category) => category.id)
+    .filter((id): id is string => Boolean(id));
 
-  return posts.filter((post) => post.category?.id && categoryIDs.has(post.category.id));
+  if (!categoryIDs.length) {
+    return {
+      posts: [],
+      totalDocs: 0,
+      totalPages: 1,
+      page: 1,
+      limit,
+      hasNextPage: false,
+      hasPrevPage: false,
+    };
+  }
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "posts",
+      depth: 2,
+      limit,
+      page,
+      select: PUBLIC_POST_CARD_SELECT,
+      sort: "-publishedAt",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { postType: { in: [...PUBLIC_NEWS_POST_TYPES] } },
+          { category: { in: categoryIDs } },
+        ],
+      },
+    });
+
+    return {
+      posts: (res.docs as PayloadDoc[]).map(mapPost),
+      totalDocs: res.totalDocs,
+      totalPages: Math.max(1, res.totalPages),
+      page: res.page || page,
+      limit,
+      hasNextPage: Boolean(res.hasNextPage),
+      hasPrevPage: Boolean(res.hasPrevPage),
+    };
+  } catch (error) {
+    handlePayloadReadError(`posts:category:${normalizedPath}`, error);
+    const categoryIDSet = new Set(categoryIDs);
+    const posts = filterLocalPostsForPage(loadLocalContentFixtures().posts, { sort: "newest" })
+      .filter((post) => post.category?.id && categoryIDSet.has(post.category.id));
+    const totalDocs = posts.length;
+    const totalPages = Math.max(1, Math.ceil(totalDocs / limit));
+    const safePage = Math.min(page, totalPages);
+
+    return {
+      posts: posts.slice((safePage - 1) * limit, safePage * limit),
+      totalDocs,
+      totalPages,
+      page: safePage,
+      limit,
+      hasNextPage: safePage < totalPages,
+      hasPrevPage: safePage > 1,
+    };
+  }
+}
+
+export async function getPublishedPostSitemapCount(): Promise<number> {
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "posts",
+      depth: 0,
+      limit: 1,
+      select: { slug: true },
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { postType: { in: [...PUBLIC_NEWS_POST_TYPES] } },
+        ],
+      },
+    });
+    return res.totalDocs;
+  } catch (error) {
+    handlePayloadReadError("posts:sitemap-count", error);
+    return filterLocalPostsForPage(loadLocalContentFixtures().posts, { sort: "newest" }).length;
+  }
+}
+
+export async function getPublishedPostSitemapEntries({
+  page = 1,
+  limit = 5000,
+}: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<PublicSitemapEntry[]> {
+  const safePage = clampPositiveInteger(page, 1, 100000);
+  const safeLimit = clampPositiveInteger(limit, 5000, 5000);
+
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "posts",
+      depth: 0,
+      limit: safeLimit,
+      page: safePage,
+      select: { slug: true, fullPath: true, updatedAt: true },
+      sort: "-updatedAt",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { postType: { in: [...PUBLIC_NEWS_POST_TYPES] } },
+        ],
+      },
+    });
+
+    return (res.docs as PayloadDoc[]).map((doc) => ({
+      slug: textField(doc, "slug"),
+      fullPath: textField(doc, "fullPath"),
+      updatedAt: textField(doc, "updatedAt"),
+    }));
+  } catch (error) {
+    handlePayloadReadError("posts:sitemap", error);
+    const posts = filterLocalPostsForPage(loadLocalContentFixtures().posts, { sort: "newest" });
+    return posts.slice((safePage - 1) * safeLimit, safePage * safeLimit).map((post) => ({
+      slug: post.slug,
+      fullPath: post.fullPath,
+      updatedAt: post.publishedAt,
+    }));
+  }
 }
 
 export async function getNewsRedirectFromPayload(pathValue: string): Promise<{ destination: string; permanent: boolean } | null> {

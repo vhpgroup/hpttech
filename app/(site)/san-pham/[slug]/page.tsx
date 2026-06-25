@@ -11,7 +11,6 @@ import {
   getProductBySlugFromPayload,
   getProductsByBrandFromPayload,
   getProductsByCategoryFromPayload,
-  getPublishedProductSlugs,
 } from "@/lib/catalog-payload";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
@@ -144,8 +143,7 @@ function inferDocumentType(filename?: string) {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getPublishedProductSlugs();
-  return slugs.map((slug) => ({ slug }));
+  return [];
 }
 
 export async function generateMetadata({ params }: PageProps) {

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   BookOpen,
@@ -18,8 +19,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import type { PublicPost } from "@/lib/content-payload";
 import { cn } from "@/lib/cn";
-
-const PAGE_SIZE = 12;
 
 const NEWS_TYPES = [
   { value: "news", label: "Tin tức", icon: Newspaper },
@@ -44,18 +43,14 @@ function postTime(post: PublicPost) {
   return Number.isFinite(value) ? value : 0;
 }
 
-function normalizeText(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-}
-
-function updateNewsURL(type?: NewsType, query?: string, sort?: SortValue, page = 1) {
+function newsURL(type?: NewsType, query?: string, sort?: SortValue, page = 1) {
   const params = new URLSearchParams();
   if (type) params.set("loai", type);
   if (query) params.set("q", query);
   if (sort && sort !== "newest") params.set("sap-xep", sort);
   if (page > 1) params.set("page", String(page));
   const value = params.toString();
-  window.history.replaceState(null, "", value ? `/tin-tuc?${value}` : "/tin-tuc");
+  return value ? `/tin-tuc?${value}` : "/tin-tuc";
 }
 
 function categoryLabel(post: PublicPost) {
@@ -319,12 +314,36 @@ function Overview({ posts }: { posts: PublicPost[] }) {
   );
 }
 
-function FilteredNews({ posts, type, initialQuery, initialSort, initialPage }: { posts: PublicPost[]; type: NewsType; initialQuery: string; initialSort: SortValue; initialPage: number }) {
-  const typeInfo = NEWS_TYPES.find((item) => item.value === type)!;
+function FilteredNews({
+  posts,
+  type,
+  initialQuery,
+  initialSort,
+  initialPage,
+  totalDocs,
+  totalPages,
+}: {
+  posts: PublicPost[];
+  type?: NewsType;
+  initialQuery: string;
+  initialSort: SortValue;
+  initialPage: number;
+  totalDocs: number;
+  totalPages: number;
+}) {
+  const router = useRouter();
+  const typeInfo = type ? NEWS_TYPES.find((item) => item.value === type) : undefined;
   const [input, setInput] = useState(initialQuery);
   const [query, setQuery] = useState(initialQuery);
   const [sort, setSort] = useState<SortValue>(initialSort);
   const [page, setPage] = useState(initialPage);
+
+  useEffect(() => {
+    setInput(initialQuery);
+    setQuery(initialQuery);
+    setSort(initialSort);
+    setPage(initialPage);
+  }, [initialPage, initialQuery, initialSort]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -335,20 +354,11 @@ function FilteredNews({ posts, type, initialQuery, initialSort, initialPage }: {
   }, [input]);
 
   useEffect(() => {
-    updateNewsURL(type, query, sort, page);
-  }, [page, query, sort, type]);
+    router.replace(newsURL(type, query, sort, page), { scroll: false });
+  }, [page, query, router, sort, type]);
 
-  const filteredPosts = useMemo(() => {
-    const normalizedQuery = normalizeText(query);
-    return posts
-      .filter((post) => post.postType === type)
-      .filter((post) => !normalizedQuery || normalizeText(`${post.title} ${post.summary || ""}`).includes(normalizedQuery))
-      .sort((a, b) => (sort === "newest" ? postTime(b) - postTime(a) : postTime(a) - postTime(b)));
-  }, [posts, query, sort, type]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const visiblePosts = filteredPosts.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const visiblePosts = posts;
 
   useEffect(() => {
     if (page !== safePage) setPage(safePage);
@@ -358,13 +368,13 @@ function FilteredNews({ posts, type, initialQuery, initialSort, initialPage }: {
     <>
       <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#12366d]">{typeInfo.label}</h1>
-          <p className="mt-1 text-sm text-slate-500">{filteredPosts.length} bài viết được tìm thấy</p>
+          <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#12366d]">{typeInfo?.label || "Tin tức"}</h1>
+          <p className="mt-1 text-sm text-slate-500">{totalDocs} bài viết được tìm thấy</p>
         </div>
         <div className="flex flex-1 flex-col gap-3 sm:flex-row lg:max-w-3xl">
           <label className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input value={input} onChange={(event) => setInput(event.target.value)} placeholder={`Tìm trong ${typeInfo.label.toLowerCase()}...`} className="h-12 w-full border border-slate-200 bg-white pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
+            <input value={input} onChange={(event) => setInput(event.target.value)} placeholder={`Tìm trong ${(typeInfo?.label || "tin tức").toLowerCase()}...`} className="h-12 w-full border border-slate-200 bg-white pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
             {input ? <button type="button" aria-label="Xóa tìm kiếm" onClick={() => setInput("")} className="absolute right-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X size={16} /></button> : null}
           </label>
           <label className="relative">
@@ -409,10 +419,28 @@ function FilteredNews({ posts, type, initialQuery, initialSort, initialPage }: {
   );
 }
 
-export function NewsPageClient({ posts, initialType, initialQuery, initialSort, initialPage }: { posts: PublicPost[]; initialType?: string; initialQuery?: string; initialSort?: string; initialPage?: number }) {
+export function NewsPageClient({
+  posts,
+  initialType,
+  initialQuery,
+  initialSort,
+  initialPage,
+  totalDocs,
+  totalPages,
+}: {
+  posts: PublicPost[];
+  initialType?: string;
+  initialQuery?: string;
+  initialSort?: string;
+  initialPage?: number;
+  totalDocs: number;
+  totalPages: number;
+}) {
   const activeType = isNewsType(initialType) ? initialType : undefined;
   const sort: SortValue = initialSort === "oldest" ? "oldest" : "newest";
   const usablePosts = useMemo(() => posts.filter((post) => post.postType !== "recruitment"), [posts]);
+  const page = Math.max(1, initialPage || 1);
+  const hasServerFilters = Boolean(activeType || initialQuery || sort !== "newest" || page > 1);
 
   return (
     <main className="subpage-main bg-white pb-20">
@@ -428,7 +456,19 @@ export function NewsPageClient({ posts, initialType, initialQuery, initialSort, 
         ) : <span>Tin tức</span>}
       </nav>
       <TypeNavigation activeType={activeType} />
-      {activeType ? <FilteredNews posts={usablePosts} type={activeType} initialQuery={initialQuery || ""} initialSort={sort} initialPage={Math.max(1, initialPage || 1)} /> : <Overview posts={usablePosts} />}
+      {hasServerFilters ? (
+        <FilteredNews
+          posts={usablePosts}
+          type={activeType}
+          initialQuery={initialQuery || ""}
+          initialSort={sort}
+          initialPage={page}
+          totalDocs={totalDocs}
+          totalPages={Math.max(1, totalPages)}
+        />
+      ) : (
+        <Overview posts={usablePosts} />
+      )}
     </main>
   );
 }
