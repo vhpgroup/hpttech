@@ -12,9 +12,9 @@
   --shell-pad: 16px;
   --shell-pad-mobile: 12px;
   --design-width: 1440px;
-  --desktop-scale: 1;
+  --shell-gutter: clamp(16px, 4vw, 40px);
   --desktop-stage-width: var(--design-width);
-  --shell-width: min(1440px, calc(100vw - (var(--shell-pad) * 2)));
+  --shell-width: min(var(--design-width), calc(100vw - (var(--shell-gutter) * 2)));
   --catalog-width: clamp(220px, 18vw, 260px);
 }
 
@@ -66,27 +66,18 @@ textarea {
 
 @media (min-width: 1024px) {
   :root {
-    --shell-width: var(--design-width);
     --catalog-width: 260px;
   }
 
   .desktop-shell {
-    width: 100vw;
-    max-width: none;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    width: 100%;
+    display: block;
   }
 
   .desktop-stage {
-    width: var(--design-width);
-    min-width: var(--design-width);
-    min-height: var(--desktop-stage-min-height, auto);
+    width: 100%;
     display: flex;
     flex-direction: column;
-    transform: scale(var(--desktop-scale));
-    transform-origin: top center;
   }
 
   .desktop-stage > main {
@@ -104,7 +95,8 @@ textarea {
   .solutions,
   .news,
   .subpage-main {
-    width: var(--design-width);
+    width: var(--shell-width);
+    margin-inline: auto;
   }
 
   .hero-section {
@@ -112,7 +104,6 @@ textarea {
     --hero-bottom-height: 228px;
     --hero-gap: 16px;
     --hero-card-gap: 16px;
-    grid-template-columns: 260px 1180px;
   }
 
   .hero-commerce-area {
@@ -2550,7 +2541,7 @@ main {
   z-index: 46;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1760px) {
   #supportWidgetShell {
     left: calc((100vw + var(--desktop-stage-width)) / 2 + 10px);
     right: auto;
@@ -3661,6 +3652,13 @@ svg {
 
 body:has(.about-page) .desktop-stage {
   background: #f5f8fc;
+}
+
+.projects-page,
+.brand-certifications-page,
+.about-page {
+  width: min(100%, var(--shell-width));
+  margin-inline: auto;
 }
 
 body:has(.about-page) #supportWidgetShell {

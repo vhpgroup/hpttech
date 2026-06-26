@@ -78,7 +78,7 @@ export function BrandCertificationsPage({ certifications, settings }: Props) {
   ];
 
   return (
-    <main className="bg-surface text-ink">
+    <main className="brand-certifications-page bg-surface text-ink">
       <section className="bg-primary-900 text-white">
         <div className="mx-auto max-w-[1280px] px-6 py-16 md:px-10 md:py-20">
           <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs font-medium text-primary-100">

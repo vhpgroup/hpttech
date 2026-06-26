@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const css = fs.readFileSync("styles.css", "utf8");
 const stage = fs.readFileSync("components/layout/DesktopStage.tsx", "utf8");
+const layout = fs.readFileSync("app/(site)/layout.tsx", "utf8");
 
 function assert(condition, message) {
   if (!condition) {
@@ -9,41 +10,31 @@ function assert(condition, message) {
   }
 }
 
-assert(css.includes("--design-width: 1440px"), "Missing 1440px design width variable.");
-assert(css.includes("--desktop-scale"), "Missing desktop scale variable.");
-assert(css.includes(".desktop-shell"), "Missing desktop shell CSS.");
-assert(css.includes(".desktop-stage"), "Missing desktop stage CSS.");
-assert(css.includes("grid-template-columns: 260px 1180px"), "Hero shell must keep fixed sidebar/content columns.");
+// Layout phải là container co giãn căn giữa, KHÔNG dùng transform scale.
 assert(
-  css.includes("grid-template-columns: repeat(3, minmax(0, 1fr))"),
-  "Hero commerce area must keep the current three-column layout.",
-);
-assert(stage.includes("REFERENCE_VIEWPORT = 1920"), "Desktop scale must keep the 1920px viewport reference.");
-assert(stage.includes("DESKTOP_BREAKPOINT = 1024"), "Desktop scale must keep the desktop breakpoint.");
-assert(stage.includes("width / REFERENCE_VIEWPORT"), "Desktop scale must be based on viewport/reference width.");
-assert(
-  stage.includes("--desktop-stage-min-height"),
-  "Desktop stage height must be passed through a root CSS variable.",
+  !css.includes("transform: scale(var(--desktop-scale))"),
+  "Layout không được scale: phải bỏ transform scale.",
 );
 assert(
-  !stage.includes("stage.style.minHeight"),
-  "Desktop stage must not mutate its inline style before React hydration.",
+  !/\.desktop-stage[^{}]*\{[^}]*min-width:\s*var\(--design-width\)/s.test(css),
+  ".desktop-stage không được ghim min-width = design-width.",
+);
+assert(css.includes("--design-width"), "Vẫn cần biến --design-width làm max-width.");
+
+// --shell-width ở desktop phải co giãn theo 100vw, không phải = design-width cứng.
+assert(
+  /--shell-width:\s*min\(\s*var\(--design-width\)[^;]*100vw/s.test(css),
+  "--shell-width phải co giãn: min(design-width, 100vw - gutter).",
+);
+
+// Không còn cơ chế scale trong JS / che biến trong layout.
+assert(
+  !stage.includes("REFERENCE_VIEWPORT") && !stage.includes("--desktop-scale"),
+  "DesktopStage không còn script tính scale.",
 );
 assert(
-  css.includes("min-height: var(--desktop-stage-min-height, auto)"),
-  "Desktop stage CSS must consume the hydration-safe height variable.",
+  !layout.includes("--desktop-scale") && !layout.includes("DesktopStageScript"),
+  "layout.tsx không còn inline --desktop-scale / DesktopStageScript.",
 );
 
-const designWidth = 1440;
-const referenceViewport = 1920;
-const expectedSideRatio = (referenceViewport - designWidth) / referenceViewport / 2;
-
-for (const viewport of [1920, 1600, 1440, 1366, 1280]) {
-  const scale = Math.min(1, viewport / referenceViewport);
-  const visualWidth = designWidth * scale;
-  const sideRatio = (viewport - visualWidth) / viewport / 2;
-
-  assert(Math.abs(sideRatio - expectedSideRatio) < 0.0001, `Side margin ratio drifted at ${viewport}px.`);
-}
-
-console.log("Desktop stage contract OK.");
+console.log("Hợp đồng layout fluid: OK.");
