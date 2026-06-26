@@ -13,6 +13,7 @@ import { buildConfig } from "payload";
 import { Brands } from "./collections/Brands.ts";
 import { Banners } from "./collections/Banners.ts";
 import { Categories } from "./collections/Categories.ts";
+import { Certifications } from "./collections/Certifications.ts";
 import { DownloadCategories } from "./collections/DownloadCategories.ts";
 import { Downloads } from "./collections/Downloads.ts";
 import { FAQ } from "./collections/FAQ.ts";
@@ -117,6 +118,7 @@ export default buildConfig({
     PostTags,
     NewsRedirects,
     Posts,
+    Certifications,
     ProjectCategories,
     DownloadCategories,
     Downloads,

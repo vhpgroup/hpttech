@@ -8,6 +8,7 @@ const collectionPaths: Record<string, string[]> = {
   categories: ["/", "/san-pham"],
   "post-categories": ["/tin-tuc", "/sitemap.xml", "/sitemap/static"],
   posts: ["/", "/tin-tuc"],
+  certifications: ["/thuong-hieu", "/sitemap.xml", "/sitemap/static"],
   projects: ["/du-an"],
   faq: ["/dich-vu"],
   "static-pages": [],
@@ -60,6 +61,13 @@ export async function POST(request: NextRequest) {
     tags.add("post-categories:list");
     tags.add("posts:list");
     if (slug) tags.add(`category:${slug}`);
+  }
+  if (collection === "certifications") {
+    tags.add("certifications");
+    if (slug) {
+      tags.add(`certification:${slug}`);
+      paths.add(`/thuong-hieu/${slug}`);
+    }
   }
   if (collection === "static-pages" && slug) paths.add(`/${slug}`);
   if (body.global === "site-settings") paths.add("/");

@@ -1,4 +1,4 @@
-import { getPostCategoriesFromPayload } from "@/lib/content-payload";
+import { getCertificationSitemapEntries, getPostCategoriesFromPayload } from "@/lib/content-payload";
 import { helpLinks } from "@/lib/help-links";
 
 export const revalidate = 86400;
@@ -17,13 +17,16 @@ function escapeXML(value: string) {
     .replace(/'/g, "&apos;");
 }
 
-function url(loc: string) {
-  return `<url><loc>${escapeXML(loc)}</loc></url>`;
+function url(loc: string, lastmod?: string) {
+  return `<url><loc>${escapeXML(loc)}</loc>${lastmod ? `<lastmod>${escapeXML(lastmod)}</lastmod>` : ""}</url>`;
 }
 
 export async function GET() {
   const base = siteURL();
-  const postCategories = await getPostCategoriesFromPayload();
+  const [postCategories, certifications] = await Promise.all([
+    getPostCategoriesFromPayload(),
+    getCertificationSitemapEntries(),
+  ]);
   const staticPaths = [
     "/",
     "/san-pham",
@@ -43,6 +46,9 @@ export async function GET() {
     ...postCategories
       .filter((category) => category.fullSlug)
       .map((category) => url(`${base}/tin-tuc/${category.fullSlug}`)),
+    ...certifications
+      .filter((certification) => certification.slug)
+      .map((certification) => url(`${base}/thuong-hieu/${certification.slug}`, certification.updatedAt)),
   ];
 
   return new Response(
