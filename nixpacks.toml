@@ -27,7 +27,7 @@ aptPkgs = [
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run build"]
+cmds = ["node scripts/apply-startup-migrations.cjs", "npm run build"]
 
 [start]
 cmd = "node scripts/apply-startup-migrations.cjs && npm run start"
