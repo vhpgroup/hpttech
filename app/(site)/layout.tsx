@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "../globals.css";
 import { Geist, Inter } from "next/font/google";
-import DesktopStage, { DesktopStageScript } from "@/components/layout/DesktopStage";
+import DesktopStage from "@/components/layout/DesktopStage";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
@@ -73,11 +73,7 @@ export default async function SiteLayout({
             </Script>
           </>
         ) : null}
-        <div
-          className={`${inter.variable} ${geist.variable} site-shell`}
-          style={{ "--desktop-scale": "1" } as React.CSSProperties}
-        >
-          <DesktopStageScript />
+        <div className={`${inter.variable} ${geist.variable} site-shell`}>
           <CartProvider>
             <QuoteProvider>
               <ProductInfoPopupLayer>
