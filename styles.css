@@ -3654,6 +3654,13 @@ body:has(.about-page) .desktop-stage {
   background: #f5f8fc;
 }
 
+.projects-page,
+.brand-certifications-page,
+.about-page {
+  width: min(100%, var(--shell-width));
+  margin-inline: auto;
+}
+
 body:has(.about-page) #supportWidgetShell {
   display: none;
 }

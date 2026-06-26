@@ -311,7 +311,7 @@ export function ProjectsPageClient({
   };
 
   return (
-    <main className="mx-auto max-w-[1180px] px-4 pb-14 pt-5 sm:px-6">
+    <main className="projects-page px-4 pb-14 pt-5 sm:px-6">
       <nav className="mb-5 flex items-center gap-2 text-xs text-slate-500">
         <Link href="/" className="hover:text-[#0A4BFF]">Trang chủ</Link>
         <ChevronRight size={14} />
