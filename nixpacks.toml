@@ -31,4 +31,4 @@ cmds = ["npm ci"]
 cmds = ["npm run build"]
 
 [start]
-cmd = "npx payload migrate && npm run start"
+cmd = "node scripts/apply-startup-migrations.cjs && npm run start"
