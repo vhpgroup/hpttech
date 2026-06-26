@@ -25,11 +25,8 @@ export function CertificationDetail({ cert, related, settings }: Props) {
   const facts: Array<{ k: string; v?: string }> = [
     { k: "Thương hiệu", v: cert.brand },
     { k: "Loại ủy quyền", v: cert.kindLabel },
-    { k: "Phạm vi", v: cert.scope },
-    { k: "Khu vực", v: cert.territory },
     { k: "Hiệu lực", v: cert.validity },
     { k: "Đơn vị cấp", v: cert.issuer },
-    { k: "Số chứng nhận", v: cert.certNo },
   ];
   const articleSchema = {
     "@context": "https://schema.org",
@@ -65,7 +62,7 @@ export function CertificationDetail({ cert, related, settings }: Props) {
         <span className={`inline-block rounded-full px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-white ${kindBadgeClass[cert.kind] || "bg-primary-600"}`}>
           {cert.kindLabel}
         </span>
-        <h1 className="mt-3 max-w-3xl text-3xl font-extrabold leading-tight tracking-tight text-primary-800 sm:text-4xl">
+        <h1 className="mt-3 max-w-none text-3xl font-extrabold leading-tight tracking-tight text-primary-800 sm:text-4xl xl:whitespace-nowrap">
           Chứng nhận {cert.kindLabel} {cert.brand}
         </h1>
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm font-medium text-ink/60">
@@ -82,15 +79,15 @@ export function CertificationDetail({ cert, related, settings }: Props) {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-7 lg:grid-cols-[minmax(0,420px)_1fr]">
+      <div className="mt-6 grid gap-7 lg:grid-cols-[minmax(0,560px)_1fr] xl:grid-cols-[minmax(0,620px)_1fr]">
         {cert.image ? (
-          <a href={cert.image} target="_blank" rel="noopener noreferrer" className="relative block rounded-lg border border-border bg-white p-4 shadow-soft">
+          <a href={cert.image} target="_blank" rel="noopener noreferrer" className="relative block rounded-lg border border-border bg-white p-3 shadow-soft sm:p-4">
             <Image
               src={cert.image}
               alt={cert.imageAlt || `Giấy chứng nhận ${cert.brand}`}
-              width={cert.orientation === "landscape" ? 900 : 560}
-              height={cert.orientation === "landscape" ? 640 : 760}
-              className="w-full rounded-lg shadow-soft"
+              width={cert.orientation === "landscape" ? 1040 : 760}
+              height={cert.orientation === "landscape" ? 720 : 980}
+              className="w-full rounded-lg object-contain shadow-soft"
               priority
             />
             <span className="absolute bottom-7 right-7 inline-flex items-center gap-1.5 rounded-lg bg-ink px-3 py-2 text-xs font-bold text-white">
@@ -103,9 +100,9 @@ export function CertificationDetail({ cert, related, settings }: Props) {
           <div className="border-b border-border px-6 py-4 text-base font-extrabold text-primary-800">
             Thông tin chứng nhận
           </div>
-          <dl className="px-6 py-2">
+          <dl className="px-6 py-3">
             {facts.filter((fact) => fact.v).map((fact) => (
-              <div key={fact.k} className="grid grid-cols-[130px_1fr] gap-4 border-b border-dashed border-border py-3 text-sm last:border-b-0">
+              <div key={fact.k} className="grid grid-cols-[120px_1fr] gap-4 border-b border-dashed border-border py-2.5 text-sm last:border-b-0">
                 <dt className="font-semibold text-ink/45">{fact.k}</dt>
                 <dd className="font-semibold text-ink/75">{fact.v}</dd>
               </div>
