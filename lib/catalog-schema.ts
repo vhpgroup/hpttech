@@ -8,6 +8,7 @@ export const PRODUCT_TYPE_OPTIONS = [
   { label: "May photocopy", value: "photocopier" },
   { label: "Laptop", value: "laptop" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
+  { label: "Muc in & phu kien", value: "ink" },
   { label: "Khac", value: "other" },
 ] as const;
 

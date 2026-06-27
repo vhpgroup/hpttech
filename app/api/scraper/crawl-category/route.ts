@@ -5,7 +5,10 @@ import { importBatchProduct } from "@/lib/scraper/batch-importer";
 import { findExistingProductForSourceCandidate } from "@/lib/scraper/duplicate-check";
 import { resolveProductTypeCode } from "@/lib/scraper/db-lookup";
 import { discoverSourceCategory } from "@/lib/scraper/engine";
-import { LAPTOP_GAMING_CATEGORY_NAME } from "@/lib/product-category";
+import {
+  INK_CATEGORY_NAME,
+  LAPTOP_GAMING_CATEGORY_NAME,
+} from "@/lib/product-category";
 import type { ExcelRow } from "@/lib/scraper/types";
 
 export const runtime = "nodejs";
@@ -48,6 +51,7 @@ function sleep(ms: number) {
 
 function importCategoryName(productTypeCode: string, sourceCategoryTitle: string) {
   if (productTypeCode === "laptop") return LAPTOP_GAMING_CATEGORY_NAME;
+  if (productTypeCode === "ink") return INK_CATEGORY_NAME;
   return sourceCategoryTitle;
 }
 

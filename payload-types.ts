@@ -219,6 +219,7 @@ export interface Media {
    * Ví dụ: banner, product, logo
    */
   tags?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -290,7 +291,7 @@ export interface Brand {
  */
 export interface ProductType {
   id: number;
-  code: 'scanner' | 'printer' | 'photocopier' | 'laptop' | 'software' | 'other';
+  code: 'scanner' | 'printer' | 'photocopier' | 'laptop' | 'software' | 'ink' | 'other';
   name: string;
   description?: string | null;
   schemaVersion: number;
@@ -1742,6 +1743,7 @@ export interface MediaSelect<T extends boolean = true> {
   caption?: T;
   folder?: T;
   tags?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

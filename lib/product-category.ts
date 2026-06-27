@@ -2,6 +2,8 @@ import { formatSlug } from "@/lib/payload/utils/slugify";
 
 export const SOFTWARE_CATEGORY_NAME = "Phần mềm bản quyền";
 export const SOFTWARE_CATEGORY_SLUG = "phan-mem-ban-quyen";
+export const INK_CATEGORY_NAME = "Mực in & Phụ kiện";
+export const INK_CATEGORY_SLUG = "muc-in-phu-kien";
 export const PRINTER_CATEGORY_NAME = "Máy in";
 export const PRINTER_CATEGORY_SLUG = "may-in";
 export const SCANNER_CATEGORY_NAME = "Máy scan";
@@ -32,6 +34,20 @@ export function isSoftwareCategoryValue(value?: string) {
     normalized === "phan mem" ||
     normalized === "phan mem ban quyen" ||
     normalized === "software"
+  );
+}
+
+export function isInkCategoryValue(value?: string) {
+  const normalized = normalizeCategoryText(value);
+  return (
+    normalized === "muc in" ||
+    normalized === "muc in phu kien" ||
+    normalized === "muc in vat tu" ||
+    normalized === "hop muc" ||
+    normalized === "toner" ||
+    normalized === "cartridge" ||
+    normalized === "phu kien" ||
+    normalized === "linh kien phu kien"
   );
 }
 
@@ -82,6 +98,7 @@ export function isLaptopCategoryValue(value?: string) {
 
 export function canonicalizeCategoryName(value?: string) {
   if (isSoftwareCategoryValue(value)) return SOFTWARE_CATEGORY_NAME;
+  if (isInkCategoryValue(value)) return INK_CATEGORY_NAME;
   if (isPrinterCategoryValue(value)) return PRINTER_CATEGORY_NAME;
   if (isScannerCategoryValue(value)) return SCANNER_CATEGORY_NAME;
   if (isPhotocopierCategoryValue(value)) return PHOTOCOPIER_CATEGORY_NAME;
@@ -93,6 +110,9 @@ export function canonicalizeCategoryName(value?: string) {
 export function canonicalizeCategorySlug(slug?: string, name?: string) {
   if (isSoftwareCategoryValue(slug) || isSoftwareCategoryValue(name)) {
     return SOFTWARE_CATEGORY_SLUG;
+  }
+  if (isInkCategoryValue(slug) || isInkCategoryValue(name)) {
+    return INK_CATEGORY_SLUG;
   }
   if (isPrinterCategoryValue(slug) || isPrinterCategoryValue(name)) {
     return PRINTER_CATEGORY_SLUG;

@@ -111,7 +111,8 @@ export type ProductExportProfile =
   | "printer"
   | "photocopier"
   | "laptop"
-  | "software";
+  | "software"
+  | "ink";
 
 const COMMON_COLUMNS: ProductColumn[] = [
   "sku",
@@ -251,6 +252,7 @@ function columnsForProfile(profile: ProductExportProfile = "all") {
   if (profile === "printer") return [...COMMON_COLUMNS, ...PRINTER_COLUMNS, ...EXTRA_COLUMNS];
   if (profile === "photocopier") return [...COMMON_COLUMNS, ...PHOTOCOPIER_COLUMNS, ...EXTRA_COLUMNS];
   if (profile === "laptop") return [...COMMON_COLUMNS, ...LAPTOP_COLUMNS, ...EXTRA_COLUMNS];
+  if (profile === "ink" || profile === "software") return [...COMMON_COLUMNS, ...EXTRA_COLUMNS];
   return PRODUCT_COLUMNS;
 }
 
@@ -259,6 +261,8 @@ function profileLabel(profile: ProductExportProfile) {
   if (profile === "printer") return "may-in";
   if (profile === "photocopier") return "photocopy";
   if (profile === "laptop") return "laptop";
+  if (profile === "software") return "phan-mem";
+  if (profile === "ink") return "muc-in-phu-kien";
   return "tat-ca";
 }
 
@@ -268,7 +272,8 @@ function normalizeProfile(value: string | null): ProductExportProfile {
     value === "printer" ||
     value === "photocopier" ||
     value === "laptop" ||
-    value === "software"
+    value === "software" ||
+    value === "ink"
   ) {
     return value;
   }
@@ -812,6 +817,25 @@ function sampleRecord(profile: ProductExportProfile): CsvRecord {
     };
   }
 
+  if (profile === "ink") {
+    return {
+      sku: "INK-001",
+      title: "Hộp mực Canon 337 chính hãng",
+      model: "337",
+      brandSlug: "canon",
+      brandName: "Canon",
+      categorySlug: "muc-in-phu-kien",
+      categoryName: "Mực in & Phụ kiện",
+      specProfile: "other",
+      status: "published",
+      stockStatus: "in_stock",
+      price: "1250000",
+      warranty: "Theo tiêu chuẩn hãng",
+      featured: "false",
+      specs: "Loại mực: Laser đen trắng | Dùng cho máy: Canon MF211, MF221d, MF223d | Số trang in: khoảng 2.400 trang",
+    };
+  }
+
   return {
       sku: "ADS-4300N",
       title: "Brother ADS-4300N Scanner",
@@ -848,6 +872,8 @@ function matchesProfile(record: CsvRecord, profile: ProductExportProfile) {
   if (profile === "scanner") return haystack.includes("scanner") || haystack.includes("scan");
   if (profile === "printer") return haystack.includes("printer") || haystack.includes("may-in") || haystack.includes("máy in");
   if (profile === "laptop") return haystack.includes("laptop") || haystack.includes("notebook");
+  if (profile === "software") return haystack.includes("software") || haystack.includes("phan-mem") || haystack.includes("phần mềm");
+  if (profile === "ink") return haystack.includes("ink") || haystack.includes("muc-in") || haystack.includes("mực in") || haystack.includes("toner");
   return haystack.includes("photo") || haystack.includes("copy");
 }
 

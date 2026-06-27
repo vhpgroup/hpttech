@@ -97,7 +97,38 @@ const decimalPriceRow = buildCanonicalImportRow(
 assert.equal(decimalPriceRow.price, "14000000");
 assert.equal(decimalPriceRow.saleStatus, "active");
 assert.equal(commonProductTypeCode("Máy in đa năng"), "printer");
+assert.equal(commonProductTypeCode("Mực in Canon 337"), "ink");
+assert.equal(commonProductTypeCode("Toner HP 107A"), "ink");
 assert.equal(commonProductTypeCode("Máy photocopy A3"), "photocopier");
+const inkRow = buildCanonicalImportRow(
+  {
+    category: "Máy in",
+    name: "Hộp mực Canon 337 chính hãng",
+    productType: "Máy in",
+    rowNumber: 4,
+  },
+  {
+    ...product,
+    data: {
+      ...product.data,
+      price: "1.250.000đ",
+      sku: "CRG-337",
+      specs: [{ label: "Số trang in", value: "2.400 trang" }],
+      title: "Hộp mực Canon 337 chính hãng",
+      warranty: "Theo tiêu chuẩn hãng",
+    },
+    source: {
+      ...product.source,
+      brand: "Canon",
+      url: "https://example.com/hop-muc-canon-337",
+    },
+  },
+  "printer",
+);
+assert.equal(inkRow.productTypeCode, "ink");
+assert.equal(inkRow.categoryName, "Mực in & Phụ kiện");
+assert.equal(inkRow.model, "337");
+assert.equal(inkRow.price, "1250000");
 assert.equal(
   extractRequestedModel("Máy in HP Laser MFP 136w (A4/A5 | In, Scan, Copy | Wifi)"),
   "136W",

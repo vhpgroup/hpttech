@@ -200,5 +200,35 @@ assert.throws(
     }),
   /Sai loại sản phẩm/,
 );
+assert.doesNotThrow(() =>
+  validateExpectedProductType("Mực in & Phụ kiện", {
+    ...product,
+    data: {
+      ...product.data,
+      specs: [{ label: "Số trang in", value: "2.400 trang" }],
+      title: "Hộp mực Canon 337 chính hãng",
+    },
+    source: {
+      ...product.source,
+      brand: "Canon",
+      url: "https://example.com/hop-muc-canon-337",
+    },
+  }),
+);
+assert.throws(
+  () =>
+    validateExpectedProductType("Mực in & Phụ kiện", {
+      ...product,
+      data: {
+        ...product.data,
+        specs: [
+          { label: "Tốc độ in", value: "40 trang/phút" },
+          { label: "Kết nối", value: "USB, LAN" },
+        ],
+        title: "Máy in HP LaserJet Pro 4003dn",
+      },
+    }),
+  /Sai loại sản phẩm/,
+);
 
 console.log("scraper pipeline safety verification passed");

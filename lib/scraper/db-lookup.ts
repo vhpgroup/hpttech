@@ -20,6 +20,20 @@ export function commonProductTypeCode(value: string) {
   ) {
     return "photocopier";
   }
+  if (
+    normalized.includes("muc in") ||
+    normalized.includes("muc may in") ||
+    normalized.includes("hop muc") ||
+    normalized.includes("toner") ||
+    normalized.includes("cartridge") ||
+    normalized.includes("drum") ||
+    normalized.includes("muc photo") ||
+    normalized.includes("vat tu may in") ||
+    normalized.includes("phu kien may in") ||
+    normalized.includes("linh kien may in")
+  ) {
+    return "ink";
+  }
   if (normalized.includes("may in") || normalized.includes("printer")) {
     return "printer";
   }

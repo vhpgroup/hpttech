@@ -26,7 +26,10 @@ export function inferScrapedProductType(product: ScrapedProduct) {
     return "photocopier";
   }
   if (/\b(may scan|scanner|scan speed|adf|ocr)\b/.test(text)) return "scanner";
-  if (/\b(may in|printer|print speed|muc in|toner|cartridge)\b/.test(text)) {
+  if (/\b(muc in|muc may in|hop muc|toner|cartridge|drum|muc photo|vat tu may in|phu kien may in|linh kien may in)\b/.test(text)) {
+    return "ink";
+  }
+  if (/\b(may in|printer|print speed)\b/.test(text)) {
     return "printer";
   }
   if (/\b(laptop|notebook|rtx|geforce|intel core|amd ryzen|ssd|ddr|wuxga)\b/.test(text)) {

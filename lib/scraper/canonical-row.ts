@@ -2,6 +2,7 @@ import type { ExcelRow, ScrapedProduct } from "./types";
 import { extractRequestedModel } from "./model-identity";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
 import {
+  INK_CATEGORY_NAME,
   LAPTOP_GAMING_CATEGORY_NAME,
   PHOTOCOPIER_CATEGORY_NAME,
   PRINTER_CATEGORY_NAME,
@@ -81,6 +82,9 @@ export function inferScrapedProductTypeCode(inputName: string, requestedTypeCode
   if (/\bphan\s+mem\b/.test(text) || /\bsoftware\b/.test(text)) {
     return "software";
   }
+  if (/\b(muc\s+in|muc\s+may\s+in|hop\s+muc|toner|cartridge|drum|muc\s+photo|vat\s+tu\s+may\s+in|phu\s+kien\s+may\s+in|linh\s+kien\s+may\s+in)\b/.test(text)) {
+    return "ink";
+  }
   if (/\blaptop\b/.test(text) || /\bnotebook\b/.test(text)) {
     return "laptop";
   }
@@ -92,6 +96,7 @@ function categoryNameForProductType(productTypeCode: string, fallback: string) {
   if (productTypeCode === "printer") return PRINTER_CATEGORY_NAME;
   if (productTypeCode === "scanner") return SCANNER_CATEGORY_NAME;
   if (productTypeCode === "software") return SOFTWARE_CATEGORY_NAME;
+  if (productTypeCode === "ink") return INK_CATEGORY_NAME;
   if (productTypeCode === "laptop") return LAPTOP_GAMING_CATEGORY_NAME;
   return fallback;
 }

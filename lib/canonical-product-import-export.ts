@@ -295,7 +295,7 @@ function columnHelp(column: string) {
     return "Nhập theo giá trị gợi ý";
   }
   const hints: Record<string, string> = {
-    productTypeCode: "scanner / printer / photocopier / laptop / software",
+    productTypeCode: "scanner / printer / photocopier / laptop / software / ink",
     productStatus: "draft / published / archived",
     sourceType: "import / manual / scraper / api",
     isPrimary: "Có / Không",
@@ -318,7 +318,7 @@ function dropdownOptions(column: string) {
     return undefined;
   }
   const options: Record<string, string[]> = {
-    productTypeCode: ["scanner", "printer", "photocopier", "laptop", "software"],
+    productTypeCode: ["scanner", "printer", "photocopier", "laptop", "software", "ink"],
     productStatus: ["draft", "published", "archived"],
     sourceType: ["import", "manual", "scraper", "api"],
     isPrimary: ["Có", "Không"],
@@ -1162,16 +1162,20 @@ function canonicalTemplateRecords(
   return [
     {
       ...specValues,
-      brandName: "Brother",
-      brandSlug: "brother",
+      brandName: code === "ink" ? "Canon" : "Brother",
+      brandSlug: code === "ink" ? "canon" : "brother",
       categoryName:
-        code === "printer"
+        code === "ink"
+          ? "Mực in & Phụ kiện"
+          : code === "printer"
           ? "Máy in"
           : code === "photocopier"
             ? "Máy photocopy"
             : "Máy scan",
       categorySlug:
-        code === "printer"
+        code === "ink"
+          ? "muc-in-phu-kien"
+          : code === "printer"
           ? "may-in"
           : code === "photocopier"
             ? "may-photocopy"
@@ -1179,9 +1183,9 @@ function canonicalTemplateRecords(
       currency: "VND",
       internalId: "HPT-SAMPLE-001",
       isPrimary: "Có",
-      model: "MODEL-001",
+      model: code === "ink" ? "337" : "MODEL-001",
       price: "10000000",
-      productName: "Sản phẩm mẫu",
+      productName: code === "ink" ? "Hộp mực Canon 337 chính hãng" : "Sản phẩm mẫu",
       productStatus: "Bản nháp",
       productTypeCode: code,
       quantity: "0",
