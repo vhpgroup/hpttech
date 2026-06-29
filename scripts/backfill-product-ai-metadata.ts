@@ -16,6 +16,16 @@ function text(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function numericPayloadID(value: unknown) {
+  const id =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && /^\d+$/.test(value)
+        ? Number(value)
+        : undefined;
+  return Number.isFinite(id) ? id : undefined;
+}
+
 async function main() {
   const { getPayloadClient } = await import("../lib/payload");
   const payload = await getPayloadClient();
@@ -46,6 +56,8 @@ async function main() {
   let created = 0;
   for (const product of products.docs as ProductDocument[]) {
     if (existingProductIds.has(String(product.id))) continue;
+    const productId = numericPayloadID(product.id);
+    if (productId === undefined) continue;
     const productName = text(product.name) || text(product.title);
     const brandName =
       product.brand && typeof product.brand === "object"
@@ -70,7 +82,7 @@ async function main() {
         note: `Backfill từ dữ liệu catalog hiện có${
           product.source?.url ? `. Nguồn: ${product.source.url}` : ""
         }.`,
-        product: product.id,
+        product: productId,
         useCases: [],
         verified: false,
       },

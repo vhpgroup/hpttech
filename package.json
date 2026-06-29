@@ -8,6 +8,7 @@
     "cron:create-news": "tsx scripts/cron-create-news.ts",
     "payload": "payload",
     "payload:audit-catalog": "tsx scripts/audit-catalog-readiness.ts",
+    "products:audit-brand-mismatches": "tsx scripts/audit-brand-mismatches.ts",
     "payload:create-first-user": "tsx scripts/create-first-payload-user.ts",
     "payload:migrate-existing-catalog": "tsx scripts/migrate-existing-products-to-canonical.ts",
     "payload:merge-software-category": "tsx scripts/merge-software-categories.ts",

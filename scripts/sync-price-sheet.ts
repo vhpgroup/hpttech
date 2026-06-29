@@ -18,6 +18,19 @@ const DEFAULT_SHEET_TITLE =
 type ProductDoc = Record<string, unknown> & { id?: string | number };
 type VariantDoc = Record<string, unknown> & { id?: string | number };
 type OfferDoc = Record<string, unknown> & { id?: string | number };
+type PayloadWrite = {
+  create(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+  update(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    id: string | number;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+};
 
 const SHEET_HEADERS = [
   "productId",
@@ -170,7 +183,7 @@ async function loadPriceContext() {
     overrideAccess: true,
     sort: "title",
   });
-  const products = productsResult.docs as ProductDoc[];
+  const products = productsResult.docs as unknown as ProductDoc[];
   const productIds = products
     .map((product) => relationID(product.id))
     .filter((id): id is string | number => id !== undefined);
@@ -186,7 +199,7 @@ async function loadPriceContext() {
       },
     },
   });
-  const variants = variantsResult.docs as VariantDoc[];
+  const variants = variantsResult.docs as unknown as VariantDoc[];
   const variantIds = variants
     .map((variant) => relationID(variant.id))
     .filter((id): id is string | number => id !== undefined);
@@ -204,7 +217,7 @@ async function loadPriceContext() {
         },
       })
     : { docs: [] };
-  const offers = offersResult.docs as OfferDoc[];
+  const offers = offersResult.docs as unknown as OfferDoc[];
 
   return { offers, payload, products, variants };
 }
@@ -479,6 +492,7 @@ async function importFromSheet() {
   const values = await readSpreadsheetValues(spreadsheetId, DEFAULT_SHEET_TITLE);
   const rows = rowsFromSheet(values);
   const { offers, payload, products, variants } = await loadPriceContext();
+  const writePayload = payload as unknown as PayloadWrite;
   const productsById = new Map(
     products
       .map((product) => [String(relationID(product.id) || ""), product] as const)
@@ -575,7 +589,7 @@ async function importFromSheet() {
     }
 
     if (productNeedsUpdate) {
-      await payload.update({
+      await writePayload.update({
         collection: "products",
         data: {
           compareAtPrice: compareAtText,
@@ -607,14 +621,14 @@ async function importFromSheet() {
 
       try {
         if (existingOffer?.id !== undefined) {
-          await payload.update({
+          await writePayload.update({
             collection: "product-offers",
             data: offerData,
             id: existingOffer.id as string | number,
             overrideAccess: true,
           });
         } else {
-          await payload.create({
+          await writePayload.create({
             collection: "product-offers",
             data: offerData,
             overrideAccess: true,

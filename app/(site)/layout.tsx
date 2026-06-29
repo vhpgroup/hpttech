@@ -6,6 +6,7 @@ import DesktopStage from "@/components/layout/DesktopStage";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
+import SiteJsonLd from "@/components/seo/SiteJsonLd";
 import FloatingContactDockLoader from "@/components/FloatingContactDockLoader";
 import GlobalCompareDock from "@/components/GlobalCompareDock";
 import { CartProvider } from "@/components/cart/CartProvider";
@@ -57,6 +58,7 @@ export default async function SiteLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body>
+        <SiteJsonLd settings={settings} />
         {googleAnalyticsId ? (
           <>
             <Script

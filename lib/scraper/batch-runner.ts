@@ -36,6 +36,16 @@ function adminUrl(productId: string | number) {
   return `${base.replace(/\/$/, "")}/admin/collections/products/${productId}`;
 }
 
+function numericPayloadID(value: unknown) {
+  const id =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && /^\d+$/.test(value)
+        ? Number(value)
+        : undefined;
+  return Number.isFinite(id) ? id : undefined;
+}
+
 function productUrl(slug?: string) {
   if (!slug) return undefined;
   const base =
@@ -84,10 +94,11 @@ async function markJobImported(
   productId: string | number,
 ) {
   const payload = await getPayloadClient();
+  const productCreated = numericPayloadID(productId);
   await payload.update({
     collection: "scraper-jobs",
     data: {
-      productCreated: productId,
+      ...(productCreated !== undefined ? { productCreated } : {}),
       reviewStatus: "ready_to_review",
     },
     id: jobId,

@@ -105,6 +105,19 @@ const PRODUCT_COLUMNS = [
 type ProductColumn = (typeof PRODUCT_COLUMNS)[number];
 type CsvRecord = Record<string, string>;
 type PayloadDoc = Record<string, unknown> & { id?: string | number };
+type PayloadWrite = {
+  create(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+  update(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    id: string | number;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+};
 export type ProductExportProfile =
   | "all"
   | "scanner"
@@ -595,7 +608,7 @@ async function findOne(collection: "brands" | "categories" | "products", field: 
     },
   });
 
-  return result.docs[0] as PayloadDoc | undefined;
+  return result.docs[0] as unknown as PayloadDoc | undefined;
 }
 
 async function resolveTaxonomy(collection: "brands" | "categories", slug?: string, name?: string) {
@@ -618,7 +631,8 @@ async function resolveTaxonomy(collection: "brands" | "categories", slug?: strin
   if (!normalizedName && !lookupSlug) return undefined;
 
   const payload = await getPayloadClient();
-  const created = await payload.create({
+  const writePayload = payload as unknown as PayloadWrite;
+  const created = await writePayload.create({
       collection,
       data: {
         name: normalizedName || lookupSlug,
@@ -627,7 +641,7 @@ async function resolveTaxonomy(collection: "brands" | "categories", slug?: strin
       overrideAccess: true,
   });
 
-  return (created as PayloadDoc).id;
+  return (created as unknown as PayloadDoc).id;
 }
 
 function productData(record: CsvRecord, brand: string | number, category: string | number) {
@@ -888,7 +902,7 @@ export async function exportProductsCSV(profile: ProductExportProfile = "all") {
   });
 
   const records = products.docs.map((product) => {
-    const doc = product as PayloadDoc;
+    const doc = product as unknown as PayloadDoc;
     const scanner = (doc.scannerSpecs || {}) as Record<string, unknown>;
     const printer = (doc.printerSpecs || {}) as Record<string, unknown>;
     const photocopier = (doc.photocopierSpecs || {}) as Record<string, unknown>;
@@ -944,7 +958,7 @@ export async function exportProductsExcel(profile: ProductExportProfile = "all")
   });
 
   const records = products.docs.map((product) => {
-    const doc = product as PayloadDoc;
+    const doc = product as unknown as PayloadDoc;
     const scanner = (doc.scannerSpecs || {}) as Record<string, unknown>;
     const printer = (doc.printerSpecs || {}) as Record<string, unknown>;
     const photocopier = (doc.photocopierSpecs || {}) as Record<string, unknown>;
@@ -1021,17 +1035,19 @@ export async function importProductsCSV(csv: string): Promise<ProductImportResul
       const existing = existingBySku || existingBySlug;
 
       if (existing?.id) {
-        await payload.update({
+        const writePayload = payload as unknown as PayloadWrite;
+        await writePayload.update({
           collection: "products",
           id: existing.id,
-          data,
+          data: data as unknown as Record<string, unknown>,
           overrideAccess: true,
         });
         result.updated += 1;
       } else {
-        await payload.create({
+        const writePayload = payload as unknown as PayloadWrite;
+        await writePayload.create({
           collection: "products",
-          data,
+          data: data as unknown as Record<string, unknown>,
           overrideAccess: true,
         });
         result.created += 1;

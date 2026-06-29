@@ -71,7 +71,7 @@ async function getMediaLookup(ids: string[]): Promise<MediaLookup> {
     });
 
     return new Map(
-      res.docs.map((doc) => [String(doc.id), doc as RichTextRecord]),
+      res.docs.map((doc) => [String(doc.id), doc as unknown as RichTextRecord]),
     );
   } catch (error) {
     console.warn("[rich-text] Cannot populate embedded media.", error);

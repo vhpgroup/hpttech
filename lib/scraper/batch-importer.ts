@@ -23,6 +23,31 @@ import {
 } from "./text";
 import type { ExcelRow, ScrapedProduct } from "./types";
 
+type PayloadWrite = {
+  create(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+  update(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    id: string | number;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+};
+
+function numericRelationID(value: unknown) {
+  const id = relationID(value);
+  const numeric =
+    typeof id === "number"
+      ? id
+      : typeof id === "string" && /^\d+$/.test(id)
+        ? Number(id)
+        : undefined;
+  return Number.isFinite(numeric) ? numeric : undefined;
+}
+
 function randomRating() {
   const values = [4, 4.5, 5];
   return values[Math.floor(Math.random() * values.length)];
@@ -82,12 +107,16 @@ async function upsertAIMetadata(
   sellingPoints: string[],
 ) {
   const payload = await getPayloadClient();
+  const productRelationId = numericRelationID(productId);
+  if (productRelationId === undefined) {
+    throw new Error(`Product ID khong hop le de tao AI metadata: ${String(productId)}`);
+  }
   const existing = await payload.find({
     collection: "product-ai-metadata",
     depth: 0,
     limit: 1,
     overrideAccess: true,
-    where: { product: { equals: productId } },
+    where: { product: { equals: productRelationId } },
   });
   const data = {
     advantages: sellingPoints.slice(0, 10).map((value) => ({ value })),
@@ -100,7 +129,7 @@ async function upsertAIMetadata(
       .filter(Boolean)
       .map((value) => ({ value })),
     note: `Nguồn: ${product.source.url}. Confidence: ${product.confidence}.`,
-    product: productId,
+    product: productRelationId,
     useCases: [],
     verified: false,
   };
@@ -192,6 +221,7 @@ export async function importBatchProduct(
     where: { sku: { equals: row.sku } },
   });
   const productId = relationID(variantResult.docs[0]?.product);
+  const productRelationId = numericRelationID(productId);
   if (productId === undefined) {
     throw new Error("Da import canonical row nhung khong tim thay Product.");
   }
@@ -282,7 +312,8 @@ export async function importBatchProduct(
         : effectiveProductTypeCode === "laptop"
           ? { laptopSpecs: normalizedSpecs.laptopSpecs }
           : {};
-  const updated = await payload.update({
+  const writePayload = payload as unknown as PayloadWrite;
+  const updated = await writePayload.update({
     collection: "products",
     data: {
       ...typedSpecs,
@@ -338,7 +369,7 @@ export async function importBatchProduct(
       _status: publish ? "published" : "draft",
       summary: lexicalParagraphs(summaryText),
       viewCount,
-    },
+    } as unknown as Record<string, unknown>,
     id: productId,
     overrideAccess: true,
   });
@@ -348,7 +379,7 @@ export async function importBatchProduct(
     descriptionHTML,
     summaryText,
   );
-  await upsertAIMetadata(productId, displayProduct, sellingPoints);
+  await upsertAIMetadata(productRelationId ?? productId, displayProduct, sellingPoints);
 
   return {
     created: result.created === 1,

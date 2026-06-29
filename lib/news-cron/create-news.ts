@@ -2,6 +2,14 @@ import { formatSlug } from "@/lib/payload/utils/slugify";
 import { getPayloadClient } from "@/lib/payload";
 
 type PayloadDoc = Record<string, unknown>;
+type PayloadWrite = {
+  create(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    file?: unknown;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+};
 
 type NewsSource = {
   title: string;
@@ -111,6 +119,17 @@ function relationId(value: unknown) {
   return undefined;
 }
 
+function numericRelationId(value: unknown) {
+  const id = relationId(value);
+  const numeric =
+    typeof id === "number"
+      ? id
+      : typeof id === "string" && /^\d+$/.test(id)
+        ? Number(id)
+        : undefined;
+  return Number.isFinite(numeric) ? numeric : undefined;
+}
+
 function appBaseURL() {
   const raw =
     process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -149,7 +168,7 @@ async function getLeafCategories(): Promise<LeafCategory[]> {
     sort: "sortOrder",
   });
 
-  const docs = res.docs as PayloadDoc[];
+  const docs = res.docs as unknown as PayloadDoc[];
   const parentIds = new Set(
     docs
       .map((doc) => relationId(doc.parent))
@@ -649,7 +668,7 @@ async function uploadRemoteImage(imageUrl: string | undefined, alt: string) {
         size: data.length,
       },
     });
-    return media as PayloadDoc;
+    return media as unknown as PayloadDoc;
   } catch (error) {
     console.warn("[news-cron] image upload skipped", error);
     return undefined;
@@ -896,16 +915,17 @@ export async function createNewsCronPost(options: CreateNewsCronOptions = {}): P
 
   const ogImage = await findOpenGraphImage(sources);
   const thumbnail = await uploadRemoteImage(ogImage || images[0], article.title);
-  const thumbnailId = relationId(thumbnail?.id);
+  const thumbnailId = numericRelationId(thumbnail?.id);
   const thumbnailUrl = textField(thumbnail || {}, "url");
   const payload = await getPayloadClient();
   const status = options.status || (process.env.NEWS_CRON_STATUS === "published" ? "published" : "draft");
   const publishedAt = status === "published" ? new Date().toISOString() : null;
 
-  const post = await payload.create({
+  const writePayload = payload as unknown as PayloadWrite;
+  const post = await writePayload.create({
     collection: "posts",
     data: {
-      category: category.id,
+      category: numericRelationId(category.id) ?? category.id,
       content: richTextContentForPost(article),
       ...(thumbnailId ? { thumbnail: thumbnailId } : {}),
       postType: "news",

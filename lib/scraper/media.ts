@@ -177,7 +177,7 @@ export async function importScrapedImagesWithReport(
       });
       uploaded.push({
         id: created.id,
-        url: uploadedMediaURL(created as Record<string, unknown>, image.url),
+        url: uploadedMediaURL(created as unknown as Record<string, unknown>, image.url),
       });
     } catch (error) {
       warnings.push(error instanceof Error ? error.message : String(error));

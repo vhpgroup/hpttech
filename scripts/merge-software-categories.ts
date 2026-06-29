@@ -16,10 +16,34 @@ type Doc = {
   parent?: number | string | { id?: number | string } | null;
 };
 
+type PayloadWrite = {
+  create(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+  update(options: {
+    collection: string;
+    data: Record<string, unknown>;
+    id: string | number;
+    overrideAccess?: boolean;
+  }): Promise<unknown>;
+};
+
 function relationId(value: Doc["parent"]) {
   if (typeof value === "string" || typeof value === "number") return value;
   if (value && typeof value === "object" && "id" in value) return value.id;
   return undefined;
+}
+
+function numericPayloadId(value: unknown) {
+  const id =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && /^\d+$/.test(value)
+        ? Number(value)
+        : undefined;
+  return Number.isFinite(id) ? id : undefined;
 }
 
 async function listAll(
@@ -37,7 +61,7 @@ async function listAll(
       overrideAccess: true,
       page,
     });
-    docs.push(...result.docs);
+    docs.push(...(result.docs as unknown as Array<Record<string, unknown>>));
     if (page >= result.totalPages) break;
     page += 1;
   }
@@ -49,6 +73,7 @@ async function main() {
   console.log("Starting software category merge...");
   const payload = await getPayloadClient();
   console.log("Payload client ready.");
+  const writePayload = payload as unknown as PayloadWrite;
   const categoryDocs = (await listAll(payload, "categories")) as Doc[];
   console.log(`Loaded ${categoryDocs.length} categories.`);
   const softwareCategories = categoryDocs.filter(
@@ -68,7 +93,7 @@ async function main() {
     );
 
   if (!canonical) {
-    canonical = (await payload.create({
+    canonical = (await writePayload.create({
       collection: "categories",
       data: {
         description:
@@ -77,9 +102,9 @@ async function main() {
         slug: SOFTWARE_CATEGORY_SLUG,
       },
       overrideAccess: true,
-    })) as Doc;
+    })) as unknown as Doc;
   } else {
-    canonical = (await payload.update({
+    canonical = (await writePayload.update({
       collection: "categories",
       id: canonical.id,
       data: {
@@ -87,7 +112,7 @@ async function main() {
         slug: SOFTWARE_CATEGORY_SLUG,
       },
       overrideAccess: true,
-    })) as Doc;
+    })) as unknown as Doc;
   }
 
   const mergeIds = softwareCategories
@@ -98,10 +123,10 @@ async function main() {
   for (const category of categoryDocs) {
     const parentId = relationId(category.parent);
     if (!parentId || !mergeIds.includes(parentId) || category.id === canonical.id) continue;
-    await payload.update({
+    await writePayload.update({
       collection: "categories",
       id: category.id,
-      data: { parent: canonical.id },
+      data: { parent: numericPayloadId(canonical.id) ?? canonical.id },
       overrideAccess: true,
     });
     updatedChildren += 1;
@@ -118,10 +143,10 @@ async function main() {
 
     if (!categoryId || !mergeIds.includes(categoryId as string | number)) continue;
 
-    await payload.update({
+    await writePayload.update({
       collection: "products",
       id: product.id as string | number,
-      data: { category: canonical.id },
+      data: { category: numericPayloadId(canonical.id) ?? canonical.id },
       overrideAccess: true,
     });
     updatedProducts += 1;

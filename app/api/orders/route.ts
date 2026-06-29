@@ -35,6 +35,16 @@ function orderCode() {
   return `HPT-${date}-${suffix}`;
 }
 
+function numericPayloadID(value: unknown) {
+  const id =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && /^\d+$/.test(value)
+        ? Number(value)
+        : undefined;
+  return Number.isFinite(id) ? id : undefined;
+}
+
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as OrderRequest;
   const customerName = clean(body.customerName, 120);
@@ -69,8 +79,9 @@ export async function POST(request: Request) {
     const unitPrice = parseVNDPrice(item.priceLabel) ?? item.unitPrice;
     const quantity = Math.max(1, Math.floor(item.quantity));
     const requiresPriceConfirmation = item.requiresPriceConfirmation || !unitPrice;
+    const product = numericPayloadID(item.productId);
     return {
-      product: item.productId ? String(item.productId) : undefined,
+      ...(product !== undefined ? { product } : {}),
       slug: item.slug,
       href: item.href,
       title: clean(item.title, 200),

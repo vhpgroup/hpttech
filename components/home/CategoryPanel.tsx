@@ -40,36 +40,6 @@ function buildCategoryFilterHref(category: string, options?: { search?: string; 
   return `/san-pham?${params.toString()}`;
 }
 
-const defaultMegaColumns: MegaColumn[] = [
-  {
-    title: "Theo nhu cầu",
-    links: [
-      { label: "Văn phòng", href: "/san-pham?search=V%C4%83n%20ph%C3%B2ng" },
-      { label: "Doanh nghiệp", href: "/san-pham?search=Doanh%20nghi%E1%BB%87p" },
-      { label: "Hiệu suất cao", href: "/san-pham?search=Hi%E1%BB%87u%20su%E1%BA%A5t%20cao" },
-      { label: "Dịch vụ kỹ thuật", href: "/san-pham?search=D%E1%BB%8Bch%20v%E1%BB%A5%20k%E1%BB%B9%20thu%E1%BA%ADt" },
-    ],
-  },
-  {
-    title: "Thương hiệu",
-    links: [
-      { label: "HP", href: "/san-pham?brand=HP" },
-      { label: "Brother", href: "/san-pham?brand=Brother" },
-      { label: "Epson", href: "/san-pham?brand=Epson" },
-      { label: "Ricoh", href: "/san-pham?brand=Ricoh" },
-    ],
-  },
-  {
-    title: "Thiết bị",
-    links: [
-      { label: "Máy scan", href: "/san-pham?category=M%C3%A1y%20scan" },
-      { label: "Máy in", href: "/san-pham?category=M%C3%A1y%20in" },
-      { label: "Thiết bị văn phòng", href: "/san-pham?search=Thi%E1%BA%BFt%20b%E1%BB%8B%20v%C4%83n%20ph%C3%B2ng" },
-      { label: "Phụ kiện", href: "/san-pham?search=Ph%E1%BB%A5%20ki%E1%BB%87n" },
-    ],
-  },
-];
-
 const scannerMegaColumns: MegaColumn[] = [
   {
     title: "Theo nhu cầu",
@@ -136,7 +106,7 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
 
   if (!category.children.length) {
-    return defaultMegaColumns;
+    return [];
   }
 
   const columnCount = Math.min(3, category.children.length);
@@ -203,19 +173,23 @@ function getCategoryIcon(iconName: string, size = 20) {
 export default function CategoryPanel({ categories }: { categories: ProductCategoryNavItem[] }) {
   return (
     <aside className="category-panel desktop-only" id="categoryPanel">
-      {categories.map((category, index) => (
-        <article
-          className="category-item"
-          key={category.slug || category.name}
-          style={{ ["--menu-index" as string]: index } as CSSProperties}
-        >
-          <Link href={categoryLandingHref(category)}>
-            {getCategoryIcon(category.icon || "")}
-            <span>{category.name}</span>
-          </Link>
-          <CategoryMegaPanel columns={buildMegaColumns(category)} />
-        </article>
-      ))}
+      {categories.map((category, index) => {
+        const megaColumns = buildMegaColumns(category);
+
+        return (
+          <article
+            className="category-item"
+            key={category.slug || category.name}
+            style={{ ["--menu-index" as string]: index } as CSSProperties}
+          >
+            <Link href={categoryLandingHref(category)}>
+              {getCategoryIcon(category.icon || "")}
+              <span>{category.name}</span>
+            </Link>
+            {megaColumns.length ? <CategoryMegaPanel columns={megaColumns} /> : null}
+          </article>
+        );
+      })}
       <article className="category-item">
         <Link href="/san-pham">
           <List size={20} />

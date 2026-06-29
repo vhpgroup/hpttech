@@ -102,6 +102,22 @@ function textToHTML(value?: string) {
     .join("");
 }
 
+function addLazyImageAttributes(html: string) {
+  return html.replace(/<img\b([^>]*)>/gi, (_tag, attributes: string) => {
+    const selfClosing = /\/\s*$/.test(attributes);
+    let nextAttributes = attributes.replace(/\/\s*$/, "").trimEnd();
+
+    if (!/\sloading\s*=/i.test(nextAttributes)) {
+      nextAttributes += ' loading="lazy"';
+    }
+    if (!/\sdecoding\s*=/i.test(nextAttributes)) {
+      nextAttributes += ' decoding="async"';
+    }
+
+    return `<img${nextAttributes}${selfClosing ? " />" : ">"}`;
+  });
+}
+
 function uniqueProducts(products: CatalogProduct[]) {
   const seen = new Set<string>();
 
@@ -123,11 +139,12 @@ function EmptyProductSection({ message }: { message: string }) {
 
 function ProductHTMLContent({ html }: { html?: string }) {
   if (!html) return null;
+  const htmlWithLazyImages = addLazyImageAttributes(html);
 
   return (
     <div
       className="product-description-content rounded-[18px] bg-white p-6 text-[15px] leading-7 text-slate-700 shadow-sm ring-1 ring-slate-200/80 [&_a]:font-semibold [&_a]:text-blue-700 [&_figure]:my-6 [&_h2]:mb-3 [&_h2]:mt-7 [&_h2]:border-l-4 [&_h2]:border-blue-600 [&_h2]:pl-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-slate-950 [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-slate-900 [&_img]:mx-auto [&_img]:my-5 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-200 [&_img]:bg-white [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-4 [&_picture]:mx-auto [&_picture]:block [&_table]:my-5 [&_table]:w-full [&_table]:overflow-hidden [&_table]:rounded-xl [&_table]:border [&_table]:border-slate-200 [&_td]:border [&_td]:border-slate-200 [&_td]:p-3 [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-100 [&_th]:p-3 [&_ul]:mb-4 [&_ol]:mb-4"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: htmlWithLazyImages }}
     />
   );
 }
@@ -218,6 +235,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
     | undefined
   )?.filter((file) => Boolean(file?.url));
 
+  const hasReviews = (product.reviewCount ?? 0) > 0 && (product.rating ?? 0) > 0;
+
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -227,15 +246,27 @@ export default async function ProductDetailPage({ params }: PageProps) {
     brand: product.brand ? { "@type": "Brand", name: product.brand } : undefined,
     category: product.category,
     sku: product.sku || product.model || product.slug,
-    offers: product.price
+    mpn: product.model || undefined,
+    ...(hasReviews
       ? {
-          "@type": "Offer",
-          url: absoluteURL(`/san-pham/${product.slug}`),
-          priceCurrency: "VND",
-          price: schemaPrice,
-          availability: schemaAvailability(product.stockStatus),
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number((product.rating ?? 0).toFixed(1)),
+            reviewCount: product.reviewCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
         }
-      : undefined,
+      : {}),
+    offers: {
+      "@type": "Offer",
+      url: absoluteURL(`/san-pham/${product.slug}`),
+      priceCurrency: "VND",
+      availability: schemaAvailability(product.stockStatus),
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: settings.companyName || "HPT Tech" },
+      ...(schemaPrice ? { price: schemaPrice } : {}),
+    },
   };
 
   const breadcrumbSchema = {
@@ -391,6 +422,25 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         <aside className="space-y-4 xl:sticky xl:top-24">
+          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+            <div className="bg-primary-600 px-4 py-3">
+              <h2 className="text-sm font-bold uppercase text-white">Cam kết HPT Tech</h2>
+            </div>
+            <ul className="space-y-2 px-4 py-4">
+              {[
+                "Xuất hóa đơn VAT đầy đủ cho doanh nghiệp",
+                "Hàng chính hãng 100% - nguyên seal",
+                "Bảo hành chính hãng theo nhà sản xuất",
+                "Giao hàng toàn quốc, hỗ trợ kỹ thuật",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
+                  <Check size={16} className="mt-0.5 shrink-0 text-accent-600" strokeWidth={3} />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
             <div className="bg-[#4F64E8] px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>

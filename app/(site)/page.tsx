@@ -23,12 +23,17 @@ export default async function HomePage() {
   const settings = normalizeSiteSettings(rawSettings);
 
   return (
-    <HomePageClient
-      initialProducts={products}
-      categories={categories}
-      initialBanners={banners}
-      initialSolutions={solutions}
-      quoteEmail={settings.email}
-    />
+    <>
+      <h1 className="sr-only">
+        Máy scan, máy in &amp; thiết bị văn phòng chính hãng cho doanh nghiệp - HPT Tech
+      </h1>
+      <HomePageClient
+        initialProducts={products}
+        categories={categories}
+        initialBanners={banners}
+        initialSolutions={solutions}
+        quoteEmail={settings.email}
+      />
+    </>
   );
 }

@@ -42,10 +42,19 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const result = await getProductSearchPageFromPayload(parseProductsSearchParams(resolvedSearchParams));
+  const parsed = parseProductsSearchParams(resolvedSearchParams);
+  const result = await getProductSearchPageFromPayload(parsed);
+  const heading = parsed.search
+    ? `Kết quả tìm kiếm: "${parsed.search}"`
+    : parsed.category
+      ? parsed.category
+      : "Tất cả sản phẩm";
 
   return (
     <Suspense fallback={null}>
+      <h1 className="sr-only">
+        {heading} - Máy scan, máy in &amp; thiết bị văn phòng | HPT Tech
+      </h1>
       <ProductListClient
         products={result.products}
         facets={result.facets}
