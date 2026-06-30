@@ -1,6 +1,7 @@
 const { Client } = require("pg");
 
-const migrationName = "20260626_041300_add_certifications";
+const certificationsMigrationName = "20260626_041300_add_certifications";
+const productTypesMigrationName = "20260630_120000_add_networking_camera_product_types";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -221,23 +222,66 @@ CREATE TABLE IF NOT EXISTS "payload_migrations" (
 );
 
 INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
-SELECT '${migrationName}', 0, now(), now()
+SELECT '${certificationsMigrationName}', 0, now(), now()
 WHERE NOT EXISTS (
-  SELECT 1 FROM "payload_migrations" WHERE "name" = '${migrationName}'
+  SELECT 1 FROM "payload_migrations" WHERE "name" = '${certificationsMigrationName}'
 );
 `;
+
+const productTypesSeedSQL = `
+INSERT INTO "product_types" ("code", "name", "description", "schema_version", "status", "updated_at", "created_at")
+VALUES
+  ('networking', 'Thiết bị mạng', 'Router, switch, card mạng, access point và phụ kiện mạng.', 1, 'active', now(), now()),
+  ('camera', 'Camera & Giám sát', 'Camera quan sát, đầu ghi, ổ cứng và phụ kiện camera.', 1, 'active', now(), now())
+ON CONFLICT ("code") DO UPDATE SET
+  "name" = excluded."name",
+  "description" = excluded."description",
+  "schema_version" = excluded."schema_version",
+  "status" = excluded."status",
+  "updated_at" = now();
+
+INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+SELECT '${productTypesMigrationName}', 0, now(), now()
+WHERE NOT EXISTS (
+  SELECT 1 FROM "payload_migrations" WHERE "name" = '${productTypesMigrationName}'
+);
+`;
+
+async function applyCertificationsMigration(client) {
+  await client.query("BEGIN");
+  try {
+    await client.query(sql);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${certificationsMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
+async function applyNetworkingCameraProductTypes(client) {
+  await client.query(`alter type "enum_product_types_code" add value if not exists 'networking'`);
+  await client.query(`alter type "enum_product_types_code" add value if not exists 'camera'`);
+
+  await client.query("BEGIN");
+  try {
+    await client.query(productTypesSeedSQL);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${productTypesMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
 
 async function main() {
   const client = new Client({ connectionString });
 
   await client.connect();
   try {
-    await client.query("BEGIN");
-    await client.query(sql);
-    await client.query("COMMIT");
-    console.log(`[startup-migrations] Applied ${migrationName}.`);
+    await applyCertificationsMigration(client);
+    await applyNetworkingCameraProductTypes(client);
   } catch (error) {
-    await client.query("ROLLBACK").catch(() => {});
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;
   } finally {
