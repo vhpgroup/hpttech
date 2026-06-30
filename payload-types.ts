@@ -291,7 +291,7 @@ export interface Brand {
  */
 export interface ProductType {
   id: number;
-  code: 'scanner' | 'printer' | 'photocopier' | 'laptop' | 'software' | 'ink' | 'other';
+  code: 'scanner' | 'printer' | 'photocopier' | 'laptop' | 'software' | 'ink' | 'networking' | 'camera' | 'other';
   name: string;
   description?: string | null;
   schemaVersion: number;

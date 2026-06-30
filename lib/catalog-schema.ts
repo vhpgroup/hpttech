@@ -9,6 +9,8 @@ export const PRODUCT_TYPE_OPTIONS = [
   { label: "Laptop", value: "laptop" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "Muc in & phu kien", value: "ink" },
+  { label: "Thiet bi mang", value: "networking" },
+  { label: "Camera & Giam sat", value: "camera" },
   { label: "Khac", value: "other" },
 ] as const;
 
