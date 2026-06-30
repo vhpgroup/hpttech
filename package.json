@@ -33,6 +33,7 @@
     "test:anphat-source-identity": "tsx scripts/verify-anphat-source-identity.ts",
     "test:ai-profile": "tsx scripts/verify-ai-product-profile.ts",
     "test:desktop-stage": "node scripts/verify-desktop-stage.cjs",
+    "test:home-grouping": "tsx scripts/verify-home-category-grouping.ts",
     "test:quote": "tsx scripts/verify-quote-totals.ts"
   },
   "dependencies": {

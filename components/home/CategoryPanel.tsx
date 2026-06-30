@@ -89,8 +89,8 @@ const scannerMegaColumns: MegaColumn[] = [
     links: [
       { label: "Canon", href: buildCategoryFilterHref("Máy scan", { brand: "Canon" }) },
       { label: "HP", href: buildCategoryFilterHref("Máy scan", { brand: "HP" }) },
-      { label: "Kodak", href: buildCategoryFilterHref("Máy scan", { brand: "Kodak" }) },
-      { label: "Fujitsu", href: buildCategoryFilterHref("Máy scan", { brand: "Fujitsu" }) },
+      { label: "Kodak", href: buildCategoryFilterHref("Máy scan", { brand: "Kodak Alaris" }) },
+      { label: "Fujitsu (Ricoh)", href: buildCategoryFilterHref("Máy scan", { search: "Fujitsu" }) },
       { label: "Avision", href: buildCategoryFilterHref("Máy scan", { brand: "Avision" }) },
     ],
   },

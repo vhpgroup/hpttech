@@ -19,6 +19,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import type { CatalogProduct } from "@/lib/catalog";
+import { isHomeDeviceType } from "@/lib/home-category-sections";
 import { ProductCard } from "@/components/product/ProductCard";
 
 type TabMode = "brand" | "category" | "none";
@@ -54,7 +55,7 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
     order: 1,
     tabMode: "brand",
     autoplay: true,
-    match: (product) => normalizeText(`${product.productType} ${product.category} ${product.title}`).includes("scan"),
+    match: (product) => isHomeDeviceType(product, "scanner"),
   },
   {
     id: "printer",
@@ -64,11 +65,7 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
     order: 2,
     tabMode: "brand",
     autoplay: true,
-    match: (product) => {
-      const text = normalizeText(`${product.productType} ${product.category} ${product.title}`);
-      const isPhotocopier = text.includes("photocop") || text.includes("copier") || text.includes("may photo");
-      return !isPhotocopier && (text.includes("printer") || text.includes("may in") || text.includes("laserjet"));
-    },
+    match: (product) => isHomeDeviceType(product, "printer"),
   },
   {
     id: "photocopier",
@@ -78,10 +75,7 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
     order: 3,
     tabMode: "brand",
     autoplay: true,
-    match: (product) => {
-      const text = normalizeText(`${product.productType} ${product.category} ${product.title}`);
-      return text.includes("photocop") || text.includes("copier") || text.includes("may photo");
-    },
+    match: (product) => isHomeDeviceType(product, "photocopier"),
   },
 ];
 

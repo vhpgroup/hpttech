@@ -13,6 +13,7 @@ import {
 } from "@/lib/catalog-projection";
 import { HPT_DATA } from "@/lib/data";
 import { canonicalizeCategoryName } from "@/lib/product-category";
+import { homeDeviceTypeOf, isHomeDeviceType } from "@/lib/home-category-sections";
 
 type PayloadProductDoc = Record<string, unknown>;
 type PayloadCategoryDoc = Record<string, unknown>;
@@ -775,21 +776,11 @@ function selectHomeProducts(products: CatalogProduct[], limit: number) {
     }
   };
 
-  const text = (product: CatalogProduct) =>
-    normalizeSearchText(`${product.productType || ""} ${product.category || ""} ${product.brand || ""} ${product.title || ""}`);
-
   addGroup(products.filter((product) => product.tag), 12);
   addGroup(
     Array.from(
       products.reduce((groups, product) => {
-        const value = text(product);
-        const kind = value.includes("scan")
-          ? "scanner"
-          : value.includes("photocop") || value.includes("copier") || value.includes("may photo")
-            ? "photocopier"
-            : value.includes("printer") || value.includes("may in") || value.includes("laserjet")
-              ? "printer"
-              : "";
+        const kind = homeDeviceTypeOf(product);
         if (!kind || !product.brand) return groups;
 
         const key = `${kind}:${product.brand}`;
@@ -799,22 +790,9 @@ function selectHomeProducts(products: CatalogProduct[], limit: number) {
     ),
     limit,
   );
-  addGroup(products.filter((product) => text(product).includes("scan")), 20);
-  addGroup(
-    products.filter((product) => {
-      const value = text(product);
-      const isPhotocopier = value.includes("photocop") || value.includes("copier") || value.includes("may photo");
-      return !isPhotocopier && (value.includes("printer") || value.includes("may in") || value.includes("laserjet"));
-    }),
-    20,
-  );
-  addGroup(
-    products.filter((product) => {
-      const value = text(product);
-      return value.includes("photocop") || value.includes("copier") || value.includes("may photo");
-    }),
-    20,
-  );
+  addGroup(products.filter((product) => isHomeDeviceType(product, "scanner")), 24);
+  addGroup(products.filter((product) => isHomeDeviceType(product, "printer")), 24);
+  addGroup(products.filter((product) => isHomeDeviceType(product, "photocopier")), 24);
   addGroup(products.filter((product) => product.brand === "HP"), 8);
   addGroup(products.filter((product) => product.brand === "Brother"), 8);
   addGroup(
