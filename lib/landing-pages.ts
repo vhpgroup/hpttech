@@ -296,7 +296,7 @@ function isScannerProduct(product: ProductDoc) {
   return canonicalizeCategorySlug(categorySlug, categoryName) === SCANNER_CATEGORY_SLUG;
 }
 
-function relationMatches(value: unknown, candidates: string[]) {
+export function relationMatches(value: unknown, candidates: string[]) {
   if (!candidates.length) return true;
   const haystack = [
     relationID(value),
@@ -306,7 +306,13 @@ function relationMatches(value: unknown, candidates: string[]) {
   ].map(normalizeText);
   return candidates.some((candidate) => {
     const normalized = normalizeText(candidate);
-    return Boolean(normalized) && haystack.some((item) => item === normalized || item.includes(normalized));
+    if (!normalized) return false;
+
+    if (/^\d+$/.test(normalized)) {
+      return haystack.some((item) => item === normalized);
+    }
+
+    return haystack.some((item) => item === normalized || (normalized.length >= 3 && item.includes(normalized)));
   });
 }
 
