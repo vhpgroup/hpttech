@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   Archive,
+  BadgeCheck,
   Building2,
   Camera,
   CheckCircle2,
@@ -10,10 +11,13 @@ import {
   FileSearch,
   FolderKanban,
   GraduationCap,
+  Headset,
   Landmark,
   Network,
+  ReceiptText,
   ScanLine,
   ShieldCheck,
+  Truck,
 } from "lucide-react";
 import { useState } from "react";
 import type { PublicSolution } from "@/lib/content-payload";
@@ -33,6 +37,14 @@ const FILTERS: Array<{ key: FilterKey; label: string }> = [
   { key: "cntt", label: "CNTT" },
   { key: "doi-tuong", label: "Đối tượng" },
   { key: "du-an", label: "Dự án" },
+];
+
+const TRUST_ITEMS = [
+  { Icon: ShieldCheck, label: "Chính hãng 100%" },
+  { Icon: ReceiptText, label: "Xuất hóa đơn VAT" },
+  { Icon: Truck, label: "Giao hàng toàn quốc" },
+  { Icon: Headset, label: "Hỗ trợ kỹ thuật" },
+  { Icon: BadgeCheck, label: "Bảo hành chính hãng" },
 ];
 
 const ROADMAP = [
@@ -184,6 +196,15 @@ export function GiaiPhapHub({ scan, solutions }: GiaiPhapHubProps) {
               Xem giải pháp máy scan
             </a>
           </div>
+          {/* hàng cam kết nhanh dưới hero */}
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2">
+            {TRUST_ITEMS.map(({ Icon, label }) => (
+              <span key={label} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
+                <Icon size={16} className="text-primary-700" />
+                {label}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -273,8 +294,20 @@ export function GiaiPhapHub({ scan, solutions }: GiaiPhapHubProps) {
         ) : null}
       </div>
 
-      <section id="lien-he" className="mx-auto max-w-[1200px] px-5 pb-14">
-        <div className="rounded-md bg-primary-800 p-8 text-white md:p-10">
+      {/* ===== DẢI TRUST (băng xanh đậm, khớp mockup) ===== */}
+      <section className="mx-auto max-w-[1200px] px-5">
+        <div className="grid grid-cols-2 gap-4 rounded-md bg-primary-800 px-6 py-6 text-white md:grid-cols-5">
+          {TRUST_ITEMS.map(({ Icon, label }) => (
+            <div key={label} className="flex items-center gap-2.5 text-sm font-semibold">
+              <Icon size={20} className="shrink-0 text-white/90" />
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="lien-he" className="mx-auto max-w-[1200px] px-5 py-14">
+        <div className="rounded-md bg-gradient-to-br from-primary-800 to-primary-600 p-8 text-white md:p-10">
           <CheckCircle2 size={24} className="text-primary-100" />
           <h2 className="mt-4 text-2xl font-extrabold">Chưa thấy ngành hoặc nhu cầu của bạn?</h2>
           <p className="mt-3 max-w-2xl text-primary-50">

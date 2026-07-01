@@ -542,7 +542,16 @@ export async function getScannersForQuery(
   productQuery: LandingProductQuery = {},
   { limit = 12, recommendedProducts }: ScannerQueryOptions = {},
 ) {
-  const recommended = recommendedProductDocs(recommendedProducts);
+  // recommendedProducts = ghim tay (curated) → LUÔN hiện trước, KHÔNG lọc theo productMatchesQuery.
+  const recommended = recommendedProductDocs(recommendedProducts).filter((product) => product.slug);
+  const max = Math.max(1, Math.min(limit, 24));
+
+  const dedupePush = (target: ProductDoc[], seen: Set<string>, product: ProductDoc) => {
+    const key = String(product.id || product.slug);
+    if (seen.has(key)) return;
+    seen.add(key);
+    target.push(product);
+  };
 
   try {
     const payload = await getPayloadClient();
@@ -560,26 +569,26 @@ export async function getScannersForQuery(
       },
     });
 
-    const docs = [...recommended, ...((res.docs as unknown as ProductDoc[]) || [])];
     const seen = new Set<string>();
-    const matched = docs
-      .filter((product) => product.slug && productMatchesQuery(product, productQuery))
-      .sort((a, b) => productScore(b, productQuery) - productScore(a, productQuery))
-      .filter((product) => {
-        const key = String(product.id || product.slug);
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .slice(0, Math.max(1, Math.min(limit, 24)));
+    const ordered: ProductDoc[] = [];
 
-    return matched.map(toCatalogProduct);
+    // 1) Ghim tay trước (bỏ qua bộ lọc query)
+    for (const product of recommended) dedupePush(ordered, seen, product);
+
+    // 2) Máy auto-khớp lấp phần còn lại
+    const auto = ((res.docs as unknown as ProductDoc[]) || [])
+      .filter((product) => product.slug && productMatchesQuery(product, productQuery))
+      .sort((a, b) => productScore(b, productQuery) - productScore(a, productQuery));
+    for (const product of auto) {
+      if (ordered.length >= max) break;
+      dedupePush(ordered, seen, product);
+    }
+
+    return ordered.slice(0, max).map(toCatalogProduct);
   } catch (error) {
     handlePayloadReadError("landing-scanners", error);
-    return recommended
-      .filter((product) => productMatchesQuery(product, productQuery))
-      .slice(0, limit)
-      .map(toCatalogProduct);
+    // Fallback: vẫn trả máy ghim tay dù query catalog lỗi
+    return recommended.slice(0, max).map(toCatalogProduct);
   }
 }
 
