@@ -60,6 +60,13 @@ export const QuoteRequests: CollectionConfig = {
         { name: "source", label: "Nguồn", type: "text", admin: { width: "50%", readOnly: true } },
       ],
     },
+    {
+      type: "row",
+      fields: [
+        { name: "industry", label: "Ngành/facet pSEO", type: "text", admin: { width: "50%", readOnly: true } },
+        { name: "landingPath", label: "Landing source", type: "text", admin: { width: "50%", readOnly: true } },
+      ],
+    },
     { name: "address", label: "Địa chỉ", type: "textarea" },
     { name: "note", label: "Ghi chú yêu cầu", type: "textarea" },
     {

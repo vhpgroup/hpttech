@@ -17,6 +17,8 @@ import { Certifications } from "./collections/Certifications.ts";
 import { DownloadCategories } from "./collections/DownloadCategories.ts";
 import { Downloads } from "./collections/Downloads.ts";
 import { FAQ } from "./collections/FAQ.ts";
+import { Industries } from "./collections/Industries.ts";
+import { LandingPages } from "./collections/LandingPages.ts";
 import { Media } from "./collections/Media.ts";
 import { NewsRedirects } from "./collections/NewsRedirects.ts";
 import { Orders } from "./collections/Orders.ts";
@@ -27,6 +29,7 @@ import { Products } from "./collections/Products.ts";
 import { Projects } from "./collections/Projects.ts";
 import { ProjectCategories } from "./collections/ProjectCategories.ts";
 import { ScraperJobs } from "./collections/ScraperJobs.ts";
+import { ScanNeeds } from "./collections/ScanNeeds.ts";
 import { Solutions } from "./collections/Solutions.ts";
 import { StaticPages } from "./collections/StaticPages.ts";
 import { Testimonials } from "./collections/Testimonials.ts";
@@ -103,6 +106,8 @@ export default buildConfig({
     Users,
     Media,
     Categories,
+    Industries,
+    ScanNeeds,
     Brands,
     ProductTypes,
     AttributeDefinitions,
@@ -114,6 +119,7 @@ export default buildConfig({
     ScraperJobs,
     Orders,
     QuoteRequests,
+    LandingPages,
     Banners,
     Solutions,
     PostCategories,

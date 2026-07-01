@@ -25,9 +25,13 @@ export async function POST(request: NextRequest) {
   const collection = typeof body.collection === "string" ? body.collection : undefined;
   const slug = typeof body.slug === "string" ? body.slug : undefined;
   const path = typeof body.path === "string" ? body.path : undefined;
+  const bodyPaths = Array.isArray(body.paths)
+    ? body.paths.filter((item: unknown): item is string => typeof item === "string")
+    : [];
   const tags = new Set<string>();
 
   const paths = new Set<string>(["/"]);
+  for (const item of bodyPaths) paths.add(item);
   if (collection) {
     for (const path of collectionPaths[collection] || []) paths.add(path);
   }
@@ -67,6 +71,13 @@ export async function POST(request: NextRequest) {
     if (slug) {
       tags.add(`certification:${slug}`);
       paths.add(`/thuong-hieu/${slug}`);
+    }
+  }
+  if (collection === "landing-pages") {
+    tags.add("landing-pages:list");
+    if (path) tags.add(`landing-page:${path}`);
+    for (const item of bodyPaths) {
+      if (item.startsWith("/giai-phap/")) tags.add(`landing-page:${item}`);
     }
   }
   if (collection === "static-pages" && slug) paths.add(`/${slug}`);

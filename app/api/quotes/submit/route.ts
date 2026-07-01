@@ -83,6 +83,8 @@ export async function POST(request: Request) {
     address: clean((customer as Record<string, unknown>).address, 400),
     note: clean((customer as Record<string, unknown>).note, 1500),
     source: clean(body.source, 60) || "quote-builder",
+    industry: clean(body.industry ?? body.facetSlug, 120),
+    landingPath: clean(body.landingPath, 240),
   };
 
   const productInputs = (Array.isArray(body.products) ? body.products : []) as QuoteItemInput[];

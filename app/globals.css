@@ -31,6 +31,84 @@
   --shadow-soft: 0 20px 45px -24px rgba(15, 23, 42, 0.35);
 }
 
+[data-industry] {
+  --ind-50: var(--color-primary-50);
+  --ind-100: var(--color-primary-100);
+  --ind-500: var(--color-primary-600);
+  --ind-600: var(--color-primary-700);
+  --ind-700: var(--color-primary-800);
+}
+
+[data-industry="cong-an"] {
+  --ind-50: #eff6ff;
+  --ind-500: #3b82f6;
+  --ind-600: #1d4ed8;
+  --ind-700: #1e3a8a;
+}
+
+[data-industry="thue"] {
+  --ind-50: #f0fdf4;
+  --ind-500: #22c55e;
+  --ind-600: #16a34a;
+  --ind-700: #15803d;
+}
+
+[data-industry="hai-quan"] {
+  --ind-50: #ecfeff;
+  --ind-500: #06b6d4;
+  --ind-600: #0891b2;
+  --ind-700: #155e75;
+}
+
+[data-industry="kho-bac"] {
+  --ind-50: #fffbeb;
+  --ind-500: #f59e0b;
+  --ind-600: #b45309;
+  --ind-700: #92400e;
+}
+
+[data-industry="toa-an"] {
+  --ind-50: #f5f3ff;
+  --ind-500: #8b5cf6;
+  --ind-600: #7c3aed;
+  --ind-700: #5b21b6;
+}
+
+[data-industry="vien-kiem-sat"] {
+  --ind-50: #fff1f2;
+  --ind-500: #f43f5e;
+  --ind-600: #be123c;
+  --ind-700: #9f1239;
+}
+
+[data-industry="ubnd"] {
+  --ind-50: #fef2f2;
+  --ind-500: #ef4444;
+  --ind-600: #dc2626;
+  --ind-700: #991b1b;
+}
+
+[data-industry="van-thu-luu-tru"] {
+  --ind-50: #fafaf9;
+  --ind-500: #78716c;
+  --ind-600: #57534e;
+  --ind-700: #44403c;
+}
+
+[data-industry="benh-vien"] {
+  --ind-50: #f0fdfa;
+  --ind-500: #14b8a6;
+  --ind-600: #0d9488;
+  --ind-700: #0f766e;
+}
+
+[data-industry="truong-hoc"] {
+  --ind-50: #fff7ed;
+  --ind-500: #fb923c;
+  --ind-600: #ea580c;
+  --ind-700: #c2410c;
+}
+
 .product-description-content figure,
 .product-description-content picture {
   display: block;

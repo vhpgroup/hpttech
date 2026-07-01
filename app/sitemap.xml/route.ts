@@ -36,6 +36,7 @@ export async function GET() {
 
   const sitemaps = [
     sitemap(`${base}/sitemap/static`),
+    sitemap(`${base}/sitemap/landing`),
     ...Array.from({ length: chunkCount(productCount) }, (_, index) =>
       sitemap(`${base}/sitemap/products/${index + 1}`),
     ),

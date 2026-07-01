@@ -70,6 +70,8 @@ export interface Config {
     users: User;
     media: Media;
     categories: Category;
+    industries: Industry;
+    'scan-needs': ScanNeed;
     brands: Brand;
     'product-types': ProductType;
     'attribute-definitions': AttributeDefinition;
@@ -81,6 +83,7 @@ export interface Config {
     'scraper-jobs': ScraperJob;
     orders: Order;
     'quote-requests': QuoteRequest;
+    'landing-pages': LandingPage;
     banners: Banner;
     solutions: Solution;
     'post-categories': PostCategory;
@@ -106,6 +109,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    industries: IndustriesSelect<false> | IndustriesSelect<true>;
+    'scan-needs': ScanNeedsSelect<false> | ScanNeedsSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
     'product-types': ProductTypesSelect<false> | ProductTypesSelect<true>;
     'attribute-definitions': AttributeDefinitionsSelect<false> | AttributeDefinitionsSelect<true>;
@@ -117,6 +122,7 @@ export interface Config {
     'scraper-jobs': ScraperJobsSelect<false> | ScraperJobsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
+    'landing-pages': LandingPagesSelect<false> | LandingPagesSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
     solutions: SolutionsSelect<false> | SolutionsSelect<true>;
     'post-categories': PostCategoriesSelect<false> | PostCategoriesSelect<true>;
@@ -260,6 +266,42 @@ export interface Category {
     canonical?: string | null;
     noIndex?: boolean | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "industries".
+ */
+export interface Industry {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Ví dụ: building-2, shield, hospital, school.
+   */
+  icon?: string | null;
+  /**
+   * Khớp data-industry, ví dụ: cong-an, thue, benh-vien.
+   */
+  accentKey?: string | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scan-needs".
+ */
+export interface ScanNeed {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Ví dụ: id-card, network, file-search, archive.
+   */
+  icon?: string | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1075,6 +1117,8 @@ export interface QuoteRequest {
   phone: string;
   email?: string | null;
   source?: string | null;
+  industry?: string | null;
+  landingPath?: string | null;
   address?: string | null;
   note?: string | null;
   items?:
@@ -1092,6 +1136,101 @@ export interface QuoteRequest {
   internalNote?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-pages".
+ */
+export interface LandingPage {
+  id: number;
+  pageType: 'product-facet' | 'digitization' | 'it-solution' | 'segment-hub';
+  productGroup: 'may-scan' | 'may-in' | 'may-photocopy';
+  facetType: 'industry' | 'need' | 'brand';
+  industryRef?: (number | null) | Industry;
+  needRef?: (number | null) | ScanNeed;
+  brandRef?: (number | null) | Brand;
+  /**
+   * Tự sinh từ taxonomy/thương hiệu đã chọn.
+   */
+  facetSlug?: string | null;
+  title: string;
+  slug: string;
+  h1?: string | null;
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  painPoints?:
+    | {
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  criteria?:
+    | {
+        need?: string | null;
+        spec?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  workflow?:
+    | {
+        step?: string | null;
+        detail?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  faqs?:
+    | {
+        question?: string | null;
+        answer?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  recommendedProducts?: (number | Product)[] | null;
+  productQuery?: {
+    needsDuplex?: boolean | null;
+    needsA3?: boolean | null;
+    needsNetwork?: boolean | null;
+    needsOcr?: boolean | null;
+    needsCardScan?: boolean | null;
+    needsPassport?: boolean | null;
+    prefersFlatbed?: boolean | null;
+    largeFormat?: boolean | null;
+    wideFormat?: boolean | null;
+    bookScanner?: boolean | null;
+    minDailyDuty?: number | null;
+    minScanSpeedPpm?: number | null;
+    maxPaperSize?: ('A4' | 'A3' | 'A2' | 'A1' | 'A0') | null;
+    brands?: (number | Brand)[] | null;
+  };
+  relatedPages?: (number | LandingPage)[] | null;
+  pathname?: string | null;
+  /**
+   * Thông tin SEO dùng cho trang public và danh mục.
+   */
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+    canonical?: string | null;
+    noIndex?: boolean | null;
+  };
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1604,6 +1743,14 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
+        relationTo: 'industries';
+        value: number | Industry;
+      } | null)
+    | ({
+        relationTo: 'scan-needs';
+        value: number | ScanNeed;
+      } | null)
+    | ({
         relationTo: 'brands';
         value: number | Brand;
       } | null)
@@ -1646,6 +1793,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'quote-requests';
         value: number | QuoteRequest;
+      } | null)
+    | ({
+        relationTo: 'landing-pages';
+        value: number | LandingPage;
       } | null)
     | ({
         relationTo: 'banners';
@@ -1815,6 +1966,31 @@ export interface CategoriesSelect<T extends boolean = true> {
         canonical?: T;
         noIndex?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "industries_select".
+ */
+export interface IndustriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  icon?: T;
+  accentKey?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scan-needs_select".
+ */
+export interface ScanNeedsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  icon?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2248,6 +2424,8 @@ export interface QuoteRequestsSelect<T extends boolean = true> {
   phone?: T;
   email?: T;
   source?: T;
+  industry?: T;
+  landingPath?: T;
   address?: T;
   note?: T;
   items?:
@@ -2265,6 +2443,84 @@ export interface QuoteRequestsSelect<T extends boolean = true> {
   internalNote?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "landing-pages_select".
+ */
+export interface LandingPagesSelect<T extends boolean = true> {
+  pageType?: T;
+  productGroup?: T;
+  facetType?: T;
+  industryRef?: T;
+  needRef?: T;
+  brandRef?: T;
+  facetSlug?: T;
+  title?: T;
+  slug?: T;
+  h1?: T;
+  intro?: T;
+  painPoints?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  criteria?:
+    | T
+    | {
+        need?: T;
+        spec?: T;
+        id?: T;
+      };
+  workflow?:
+    | T
+    | {
+        step?: T;
+        detail?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  recommendedProducts?: T;
+  productQuery?:
+    | T
+    | {
+        needsDuplex?: T;
+        needsA3?: T;
+        needsNetwork?: T;
+        needsOcr?: T;
+        needsCardScan?: T;
+        needsPassport?: T;
+        prefersFlatbed?: T;
+        largeFormat?: T;
+        wideFormat?: T;
+        bookScanner?: T;
+        minDailyDuty?: T;
+        minScanSpeedPpm?: T;
+        maxPaperSize?: T;
+        brands?: T;
+      };
+  relatedPages?: T;
+  pathname?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        canonical?: T;
+        noIndex?: T;
+      };
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

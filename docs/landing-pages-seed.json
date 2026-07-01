@@ -1,0 +1,1854 @@
+{
+  "collection": "landing-pages",
+  "note": "Seed 30 trang máy scan (product-facet/may-scan). Import SAU khi Codex dựng xong Wave 0. intro = plain text/markdown -> chuyển richText khi import. status=draft; chuyển published sau khi gán recommendedProducts + đạt quality gate. facetSlug map sang industryRef/needRef/brandRef theo taxonomy.",
+  "count": 30,
+  "records": [
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "cong-an",
+      "slug": "nganh-cong-an",
+      "pathname": "/giai-phap/may-scan/nganh/cong-an",
+      "title": "Máy scan cho ngành Công an",
+      "h1": "Máy scan cho ngành Công an",
+      "seo": {
+        "title": "Máy Scan Cho Công An | Số Hóa Hồ Sơ, CCCD",
+        "description": "Máy scan cho ngành công an: quét CCCD/hộ chiếu, số hóa hồ sơ nghiệp vụ & tàng thư, scan 2 mặt tốc độ cao, OCR tiếng Việt, bảo mật. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan cho ngành công an** là thiết bị không thể thiếu trong tiến trình số hóa hồ sơ và cải cách hành chính của lực lượng. Ngành công an quản lý khối lượng tài liệu giấy lớn và nhạy cảm bậc nhất: hồ sơ nghiệp vụ, hồ sơ tàng thư, hồ sơ quản lý cư trú, tài liệu điều tra, cùng hàng triệu giấy tờ tùy thân như căn cước công dân, chứng minh nhân dân và hộ chiếu. Lưu trữ thủ công bằng giấy khiến việc tra cứu chậm, tốn diện tích kho và tiềm ẩn rủi ro hư hỏng, thất lạc.\n\nSố hóa bằng máy scan chuyên dụng giúp chuyển toàn bộ hồ sơ sang dạng điện tử, tra cứu tức thời theo tên, số hồ sơ hoặc từ khóa, chia sẻ an toàn giữa các đơn vị và bảo quản lâu dài đúng quy định. Để làm được điều đó, máy scan cho công an cần đáp ứng nhiều yêu cầu đặc thù. Trước hết là khả năng quét cả tài liệu giấy lẫn thẻ cứng: thiết bị phải xử lý được căn cước công dân gắn chip, hộ chiếu và thẻ nhựa với chế độ quét hai mặt trong một lần chạy. Tiếp theo là tốc độ và công suất — với khối lượng tàng thư tồn đọng khổng lồ, máy cần khay nạp tài liệu tự động (ADF) dung lượng lớn, tốc độ cao và công suất hàng nghìn đến hàng chục nghìn trang mỗi ngày để số hóa liên tục. Khả năng nhận dạng ký tự tiếng Việt (OCR) cũng rất quan trọng, giúp bóc tách thông tin, tạo file PDF tìm kiếm được và lập chỉ mục hồ sơ.\n\nYếu tố bảo mật đặc biệt được đề cao. Dữ liệu nghiệp vụ và thông tin công dân là tài liệu mật, do đó quy trình số hóa nên diễn ra trong mạng nội bộ, có phân quyền truy cập rõ ràng và không phụ thuộc dịch vụ đám mây bên ngoài. Cảm biến siêu âm chống kéo đôi cùng cơ chế bảo vệ giấy giúp tránh sót trang, đảm bảo hồ sơ được số hóa đầy đủ và chính xác.\n\nHPT Tech tư vấn, cung cấp giải pháp **máy scan cho công an** theo từng cấp đơn vị — từ máy để bàn cho bộ phận tiếp dân tới dòng công suất cao cho trung tâm số hóa tàng thư. Chúng tôi phân phối thiết bị chính hãng 100% của các thương hiệu uy tín như Fujitsu/Ricoh, Kodak Alaris, Plustek, Canon, kèm phần mềm quét, nhận dạng và quản lý phù hợp quy trình nghiệp vụ. Ngoài thiết bị, HPT Tech hỗ trợ đầy đủ hồ sơ mua sắm công (CO/CQ), xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành, bảo trì tận nơi trên toàn quốc. Nếu đơn vị của bạn đang lên kế hoạch số hóa hồ sơ, tàng thư hoặc trang bị máy quét căn cước, hộ chiếu, hãy liên hệ HPT Tech để được khảo sát và nhận **báo giá dự án** tối ưu.",
+      "painPoints": [
+        "Hồ sơ nghiệp vụ & tàng thư giấy khối lượng lớn, tra cứu chậm.",
+        "Cần quét căn cước, hộ chiếu, giấy tờ tùy thân (thẻ cứng) chính xác.",
+        "Yêu cầu bảo mật, phân quyền, tuân thủ quy định tài liệu mật.",
+        "Chia sẻ dữ liệu nhanh & an toàn giữa các đơn vị.",
+        "Số hóa tàng thư tồn đọng cần thiết bị công suất cao, bền bỉ."
+      ],
+      "criteria": [
+        {
+          "need": "Quét CCCD/hộ chiếu/thẻ",
+          "spec": "plasticCardScan + passportScan"
+        },
+        {
+          "need": "Bóc tách thông tin",
+          "spec": "ocr (tiếng Việt)"
+        },
+        {
+          "need": "Khối lượng lớn",
+          "spec": "dailyDuty cao + ADF lớn"
+        },
+        {
+          "need": "Nhanh, 2 mặt",
+          "spec": "duplexScan + scanSpeedSimplexPpm cao"
+        },
+        {
+          "need": "Bảo mật",
+          "spec": "quét trong mạng nội bộ, phân quyền"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho công an cần đáp ứng gì?",
+          "answer": "Quét được cả giấy lẫn thẻ CCCD/hộ chiếu, scan 2 mặt, OCR tiếng Việt, công suất cao và đảm bảo bảo mật."
+        },
+        {
+          "question": "Có quét được CCCD gắn chip và hộ chiếu không?",
+          "answer": "Có — chọn model hỗ trợ quét thẻ nhựa và hộ chiếu chuyên dụng."
+        },
+        {
+          "question": "Số hóa tàng thư/hồ sơ tồn đọng số lượng lớn nên dùng máy nào?",
+          "answer": "Dòng công suất cao, ADF lớn (fi-series, Kodak, Plustek SN) kết hợp dịch vụ số hóa."
+        },
+        {
+          "question": "Thiết bị có đảm bảo bảo mật tài liệu?",
+          "answer": "Quét thẳng vào mạng nội bộ, phân quyền, không phụ thuộc dịch vụ ngoài; tư vấn theo yêu cầu bảo mật của đơn vị."
+        },
+        {
+          "question": "Có xuất VAT, hồ sơ mua sắm công, bảo hành?",
+          "answer": "Có — chính hãng, CO/CQ, xuất VAT, bảo hành & hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsCardScan": true,
+        "needsPassport": true,
+        "needsDuplex": true,
+        "needsOcr": true,
+        "minDailyDuty": 5000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "thue",
+      "slug": "nganh-thue",
+      "pathname": "/giai-phap/may-scan/nganh/thue",
+      "title": "Máy scan cho cơ quan Thuế",
+      "h1": "Máy scan cho cơ quan Thuế",
+      "seo": {
+        "title": "Máy Scan Cho Cơ Quan Thuế | Số Hóa Chứng Từ",
+        "description": "Máy scan cho cơ quan thuế: số hóa hóa đơn, chứng từ, tờ khai; scan 2 mặt tốc độ cao, OCR bóc tách dữ liệu, công suất lớn. Chính hãng, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan cho cơ quan thuế** đóng vai trò then chốt trong việc số hóa hóa đơn, chứng từ và tờ khai — nhóm tài liệu phát sinh với khối lượng khổng lồ theo từng kỳ kê khai, quyết toán. Cơ quan thuế các cấp phải tiếp nhận, xử lý và lưu trữ lượng chứng từ giấy rất lớn: hóa đơn giá trị gia tăng, chứng từ nộp thuế, hồ sơ hoàn thuế, hồ sơ đăng ký và quyết toán của người nộp thuế. Nếu chỉ lưu trữ bằng giấy, việc tra cứu, đối chiếu và bảo quản trở nên tốn kém và dễ sai sót.\n\nGiải pháp số hóa giúp cơ quan thuế lưu trữ điện tử, tra cứu và đối chiếu chứng từ trong vài giây, giảm kho giấy và hạn chế rủi ro thất lạc. Máy scan phục vụ ngành thuế cần ưu tiên tốc độ và độ bền: khay nạp ADF dung lượng lớn, quét hai mặt (duplex) tốc độ cao và công suất khuyến nghị từ 8.000 trang mỗi ngày trở lên để đáp ứng cao điểm cuối kỳ. Bên cạnh đó, khả năng OCR tiếng Việt và tích hợp phần mềm bóc tách (capture) là yếu tố quyết định, cho phép tự động nhận diện thông tin trên hóa đơn, chứng từ và đẩy dữ liệu vào phần mềm quản lý thuế, giảm mạnh thời gian nhập liệu thủ công.\n\nĐộ tin cậy khi vận hành liên tục cũng cần được chú trọng. Chứng từ thuế thường gồm nhiều loại giấy dày mỏng khác nhau, dễ kẹt hoặc kéo đôi nếu máy không có cảm biến siêu âm và cơ chế bảo vệ giấy. Vì vậy nên chọn dòng máy chuyên nghiệp, khả năng xử lý tài liệu hỗn hợp tốt, kèm phần mềm làm sạch ảnh để bản scan rõ nét, phục vụ lưu trữ lâu dài và tra cứu chính xác.\n\nHPT Tech cung cấp **máy scan cho cơ quan thuế** với dải sản phẩm công suất cao từ Fujitsu/Ricoh, Kodak Alaris, Canon, Epson, Plustek, kèm phần mềm nhận dạng và quản lý phù hợp quy trình nghiệp vụ. Chúng tôi tư vấn cấu hình theo lượng chứng từ thực tế của từng đơn vị, hỗ trợ đầy đủ hồ sơ mua sắm công, xuất hóa đơn VAT, giao hàng, lắp đặt và bảo hành, bảo trì trên toàn quốc. Liên hệ HPT Tech để được khảo sát nhu cầu số hóa chứng từ thuế và nhận **báo giá dự án** phù hợp ngân sách.",
+      "painPoints": [
+        "Hóa đơn, chứng từ, tờ khai số lượng rất lớn theo kỳ.",
+        "Cần OCR bóc tách dữ liệu vào phần mềm quản lý thuế.",
+        "Yêu cầu tốc độ & độ tin cậy khi quét khối lượng lớn.",
+        "Lưu trữ, tra cứu, đối chiếu chứng từ nhanh."
+      ],
+      "criteria": [
+        {
+          "need": "Khối lượng lớn",
+          "spec": "dailyDuty rất cao + ADF lớn"
+        },
+        {
+          "need": "Tốc độ",
+          "spec": "scanSpeedSimplexPpm/scanSpeedDuplexIpm cao"
+        },
+        {
+          "need": "2 mặt",
+          "spec": "duplexScan"
+        },
+        {
+          "need": "Bóc tách chứng từ",
+          "spec": "ocr + phần mềm capture"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho cơ quan thuế nên chọn loại nào?",
+          "answer": "Dòng tốc độ cao, ADF lớn, scan 2 mặt, công suất ≥ 8.000 trang/ngày, có OCR tiếng Việt."
+        },
+        {
+          "question": "Có bóc tách dữ liệu hóa đơn/chứng từ tự động không?",
+          "answer": "Có — qua phần mềm OCR/capture (ABBYY, PaperStream…) tích hợp quy trình."
+        },
+        {
+          "question": "Xử lý khối lượng lớn cuối kỳ có ổn định không?",
+          "answer": "Chọn máy công suất cao, cảm biến chống kẹt/kéo đôi để quét liên tục."
+        },
+        {
+          "question": "Có hỗ trợ hồ sơ mua sắm công và xuất VAT?",
+          "answer": "Có — chính hãng, CO/CQ, xuất VAT, bảo hành toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true,
+        "needsOcr": true,
+        "minDailyDuty": 8000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "hai-quan",
+      "slug": "nganh-hai-quan",
+      "pathname": "/giai-phap/may-scan/nganh/hai-quan",
+      "title": "Máy scan cho Hải quan",
+      "h1": "Máy scan cho ngành Hải quan",
+      "seo": {
+        "title": "Máy Scan Cho Hải Quan | Số Hóa Tờ Khai, XNK",
+        "description": "Máy scan cho hải quan: số hóa tờ khai, chứng từ xuất nhập khẩu, vận đơn; khổ A3, scan 2 mặt tốc độ cao, OCR. Chính hãng, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan cho hải quan** là công cụ quan trọng để số hóa tờ khai, chứng từ xuất nhập khẩu và hồ sơ thông quan — nhóm tài liệu đa dạng về kích cỡ và số lượng lớn phát sinh mỗi ngày tại các chi cục, cửa khẩu. Ngành hải quan thường xuyên xử lý tờ khai hải quan, vận đơn (B/L), hợp đồng ngoại thương, giấy chứng nhận xuất xứ (C/O), invoice, packing list… trong đó không ít tài liệu ở khổ A3. Việc lưu và tra cứu bằng giấy làm chậm thông quan và gây khó khăn cho công tác hậu kiểm.\n\nSố hóa giúp hải quan lưu hồ sơ điện tử, truy xuất tức thời và phục vụ kiểm tra sau thông quan nhanh chóng, minh bạch. Do đặc thù chứng từ khổ lớn, **máy scan cho hải quan** nên hỗ trợ khổ A3, kèm khay ADF quét hai mặt tốc độ cao để xử lý theo lô. Cảm biến siêu âm chống kéo đôi và cơ chế bảo vệ giấy là bắt buộc, bởi bộ chứng từ thường trộn lẫn giấy mỏng và dày. Khả năng OCR tiếng Việt và tích hợp phần mềm bóc tách giúp nhận diện thông tin tờ khai, số vận đơn và đẩy dữ liệu vào hệ thống quản lý, giảm nhập liệu thủ công.\n\nCông suất và độ bền cũng cần cân nhắc kỹ. Với lưu lượng hồ sơ lớn tại cửa khẩu và chi cục, thiết bị cần công suất khuyến nghị vài nghìn trang mỗi ngày trở lên, vận hành ổn định trong nhiều giờ liên tục. Một số nghiệp vụ còn cần bàn quét phẳng để xử lý tài liệu đóng quyển hoặc dễ rách.\n\nHPT Tech tư vấn và cung cấp **máy scan cho hải quan** với các dòng A3 công suất cao từ Fujitsu/Ricoh, Kodak Alaris, Epson, Canon, Avision, kèm phần mềm nhận dạng và quản lý phù hợp quy trình. Chúng tôi hỗ trợ đầy đủ hồ sơ mua sắm công (CO/CQ), xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành, bảo trì toàn quốc. Liên hệ HPT Tech để được khảo sát nhu cầu số hóa chứng từ xuất nhập khẩu và nhận **báo giá dự án** tối ưu cho đơn vị.",
+      "painPoints": [
+        "Chứng từ XNK đa kích cỡ, có tài liệu khổ A3.",
+        "Cần thông quan & lưu hồ sơ điện tử nhanh.",
+        "Quét theo lô lớn, tài liệu giấy hỗn hợp dày mỏng.",
+        "Bóc tách dữ liệu chứng từ vào hệ thống."
+      ],
+      "criteria": [
+        {
+          "need": "Chứng từ khổ lớn",
+          "spec": "maxPaperSize A3"
+        },
+        {
+          "need": "2 mặt, tốc độ",
+          "spec": "duplexScan + scanSpeedSimplexPpm cao"
+        },
+        {
+          "need": "Lô lớn, hỗn hợp",
+          "spec": "dailyDuty cao + chống kéo đôi (siêu âm)"
+        },
+        {
+          "need": "Bóc tách",
+          "spec": "ocr"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho hải quan cần khổ A3 không?",
+          "answer": "Nên có, vì nhiều chứng từ XNK khổ lớn; kèm ADF quét 2 mặt tốc độ cao."
+        },
+        {
+          "question": "Quét tài liệu dày mỏng lẫn lộn có kẹt không?",
+          "answer": "Chọn máy có cảm biến siêu âm chống kéo đôi và bảo vệ giấy."
+        },
+        {
+          "question": "Có bóc tách dữ liệu tờ khai/chứng từ?",
+          "answer": "Có — qua OCR + phần mềm capture theo quy trình nghiệp vụ."
+        },
+        {
+          "question": "Có xuất VAT, hồ sơ mua sắm công, bảo hành?",
+          "answer": "Có — chính hãng, CO/CQ, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsA3": true,
+        "needsDuplex": true,
+        "needsOcr": true,
+        "minDailyDuty": 5000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "kho-bac",
+      "slug": "nganh-kho-bac",
+      "pathname": "/giai-phap/may-scan/nganh/kho-bac",
+      "title": "Máy scan cho Kho bạc Nhà nước",
+      "h1": "Máy scan cho Kho bạc Nhà nước",
+      "seo": {
+        "title": "Máy Scan Cho Kho Bạc | Số Hóa Chứng Từ Kế Toán",
+        "description": "Máy scan cho kho bạc: số hóa chứng từ kế toán, phiếu thu chi, hồ sơ kiểm soát chi; scan 2 mặt, OCR, công suất lớn. Chính hãng, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan cho Kho bạc Nhà nước** phục vụ trực tiếp công tác số hóa chứng từ kế toán, phiếu thu chi và hồ sơ kiểm soát chi — những tài liệu phát sinh với khối lượng lớn và yêu cầu độ chính xác tuyệt đối mỗi ngày. Hệ thống kho bạc các cấp xử lý chứng từ giao dịch ngân sách, hồ sơ thanh toán, kiểm soát chi đầu tư và thường xuyên; việc số hóa giúp lưu trữ điện tử, kiểm soát nội bộ và tra cứu, đối chiếu chứng từ nhanh chóng, minh bạch, phục vụ kiểm toán.\n\nĐặc thù chứng từ kho bạc là yêu cầu không được bỏ sót trang và phải giữ nguyên tính toàn vẹn. Vì vậy **máy scan cho kho bạc** cần quét hai mặt (duplex), có cảm biến siêu âm chống kéo đôi để phát hiện khi hai tờ dính nhau, cùng khay ADF dung lượng lớn và công suất khuyến nghị từ 6.000 trang mỗi ngày trở lên. Khả năng OCR tiếng Việt hỗ trợ tạo file PDF tìm kiếm được và lập chỉ mục chứng từ theo số, ngày, loại nghiệp vụ — nền tảng để tích hợp vào phần mềm quản lý và lưu trữ điện tử.\n\nChất lượng ảnh và độ tin cậy khi vận hành liên tục là ưu tiên hàng đầu. Nên chọn dòng máy chuyên nghiệp có công nghệ làm sạch ảnh, tự động căn chỉnh và loại trang trắng, giúp bản số hóa rõ nét, nhẹ dung lượng, thuận tiện lưu trữ dài hạn. Với hồ sơ tồn đọng lớn, có thể kết hợp thiết bị công suất cao và dịch vụ số hóa để rút ngắn thời gian triển khai.\n\nHPT Tech cung cấp **máy scan cho kho bạc** với các dòng công suất cao, độ bền và độ chính xác cao từ Fujitsu/Ricoh, Kodak Alaris, Canon, Plustek, kèm phần mềm nhận dạng, lập chỉ mục và quản lý phù hợp nghiệp vụ tài chính. Chúng tôi tư vấn cấu hình theo lượng chứng từ từng đơn vị, hỗ trợ hồ sơ mua sắm công, xuất VAT, giao hàng, lắp đặt và bảo hành toàn quốc. Liên hệ HPT Tech để khảo sát nhu cầu và nhận **báo giá dự án** phù hợp.",
+      "painPoints": [
+        "Chứng từ kế toán & kiểm soát chi số lượng lớn hằng ngày.",
+        "Yêu cầu độ chính xác, không bỏ sót trang.",
+        "Lưu trữ điện tử & tra cứu minh bạch.",
+        "Lập chỉ mục chứng từ theo nghiệp vụ."
+      ],
+      "criteria": [
+        {
+          "need": "Khối lượng",
+          "spec": "dailyDuty cao + ADF lớn"
+        },
+        {
+          "need": "2 mặt, không sót",
+          "spec": "duplexScan + phát hiện kéo đôi"
+        },
+        {
+          "need": "Bóc tách & chỉ mục",
+          "spec": "ocr + phần mềm capture"
+        },
+        {
+          "need": "Độ tin cậy",
+          "spec": "thương hiệu bền, bảo hành tốt"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho kho bạc nên chọn gì?",
+          "answer": "Máy 2 mặt, công suất lớn, OCR tiếng Việt, cảm biến chống kéo đôi để không sót chứng từ."
+        },
+        {
+          "question": "Có lập chỉ mục & bóc tách chứng từ không?",
+          "answer": "Có — qua OCR + phần mềm capture (đặt tên, tách lô, chỉ mục)."
+        },
+        {
+          "question": "Số hóa chứng từ tồn đọng lớn?",
+          "answer": "Dùng dòng công suất cao + dịch vụ số hóa."
+        },
+        {
+          "question": "Có xuất VAT & hồ sơ mua sắm công?",
+          "answer": "Có — chính hãng, CO/CQ, VAT, bảo hành toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true,
+        "needsOcr": true,
+        "minDailyDuty": 6000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "toa-an",
+      "slug": "nganh-toa-an",
+      "pathname": "/giai-phap/may-scan/nganh/toa-an",
+      "title": "Máy scan cho Tòa án",
+      "h1": "Máy scan cho ngành Tòa án",
+      "seo": {
+        "title": "Máy Scan Cho Tòa Án | Số Hóa Hồ Sơ Vụ Án",
+        "description": "Máy scan cho tòa án: số hóa hồ sơ vụ án, bản án, tài liệu tố tụng; scan 2 mặt, OCR tiếng Việt, công suất lớn, có flatbed cho hồ sơ đóng quyển. Xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan cho tòa án** là giải pháp cốt lõi để số hóa hồ sơ vụ án, bản án và tài liệu tố tụng — nhóm hồ sơ có khối lượng lớn, thời gian lưu trữ dài và yêu cầu tra cứu chính xác. Tòa án các cấp lưu giữ hồ sơ vụ án hình sự, dân sự, hành chính, kinh tế cùng bản án, quyết định và tài liệu kèm theo; nhiều hồ sơ được đóng quyển, dày và có giấy cũ. Việc số hóa giúp tra cứu án nhanh, chia sẻ giữa các bộ phận xét xử, thi hành án và lưu trữ lâu dài theo quy định.\n\nDo đặc thù hồ sơ đóng quyển và giấy cũ, **máy scan cho tòa án** nên kết hợp khay ADF quét hai mặt tốc độ cao cho tài liệu rời và bàn quét phẳng (flatbed) cho hồ sơ đóng gáy, tài liệu mỏng dễ rách. Công suất khuyến nghị từ vài nghìn trang mỗi ngày trở lên để số hóa hồ sơ tồn đọng; khả năng OCR tiếng Việt giúp tạo file PDF tìm kiếm được, thuận tiện tra cứu theo số vụ án, đương sự hoặc nội dung. Bảo mật và phân quyền cũng cần được đảm bảo do tính chất nhạy cảm của hồ sơ tố tụng.\n\nChất lượng ảnh ổn định, cảm biến chống kéo đôi và cơ chế bảo vệ giấy giúp số hóa đầy đủ, không sót trang — yếu tố then chốt với hồ sơ pháp lý. Với kho hồ sơ lớn, nên kết hợp thiết bị công suất cao và dịch vụ số hóa kèm lập chỉ mục theo cấu trúc hồ sơ vụ án.\n\nHPT Tech tư vấn và cung cấp **máy scan cho tòa án** gồm cả dòng ADF công suất cao và máy có bàn phẳng từ Fujitsu/Ricoh, Kodak Alaris, Canon, Epson, kèm phần mềm nhận dạng, lập chỉ mục và quản lý phù hợp nghiệp vụ tố tụng. Chúng tôi hỗ trợ hồ sơ mua sắm công (CO/CQ), xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành toàn quốc. Liên hệ HPT Tech để khảo sát nhu cầu số hóa hồ sơ vụ án và nhận **báo giá dự án** phù hợp.",
+      "painPoints": [
+        "Hồ sơ vụ án nhiều, đóng quyển, giấy cũ khó quét ADF.",
+        "Cần tra cứu án & tài liệu tố tụng nhanh.",
+        "Lưu trữ lâu dài, tạo tài liệu tìm kiếm được (OCR).",
+        "Bảo mật hồ sơ, phân quyền truy cập."
+      ],
+      "criteria": [
+        {
+          "need": "Hồ sơ đóng quyển/giấy cũ",
+          "spec": "có Flatbed (prefersFlatbed)"
+        },
+        {
+          "need": "2 mặt, khối lượng",
+          "spec": "duplexScan + dailyDuty cao"
+        },
+        {
+          "need": "Tìm kiếm được",
+          "spec": "ocr"
+        },
+        {
+          "need": "Đa dạng giấy",
+          "spec": "ADF chống kẹt"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho tòa án nên chọn gì?",
+          "answer": "Máy 2 mặt công suất lớn + bàn phẳng (flatbed) cho hồ sơ đóng quyển/giấy cũ, có OCR tiếng Việt."
+        },
+        {
+          "question": "Quét hồ sơ đóng quyển, giấy mỏng cũ được không?",
+          "answer": "Dùng flatbed để bảo vệ tài liệu; ADF cho tài liệu rời."
+        },
+        {
+          "question": "Số hóa kho hồ sơ vụ án lớn?",
+          "answer": "Máy công suất cao + dịch vụ số hóa, lập chỉ mục theo số vụ án."
+        },
+        {
+          "question": "Có xuất VAT & hồ sơ mua sắm công?",
+          "answer": "Có — chính hãng, CO/CQ, VAT, bảo hành toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true,
+        "needsOcr": true,
+        "prefersFlatbed": true,
+        "minDailyDuty": 5000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "vien-kiem-sat",
+      "slug": "nganh-vien-kiem-sat",
+      "pathname": "/giai-phap/may-scan/nganh/vien-kiem-sat",
+      "title": "Máy scan cho Viện kiểm sát",
+      "h1": "Máy scan cho ngành Viện kiểm sát",
+      "seo": {
+        "title": "Máy Scan Cho Viện Kiểm Sát | Số Hóa Hồ Sơ",
+        "description": "Máy scan cho viện kiểm sát: số hóa hồ sơ vụ án, cáo trạng, tài liệu tố tụng; scan 2 mặt, OCR tiếng Việt. Chính hãng, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan cho viện kiểm sát** hỗ trợ số hóa hồ sơ vụ án, cáo trạng và tài liệu tố tụng phục vụ công tác thực hành quyền công tố và kiểm sát hoạt động tư pháp. Viện kiểm sát các cấp thường xuyên nghiên cứu, sao chụp và lưu hồ sơ vụ án cùng tài liệu phối hợp liên ngành với cơ quan điều tra và tòa án. Số hóa giúp truy xuất hồ sơ tức thời, sao lưu an toàn và chia sẻ dữ liệu thuận tiện trong quá trình xử lý vụ việc.\n\nYêu cầu đối với **máy scan cho viện kiểm sát** là quét hai mặt (duplex) ổn định, độ tin cậy cao và OCR tiếng Việt để tạo tài liệu tìm kiếm được, tiện tra cứu theo số vụ án hoặc nội dung. Khay ADF dung lượng khá và công suất phù hợp giúp số hóa cả hồ sơ mới lẫn hồ sơ tồn đọng. Cảm biến chống kéo đôi cùng cơ chế bảo vệ giấy đảm bảo không bỏ sót trang — điều bắt buộc với hồ sơ tố tụng. Vì tài liệu mang tính nhạy cảm, quy trình nên diễn ra trong mạng nội bộ với phân quyền rõ ràng.\n\nViệc lập chỉ mục theo cấu trúc hồ sơ và tích hợp phần mềm quản lý giúp viện kiểm sát khai thác dữ liệu số hiệu quả, rút ngắn thời gian nghiên cứu hồ sơ. Với khối lượng lớn, có thể kết hợp máy công suất cao và dịch vụ số hóa để triển khai nhanh.\n\nHPT Tech cung cấp **máy scan cho viện kiểm sát** với các dòng chuyên nghiệp, độ bền cao từ Fujitsu/Ricoh, Kodak Alaris, Canon, Plustek, kèm phần mềm nhận dạng và quản lý phù hợp nghiệp vụ. Chúng tôi hỗ trợ hồ sơ mua sắm công, xuất VAT, giao hàng, lắp đặt và bảo hành toàn quốc. Liên hệ HPT Tech để được khảo sát và nhận **báo giá dự án** tối ưu cho đơn vị.",
+      "painPoints": [
+        "Hồ sơ vụ án, tài liệu tố tụng cần tra cứu & đối chiếu nhanh.",
+        "Phối hợp liên ngành (công an, tòa án) cần dữ liệu số.",
+        "Lưu trữ an toàn, phân quyền.",
+        "Số hóa hồ sơ tồn đọng."
+      ],
+      "criteria": [
+        {
+          "need": "2 mặt, tin cậy",
+          "spec": "duplexScan + chống kéo đôi"
+        },
+        {
+          "need": "Tìm kiếm được",
+          "spec": "ocr"
+        },
+        {
+          "need": "Khối lượng",
+          "spec": "dailyDuty phù hợp + ADF lớn"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho viện kiểm sát nên chọn gì?",
+          "answer": "Máy 2 mặt, OCR tiếng Việt, độ bền cao phù hợp hồ sơ tố tụng."
+        },
+        {
+          "question": "Có tạo PDF tìm kiếm được để tra cứu án?",
+          "answer": "Có — qua OCR, xuất PDF/PDF-A tìm kiếm được."
+        },
+        {
+          "question": "Số hóa hồ sơ tồn đọng lớn?",
+          "answer": "Dòng công suất cao + dịch vụ số hóa, lập chỉ mục theo hồ sơ."
+        },
+        {
+          "question": "Có xuất VAT & hồ sơ mua sắm công?",
+          "answer": "Có — chính hãng, CO/CQ, VAT, bảo hành toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true,
+        "needsOcr": true,
+        "minDailyDuty": 4000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "ubnd",
+      "slug": "nganh-ubnd",
+      "pathname": "/giai-phap/may-scan/nganh/ubnd",
+      "title": "Máy scan cho UBND & bộ phận một cửa",
+      "h1": "Máy scan cho UBND & bộ phận một cửa",
+      "seo": {
+        "title": "Máy Scan Cho UBND | Số Hóa Hồ Sơ Một Cửa",
+        "description": "Máy scan cho UBND & bộ phận một cửa: số hóa hồ sơ hành chính, dịch vụ công, hộ tịch, đất đai; nối mạng, scan 2 mặt, OCR. Chính hãng, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan cho UBND và bộ phận một cửa** là thiết bị thiết yếu trong tiến trình xây dựng chính quyền số và cung cấp dịch vụ công trực tuyến. Ủy ban nhân dân các cấp cùng bộ phận một cửa tiếp nhận và xử lý lượng lớn hồ sơ hành chính đa dạng: hộ tịch, đất đai, đăng ký kinh doanh, chứng thực, đơn thư và hồ sơ dịch vụ công. Số hóa ngay tại quầy giúp trả kết quả nhanh, minh bạch và lưu hồ sơ điện tử theo đúng lộ trình chuyển đổi số.\n\nĐặc thù của môi trường một cửa là nhiều cán bộ và bộ phận dùng chung thiết bị, vì vậy **máy scan cho UBND** nên ưu tiên dòng nối mạng (LAN/WiFi) cho phép quét thẳng vào thư mục dùng chung hoặc phần mềm một cửa/dịch vụ công. Quét hai mặt, ADF dung lượng khá và OCR tiếng Việt giúp xử lý nhanh hồ sơ đa dạng khổ, tạo file PDF tìm kiếm được. Với hồ sơ đất đai, sổ sách cũ hoặc tài liệu khổ lớn, cần cân nhắc thêm máy hỗ trợ A3 hoặc bàn phẳng.\n\nKhả năng tích hợp với phần mềm một cửa điện tử là yếu tố quyết định hiệu quả: bản scan cần được đưa trực tiếp vào hồ sơ điện tử, gắn mã và luân chuyển theo quy trình. Thiết bị bền, dễ sử dụng cho nhiều cán bộ và ổn định khi vận hành liên tục sẽ giảm chi phí và thời gian đào tạo.\n\nHPT Tech tư vấn và cung cấp **máy scan cho UBND, bộ phận một cửa** với các dòng nối mạng và công suất phù hợp từ Fujitsu/Ricoh, Canon, Epson, Brother, Plustek, Avision, kèm phần mềm quét và tích hợp theo hệ thống đơn vị đang dùng. Chúng tôi hỗ trợ hồ sơ mua sắm công (CO/CQ), xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành toàn quốc. Liên hệ HPT Tech để khảo sát nhu cầu số hóa dịch vụ công và nhận **báo giá dự án** phù hợp.",
+      "painPoints": [
+        "Hồ sơ hành chính đa dạng, cần số hóa ngay tại quầy một cửa.",
+        "Nhiều cán bộ/bộ phận dùng chung thiết bị.",
+        "Tích hợp phần mềm một cửa/dịch vụ công.",
+        "Lộ trình chính quyền số, lưu hồ sơ điện tử."
+      ],
+      "criteria": [
+        {
+          "need": "Dùng chung",
+          "spec": "connectivity LAN/WiFi (network scanner)"
+        },
+        {
+          "need": "Số hóa tại quầy",
+          "spec": "scan-to-folder/tích hợp phần mềm một cửa"
+        },
+        {
+          "need": "2 mặt, đa dạng khổ",
+          "spec": "duplexScan + ADF"
+        },
+        {
+          "need": "Tìm kiếm được",
+          "spec": "ocr"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho bộ phận một cửa nên chọn gì?",
+          "answer": "Máy nối mạng (LAN/WiFi) để dùng chung, scan 2 mặt, OCR, quét thẳng vào phần mềm một cửa."
+        },
+        {
+          "question": "Có tích hợp phần mềm dịch vụ công/một cửa?",
+          "answer": "Có — qua scan-to-folder/DMS hoặc tích hợp theo phần mềm đơn vị đang dùng."
+        },
+        {
+          "question": "Số hóa hồ sơ đất đai/hộ tịch tồn đọng?",
+          "answer": "Kết hợp máy công suất cao + dịch vụ số hóa."
+        },
+        {
+          "question": "Có xuất VAT & hồ sơ mua sắm công?",
+          "answer": "Có — chính hãng, CO/CQ, VAT, bảo hành toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsNetwork": true,
+        "needsDuplex": true,
+        "needsOcr": true,
+        "minDailyDuty": 4000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "van-thu-luu-tru",
+      "slug": "nganh-van-thu-luu-tru",
+      "pathname": "/giai-phap/may-scan/nganh/van-thu-luu-tru",
+      "title": "Máy scan cho Văn thư lưu trữ",
+      "h1": "Máy scan số hóa Văn thư lưu trữ",
+      "seo": {
+        "title": "Máy Scan Văn Thư Lưu Trữ | Số Hóa Kho A3",
+        "description": "Máy scan cho văn thư lưu trữ: số hóa tài liệu lưu trữ, khổ A3, tài liệu cũ/đóng quyển; flatbed + ADF công suất rất lớn, OCR tiếng Việt. Xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan văn thư lưu trữ** là thiết bị trọng tâm cho các dự án số hóa tài liệu lưu trữ tại cơ quan, doanh nghiệp và trung tâm lưu trữ. Công tác lưu trữ đòi hỏi xử lý khối lượng tài liệu rất lớn, đa kích cỡ (đến A3 hoặc hơn), trong đó nhiều tài liệu cũ, giòn, ố vàng hoặc đóng quyển. Số hóa giúp bảo tồn bản gốc, tra cứu nhanh, tiết kiệm kho và đáp ứng yêu cầu lập kho lưu trữ điện tử theo quy định hiện hành.\n\nDo đặc thù đó, **máy scan văn thư lưu trữ** cần hỗ trợ khổ A3, kết hợp khay ADF công suất rất lớn cho tài liệu rời và bàn quét phẳng (flatbed) hoặc máy quét sách cho tài liệu đóng quyển, giấy mỏng dễ hư hại. Công suất khuyến nghị từ 10.000 trang mỗi ngày trở lên để đáp ứng khối lượng kho lưu trữ. OCR tiếng Việt là bắt buộc nhằm tạo file PDF/PDF-A tìm kiếm được, phục vụ lập chỉ mục và tra cứu theo phông, hộp, hồ sơ. Các thông số như độ phân giải, định dạng đầu ra và metadata cần cấu hình theo chuẩn số hóa tài liệu lưu trữ.\n\nVì tài liệu gốc thường quý và không thể thay thế, cơ chế nạp giấy nhẹ nhàng, chống kẹt và bảo vệ giấy rất quan trọng; với tài liệu đặc biệt nên dùng máy quét không tiếp xúc/quét trên cao. Kết hợp thiết bị công suất cao với dịch vụ số hóa và phần mềm quản lý lưu trữ sẽ giúp hoàn thành dự án nhanh, đúng chuẩn.\n\nHPT Tech tư vấn và triển khai giải pháp **máy scan số hóa văn thư lưu trữ** trọn gói: thiết bị A3/khổ lớn công suất cao và máy quét sách từ Fujitsu/Ricoh, Kodak Alaris, Avision, Plustek, kèm phần mềm nhận dạng, lập chỉ mục và lưu trữ điện tử. Chúng tôi hỗ trợ hồ sơ mua sắm công (CO/CQ), xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành toàn quốc. Liên hệ HPT Tech để khảo sát kho tài liệu và nhận **báo giá dự án** số hóa lưu trữ phù hợp.",
+      "painPoints": [
+        "Kho tài liệu lưu trữ rất lớn, đa kích cỡ (đến A3).",
+        "Tài liệu cũ, giòn, đóng quyển — không quét ADF thô được.",
+        "Cần bảo tồn bản gốc + tạo bản số tìm kiếm được.",
+        "Đáp ứng quy định/chuẩn lưu trữ điện tử."
+      ],
+      "criteria": [
+        {
+          "need": "Khổ lớn",
+          "spec": "maxPaperSize A3 (hoặc lớn hơn)"
+        },
+        {
+          "need": "Tài liệu cũ/đóng quyển",
+          "spec": "Flatbed (prefersFlatbed)"
+        },
+        {
+          "need": "Khối lượng rất lớn",
+          "spec": "dailyDuty rất cao (≥ 10.000)"
+        },
+        {
+          "need": "Lập chỉ mục/tìm kiếm",
+          "spec": "ocr"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan số hóa lưu trữ cần gì?",
+          "answer": "Hỗ trợ A3, có flatbed cho tài liệu cũ/đóng quyển, ADF công suất rất lớn, OCR tiếng Việt."
+        },
+        {
+          "question": "Quét tài liệu cũ, giòn, đóng quyển thế nào?",
+          "answer": "Dùng bàn phẳng (flatbed) hoặc máy quét sách để bảo vệ bản gốc."
+        },
+        {
+          "question": "Có đáp ứng chuẩn số hóa tài liệu lưu trữ?",
+          "answer": "Cấu hình theo yêu cầu (độ phân giải, định dạng PDF/PDF-A, metadata) + phần mềm lưu trữ."
+        },
+        {
+          "question": "Số hóa cả kho lưu trữ lớn?",
+          "answer": "Kết hợp thiết bị công suất cao + dịch vụ số hóa trọn gói."
+        },
+        {
+          "question": "Có xuất VAT & hồ sơ mua sắm công?",
+          "answer": "Có — chính hãng, CO/CQ, VAT, bảo hành toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsA3": true,
+        "prefersFlatbed": true,
+        "needsOcr": true,
+        "minDailyDuty": 10000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "benh-vien",
+      "slug": "nganh-benh-vien",
+      "pathname": "/giai-phap/may-scan/nganh/benh-vien",
+      "title": "Máy scan cho Bệnh viện & cơ sở y tế",
+      "h1": "Máy scan cho bệnh viện & cơ sở y tế",
+      "seo": {
+        "title": "Máy Scan Cho Bệnh Viện | Số Hóa Hồ Sơ Bệnh Án",
+        "description": "Máy scan cho bệnh viện, phòng khám: số hóa hồ sơ bệnh án, nối mạng LAN tích hợp HIS/EMR, scan 2 mặt, độ bền cao. Chính hãng, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan cho bệnh viện** giúp cơ sở y tế số hóa hồ sơ bệnh án, kết quả xét nghiệm, phim và giấy tờ hành chính để tra cứu nhanh, chia sẻ giữa các khoa và lưu trữ an toàn. Bệnh viện và phòng khám phát sinh khối lượng hồ sơ giấy rất lớn mỗi ngày; số hóa là nền tảng để triển khai bệnh án điện tử (EMR), giảm kho giấy, hạn chế thất lạc và nâng cao chất lượng phục vụ người bệnh.\n\nĐặc thù môi trường y tế là nhiều khoa, phòng cần dùng chung và truy cập dữ liệu nhanh, nên **máy scan cho bệnh viện** nên ưu tiên dòng nối mạng (LAN/WiFi) hỗ trợ quét thẳng vào thư mục/hệ thống HIS/EMR. Máy cần quét hai mặt, độ bền và công suất cao (khuyến nghị từ 5.000 trang mỗi ngày trở lên) để xử lý hồ sơ liên tục. Với phim X-quang, tài liệu khổ lớn hoặc hồ sơ đóng quyển, cần cân nhắc máy hỗ trợ A3 hoặc bàn phẳng. Khả năng OCR và tạo PDF tìm kiếm được giúp lập chỉ mục theo mã bệnh nhân, ngày khám, loại hồ sơ.\n\nBảo mật thông tin bệnh nhân và tuân thủ quy định là yêu cầu bắt buộc: quy trình nên có phân quyền, kiểm soát truy cập và tích hợp an toàn vào hệ thống nội bộ. Thiết bị dễ sử dụng cho điều dưỡng, nhân viên hành chính và vận hành ổn định sẽ giảm chi phí đào tạo, tăng hiệu quả số hóa.\n\nHPT Tech tư vấn và cung cấp **máy scan cho bệnh viện, cơ sở y tế** với các dòng nối mạng, độ bền cao từ Kodak Alaris, Fujitsu/Ricoh, Canon, Epson, kèm phần mềm quét và tích hợp HIS/EMR/DMS. Chúng tôi hỗ trợ hồ sơ mua sắm, xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành, hỗ trợ kỹ thuật tận nơi trên toàn quốc. Liên hệ HPT Tech để khảo sát nhu cầu số hóa bệnh án và nhận **báo giá dự án** phù hợp.",
+      "painPoints": [
+        "Hồ sơ bệnh án giấy nhiều, tra cứu chậm, dễ thất lạc.",
+        "Nhiều khoa cần dùng chung & chia sẻ dữ liệu.",
+        "Bảo mật & tuân thủ; tích hợp HIS/EMR.",
+        "Số hóa hồ sơ tồn lớn + tài liệu khổ lớn (phim)."
+      ],
+      "criteria": [
+        {
+          "need": "Dùng chung nhiều khoa",
+          "spec": "connectivity LAN/Network"
+        },
+        {
+          "need": "Tích hợp HIS/EMR",
+          "spec": "scan-to-folder/DMS, PDF tìm kiếm"
+        },
+        {
+          "need": "2 mặt, công suất",
+          "spec": "duplexScan + dailyDuty cao"
+        },
+        {
+          "need": "Phim/khổ lớn",
+          "spec": "Flatbed/maxPaperSize A3"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho bệnh viện cần tiêu chí gì?",
+          "answer": "Nối mạng LAN, scan 2 mặt, độ bền & công suất cao, tích hợp HIS/EMR, bảo mật."
+        },
+        {
+          "question": "Có tích hợp bệnh án điện tử (EMR/HIS)?",
+          "answer": "Có — dòng network scanner hỗ trợ scan-to-folder/DMS đưa vào quy trình EMR."
+        },
+        {
+          "question": "Scan phim X-quang/tài liệu khổ lớn?",
+          "answer": "Cần flatbed hoặc khổ A3; tư vấn model phù hợp."
+        },
+        {
+          "question": "Số hóa hồ sơ bệnh án cũ số lượng lớn?",
+          "answer": "Máy công suất cao + dịch vụ số hóa."
+        },
+        {
+          "question": "Có bảo hành, hỗ trợ tại viện, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsNetwork": true,
+        "needsDuplex": true,
+        "minDailyDuty": 5000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "industry",
+      "facetSlug": "truong-hoc",
+      "slug": "nganh-truong-hoc",
+      "pathname": "/giai-phap/may-scan/nganh/truong-hoc",
+      "title": "Máy scan cho Trường học & cơ sở giáo dục",
+      "h1": "Máy scan cho trường học & cơ sở giáo dục",
+      "seo": {
+        "title": "Máy Scan Cho Trường Học | Số Hóa Học Bạ, Khảo Thí",
+        "description": "Máy scan cho trường học, đại học: số hóa học bạ, đề thi, khảo thí, thư viện. Scan 2 mặt, OCR, ADF, giá tốt cho giáo dục. Chính hãng, xuất VAT, báo giá nhanh."
+      },
+      "intro": "**Máy scan cho trường học** giúp các cơ sở giáo dục số hóa học bạ, sổ điểm, đề thi, bài khảo thí và tài liệu thư viện để lưu trữ, tra cứu và chia sẻ dễ dàng. Trường phổ thông, đại học và trung tâm đào tạo phát sinh nhiều giấy tờ theo mùa — đặc biệt vào đầu và cuối kỳ, mùa tuyển sinh, khảo thí. Số hóa giúp giảm kho giấy, tra cứu hồ sơ học sinh nhanh và tạo nền tảng cho học bạ, sổ điểm điện tử.\n\n**Máy scan cho trường học** thường ưu tiên dòng quét hai mặt (duplex) có OCR, tốc độ vừa phải và mức giá hợp lý với ngân sách giáo dục. Khay ADF giúp xử lý nhanh tập hồ sơ học sinh, phiếu điểm và bài thi; OCR tiếng Việt tạo file PDF tìm kiếm được, thuận tiện lập chỉ mục theo lớp, khóa, mã học sinh. Với số hóa sách, giáo trình và tài liệu đóng quyển trong thư viện, nên bổ sung máy quét sách (book scanner) hoặc bàn phẳng để bảo vệ tài liệu, không cần tháo gáy.\n\nTùy quy mô, trường có thể chọn máy để bàn cho văn phòng khoa/phòng đào tạo, hoặc dòng công suất cao hơn cho trung tâm khảo thí và thư viện. Thiết bị dễ dùng, bền và có phần mềm quản lý phù hợp giúp giáo viên, nhân viên văn thư số hóa nhanh mà không cần kỹ năng chuyên sâu.\n\nHPT Tech tư vấn và cung cấp **máy scan cho trường học, cơ sở giáo dục** với dải sản phẩm đa dạng, giá tốt từ Brother, Epson, Canon, Fujitsu/Ricoh, Plustek (kèm máy quét sách), phù hợp mọi quy mô. Chúng tôi hỗ trợ hồ sơ mua sắm, xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành toàn quốc. Liên hệ HPT Tech để được tư vấn cấu hình theo nhu cầu số hóa học bạ, khảo thí, thư viện và nhận **báo giá** ưu đãi cho giáo dục.",
+      "painPoints": [
+        "Học bạ, sổ điểm, hồ sơ học sinh nhiều; cao điểm đầu/cuối kỳ.",
+        "Số hóa khảo thí, đề thi; số hóa thư viện & sách.",
+        "Ngân sách giáo dục hạn chế.",
+        "Cần tra cứu & chia sẻ nhanh."
+      ],
+      "criteria": [
+        {
+          "need": "Số hóa nhanh",
+          "spec": "duplexScan + ADF"
+        },
+        {
+          "need": "Tài liệu tìm kiếm",
+          "spec": "ocr"
+        },
+        {
+          "need": "Sách/đóng quyển",
+          "spec": "Flatbed/book scanner"
+        },
+        {
+          "need": "Ngân sách",
+          "spec": "model phổ thông giá tốt"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan cho trường học chọn loại nào?",
+          "answer": "ADF 2 mặt, có OCR, giá hợp lý; phục vụ học bạ/sổ điểm/đề thi."
+        },
+        {
+          "question": "Số hóa khảo thí, chấm trắc nghiệm?",
+          "answer": "Model tốc độ vừa + phần mềm phù hợp quy trình."
+        },
+        {
+          "question": "Số hóa thư viện, sách?",
+          "answer": "Dùng flatbed/book scanner cho sách; ADF cho tài liệu rời."
+        },
+        {
+          "question": "Tối ưu ngân sách giáo dục?",
+          "answer": "Có model phổ thông; tư vấn cấu hình theo quy mô trường."
+        },
+        {
+          "question": "Xuất VAT, bảo hành, giao toàn quốc?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true,
+        "needsOcr": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "ho-so",
+      "slug": "nhu-cau-ho-so",
+      "pathname": "/giai-phap/may-scan/nhu-cau/ho-so",
+      "title": "Máy scan hồ sơ tài liệu",
+      "h1": "Máy scan hồ sơ, tài liệu",
+      "seo": {
+        "title": "Máy Scan Hồ Sơ Tài Liệu | Số Hóa Văn Phòng",
+        "description": "Máy scan hồ sơ, tài liệu: scan 2 mặt tự động, OCR tạo PDF tìm kiếm được, ADF tốc độ cao cho văn phòng & lưu trữ. Chính hãng, bảo hành, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan hồ sơ tài liệu** là giải pháp nền tảng để số hóa văn bản, hợp đồng, chứng từ và hồ sơ lưu trữ trong mọi cơ quan, doanh nghiệp. Khi khối lượng giấy tờ ngày càng lớn, việc lưu trữ thủ công gây tốn kho, khó tra cứu và dễ thất lạc. Chuyển hồ sơ sang dạng số giúp tìm kiếm tức thời, chia sẻ dễ dàng, sao lưu an toàn và tiết kiệm đáng kể không gian lưu trữ.\n\nMột chiếc **máy scan hồ sơ** phù hợp cần có khay nạp tài liệu tự động (ADF) để quét cả tập giấy mà không phải đặt từng tờ, chế độ quét hai mặt (duplex) để xử lý nhanh tài liệu in hai mặt, và phần mềm OCR tiếng Việt để tạo file PDF có thể tìm kiếm được. Tùy khối lượng, bạn có thể chọn máy để bàn nhỏ gọn cho văn phòng ít giấy tờ, hoặc dòng công suất cao với ADF lớn và công suất hàng nghìn trang mỗi ngày cho bộ phận văn thư, kế toán và trung tâm số hóa.\n\nChất lượng bản scan cũng quan trọng: các tính năng tự động căn chỉnh, làm sạch nền, loại trang trắng và nén tệp giúp tài liệu số rõ nét, nhẹ dung lượng và thuận tiện lưu trữ lâu dài. Với hồ sơ tồn kho lớn, có thể kết hợp thiết bị công suất cao và dịch vụ số hóa để hoàn thành nhanh, kèm lập chỉ mục theo cấu trúc hồ sơ.\n\nHPT Tech tư vấn và cung cấp **máy scan hồ sơ, tài liệu** cho mọi quy mô — từ Brother, Canon, Epson tới Fujitsu/Ricoh, Kodak Alaris, Plustek — kèm phần mềm quét và quản lý phù hợp. Thiết bị chính hãng 100%, bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng và hỗ trợ kỹ thuật toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan hồ sơ đúng nhu cầu và ngân sách, nhận **báo giá** nhanh.",
+      "painPoints": [
+        "Hồ sơ giấy chồng chất, tốn kho, khó tra cứu.",
+        "Cần file PDF tìm kiếm được để lưu trữ & chia sẻ.",
+        "Quét khối lượng lớn nhanh, 2 mặt.",
+        "Chọn máy đúng nhu cầu & ngân sách."
+      ],
+      "criteria": [
+        {
+          "need": "Quét nhanh, không nạp tay",
+          "spec": "ADF + duplexScan"
+        },
+        {
+          "need": "Tìm kiếm được",
+          "spec": "ocr"
+        },
+        {
+          "need": "Khối lượng",
+          "spec": "dailyDuty theo nhu cầu"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan hồ sơ loại nào tốt?",
+          "answer": "Chọn theo khối lượng: văn phòng nhỏ dùng máy để bàn ADF 2 mặt; số hóa nhiều dùng dòng công suất cao."
+        },
+        {
+          "question": "Có tạo PDF tìm kiếm được không?",
+          "answer": "Có — bật OCR để tạo PDF/PDF-A tìm kiếm được."
+        },
+        {
+          "question": "Số hóa hồ sơ tồn kho lớn?",
+          "answer": "Kết hợp máy công suất cao + dịch vụ số hóa."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true,
+        "needsOcr": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "cccd",
+      "slug": "nhu-cau-cccd",
+      "pathname": "/giai-phap/may-scan/nhu-cau/cccd",
+      "title": "Máy scan CCCD / căn cước công dân",
+      "h1": "Máy scan CCCD, căn cước công dân",
+      "seo": {
+        "title": "Máy Scan CCCD | Quét Căn Cước, CMND 2 Mặt",
+        "description": "Máy scan CCCD/căn cước công dân: quét thẻ cứng 2 mặt một lần, đọc QR/chip, bo góc chuẩn. Cho ngân hàng, công an, khách sạn, viễn thông. Chính hãng, xuất VAT."
+      },
+      "intro": "**Máy scan CCCD** (căn cước công dân) giúp quét nhanh và chính xác thẻ căn cước, chứng minh nhân dân và các loại thẻ cứng ngay tại quầy giao dịch. Trong bối cảnh định danh điện tử và xác thực khách hàng ngày càng phổ biến, việc nhập tay thông tin từ CCCD vừa chậm vừa dễ sai; máy scan chuyên dụng cho phép quét hai mặt thẻ chỉ trong một thao tác, tự động bo góc và cho ra ảnh sắc nét, chuẩn hóa để lưu trữ.\n\nĐiểm mạnh của dòng **máy scan CCCD** là tốc độ và sự tiện lợi tại quầy: thiết kế nhỏ gọn, quét thẻ nhựa (kể cả CCCD gắn chip) hai mặt cùng lúc, và có thể đi kèm phần mềm đọc dữ liệu QR/chip để tự động điền thông tin khách vào hệ thống. Nhờ đó, ngân hàng, công an, khách sạn, viễn thông, công chứng và bệnh viện rút ngắn đáng kể thời gian phục vụ, giảm sai sót và chuẩn hóa hồ sơ giấy tờ tùy thân.\n\nKhi lựa chọn, cần lưu ý: máy quét ảnh thẻ hai mặt là phần cứng, còn việc đọc và bóc tách dữ liệu chip/QR cần phần mềm chuyên dụng đi kèm. Tùy tần suất, có thể chọn máy quét thẻ chuyên dụng nhỏ gọn hoặc scanner tài liệu ADF hỗ trợ quét thẻ nhựa để dùng linh hoạt cho cả giấy tờ và thẻ.\n\nHPT Tech tư vấn và cung cấp **máy scan CCCD, quét thẻ** phù hợp từng nghiệp vụ, kèm phần mềm đọc dữ liệu khi cần. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn giải pháp quét căn cước tại quầy và nhận **báo giá** phù hợp.",
+      "painPoints": [
+        "Nhập tay thông tin CCCD chậm, dễ sai.",
+        "Cần quét 2 mặt thẻ nhanh tại quầy.",
+        "Muốn đọc QR/chip điền tự động vào hệ thống.",
+        "Chuẩn hóa lưu trữ giấy tờ tùy thân."
+      ],
+      "criteria": [
+        {
+          "need": "Quét thẻ cứng",
+          "spec": "plasticCardScan"
+        },
+        {
+          "need": "2 mặt một lần",
+          "spec": "duplexScan"
+        },
+        {
+          "need": "Đọc dữ liệu",
+          "spec": "phần mềm OCR/đọc QR-chip"
+        },
+        {
+          "need": "Tại quầy",
+          "spec": "nhỏ gọn, tốc độ nhanh"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan CCCD quét được chip/QR không?",
+          "answer": "Bản thân máy quét ảnh 2 mặt; đọc chip/QR cần kèm phần mềm chuyên dụng."
+        },
+        {
+          "question": "Quét 2 mặt thẻ trong một lần?",
+          "answer": "Có — dòng quét thẻ 2 mặt một lần, tự bo góc."
+        },
+        {
+          "question": "Model nào phù hợp ngân hàng/quầy?",
+          "answer": "Máy quét thẻ nhỏ gọn hoặc scanner ADF hỗ trợ thẻ nhựa; tư vấn theo tần suất."
+        },
+        {
+          "question": "Có xuất VAT, bảo hành?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsCardScan": true,
+        "needsDuplex": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "ho-chieu",
+      "slug": "nhu-cau-ho-chieu",
+      "pathname": "/giai-phap/may-scan/nhu-cau/ho-chieu",
+      "title": "Máy scan hộ chiếu",
+      "h1": "Máy scan hộ chiếu",
+      "seo": {
+        "title": "Máy Scan Hộ Chiếu | Đọc MRZ, Quét Nhanh",
+        "description": "Máy scan hộ chiếu chuyên dụng: quét trang hộ chiếu, đọc vùng MRZ/OCR, nhanh và chính xác cho khách sạn, xuất nhập cảnh, ngân hàng. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan hộ chiếu** là thiết bị chuyên dụng để quét nhanh trang thông tin hộ chiếu và đọc vùng MRZ (Machine Readable Zone) bằng OCR, tự động điền dữ liệu khách vào hệ thống. Tại quầy lễ tân khách sạn, cửa khẩu xuất nhập cảnh, ngân hàng hay văn phòng công chứng, việc nhập tay thông tin hộ chiếu vừa chậm vừa dễ nhầm; máy scan hộ chiếu giúp thao tác chỉ trong vài giây, tăng tốc phục vụ và giảm sai sót.\n\nDòng **máy scan hộ chiếu** thường có thiết kế nhỏ gọn để đặt tại quầy, tốc độ quét cao và đi kèm phần mềm đọc MRZ để nhận diện họ tên, số hộ chiếu, quốc tịch, ngày hết hạn… Nhiều model còn quét được cả căn cước, thị thực (visa) và thẻ, phù hợp cho nghiệp vụ tiếp nhận khách quốc tế. Ảnh hộ chiếu được lưu chuẩn hóa, thuận tiện cho lưu trữ và tra cứu về sau.\n\nKhi lựa chọn, nên cân nhắc tần suất sử dụng và yêu cầu tích hợp: máy cần kết nối và xuất dữ liệu vào phần mềm quản lý khách/hồ sơ đang dùng, đồng thời đảm bảo bảo mật thông tin cá nhân của khách. Với đơn vị có lượng khách lớn, ưu tiên model bền, quét nhanh và phần mềm MRZ chính xác.\n\nHPT Tech tư vấn và cung cấp **máy scan hộ chiếu** cùng phần mềm đọc MRZ phù hợp cho khách sạn, xuất nhập cảnh, ngân hàng, công chứng. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn và nhận **báo giá** nhanh.",
+      "painPoints": [
+        "Nhập tay thông tin hộ chiếu chậm, dễ sai.",
+        "Cần đọc MRZ tự động điền vào hệ thống.",
+        "Quầy lễ tân/cửa khẩu cần tốc độ.",
+        "Lưu trữ ảnh hộ chiếu chuẩn."
+      ],
+      "criteria": [
+        {
+          "need": "Quét hộ chiếu",
+          "spec": "passportScan"
+        },
+        {
+          "need": "Đọc MRZ",
+          "spec": "phần mềm OCR MRZ"
+        },
+        {
+          "need": "Tại quầy",
+          "spec": "nhỏ gọn, nhanh"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan hộ chiếu đọc được MRZ không?",
+          "answer": "Có — kèm phần mềm OCR đọc vùng MRZ để tự điền dữ liệu."
+        },
+        {
+          "question": "Dùng cho khách sạn/xuất nhập cảnh?",
+          "answer": "Phù hợp — quét nhanh trang hộ chiếu tại quầy."
+        },
+        {
+          "question": "Có quét kèm CCCD/thị thực?",
+          "answer": "Nhiều model quét được cả giấy tờ tùy thân và visa."
+        },
+        {
+          "question": "Có xuất VAT, bảo hành?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsPassport": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "a4",
+      "slug": "nhu-cau-a4",
+      "pathname": "/giai-phap/may-scan/nhu-cau/a4",
+      "title": "Máy scan khổ A4",
+      "h1": "Máy scan khổ A4 cho văn phòng",
+      "seo": {
+        "title": "Máy Scan A4 | Chọn Máy Quét A4 Văn Phòng",
+        "description": "Máy scan A4 cho văn phòng: ADF 2 mặt, tốc độ và giá đa dạng, OCR PDF tìm kiếm. Tư vấn chọn máy A4 theo nhu cầu. Chính hãng, bảo hành, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan A4** là dòng máy quét tài liệu phổ biến nhất, phù hợp số hóa văn bản, hợp đồng, hóa đơn và hồ sơ khổ A4 hoặc nhỏ hơn — đáp ứng nhu cầu của hầu hết văn phòng, cơ quan và doanh nghiệp. Đây thường là lựa chọn khởi điểm khi bắt đầu số hóa, nhờ mức giá đa dạng, dễ sử dụng và dải sản phẩm phong phú.\n\nTrang này giúp bạn chọn đúng **máy scan A4** theo nhu cầu và ngân sách. Với văn phòng nhỏ, một máy để bàn ADF quét hai mặt tốc độ vừa, kèm OCR tạo PDF tìm kiếm được là đủ dùng. Với bộ phận văn thư, kế toán hoặc đơn vị số hóa nhiều, nên chọn dòng công suất cao hơn: ADF dung lượng lớn, tốc độ vài chục trang/phút và công suất hàng nghìn trang mỗi ngày. Các tính năng như cảm biến chống kéo đôi, tự nhận kích thước và làm sạch ảnh giúp quét ổn định và cho bản số hóa chất lượng.\n\nĐiểm cần lưu ý là khổ giấy: máy A4 quét tối đa khổ A4; nếu tài liệu của bạn có bản vẽ, sổ sách hay chứng từ khổ A3 thì nên chọn thêm dòng A3 hoặc máy khổ lớn. Ngoài ra, hãy cân nhắc kết nối (USB hay LAN/WiFi) tùy nhu cầu dùng cá nhân hay dùng chung.\n\nHPT Tech cung cấp đa dạng **máy scan A4** chính hãng từ Brother, Canon, Epson, Fujitsu/Ricoh, Plustek, Avision, phù hợp mọi quy mô và ngân sách. Bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan A4 đúng nhu cầu và nhận **báo giá** tốt nhất.",
+      "painPoints": [
+        "Không biết chọn máy A4 nào cho đúng nhu cầu/ngân sách.",
+        "Cần 2 mặt + OCR cho hồ sơ khổ A4.",
+        "Văn phòng nhỏ cần nhỏ gọn, giá tốt."
+      ],
+      "criteria": [
+        {
+          "need": "Khổ A4",
+          "spec": "maxPaperSize A4"
+        },
+        {
+          "need": "2 mặt",
+          "spec": "duplexScan"
+        },
+        {
+          "need": "Theo khối lượng",
+          "spec": "chọn tốc độ + dailyDuty"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan A4 khác A3 thế nào?",
+          "answer": "A4 quét tối đa khổ A4; nếu cần quét A3/bản vẽ thì chọn dòng A3 hoặc khổ lớn."
+        },
+        {
+          "question": "Văn phòng nhỏ nên chọn máy A4 nào?",
+          "answer": "Máy để bàn ADF 2 mặt tốc độ vừa, giá hợp lý."
+        },
+        {
+          "question": "Có OCR tạo PDF tìm kiếm?",
+          "answer": "Có — hầu hết máy A4 kèm phần mềm OCR."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "maxPaperSize": "A4",
+        "needsDuplex": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "a3",
+      "slug": "nhu-cau-a3",
+      "pathname": "/giai-phap/may-scan/nhu-cau/a3",
+      "title": "Máy scan khổ A3",
+      "h1": "Máy scan khổ A3",
+      "seo": {
+        "title": "Máy Scan A3 | Máy Quét Khổ A3 Chính Hãng",
+        "description": "Máy scan A3: quét tài liệu khổ lớn, sổ sách, báo, bản vẽ A3; ADF A3 hoặc bàn phẳng A3, scan 2 mặt tốc độ cao. Chính hãng, bảo hành, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan A3** cho phép quét tài liệu khổ lớn tới A3 như sổ sách, báo, bản vẽ, sơ đồ và chứng từ khổ rộng — nhu cầu thường gặp ở lưu trữ, hải quan, kỹ thuật, xây dựng và thư viện. Khi tài liệu vượt quá khổ A4, máy scan A3 là lựa chọn cần thiết để số hóa trọn vẹn mà không phải ghép nhiều lần quét.\n\nCó hai dạng **máy scan A3** phổ biến. Thứ nhất là máy ADF khổ A3: quét cả tập tài liệu A3 tốc độ cao, hai mặt tự động, phù hợp số hóa khối lượng lớn. Thứ hai là máy có bàn quét phẳng (flatbed) A3: lý tưởng cho tài liệu đóng quyển, giấy mỏng, dễ rách hoặc tài liệu quý cần bảo vệ. Nhiều dòng công nghiệp kết hợp cả ADF lẫn flatbed A3 để xử lý linh hoạt mọi loại tài liệu.\n\nKhi chọn máy A3, cần cân nhắc tốc độ, công suất theo ngày, độ phân giải và cơ chế chống kẹt/kéo đôi cho tài liệu dày mỏng khác nhau. Với các dự án số hóa lớn (lưu trữ, kỹ thuật), nên ưu tiên dòng A3 công nghiệp bền bỉ, ADF dung lượng lớn và phần mềm xử lý ảnh mạnh.\n\nHPT Tech cung cấp **máy scan A3** chính hãng từ Fujitsu/Ricoh, Epson, Avision, Kodak Alaris và các thương hiệu uy tín, đủ dạng ADF và flatbed. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan A3 phù hợp loại tài liệu và nhận **báo giá dự án**.",
+      "painPoints": [
+        "Tài liệu khổ A3 (sổ sách, báo, bản vẽ) không quét được máy A4.",
+        "Cần cả ADF A3 lẫn bàn phẳng cho tài liệu đặc biệt.",
+        "Quét 2 mặt, tốc độ cao cho khối lượng lớn."
+      ],
+      "criteria": [
+        {
+          "need": "Khổ A3",
+          "spec": "maxPaperSize A3"
+        },
+        {
+          "need": "Tài liệu đóng quyển",
+          "spec": "có Flatbed A3"
+        },
+        {
+          "need": "2 mặt, tốc độ",
+          "spec": "duplexScan + scanSpeedSimplexPpm"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Khi nào cần máy scan A3?",
+          "answer": "Khi quét tài liệu lớn hơn A4: sổ sách, báo, bản vẽ, chứng từ khổ rộng."
+        },
+        {
+          "question": "ADF A3 và bàn phẳng A3 khác gì?",
+          "answer": "ADF quét tập tài liệu nhanh; bàn phẳng bảo vệ tài liệu đóng quyển/giấy mỏng."
+        },
+        {
+          "question": "Có model A3 tốc độ cao không?",
+          "answer": "Có — dòng A3 công nghiệp 2 mặt tốc độ cao, ADF lớn."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsA3": true,
+        "needsDuplex": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "toc-do-cao",
+      "slug": "nhu-cau-toc-do-cao",
+      "pathname": "/giai-phap/may-scan/nhu-cau/toc-do-cao",
+      "title": "Máy scan tốc độ cao",
+      "h1": "Máy scan tốc độ cao, công suất lớn",
+      "seo": {
+        "title": "Máy Scan Tốc Độ Cao | Máy Quét Công Nghiệp",
+        "description": "Máy scan tốc độ cao: quét 60–150 trang/phút, ADF lớn, công suất hàng chục nghìn trang/ngày cho trung tâm số hóa. Chính hãng, bảo hành, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan tốc độ cao** dành cho nhu cầu số hóa khối lượng lớn, nơi tốc độ và công suất là yếu tố quyết định. Các dòng máy này quét từ 60 đến 150 trang mỗi phút, trang bị khay ADF dung lượng lớn và công suất khuyến nghị hàng chục nghìn trang mỗi ngày — phù hợp cho trung tâm số hóa, lưu trữ, ngân hàng, cơ quan thuế và các dự án chuyển đổi số quy mô lớn.\n\nĐiểm cốt lõi của **máy scan tốc độ cao** không chỉ là số trang/phút mà còn là khả năng vận hành liên tục, ổn định. Vì vậy nên chú trọng công suất theo ngày (daily duty cycle), độ bền của bộ nạp giấy, cảm biến siêu âm chống kéo đôi và cơ chế bảo vệ giấy để quét hàng giờ mà ít kẹt, ít lỗi. Đi kèm là phần mềm capture chuyên nghiệp giúp làm sạch ảnh, tách lô, lập chỉ mục và xuất dữ liệu vào hệ thống, tối ưu cả quy trình chứ không riêng khâu quét.\n\nTùy sản lượng, có thể chọn dòng workgroup tốc độ cao cho phòng ban hoặc dòng công nghiệp (production) cho trung tâm số hóa tập trung. Việc chọn đúng cấp thiết bị giúp cân đối chi phí đầu tư và đạt mục tiêu sản lượng.\n\nHPT Tech tư vấn và cung cấp **máy scan tốc độ cao, công suất lớn** từ Fujitsu/Ricoh (fi-series), Kodak Alaris, Canon, Avision — kèm phần mềm capture phù hợp quy trình. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn theo sản lượng số hóa và nhận **báo giá dự án** tối ưu.",
+      "painPoints": [
+        "Khối lượng tài liệu rất lớn, máy thường quét chậm.",
+        "Cần quét liên tục, ổn định, ít kẹt giấy.",
+        "Dự án số hóa cần đạt sản lượng cao/ngày."
+      ],
+      "criteria": [
+        {
+          "need": "Tốc độ",
+          "spec": "scanSpeedSimplexPpm/scanSpeedDuplexIpm cao"
+        },
+        {
+          "need": "Công suất",
+          "spec": "dailyDuty rất cao + ADF lớn"
+        },
+        {
+          "need": "Ổn định",
+          "spec": "cảm biến chống kéo đôi, bảo vệ giấy"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Bao nhiêu ppm là tốc độ cao?",
+          "answer": "Thường từ 60 ppm trở lên; dòng công nghiệp đạt 100–150 ppm."
+        },
+        {
+          "question": "Công suất/ngày quan trọng thế nào?",
+          "answer": "Rất quan trọng khi số hóa liên tục — chọn máy có dailyDuty phù hợp sản lượng."
+        },
+        {
+          "question": "Máy nào cho trung tâm số hóa lớn?",
+          "answer": "Dòng fi-series/Kodak/Plustek SN công suất cao, ADF lớn."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "minScanSpeedPpm": 60,
+        "needsDuplex": true,
+        "minDailyDuty": 10000
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "kho-lon",
+      "slug": "nhu-cau-kho-lon",
+      "pathname": "/giai-phap/may-scan/nhu-cau/kho-lon",
+      "title": "Máy scan khổ lớn (A2, A1, A0)",
+      "h1": "Máy scan khổ lớn A2, A1, A0",
+      "seo": {
+        "title": "Máy Scan Khổ Lớn | Quét A2, A1, A0",
+        "description": "Máy scan khổ lớn hơn A3: quét bản đồ, poster, áp phích, tài liệu A2/A1/A0 bằng máy khổ rộng hoặc bàn phẳng lớn. Chính hãng, bảo hành, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan khổ lớn** phục vụ nhu cầu quét tài liệu vượt khổ A3 như bản đồ, poster, áp phích, sơ đồ và bản vẽ khổ A2, A1, A0. Với những tài liệu cỡ lớn này, máy scan thông thường không thể quét trọn vẹn; cần thiết bị khổ rộng (wide-format) hoặc bàn quét phẳng cỡ lớn để số hóa đầy đủ, giữ nguyên chi tiết, tỷ lệ và màu sắc.\n\nNhu cầu **máy scan khổ lớn** phổ biến ở các lĩnh vực lưu trữ, quy hoạch, xây dựng, in ấn, bảo tàng và giáo dục. Khi lựa chọn, cần xác định khổ giấy tối đa (A2, A1 hay A0), độ phân giải mong muốn (đặc biệt quan trọng với bản đồ, tài liệu nhiều chi tiết) và loại tài liệu (mỏng, quý, cần cơ chế quét nhẹ nhàng). Máy quét khổ rộng dạng cuốn phù hợp cho bản vẽ và bản đồ; trong khi bàn phẳng lớn hoặc máy quét trên cao phù hợp cho tài liệu dễ hư hại.\n\nChất lượng ảnh và khả năng tái tạo màu trung thực là ưu tiên với poster, bản đồ và tài liệu trưng bày. Ngoài ra, cần cân nhắc phần mềm đi kèm để ghép, hiệu chỉnh và xuất file đúng định dạng phục vụ lưu trữ, in ấn hoặc chia sẻ.\n\nHPT Tech tư vấn và cung cấp giải pháp **máy scan khổ lớn** (A2/A1/A0) và bàn phẳng cỡ lớn cho lưu trữ, kỹ thuật, in ấn và bảo tàng. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn theo khổ tài liệu và nhận **báo giá dự án** phù hợp.",
+      "painPoints": [
+        "Tài liệu lớn hơn A3 không quét được máy thường.",
+        "Cần giữ chi tiết & màu (bản đồ, poster).",
+        "Đa dạng khổ (A2/A1/A0)."
+      ],
+      "criteria": [
+        {
+          "need": "Khổ > A3",
+          "spec": "wide-format / bàn phẳng lớn (largeFormat)"
+        },
+        {
+          "need": "Giữ chi tiết",
+          "spec": "độ phân giải cao"
+        },
+        {
+          "need": "Tài liệu mỏng/quý",
+          "spec": "cơ chế nhẹ nhàng (flatbed/overhead)"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan khổ lớn quét tối đa bao nhiêu?",
+          "answer": "Tùy dòng: A2, A1 hoặc A0 (wide-format)."
+        },
+        {
+          "question": "Khác gì máy A3?",
+          "answer": "Quét được tài liệu lớn hơn A3 như bản đồ, poster, bản vẽ khổ rộng."
+        },
+        {
+          "question": "Quét bản đồ/poster giữ màu tốt không?",
+          "answer": "Chọn máy độ phân giải cao, dải màu rộng."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "largeFormat": true,
+        "prefersFlatbed": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "sach",
+      "slug": "nhu-cau-sach",
+      "pathname": "/giai-phap/may-scan/nhu-cau/sach",
+      "title": "Máy scan sách (book scanner)",
+      "h1": "Máy scan sách, không phá gáy",
+      "seo": {
+        "title": "Máy Scan Sách | Book Scanner Không Phá Gáy",
+        "description": "Máy scan sách (book scanner): số hóa sách, tài liệu đóng quyển, tài liệu quý không cần tháo gáy. Cho thư viện, trường học, lưu trữ. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan sách** (book scanner) là thiết bị chuyên dụng để số hóa sách, giáo trình, tài liệu đóng quyển và tài liệu quý mà không cần tháo gáy. Khác với máy scan ADF vốn chỉ quét tài liệu rời, máy quét sách sử dụng cơ chế quét trên cao (overhead) hoặc bàn phẳng chữ V để bảo vệ gáy sách, tránh làm hư hại bản gốc — điều đặc biệt quan trọng với thư viện, viện nghiên cứu và cơ quan lưu trữ.\n\nDòng **máy scan sách** cho phép lật và quét từng trang nhanh, kèm phần mềm tự động làm phẳng trang cong, tách trang trái/phải, cắt viền, xóa ngón tay và OCR tạo file PDF tìm kiếm được. Nhờ đó, việc số hóa sách, tài liệu khổ lớn hay tài liệu cổ trở nên nhanh và an toàn, tạo ra bản số chất lượng phục vụ tra cứu và chia sẻ điện tử.\n\nKhi lựa chọn, cần cân nhắc khổ sách tối đa, tốc độ quét, độ phân giải và mức độ bảo vệ tài liệu. Thư viện và trường học thường ưu tiên máy quét trên cao dễ dùng; trong khi trung tâm lưu trữ tài liệu quý có thể cần thiết bị chuyên sâu hơn với cơ chế nâng nền và ánh sáng an toàn cho tài liệu cổ.\n\nHPT Tech tư vấn và cung cấp **máy scan sách, book scanner** cho thư viện, trường học, viện nghiên cứu và lưu trữ — kèm phần mềm số hóa sách chuyên dụng. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn giải pháp số hóa sách và nhận **báo giá** phù hợp.",
+      "painPoints": [
+        "Sách/tài liệu đóng quyển không quét được máy ADF.",
+        "Không muốn tháo gáy, làm hư tài liệu quý.",
+        "Cần tách trang, làm phẳng, OCR."
+      ],
+      "criteria": [
+        {
+          "need": "Không phá gáy",
+          "spec": "book/overhead scanner (bookScanner)"
+        },
+        {
+          "need": "Bảo vệ tài liệu quý",
+          "spec": "cơ chế nhẹ nhàng"
+        },
+        {
+          "need": "Tạo văn bản",
+          "spec": "ocr + phần mềm tách trang"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan sách có phải tháo gáy không?",
+          "answer": "Không — book scanner quét không phá gáy."
+        },
+        {
+          "question": "Loại nào phù hợp thư viện?",
+          "answer": "Máy quét trên cao (overhead) hoặc bàn phẳng chữ V, kèm phần mềm số hóa sách."
+        },
+        {
+          "question": "Có OCR & tách trang tự động?",
+          "answer": "Có — phần mềm đi kèm hỗ trợ làm phẳng, tách trang, OCR."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "bookScanner": true,
+        "prefersFlatbed": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "ban-ve",
+      "slug": "nhu-cau-ban-ve",
+      "pathname": "/giai-phap/may-scan/nhu-cau/ban-ve",
+      "title": "Máy scan bản vẽ kỹ thuật (A0)",
+      "h1": "Máy scan bản vẽ kỹ thuật, khổ A0",
+      "seo": {
+        "title": "Máy Scan Bản Vẽ A0 | Quét Bản Vẽ Kỹ Thuật",
+        "description": "Máy scan bản vẽ kỹ thuật khổ A0/A1: số hóa bản vẽ CAD, sơ đồ, bản đồ cho xây dựng, kiến trúc, cơ khí. Máy quét khổ rộng chuyên dụng. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan bản vẽ** (wide-format) là giải pháp số hóa bản vẽ kỹ thuật khổ lớn A1, A0, sơ đồ và bản đồ cho ngành xây dựng, kiến trúc, cơ khí và quy hoạch. Bản vẽ kỹ thuật đòi hỏi quét chính xác từng nét mảnh, giữ đúng tỷ lệ và độ chi tiết — điều mà máy scan văn phòng thông thường không đáp ứng được. Máy quét khổ rộng chuyên dụng cho phép số hóa nhanh, xuất file CAD/PDF/TIFF phục vụ lưu trữ, chia sẻ và tái sử dụng.\n\nĐiểm quan trọng khi chọn **máy scan bản vẽ** là khổ quét tối đa (A1 hay A0, một số dòng quét được cuộn dài), độ phân giải quang học và khả năng hiệu chỉnh hình học để đảm bảo tỷ lệ. Các tính năng làm sạch nền, tăng nét và tái tạo màu giúp bản số rõ ràng, trung thực với bản gốc. Với đơn vị lưu trữ hồ sơ thiết kế lớn, nên ưu tiên dòng tốc độ cao và bền để số hóa khối lượng lớn bản vẽ.\n\nNgoài phần cứng, phần mềm đi kèm giúp quản lý, đặt tên và lập chỉ mục bản vẽ theo dự án, hạng mục — nền tảng để tích hợp vào hệ thống quản lý tài liệu kỹ thuật hoặc lưu trữ điện tử của đơn vị.\n\nHPT Tech tư vấn và cung cấp **máy scan bản vẽ kỹ thuật khổ lớn** (A1/A0) cho xây dựng, kiến trúc, cơ khí, quy hoạch và lưu trữ. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn theo khổ bản vẽ và nhận **báo giá dự án** tối ưu.",
+      "painPoints": [
+        "Bản vẽ khổ A1/A0 không quét được máy thường.",
+        "Cần giữ nét mảnh & tỷ lệ chính xác.",
+        "Xuất file CAD/PDF/TIFF để lưu trữ, chia sẻ."
+      ],
+      "criteria": [
+        {
+          "need": "Khổ A1/A0",
+          "spec": "máy quét khổ rộng (wideFormat)"
+        },
+        {
+          "need": "Nét mảnh, tỷ lệ",
+          "spec": "độ phân giải cao, hiệu chỉnh hình học"
+        },
+        {
+          "need": "Định dạng kỹ thuật",
+          "spec": "xuất CAD/PDF/TIFF"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan bản vẽ quét khổ nào?",
+          "answer": "Thường tới A1/A0 (wide-format), một số cuộn dài hơn."
+        },
+        {
+          "question": "Có giữ tỷ lệ & nét mảnh của bản vẽ?",
+          "answer": "Có — máy khổ rộng độ phân giải cao, hiệu chỉnh hình học."
+        },
+        {
+          "question": "Xuất được file CAD/PDF/TIFF?",
+          "answer": "Có — phù hợp lưu trữ và chia sẻ bản vẽ."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "wideFormat": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "need",
+      "facetSlug": "hai-mat",
+      "slug": "nhu-cau-hai-mat",
+      "pathname": "/giai-phap/may-scan/nhu-cau/hai-mat",
+      "title": "Máy scan 2 mặt tự động (Duplex)",
+      "h1": "Máy scan 2 mặt tự động (Duplex)",
+      "seo": {
+        "title": "Máy Scan 2 Mặt Tự Động | Duplex ADF",
+        "description": "Máy scan 2 mặt tự động (Duplex): quét cả hai mặt trong một lần chạy, ADF tốc độ cao, tiết kiệm thời gian số hóa. Chính hãng, bảo hành, xuất VAT, báo giá dự án."
+      },
+      "intro": "**Máy scan 2 mặt tự động** (Duplex) quét cả mặt trước và mặt sau của tờ tài liệu chỉ trong một lần chạy qua khay nạp ADF, giúp số hóa nhanh gần gấp đôi mà không phải lật giấy thủ công. Đây là tính năng gần như bắt buộc cho văn phòng, cơ quan và trung tâm số hóa thường xuyên xử lý hợp đồng, chứng từ, hồ sơ in hai mặt.\n\nCông nghệ **quét 2 mặt** tốt nhất là dạng \"one-pass duplex\" — dùng hai cảm biến quét đồng thời hai mặt trong một lượt, nhanh và ít lỗi hơn so với quét hai lần rồi ghép. Khi chọn máy, cần xem tốc độ quét hai mặt (ipm — images per minute), dung lượng ADF và công suất theo ngày để phù hợp khối lượng. Cảm biến chống kéo đôi và cơ chế bảo vệ giấy giúp không bỏ sót mặt/trang — quan trọng với hồ sơ quan trọng.\n\nHầu hết máy scan văn phòng và công nghiệp hiện nay đều hỗ trợ quét hai mặt; tuy nhiên một số dòng để bàn giá rẻ chỉ quét một mặt, nên cần kiểm tra kỹ thông số trước khi mua. Kết hợp quét hai mặt với OCR tiếng Việt sẽ tạo ra file PDF tìm kiếm được hoàn chỉnh, phục vụ lưu trữ và tra cứu hiệu quả.\n\nHPT Tech tư vấn và cung cấp **máy scan 2 mặt tự động** đa dạng tốc độ và mức giá, từ Brother, Canon, Epson tới Fujitsu/Ricoh, Kodak Alaris, Avision, Plustek. Thiết bị chính hãng, bảo hành, xuất hóa đơn VAT, giao hàng và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan hai mặt đúng nhu cầu và nhận **báo giá** nhanh.",
+      "painPoints": [
+        "Lật giấy quét 2 mặt thủ công tốn thời gian, dễ sót.",
+        "Tài liệu nhiều trang, in 2 mặt.",
+        "Cần số hóa nhanh, chính xác."
+      ],
+      "criteria": [
+        {
+          "need": "Quét 2 mặt 1 lần",
+          "spec": "duplexScan (one-pass)"
+        },
+        {
+          "need": "Nhanh",
+          "spec": "scanSpeedDuplexIpm cao"
+        },
+        {
+          "need": "Khối lượng",
+          "spec": "ADF lớn + dailyDuty"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Scan 2 mặt tự động là gì?",
+          "answer": "Máy quét cả hai mặt tờ giấy trong một lần chạy qua ADF, không cần lật tay."
+        },
+        {
+          "question": "One-pass duplex khác gì quét 2 lần?",
+          "answer": "One-pass quét 2 mặt cùng lúc nhanh hơn, ít lỗi hơn."
+        },
+        {
+          "question": "Model nào cũng có duplex?",
+          "answer": "Đa số máy văn phòng/công nghiệp có; máy để bàn giá rẻ có thể chỉ 1 mặt — cần kiểm tra."
+        },
+        {
+          "question": "Có bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "needsDuplex": true
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish"
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "fujitsu",
+      "slug": "hang-fujitsu",
+      "pathname": "/giai-phap/may-scan/hang/fujitsu",
+      "title": "Máy scan Fujitsu",
+      "h1": "Máy scan Fujitsu (fi-series & ScanSnap)",
+      "seo": {
+        "title": "Máy Scan Fujitsu | fi-series & ScanSnap Chính Hãng",
+        "description": "Máy scan Fujitsu (nay thuộc Ricoh): dòng fi-series chuyên nghiệp, ScanSnap văn phòng, SP phổ thông. Bền, PaperStream xử lý ảnh & OCR. Chính hãng, bảo hành, xuất VAT."
+      },
+      "intro": "**Máy scan Fujitsu** từ lâu được xem là chuẩn mực của dòng máy quét tài liệu chuyên nghiệp trên thế giới. Thương hiệu này (hiện thuộc Ricoh/PFU) nổi tiếng nhờ độ bền vượt trội và chất lượng ảnh chính xác, cùng bộ phần mềm PaperStream IP/Capture mạnh mẽ giúp làm sạch ảnh, nhận dạng OCR và tách lô tự động. Với các cơ quan, ngân hàng và trung tâm số hóa cần quét khối lượng lớn liên tục, máy scan Fujitsu là lựa chọn đáng tin cậy.\n\nDải sản phẩm **máy scan Fujitsu** rất rộng, phủ mọi nhu cầu. Dòng ScanSnap (như iX1600, iX1300) hướng tới văn phòng và người dùng cá nhân, dễ sử dụng, quét nhanh lên đám mây. Dòng SP phổ thông phù hợp văn phòng cần thiết bị cơ bản, giá hợp lý. Dòng fi-series chuyên nghiệp (fi-8170, fi-7600/7700…) đáp ứng nhu cầu quét hai mặt tốc độ cao cho phòng ban và doanh nghiệp. Ở cấp cao nhất, dòng fi-8xxx công suất công nghiệp phục vụ trung tâm số hóa với sản lượng hàng chục nghìn trang mỗi ngày.\n\nĐiểm mạnh nổi bật của Fujitsu là cơ chế nạp giấy ổn định, cảm biến siêu âm chống kéo đôi và khả năng xử lý tài liệu hỗn hợp dày mỏng — giúp quét liên tục mà ít kẹt, ít sót trang. Phần mềm PaperStream còn hỗ trợ OCR tiếng Việt, tạo file PDF tìm kiếm được và tích hợp vào quy trình quản lý tài liệu.\n\nHPT Tech phân phối **máy scan Fujitsu** chính hãng, tư vấn model theo nhu cầu và khối lượng thực tế của từng đơn vị, từ ScanSnap văn phòng tới fi-series công nghiệp. Chúng tôi hỗ trợ đầy đủ hồ sơ mua sắm, xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành, bảo trì toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan Fujitsu phù hợp và nhận **báo giá** tốt nhất.",
+      "painPoints": [
+        "Độ bền cao, quét khối lượng lớn ổn định.",
+        "PaperStream IP/Capture: làm sạch ảnh, OCR, tách lô mạnh.",
+        "Cảm biến siêu âm chống kéo đôi, bảo vệ giấy.",
+        "Dải sản phẩm rộng từ văn phòng tới công nghiệp."
+      ],
+      "criteria": [
+        {
+          "need": "Văn phòng nhỏ",
+          "spec": "ScanSnap/SP"
+        },
+        {
+          "need": "Chuyên nghiệp, 2 mặt tốc độ cao",
+          "spec": "fi-series"
+        },
+        {
+          "need": "Trung tâm số hóa, công suất rất lớn",
+          "spec": "fi-8xxx"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Fujitsu có còn không khi đã thuộc Ricoh?",
+          "answer": "Còn — dòng fi/ScanSnap nay dưới Ricoh (PFU), chất lượng & phần mềm PaperStream giữ nguyên."
+        },
+        {
+          "question": "Fujitsu fi-series khác ScanSnap thế nào?",
+          "answer": "fi-series cho khối lượng chuyên nghiệp/công nghiệp; ScanSnap cho văn phòng, dễ dùng."
+        },
+        {
+          "question": "Có phần mềm OCR tiếng Việt?",
+          "answer": "Có — qua PaperStream/ABBYY tích hợp."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — phân phối chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Fujitsu",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "ScanSnap (iX1600/iX1300 — văn phòng, cá nhân) · SP-series (phổ thông) · fi-series (fi-8170, fi-7600/7700 — chuyên nghiệp) · fi-8xxx (công suất công nghiệp)."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "ricoh",
+      "slug": "hang-ricoh",
+      "pathname": "/giai-phap/may-scan/hang/ricoh",
+      "title": "Máy scan Ricoh",
+      "h1": "Máy scan Ricoh",
+      "seo": {
+        "title": "Máy Scan Ricoh | fi/ScanSnap & Thiết Bị Ricoh",
+        "description": "Máy scan Ricoh: dòng fi-series & ScanSnap (PFU thuộc Ricoh) và máy quét đa năng Ricoh. Bền, phần mềm PaperStream, phù hợp doanh nghiệp & cơ quan. Chính hãng, xuất VAT."
+      },
+      "intro": "**Máy scan Ricoh** đến từ tập đoàn thiết bị văn phòng hàng đầu Nhật Bản, hiện sở hữu PFU — nhà sản xuất dòng máy quét fi-series và ScanSnap danh tiếng. Nhờ đó, máy scan thương hiệu Ricoh kế thừa trọn vẹn công nghệ xử lý ảnh PaperStream, độ bền và khả năng quét khối lượng lớn, đồng thời gắn kết với hệ sinh thái thiết bị văn phòng đồng bộ của Ricoh (máy in, máy đa năng, giải pháp quản lý tài liệu).\n\nVề dải sản phẩm, **máy scan Ricoh** bao gồm các dòng fi-series và ScanSnap (dưới thương hiệu Ricoh) cho nhu cầu quét chuyên dụng, cùng khả năng quét mạng từ dòng máy đa năng (MFP) Ricoh cho văn phòng cần vừa in, sao chụp và scan. Điều này cho phép doanh nghiệp lựa chọn linh hoạt: đầu tư máy quét chuyên dụng cho bộ phận số hóa, hoặc tận dụng MFP Ricoh sẵn có để scan-to-folder/email cho văn phòng.\n\nĐiểm mạnh của Ricoh nằm ở sự ổn định, dịch vụ hậu mãi rộng khắp và hệ sinh thái đồng bộ — thuận tiện cho doanh nghiệp và cơ quan muốn chuẩn hóa thiết bị theo một thương hiệu. Phần mềm PaperStream và các công cụ quản lý tài liệu của Ricoh hỗ trợ OCR, tạo PDF tìm kiếm được và tích hợp quy trình.\n\nHPT Tech phân phối **máy scan Ricoh** chính hãng, tư vấn cấu hình theo nhu cầu — từ máy quét chuyên dụng tới giải pháp quét trên máy đa năng. Chúng tôi hỗ trợ hồ sơ mua sắm, xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan Ricoh phù hợp và nhận **báo giá dự án**.",
+      "painPoints": [
+        "Kế thừa công nghệ scanner fi/ScanSnap (PFU).",
+        "PaperStream xử lý ảnh & OCR ổn định.",
+        "Hệ sinh thái thiết bị văn phòng Ricoh đồng bộ.",
+        "Độ bền & dịch vụ hậu mãi tốt."
+      ],
+      "criteria": [
+        {
+          "need": "Quét chuyên dụng",
+          "spec": "fi-series/ScanSnap"
+        },
+        {
+          "need": "Vừa in–copy–scan",
+          "spec": "MFP Ricoh"
+        },
+        {
+          "need": "Công suất lớn",
+          "spec": "fi-8xxx"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Ricoh và Fujitsu có phải một?",
+          "answer": "Dòng fi/ScanSnap do PFU (thuộc Ricoh) sản xuất — cùng gốc công nghệ; chọn theo thương hiệu bạn cần."
+        },
+        {
+          "question": "Ricoh có máy quét mạng cho nhiều người dùng?",
+          "answer": "Có — dòng fi network và MFP Ricoh hỗ trợ scan-to-folder/email."
+        },
+        {
+          "question": "Có OCR tiếng Việt?",
+          "answer": "Có — qua PaperStream/ABBYY."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Ricoh",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "fi-series & ScanSnap (dưới Ricoh) · máy đa năng Ricoh có chức năng scan mạng cho văn phòng."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "kodak-alaris",
+      "slug": "hang-kodak-alaris",
+      "pathname": "/giai-phap/may-scan/hang/kodak-alaris",
+      "title": "Máy scan Kodak Alaris",
+      "h1": "Máy scan Kodak Alaris",
+      "seo": {
+        "title": "Máy Scan Kodak Alaris | S-series Chính Hãng",
+        "description": "Máy scan Kodak Alaris: dòng S2000/S3000, công nghệ ảnh Perfect Page, nạp giấy tin cậy, bền cho ngân hàng, lưu trữ, y tế. Chính hãng, bảo hành, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan Kodak Alaris** là thương hiệu chuyên nghiệp được tin dùng trong các dự án số hóa khối lượng lớn nhờ khoa học hình ảnh (Perfect Page) và cơ chế nạp giấy tin cậy. Với ngân hàng, trung tâm lưu trữ, bệnh viện và cơ quan nhà nước, chất lượng ảnh sạch, sắc nét cùng khả năng xử lý tài liệu hỗn hợp ổn định là những yếu tố khiến Kodak Alaris trở thành lựa chọn hàng đầu cho số hóa chuyên sâu.\n\nDải sản phẩm **máy scan Kodak Alaris** gồm dòng E-series phổ thông cho văn phòng, dòng S2000/S3000 cho phòng ban và nhóm làm việc, cùng các dòng công suất cao phục vụ trung tâm số hóa tập trung. Một số model có kết nối mạng (ký hiệu w) cho phép nhiều người dùng chia sẻ và quét thẳng vào thư mục/hệ thống. Công nghệ Perfect Page tự động làm sạch, căn chỉnh và tối ưu ảnh, giúp bản số hóa đạt chất lượng cao mà ít phải chỉnh sửa thủ công.\n\nĐiểm mạnh của Kodak Alaris là độ bền khi vận hành liên tục, khả năng nạp giấy chính xác với tài liệu khó (nhàu, mỏng, kích cỡ hỗn hợp) và bộ phần mềm Capture Pro/Smart Touch giúp thu thập, lập chỉ mục và xuất dữ liệu hiệu quả. Đây là những yếu tố quan trọng cho các dự án số hóa hồ sơ quy mô lớn.\n\nHPT Tech phân phối **máy scan Kodak Alaris** chính hãng, tư vấn model theo khối lượng và ngành nghề, kèm phần mềm phù hợp quy trình. Chúng tôi hỗ trợ hồ sơ mua sắm, xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và bảo hành toàn quốc. Liên hệ HPT Tech để được tư vấn và nhận **báo giá dự án** phù hợp.",
+      "painPoints": [
+        "Công nghệ ảnh Perfect Page cho bản scan sạch, rõ.",
+        "Nạp giấy tin cậy, xử lý tài liệu hỗn hợp tốt.",
+        "Bền, phù hợp khối lượng lớn liên tục.",
+        "Phần mềm Alaris Capture Pro/Smart Touch."
+      ],
+      "criteria": [
+        {
+          "need": "Phòng ban",
+          "spec": "S2000/S3000"
+        },
+        {
+          "need": "Dùng chung mạng",
+          "spec": "model network (w)"
+        },
+        {
+          "need": "Khối lượng rất lớn",
+          "spec": "dòng công suất cao"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Kodak Alaris mạnh ở điểm nào?",
+          "answer": "Khoa học hình ảnh Perfect Page + nạp giấy tin cậy, phù hợp khối lượng lớn."
+        },
+        {
+          "question": "Có dòng nối mạng dùng chung không?",
+          "answer": "Có — model network cho nhiều người dùng."
+        },
+        {
+          "question": "Phù hợp ngành nào?",
+          "answer": "Ngân hàng, lưu trữ, y tế, cơ quan nhà nước."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Kodak Alaris",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "E1000 (entry) · S2000/S3000 (phòng ban, workgroup) · dòng công suất cao cho số hóa tập trung · máy scan mạng (S2000w)."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "brother",
+      "slug": "hang-brother",
+      "pathname": "/giai-phap/may-scan/hang/brother",
+      "title": "Máy scan Brother",
+      "h1": "Máy scan Brother (ADS-series)",
+      "seo": {
+        "title": "Máy Scan Brother | ADS-series Nhỏ Gọn, Nối Mạng",
+        "description": "Máy scan Brother dòng ADS: nhỏ gọn, scan 2 mặt, WiFi/LAN, giá tốt cho văn phòng & doanh nghiệp vừa và nhỏ. Chính hãng, bảo hành, xuất VAT, báo giá nhanh."
+      },
+      "intro": "**Máy scan Brother** được ưa chuộng nhờ thiết kế nhỏ gọn, mức giá hợp lý và khả năng kết nối mạng linh hoạt — lựa chọn phù hợp cho văn phòng và doanh nghiệp vừa và nhỏ cần số hóa hằng ngày. Dòng máy quét ADS của Brother mang lại sự tiện lợi với quét hai mặt, WiFi/LAN và nhiều model có màn hình cảm ứng, cho phép quét thẳng lên đám mây hoặc thư mục mạng mà không cần thao tác phức tạp.\n\nDải sản phẩm **máy scan Brother** trải từ dòng ADS-1200/1350 nhỏ gọn, di động cho không gian làm việc hạn chế; tới ADS-1700W với màn hình cảm ứng và WiFi tiện dụng; và các dòng ADS-4300N/4700W/4900W cho nhóm làm việc, tốc độ cao, kết nối mạng phục vụ nhiều người dùng. Nhờ đó, doanh nghiệp dễ dàng chọn được thiết bị theo đúng quy mô và ngân sách.\n\nĐiểm mạnh của Brother là sự cân bằng giữa giá và tính năng: nhỏ gọn, dễ dùng, kết nối đa dạng và thương hiệu phổ biến nên dễ mua, dễ bảo hành. Với văn phòng cần một thiết bị số hóa gọn nhẹ, quét hai mặt và chia sẻ qua mạng, máy scan Brother đáp ứng tốt mà không đòi hỏi đầu tư lớn.\n\nHPT Tech phân phối **máy scan Brother** chính hãng, tư vấn model theo khối lượng và nhu cầu kết nối. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng nhanh và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan Brother phù hợp và nhận **báo giá** ưu đãi.",
+      "painPoints": [
+        "Nhỏ gọn, giá tốt cho SMB & văn phòng.",
+        "Kết nối WiFi/LAN, quét lên cloud/thư mục mạng.",
+        "Scan 2 mặt, dễ dùng, có model màn hình cảm ứng.",
+        "Thương hiệu phổ biến, dễ mua & bảo hành."
+      ],
+      "criteria": [
+        {
+          "need": "Nhỏ gọn/di động",
+          "spec": "ADS-1200/1350"
+        },
+        {
+          "need": "Văn phòng, WiFi cảm ứng",
+          "spec": "ADS-1700W"
+        },
+        {
+          "need": "Nhóm/khối lượng cao",
+          "spec": "ADS-4x00 network"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Brother phù hợp ai?",
+          "answer": "Văn phòng, doanh nghiệp vừa và nhỏ cần thiết bị nhỏ gọn, giá tốt, nối mạng."
+        },
+        {
+          "question": "Có scan 2 mặt & WiFi không?",
+          "answer": "Có — nhiều model ADS hỗ trợ 2 mặt và WiFi/LAN."
+        },
+        {
+          "question": "Quét thẳng lên đám mây/thư mục?",
+          "answer": "Có — model cảm ứng/network hỗ trợ scan-to-cloud/folder."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Brother",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "ADS-1200/1350 (di động, nhỏ gọn) · ADS-1700W (cảm ứng, WiFi) · ADS-4300N/4700W/4900W (workgroup, network, tốc độ cao)."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "epson",
+      "slug": "hang-epson",
+      "pathname": "/giai-phap/may-scan/hang/epson",
+      "title": "Máy scan Epson",
+      "h1": "Máy scan Epson (WorkForce DS)",
+      "seo": {
+        "title": "Máy Scan Epson | WorkForce DS A4/A3 Chính Hãng",
+        "description": "Máy scan Epson dòng WorkForce DS: A4 & A3 sheetfed, scan 2 mặt tốc độ cao, bền bỉ, phần mềm ScanSmart. Cho văn phòng, doanh nghiệp, lưu trữ. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan Epson** nổi bật với dải sản phẩm WorkForce DS đa dạng, phủ từ khổ A4 tới A3 sheetfed cùng các dòng bàn phẳng, được đánh giá cao về độ bền và chất lượng ảnh. Với văn phòng, doanh nghiệp, hải quan và đơn vị lưu trữ cần số hóa cả tài liệu A4 lẫn A3, máy scan Epson là lựa chọn linh hoạt và tin cậy.\n\nDải sản phẩm **máy scan Epson** gồm các dòng WorkForce DS-770II/DS-870/DS-975 quét A4 tốc độ cao, hai mặt; dòng DS-1630 bàn phẳng A4 cho tài liệu đặc biệt; và dòng DS-30000/DS-32000 quét A3 công suất lớn cho khối lượng cao. Nhiều model tự động nhận diện kích thước, quét hai mặt và đi kèm phần mềm Epson ScanSmart dễ sử dụng, hỗ trợ tạo PDF tìm kiếm được.\n\nĐiểm mạnh của Epson là độ bền cơ khí, chất lượng ảnh ổn định và khả năng xử lý đa dạng loại giấy. Dòng A3 sheetfed của Epson đặc biệt phù hợp cho đơn vị thường xuyên quét chứng từ, bản vẽ hoặc sổ sách khổ lớn với tốc độ cao. Sự đa dạng về khổ và cấp độ giúp Epson đáp ứng từ văn phòng nhỏ tới trung tâm số hóa.\n\nHPT Tech phân phối **máy scan Epson** chính hãng, tư vấn model theo khổ giấy và khối lượng thực tế. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan Epson phù hợp và nhận **báo giá dự án**.",
+      "painPoints": [
+        "Đa dạng khổ: A4 và A3 sheetfed.",
+        "Bền bỉ, chất lượng ảnh tốt, tự nhận kích thước.",
+        "Phần mềm ScanSmart dễ dùng.",
+        "Phù hợp nhiều quy mô văn phòng → doanh nghiệp."
+      ],
+      "criteria": [
+        {
+          "need": "A4 tốc độ cao",
+          "spec": "DS-770II/DS-870"
+        },
+        {
+          "need": "Cần bàn phẳng",
+          "spec": "DS-1630"
+        },
+        {
+          "need": "A3 khối lượng lớn",
+          "spec": "DS-30000/32000"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Epson có bản A3 không?",
+          "answer": "Có — dòng DS-30000/DS-32000 quét A3 công suất lớn."
+        },
+        {
+          "question": "Có scan 2 mặt & tự nhận kích thước?",
+          "answer": "Có — hầu hết WorkForce DS hỗ trợ."
+        },
+        {
+          "question": "Phần mềm đi kèm?",
+          "answer": "Epson ScanSmart; hỗ trợ OCR/PDF tìm kiếm."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Epson",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "DS-770II/DS-870/DS-975 (A4 tốc độ cao) · DS-1630 (bàn phẳng A4) · DS-30000/DS-32000 (A3 công suất cao)."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "canon",
+      "slug": "hang-canon",
+      "pathname": "/giai-phap/may-scan/hang/canon",
+      "title": "Máy scan Canon",
+      "h1": "Máy scan Canon (imageFORMULA)",
+      "seo": {
+        "title": "Máy Scan Canon | imageFORMULA DR Chính Hãng",
+        "description": "Máy scan Canon imageFORMULA: dòng DR nhỏ gọn tới A3 công suất cao, ScanFront nối mạng standalone, scan 2 mặt tốc độ cao. Chính hãng, bảo hành, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan Canon** với dòng imageFORMULA (DR-series) nổi tiếng nhỏ gọn, tin cậy và tốc độ ổn định, phủ từ máy để bàn văn phòng tới máy A3 công suất cao. Canon là lựa chọn quen thuộc cho văn phòng, ngân hàng và trung tâm số hóa nhờ chất lượng bền bỉ và khả năng xử lý tài liệu hỗn hợp tốt.\n\nDải sản phẩm **máy scan Canon** gồm các dòng DR-C225/C240 nhỏ gọn để bàn; DR-M160II và DR-S series cho văn phòng tốc độ cao; DR-G2140 khổ A3 công suất lớn cho số hóa tập trung; và đặc biệt dòng ScanFront cho phép quét độc lập qua mạng mà không cần máy tính — rất tiện cho nhiều điểm giao dịch hoặc chi nhánh. Nhờ dải sản phẩm rộng, doanh nghiệp dễ chọn thiết bị đúng nhu cầu và quy mô.\n\nĐiểm mạnh của Canon là thiết kế gọn, cơ chế nạp giấy tin cậy và phần mềm xử lý ảnh ổn định giúp quét hai mặt tốc độ cao, tài liệu dày mỏng lẫn lộn. Dòng ScanFront network mang lại giải pháp quét phân tán độc lập, phù hợp mô hình nhiều quầy hoặc đơn vị có nhiều địa điểm.\n\nHPT Tech phân phối **máy scan Canon imageFORMULA** chính hãng, tư vấn model theo nhu cầu — từ để bàn, quét mạng độc lập tới A3 công suất cao. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan Canon phù hợp và nhận **báo giá dự án**.",
+      "painPoints": [
+        "Nhỏ gọn, tin cậy, tốc độ ổn định.",
+        "ScanFront: quét mạng độc lập, không cần PC.",
+        "Dải rộng từ để bàn tới A3 công suất cao.",
+        "Xử lý tài liệu hỗn hợp tốt."
+      ],
+      "criteria": [
+        {
+          "need": "Để bàn nhỏ gọn",
+          "spec": "DR-C225/C240"
+        },
+        {
+          "need": "Quét mạng không cần PC",
+          "spec": "ScanFront"
+        },
+        {
+          "need": "A3 khối lượng lớn",
+          "spec": "DR-G2140"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Canon có dòng nối mạng độc lập?",
+          "answer": "Có — ScanFront quét qua mạng không cần máy tính."
+        },
+        {
+          "question": "Có bản A3 công suất cao?",
+          "answer": "Có — DR-G series cho số hóa tập trung."
+        },
+        {
+          "question": "Quét 2 mặt tốc độ cao?",
+          "answer": "Có — hầu hết imageFORMULA hỗ trợ."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Canon",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "DR-C225/C240 (để bàn nhỏ gọn) · DR-M160II/DR-S series (văn phòng) · DR-G2140 (A3 công suất cao) · ScanFront 400 (network standalone)."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "plustek",
+      "slug": "hang-plustek",
+      "pathname": "/giai-phap/may-scan/hang/plustek",
+      "title": "Máy scan Plustek",
+      "h1": "Máy scan Plustek",
+      "seo": {
+        "title": "Máy Scan Plustek | SmartOffice, eScan, Book, ID",
+        "description": "Máy scan Plustek: SmartOffice ADF, eScan nối mạng độc lập, máy quét sách (OpticBook) & quét CCCD/hộ chiếu. Giá tốt, chuyên dụng. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan Plustek** được biết đến với mức giá tốt và dải sản phẩm chuyên dụng phong phú, phù hợp cho các nhu cầu đặc thù mà vẫn tối ưu chi phí. Bên cạnh dòng máy quét tài liệu ADF cho văn phòng, Plustek còn mạnh ở các thiết bị chuyên biệt như máy quét sách, máy quét căn cước/hộ chiếu và máy quét mạng độc lập — những giải pháp thường khó tìm ở mức giá hợp lý.\n\nDải sản phẩm **máy scan Plustek** gồm dòng SmartOffice (PS/PN/SN) với ADF quét hai mặt từ văn phòng tới công suất cao; dòng eScan nối mạng độc lập có màn hình cảm ứng, quét thẳng vào thư mục/hệ thống mà không cần máy tính; dòng OpticBook chuyên quét sách không phá gáy cho thư viện; và các máy quét căn cước, hộ chiếu chuyên dụng cho ngân hàng, khách sạn, quầy giao dịch.\n\nĐiểm mạnh của Plustek là đáp ứng nhu cầu chuyên biệt với chi phí hợp lý: đơn vị cần quét sách, quét giấy tờ tùy thân hay quét mạng standalone đều có lựa chọn phù hợp mà không phải đầu tư lớn. Đây là thương hiệu linh hoạt cho cơ quan, thư viện, khách sạn và doanh nghiệp có nhu cầu đặc thù.\n\nHPT Tech phân phối **máy scan Plustek** chính hãng, tư vấn đúng dòng theo nhu cầu — văn phòng, quét mạng, quét sách hay quét căn cước/hộ chiếu. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn và nhận **báo giá** phù hợp.",
+      "painPoints": [
+        "Giá tốt, hiệu năng ổn định.",
+        "Giàu dòng chuyên dụng: ID/hộ chiếu, sách, quét mạng độc lập.",
+        "eScan nối mạng standalone không cần PC.",
+        "Phù hợp nhu cầu đặc thù (thư viện, quầy giao dịch)."
+      ],
+      "criteria": [
+        {
+          "need": "Văn phòng/khối lượng",
+          "spec": "SmartOffice"
+        },
+        {
+          "need": "Quét mạng không cần PC",
+          "spec": "eScan"
+        },
+        {
+          "need": "Quét sách",
+          "spec": "OpticBook; quét CCCD/hộ chiếu → dòng ID"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Plustek có gì nổi bật?",
+          "answer": "Giá tốt và nhiều dòng chuyên dụng (ID/hộ chiếu, sách, quét mạng độc lập)."
+        },
+        {
+          "question": "Có máy quét sách không phá gáy?",
+          "answer": "Có — dòng OpticBook."
+        },
+        {
+          "question": "Có quét CCCD/hộ chiếu?",
+          "answer": "Có — dòng máy quét ID/hộ chiếu chuyên dụng."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Plustek",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "SmartOffice PS/PN/SN (ADF văn phòng → công suất cao) · eScan (network standalone màn hình cảm ứng) · OpticBook (máy quét sách) · máy quét CCCD/hộ chiếu chuyên dụng."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "visioneer",
+      "slug": "hang-visioneer",
+      "pathname": "/giai-phap/may-scan/hang/visioneer",
+      "title": "Máy scan Visioneer",
+      "h1": "Máy scan Visioneer (& Xerox DocuMate)",
+      "seo": {
+        "title": "Máy Scan Visioneer | Xerox DocuMate Chính Hãng",
+        "description": "Máy scan Visioneer & Xerox DocuMate: dòng Patriot, RoadWarrior, máy quét mạng; scan 2 mặt, phần mềm OneTouch/Acuity. Cho văn phòng & doanh nghiệp. Chính hãng, xuất VAT."
+      },
+      "intro": "**Máy scan Visioneer** là thương hiệu máy quét đa dạng, đồng thời là nhà sản xuất dòng Xerox DocuMate theo thương hiệu Xerox. Visioneer cung cấp giải pháp quét từ thiết bị di động, máy để bàn tới máy quét mạng cho doanh nghiệp, cùng công nghệ xử lý ảnh Acuity và phần mềm OneTouch giúp quét nhanh, cho ra file sạch, dễ quản lý.\n\nDải sản phẩm **máy scan Visioneer** (và Xerox DocuMate) gồm dòng RoadWarrior di động nhỏ gọn cho người thường xuyên di chuyển; dòng Patriot cho doanh nghiệp cần quét khối lượng vừa và lớn; cùng các model quét mạng cho nhóm làm việc dùng chung. Nhờ nền công nghệ chung với Xerox DocuMate, người dùng có nhiều lựa chọn linh hoạt theo ngân sách và nhu cầu.\n\nĐiểm mạnh của Visioneer là sự đa dạng và tính linh hoạt: từ thiết bị cá nhân tới doanh nghiệp, kèm phần mềm OneTouch cho phép cấu hình nút quét theo quy trình (quét-tới-email, quét-tới-thư mục, quét-tới-PDF…). Công nghệ Acuity tự động cải thiện chất lượng ảnh, giúp bản số hóa rõ ràng ngay cả với tài liệu chất lượng không đồng đều.\n\nHPT Tech tư vấn và cung cấp **máy scan Visioneer / Xerox DocuMate** chính hãng theo nhu cầu — di động, để bàn hay quét mạng. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn model phù hợp và nhận **báo giá**.",
+      "painPoints": [
+        "Đa dạng: di động, để bàn, doanh nghiệp, quét mạng.",
+        "Công nghệ ảnh Acuity + phần mềm OneTouch.",
+        "Sản xuất cả dòng Xerox DocuMate.",
+        "Lựa chọn linh hoạt theo ngân sách."
+      ],
+      "criteria": [
+        {
+          "need": "Di động",
+          "spec": "RoadWarrior"
+        },
+        {
+          "need": "Doanh nghiệp/khối lượng",
+          "spec": "Patriot"
+        },
+        {
+          "need": "Dùng chung mạng",
+          "spec": "model network"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Visioneer và Xerox DocuMate liên quan gì?",
+          "answer": "Visioneer sản xuất dòng Xerox DocuMate; cùng nền công nghệ."
+        },
+        {
+          "question": "Có máy quét di động không?",
+          "answer": "Có — dòng RoadWarrior nhỏ gọn."
+        },
+        {
+          "question": "Phần mềm đi kèm?",
+          "answer": "OneTouch + công nghệ ảnh Acuity."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Visioneer",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "RoadWarrior (di động) · Patriot (doanh nghiệp) · máy quét mạng · Xerox DocuMate (thương hiệu Xerox do Visioneer sản xuất)."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "hp",
+      "slug": "hang-hp",
+      "pathname": "/giai-phap/may-scan/hang/hp",
+      "title": "Máy scan HP",
+      "h1": "Máy scan HP (ScanJet)",
+      "seo": {
+        "title": "Máy Scan HP | ScanJet Pro & Enterprise Flow",
+        "description": "Máy scan HP dòng ScanJet: Pro cho văn phòng, Enterprise Flow quét khối lượng lớn, bản phẳng & ADF 2 mặt. Thương hiệu phổ biến, dễ mua. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan HP** với dòng ScanJet là lựa chọn phổ biến và quen thuộc cho văn phòng, doanh nghiệp và cơ quan nhờ thương hiệu uy tín, dễ mua và phần mềm HP Scan dễ sử dụng. Từ nhu cầu quét hằng ngày tới số hóa khối lượng lớn, HP ScanJet cung cấp dải sản phẩm đủ rộng để đáp ứng.\n\nDải sản phẩm **máy scan HP** gồm dòng ScanJet Pro 2000/3000 s-series (máy để bàn ADF quét hai mặt cho văn phòng), dòng ScanJet Enterprise Flow N-series (quét khối lượng lớn, tốc độ cao) và các model ScanJet Pro flatbed cho tài liệu đặc biệt cần bàn phẳng. Nhờ đó, doanh nghiệp có thể chuẩn hóa thiết bị theo một thương hiệu phổ biến, thuận tiện cho mua sắm và bảo hành.\n\nĐiểm mạnh của HP là sự phổ biến, ổn định và hệ sinh thái quen thuộc: nhiều đơn vị đã dùng máy in HP nên việc bổ sung máy scan HP giúp đồng bộ nhà cung cấp và quy trình hỗ trợ. Phần mềm HP Scan dễ dùng, hỗ trợ tạo PDF, OCR và quét tới nhiều đích, phù hợp người dùng văn phòng không chuyên sâu kỹ thuật.\n\nHPT Tech phân phối **máy scan HP ScanJet** chính hãng, tư vấn model theo khối lượng và ngân sách — từ ScanJet Pro văn phòng tới Enterprise Flow khối lượng lớn. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng, lắp đặt và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan HP phù hợp và nhận **báo giá**.",
+      "painPoints": [
+        "Thương hiệu phổ biến, dễ mua & hỗ trợ.",
+        "ScanJet Pro (văn phòng) và Enterprise Flow (khối lượng lớn).",
+        "Có bản phẳng + ADF 2 mặt.",
+        "Phần mềm HP Scan dễ dùng."
+      ],
+      "criteria": [
+        {
+          "need": "Văn phòng hằng ngày",
+          "spec": "ScanJet Pro"
+        },
+        {
+          "need": "Khối lượng lớn",
+          "spec": "Enterprise Flow N-series"
+        },
+        {
+          "need": "Cần bàn phẳng",
+          "spec": "ScanJet Pro flatbed"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan HP dòng nào cho văn phòng?",
+          "answer": "ScanJet Pro s-series ADF 2 mặt phù hợp nhu cầu hằng ngày."
+        },
+        {
+          "question": "Có dòng quét khối lượng lớn?",
+          "answer": "Có — ScanJet Enterprise Flow N-series."
+        },
+        {
+          "question": "Có bản phẳng cho tài liệu đặc biệt?",
+          "answer": "Có — ScanJet Pro flatbed."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "HP",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "ScanJet Pro 2000/3000 s-series (để bàn ADF) · ScanJet Enterprise Flow N-series (khối lượng lớn) · ScanJet Pro flatbed."
+    },
+    {
+      "pageType": "product-facet",
+      "productGroup": "may-scan",
+      "facetType": "brand",
+      "facetSlug": "avision",
+      "slug": "hang-avision",
+      "pathname": "/giai-phap/may-scan/hang/avision",
+      "title": "Máy scan Avision",
+      "h1": "Máy scan Avision (AD-series)",
+      "seo": {
+        "title": "Máy Scan Avision | AD-series A4/A3 Chính Hãng",
+        "description": "Máy scan Avision dòng AD: A4/A3, scan 2 mặt tốc độ cao, model nối mạng LAN & công nghiệp ADF lớn. Giá tốt cho cơ quan, doanh nghiệp. Chính hãng, xuất VAT, báo giá."
+      },
+      "intro": "**Máy scan Avision** là thương hiệu chuyên về máy quét tài liệu đến từ Đài Loan, nổi bật với hiệu năng tốt trên giá thành và dải sản phẩm rộng — từ máy A4 để bàn tới dòng A3 công nghiệp nối mạng. Tại Việt Nam, Avision khá phổ biến ở khối cơ quan nhà nước, doanh nghiệp và trung tâm lưu trữ nhờ đáp ứng nhu cầu số hóa khối lượng lớn với chi phí hợp lý.\n\nDải sản phẩm **máy scan Avision** gồm dòng AD230/AD240 cho văn phòng; AD345/AD345N quét A4 tốc độ cao (ký hiệu N là bản nối mạng LAN); dòng AD7100N và các máy A3 công nghiệp với khay ADF dung lượng lớn (khoảng 300 tờ), kết nối mạng, tốc độ tới khoảng 100 trang/phút và công suất hàng chục nghìn trang mỗi ngày; cùng các thiết bị chuyên dụng như máy quét sách và quét giấy tờ tùy thân. Nhờ đó, đơn vị dễ chọn thiết bị đúng quy mô.\n\nĐiểm mạnh của Avision là hiệu năng/giá cạnh tranh, nhiều model nối mạng cho phép nhiều người dùng chung, ADF bền và tốc độ cao — phù hợp cho các dự án số hóa hồ sơ quy mô lớn ở cơ quan và doanh nghiệp. Đây là lựa chọn đáng cân nhắc khi cần cân đối giữa ngân sách và năng lực xử lý.\n\nHPT Tech phân phối **máy scan Avision** chính hãng, tư vấn model theo nhu cầu và khối lượng — từ A4 văn phòng tới A3 công nghiệp nối mạng. Thiết bị bảo hành đầy đủ, xuất hóa đơn VAT, giao hàng, lắp đặt, đào tạo và hỗ trợ toàn quốc. Liên hệ HPT Tech để được tư vấn chọn máy scan Avision phù hợp và nhận **báo giá dự án**.",
+      "painPoints": [
+        "Hiệu năng tốt trên giá thành, phổ biến ở cơ quan/doanh nghiệp VN.",
+        "Dải rộng: A4 để bàn → A3 công nghiệp nối mạng.",
+        "Nhiều model LAN (hậu tố N) cho nhiều người dùng.",
+        "ADF dung lượng lớn, tốc độ cao, độ bền tốt."
+      ],
+      "criteria": [
+        {
+          "need": "Văn phòng A4",
+          "spec": "AD230/AD240"
+        },
+        {
+          "need": "Dùng chung mạng",
+          "spec": "model hậu tố N (LAN)"
+        },
+        {
+          "need": "A3 công suất lớn",
+          "spec": "AD7100N / dòng công nghiệp"
+        }
+      ],
+      "faqs": [
+        {
+          "question": "Máy scan Avision có bản A3 công suất lớn không?",
+          "answer": "Có — dòng A3 công nghiệp như AD7100N, ADF ~300 tờ, LAN, tốc độ cao."
+        },
+        {
+          "question": "Có model nối mạng dùng chung không?",
+          "answer": "Có — các model hậu tố N hỗ trợ LAN cho nhiều người dùng."
+        },
+        {
+          "question": "Avision phù hợp đối tượng nào?",
+          "answer": "Cơ quan nhà nước, doanh nghiệp, trung tâm lưu trữ cần hiệu năng tốt, giá hợp lý."
+        },
+        {
+          "question": "Có chính hãng, bảo hành, xuất VAT?",
+          "answer": "Có — chính hãng, VAT, hỗ trợ toàn quốc."
+        }
+      ],
+      "productQuery": {
+        "brand": "Avision",
+        "productGroup": "may-scan"
+      },
+      "status": "draft",
+      "_todo": "Gán recommendedProducts thật; kiểm meta title<=60/desc<=155; đạt quality gate rồi publish",
+      "lineup": "AD230/AD240 (A4 văn phòng) · AD345/AD345N (A4 tốc độ cao, N = nối mạng) · AD7100N & dòng A3 công nghiệp (ADF ~300 tờ, LAN, tới ~100 ppm, công suất hàng chục nghìn trang/ngày) · máy quét sách & quét giấy tờ tùy thân."
+    }
+  ]
+}
