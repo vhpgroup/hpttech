@@ -246,6 +246,31 @@ function countWords(value: unknown) {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+function payloadReadMessage(error: unknown) {
+  const cause = error && typeof error === "object" && "cause" in error ? error.cause : undefined;
+  const rawMessage = cause instanceof Error ? cause.message : error instanceof Error ? error.message : String(error);
+  return rawMessage.split("\n")[0];
+}
+
+function isMissingLandingSchemaError(error: unknown) {
+  const message = payloadReadMessage(error).toLowerCase();
+  return (
+    message.includes("does not exist") &&
+    (message.includes("landing_pages") || message.includes("industries") || message.includes("scan_needs"))
+  );
+}
+
+function handleLandingReadError(scope: string, error: unknown) {
+  if (isMissingLandingSchemaError(error)) {
+    if (process.env.NODE_ENV === "production") {
+      console.warn(`[payload-read:${scope}] pSEO schema is not migrated yet; returning empty landing data.`);
+    }
+    return;
+  }
+
+  handlePayloadReadError(scope, error);
+}
+
 function paperRank(value: unknown) {
   const text = normalizeText(value);
   if (text.includes("a0")) return 5;
@@ -412,7 +437,7 @@ async function loadPublishedLandingPages(opts: LandingPageOptions = {}) {
     });
     return res.docs as unknown as LandingPageDoc[];
   } catch (error) {
-    handlePayloadReadError("landing-pages", error);
+    handleLandingReadError("landing-pages", error);
     return [];
   }
 }
@@ -439,7 +464,7 @@ async function loadLandingPageByPath(pathname: string) {
     });
     return (res.docs[0] as unknown as LandingPageDoc | undefined) || null;
   } catch (error) {
-    handlePayloadReadError(`landing-page:${pathname}`, error);
+    handleLandingReadError(`landing-page:${pathname}`, error);
     return null;
   }
 }
@@ -457,7 +482,7 @@ async function loadLandingPagePreviewByPath(pathname: string) {
     });
     return (res.docs[0] as unknown as LandingPageDoc | undefined) || null;
   } catch (error) {
-    handlePayloadReadError(`landing-page-preview:${pathname}`, error);
+    handleLandingReadError(`landing-page-preview:${pathname}`, error);
     return null;
   }
 }
@@ -504,7 +529,7 @@ async function loadLandingHubPreviewPages() {
     });
     return res.docs as unknown as LandingPageDoc[];
   } catch (error) {
-    handlePayloadReadError("landing-pages:preview", error);
+    handleLandingReadError("landing-pages:preview", error);
     return [];
   }
 }

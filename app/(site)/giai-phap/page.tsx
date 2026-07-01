@@ -4,6 +4,7 @@ import { getHubData } from "@/lib/landing-pages";
 import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export const metadata = pageMetadata({
   title: "Giải pháp số hóa theo ngành | Máy scan & thiết bị văn phòng",
