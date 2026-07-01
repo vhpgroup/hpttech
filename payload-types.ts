@@ -80,6 +80,7 @@ export interface Config {
     'product-ai-metadata': ProductAiMetadatum;
     'scraper-jobs': ScraperJob;
     orders: Order;
+    'quote-requests': QuoteRequest;
     banners: Banner;
     solutions: Solution;
     'post-categories': PostCategory;
@@ -115,6 +116,7 @@ export interface Config {
     'product-ai-metadata': ProductAiMetadataSelect<false> | ProductAiMetadataSelect<true>;
     'scraper-jobs': ScraperJobsSelect<false> | ScraperJobsSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    'quote-requests': QuoteRequestsSelect<false> | QuoteRequestsSelect<true>;
     banners: BannersSelect<false> | BannersSelect<true>;
     solutions: SolutionsSelect<false> | SolutionsSelect<true>;
     'post-categories': PostCategoriesSelect<false> | PostCategoriesSelect<true>;
@@ -1061,6 +1063,38 @@ export interface Order {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests".
+ */
+export interface QuoteRequest {
+  id: number;
+  quoteId: string;
+  status?: ('new' | 'consulting' | 'quoted' | 'shipping' | 'success' | 'failed') | null;
+  company?: string | null;
+  taxCode?: string | null;
+  contact?: string | null;
+  phone: string;
+  email?: string | null;
+  source?: string | null;
+  address?: string | null;
+  note?: string | null;
+  items?:
+    | {
+        title: string;
+        sku?: string | null;
+        quantity: number;
+        priceLabel?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  subtotal?: number | null;
+  vat?: number | null;
+  totalLabel?: string | null;
+  internalNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "banners".
  */
 export interface Banner {
@@ -1608,6 +1642,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'quote-requests';
+        value: number | QuoteRequest;
       } | null)
     | ({
         relationTo: 'banners';
@@ -2193,6 +2231,37 @@ export interface OrdersSelect<T extends boolean = true> {
   subtotal?: T;
   totalLabel?: T;
   requiresPriceConfirmation?: T;
+  internalNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quote-requests_select".
+ */
+export interface QuoteRequestsSelect<T extends boolean = true> {
+  quoteId?: T;
+  status?: T;
+  company?: T;
+  taxCode?: T;
+  contact?: T;
+  phone?: T;
+  email?: T;
+  source?: T;
+  address?: T;
+  note?: T;
+  items?:
+    | T
+    | {
+        title?: T;
+        sku?: T;
+        quantity?: T;
+        priceLabel?: T;
+        id?: T;
+      };
+  subtotal?: T;
+  vat?: T;
+  totalLabel?: T;
   internalNote?: T;
   updatedAt?: T;
   createdAt?: T;

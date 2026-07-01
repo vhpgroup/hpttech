@@ -302,11 +302,14 @@ export async function appendSpreadsheetValues(
   spreadsheetId: string,
   title: string,
   values: string[][],
+  anchorRange = "A1",
 ) {
   if (!values.length) return;
 
+  const range = `${title}!${anchorRange}`;
+
   await googleSheetsFetch(
-    `spreadsheets/${spreadsheetId}/values/${encodeURIComponent(title)}!A1:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
+    `spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`,
     {
       body: JSON.stringify({
         majorDimension: "ROWS",

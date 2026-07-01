@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Download, FileText, Mail, MapPin, Phone, Printer, Trash2, X } from "lucide-react";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -14,6 +14,8 @@ type QuoteCustomer = {
   contact: string;
   phone: string;
   email: string;
+  taxCode: string;
+  note: string;
 };
 
 type QuoteContextValue = {
@@ -45,11 +47,13 @@ const HPT_INFO = {
 };
 
 const DEFAULT_CUSTOMER: QuoteCustomer = {
-  company: "Công ty TNHH ABC",
-  address: "Số 123 đường Lê Hồng Phong, Ngô Quyền, Hải Phòng",
-  contact: "Nguyễn Văn A",
-  phone: "0912 345 678",
-  email: "nguyenvana@abc.com.vn",
+  company: "",
+  address: "",
+  contact: "",
+  phone: "",
+  email: "",
+  taxCode: "",
+  note: "",
 };
 
 function quoteCode() {
@@ -284,15 +288,23 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
   const [customer, setCustomer] = useState(DEFAULT_CUSTOMER);
   const [validDays, setValidDays] = useState(10);
   const [printMode, setPrintMode] = useState<PrintMode>("color");
+  const [submitState, setSubmitState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [submitError, setSubmitError] = useState("");
   const [mounted, setMounted] = useState(false);
   const [quoteId] = useState(quoteCode);
   const quoteRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
 
+  const resetSubmitStatus = useCallback(() => {
+    setSubmitState("idle");
+    setSubmitError("");
+  }, []);
+
   const value = useMemo<QuoteContextValue>(() => ({
     openQuote: (nextProduct) => {
       const key = quoteLineKey(nextProduct);
+      resetSubmitStatus();
       setLines((current) => {
         const existing = current.find((line) => line.key === key);
         if (existing) {
@@ -304,15 +316,17 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
       });
       setIsOpen(true);
     },
-  }), []);
+  }), [resetSubmitStatus]);
 
   const updateCustomer = (key: keyof QuoteCustomer, nextValue: string) => {
+    resetSubmitStatus();
     setCustomer((current) => ({ ...current, [key]: nextValue }));
   };
 
   const close = () => setIsOpen(false);
 
   const updateQuantity = (key: string, quantity: number) => {
+    resetSubmitStatus();
     setLines((current) =>
       current.map((line) =>
         line.key === key ? { ...line, quantity: Math.max(1, Math.floor(quantity) || 1) } : line,
@@ -321,6 +335,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
   };
 
   const removeLine = (key: string) => {
+    resetSubmitStatus();
     setLines((current) => {
       const next = current.filter((line) => line.key !== key);
       if (!next.length) setIsOpen(false);
@@ -341,6 +356,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
         quantity: line.quantity,
         product: {
           title: line.product.title,
+          sku: line.product.sku,
           detail: line.product.detail,
           image: productImage(line.product),
           price: line.product.price,
@@ -349,6 +365,55 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
         },
       })),
     };
+  };
+
+  const submitQuote = async () => {
+    const payload = quotePayload();
+    if (!payload) return;
+
+    setSubmitState("sending");
+    setSubmitError("");
+
+    const sums = lines.reduce(
+      (sum, line) => {
+        const unitPrice = parseVNDPrice(line.product.price) || 0;
+        const totals = getVatInclusiveQuoteTotals(unitPrice, line.quantity);
+        return {
+          subtotal: sum.subtotal + totals.subtotal,
+          vat: sum.vat + totals.vat,
+          total: sum.total + totals.total,
+        };
+      },
+      { subtotal: 0, vat: 0, total: 0 },
+    );
+
+    try {
+      const response = await fetch("/api/quotes/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...payload,
+          source: "quote-builder",
+          totals: {
+            subtotal: sums.subtotal,
+            vat: sums.vat,
+            totalLabel: sums.total ? moneyLabel(sums.total) : "Liên hệ",
+          },
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        setSubmitState("error");
+        setSubmitError(data.error || "Không gửi được, vui lòng thử lại.");
+        return;
+      }
+
+      setSubmitState("sent");
+    } catch {
+      setSubmitState("error");
+      setSubmitError("Không kết nối được hệ thống. Vui lòng thử lại hoặc gọi hotline.");
+    }
   };
 
   const fetchQuotePdf = async () => {
@@ -576,6 +641,10 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                   <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.company} onChange={(event) => updateCustomer("company", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
+                  Mã số thuế (xuất VAT)
+                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.taxCode} onChange={(event) => updateCustomer("taxCode", event.target.value)} />
+                </label>
+                <label className="block text-sm font-semibold text-slate-700">
                   Địa chỉ
                   <textarea className="mt-1 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-[#0A4BFF]" value={customer.address} onChange={(event) => updateCustomer("address", event.target.value)} />
                 </label>
@@ -591,6 +660,10 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                   Email
                   <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.email} onChange={(event) => updateCustomer("email", event.target.value)} />
                 </label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Ghi chú yêu cầu
+                  <textarea className="mt-1 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-[#0A4BFF]" value={customer.note} onChange={(event) => updateCustomer("note", event.target.value)} />
+                </label>
                 <div className="grid grid-cols-1 gap-3 pt-2">
                   <label className="block text-sm font-semibold text-slate-700">
                     Hiệu lực
@@ -601,6 +674,21 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
               </div>
 
               <div className="grid gap-3 border-t border-slate-100 bg-white p-4">
+                <button
+                  type="button"
+                  onClick={submitQuote}
+                  disabled={submitState === "sending"}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary-600 text-sm font-extrabold text-white hover:bg-primary-700 disabled:opacity-60"
+                >
+                  <Mail size={17} />
+                  {submitState === "sending" ? "Đang gửi..." : "Gửi yêu cầu báo giá"}
+                </button>
+                {submitState === "sent" ? (
+                  <p className="rounded-lg bg-success/10 p-3 text-center text-sm font-semibold text-success">Đã gửi yêu cầu! Bộ phận kinh doanh sẽ liên hệ sớm.</p>
+                ) : null}
+                {submitState === "error" ? (
+                  <p className="rounded-lg bg-warning/10 p-3 text-center text-sm font-semibold text-warning">{submitError}</p>
+                ) : null}
                 <div>
                   <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-600">Chế độ in</p>
                   <div className="grid grid-cols-2 rounded-lg bg-slate-100 p-1">
@@ -641,10 +729,6 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                   <FileText size={17} />
                   Tải Word
                 </button>
-                <a href={`mailto:lienhe@hpttech.vn?subject=${encodeURIComponent(`Yêu cầu tư vấn ${quoteId}`)}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-800 hover:border-blue-200 hover:text-[#0A4BFF]">
-                  <Mail size={17} />
-                  Gửi yêu cầu tư vấn
-                </a>
               </div>
             </aside>
           </div>

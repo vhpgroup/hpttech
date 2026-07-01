@@ -2,6 +2,7 @@ const { Client } = require("pg");
 
 const certificationsMigrationName = "20260626_041300_add_certifications";
 const productTypesMigrationName = "20260630_120000_add_networking_camera_product_types";
+const quoteRequestsMigrationName = "20260630_180000_add_quote_requests";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -247,6 +248,79 @@ WHERE NOT EXISTS (
 );
 `;
 
+const quoteRequestsSQL = `
+DO $$ BEGIN
+  CREATE TYPE "public"."enum_quote_requests_status" AS ENUM('new', 'consulting', 'quoted', 'shipping', 'success', 'failed');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS "quote_requests" (
+  "id" serial PRIMARY KEY NOT NULL,
+  "quote_id" varchar NOT NULL,
+  "status" "enum_quote_requests_status" DEFAULT 'new',
+  "company" varchar,
+  "tax_code" varchar,
+  "contact" varchar,
+  "phone" varchar NOT NULL,
+  "email" varchar,
+  "source" varchar,
+  "address" varchar,
+  "note" varchar,
+  "subtotal" numeric,
+  "vat" numeric,
+  "total_label" varchar,
+  "internal_note" varchar,
+  "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "quote_requests_items" (
+  "_order" integer NOT NULL,
+  "_parent_id" integer NOT NULL,
+  "id" varchar PRIMARY KEY NOT NULL,
+  "title" varchar NOT NULL,
+  "sku" varchar,
+  "quantity" numeric NOT NULL,
+  "price_label" varchar
+);
+
+ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "quote_requests_id" integer;
+
+DO $$ BEGIN
+  ALTER TABLE "quote_requests_items" ADD CONSTRAINT "quote_requests_items_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."quote_requests"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_quote_requests_fk" FOREIGN KEY ("quote_requests_id") REFERENCES "public"."quote_requests"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+CREATE INDEX IF NOT EXISTS "quote_requests_items_order_idx" ON "quote_requests_items" USING btree ("_order");
+CREATE INDEX IF NOT EXISTS "quote_requests_items_parent_id_idx" ON "quote_requests_items" USING btree ("_parent_id");
+CREATE INDEX IF NOT EXISTS "quote_requests_quote_id_idx" ON "quote_requests" USING btree ("quote_id");
+CREATE INDEX IF NOT EXISTS "quote_requests_updated_at_idx" ON "quote_requests" USING btree ("updated_at");
+CREATE INDEX IF NOT EXISTS "quote_requests_created_at_idx" ON "quote_requests" USING btree ("created_at");
+CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_quote_requests_id_idx" ON "payload_locked_documents_rels" USING btree ("quote_requests_id");
+
+CREATE TABLE IF NOT EXISTS "payload_migrations" (
+  "id" serial PRIMARY KEY NOT NULL,
+  "name" varchar,
+  "batch" numeric,
+  "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+);
+
+INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+SELECT '${quoteRequestsMigrationName}', 0, now(), now()
+WHERE NOT EXISTS (
+  SELECT 1 FROM "payload_migrations" WHERE "name" = '${quoteRequestsMigrationName}'
+);
+`;
+
 async function applyCertificationsMigration(client) {
   await client.query("BEGIN");
   try {
@@ -274,6 +348,18 @@ async function applyNetworkingCameraProductTypes(client) {
   }
 }
 
+async function applyQuoteRequestsMigration(client) {
+  await client.query("BEGIN");
+  try {
+    await client.query(quoteRequestsSQL);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${quoteRequestsMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function main() {
   const client = new Client({ connectionString });
 
@@ -281,6 +367,7 @@ async function main() {
   try {
     await applyCertificationsMigration(client);
     await applyNetworkingCameraProductTypes(client);
+    await applyQuoteRequestsMigration(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;

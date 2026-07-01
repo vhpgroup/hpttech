@@ -39,6 +39,7 @@ import { ProductInventory } from "./collections/ProductInventory.ts";
 import { ProductOffers } from "./collections/ProductOffers.ts";
 import { ProductTypes } from "./collections/ProductTypes.ts";
 import { ProductVariants } from "./collections/ProductVariants.ts";
+import { QuoteRequests } from "./collections/QuoteRequests.ts";
 import { EnterpriseServices } from "./collections/EnterpriseServices.ts";
 import { EnterpriseSupportPage } from "./globals/EnterpriseSupportPage.ts";
 import { seedEnterpriseServices } from "./lib/payload/seed-enterprise-services.ts";
@@ -112,6 +113,7 @@ export default buildConfig({
     ProductAIMetadata,
     ScraperJobs,
     Orders,
+    QuoteRequests,
     Banners,
     Solutions,
     PostCategories,
