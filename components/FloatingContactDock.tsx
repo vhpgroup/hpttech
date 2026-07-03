@@ -184,10 +184,12 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
           </a>
 
           <button className="support-card chatbot" type="button" onClick={() => setChatbotOpen(true)}>
-            <img
+            <Image
               className="support-card-chatbot-banner"
               src="/assets/icons/bot.png"
               alt="Hỗ trợ Online"
+              width={66}
+              height={66}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
                 const fallback = event.currentTarget.nextElementSibling;
