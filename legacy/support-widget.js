@@ -1,7 +1,7 @@
 const SUPPORT_CONFIG = {
   zaloHref: "https://zalo.me/0876645432",
   facebookHref: "https://www.facebook.com/solarangelx9/",
-  supportHours: "8:30 - 21:00",
+  supportHours: "8:30 - 17:30",
   hotline: "0876 645 432",
   apiEndpoint: "/api/chat",
   companyName: "HPT Tech",

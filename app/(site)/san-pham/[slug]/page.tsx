@@ -47,16 +47,24 @@ const quickBuyItems = [
 
 const consultantItems = [
   {
-    name: "Phạm Văn Bách",
-    phone: "0967286889",
-    email: "bach.pv@hpttech.vn",
-    initials: "PB",
+    name: "Đào Duy Vỹ",
+    phone: "0876645432",
+    email: "kinhdoanh@hpttech.vn",
+    initials: "DVY",
     color: "#16A34A",
-    imageSrc: "/assets/consultants/pham-van-bach.jpg",
+    imageSrc: "/assets/consultants/dao-duy-vy.jpg",
+  },
+  {
+    name: "Nguyễn Viết Tân",
+    phone: "0559 309 904",
+    email: "kinhdoanh@hpttech.vn",
+    initials: "NT",
+    color: "#7C3AED",
+    imageSrc: "/assets/consultants/nguyen-viet-tan.jpg",
   },
   {
     name: "Nguyễn Đức Thắng",
-    phone: "037 27 67 995",
+    phone: "0372 767 995",
     email: "kinhdoanh@hpttech.vn",
     initials: "NT",
     color: "#2563EB",
@@ -429,8 +437,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <ul className="space-y-2 px-4 py-4">
               {[
                 "Xuất hóa đơn VAT đầy đủ cho doanh nghiệp",
-                "Hàng chính hãng 100% - nguyên seal",
-                "Bảo hành chính hãng theo nhà sản xuất",
+                "Hàng mới 100% - nguyên seal",
+                "Bảo hành 12 tháng",
                 "Giao hàng toàn quốc, hỗ trợ kỹ thuật",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
@@ -479,7 +487,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
             <div className="space-y-4 px-4 py-4">
               {consultantItems.map((consultant) => (
-                <div key={consultant.email} className="flex items-center gap-3">
+                <div key={`${consultant.name}-${consultant.phone}`} className="flex items-center gap-3">
                   <div
                     className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white ring-1 ring-slate-200"
                     style={{ backgroundColor: consultant.color }}

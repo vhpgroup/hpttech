@@ -169,7 +169,7 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
             </span>
             <span className="support-card-copy">
               <strong>Tư vấn Zalo</strong>
-              <small>(8:30 - 21:00)</small>
+              <small>(8:30 - 17:30)</small>
             </span>
           </a>
 
@@ -179,17 +179,15 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
             </span>
             <span className="support-card-copy">
               <strong>Chat Facebook</strong>
-              <small>(8:30 - 21:00)</small>
+              <small>(8:30 - 17:30)</small>
             </span>
           </a>
 
           <button className="support-card chatbot" type="button" onClick={() => setChatbotOpen(true)}>
-            <Image
+            <img
               className="support-card-chatbot-banner"
               src="/assets/icons/bot.png"
               alt="Hỗ trợ Online"
-              width={220}
-              height={64}
               onError={(event) => {
                 event.currentTarget.style.display = "none";
                 const fallback = event.currentTarget.nextElementSibling;
