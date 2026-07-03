@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FileText, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
-import HelpSidebar from "@/components/help/HelpSidebar";
 import { SubpageHeader } from "@/components/layout/SubpageHeader";
 import { pageMetadata } from "@/lib/seo";
 import { phoneHref } from "@/lib/site-settings";
@@ -15,6 +14,21 @@ export const metadata = pageMetadata({
 const hotline = "0967286889";
 const email = "bach.pv@hpttech.vn";
 const address = "SB.04 Vinhomes Marina, P. An Biên, TP. Hải Phòng";
+const termsSections = [
+  { id: "gioi-thieu-chung", number: "1", title: "Giới thiệu chung" },
+  { id: "doi-tuong-va-pham-vi-ap-dung", number: "2", title: "Đối tượng và phạm vi áp dụng" },
+  { id: "tai-khoan-va-thong-tin-khach-hang", number: "3", title: "Tài khoản và thông tin khách hàng" },
+  { id: "quyen-va-nghia-vu-cua-khach-hang", number: "4", title: "Quyền và nghĩa vụ của khách hàng" },
+  { id: "quyen-va-trach-nhiem-cua-hpt-tech", number: "5", title: "Quyền và trách nhiệm của HPT Tech" },
+  { id: "gia-bao-gia-va-thanh-toan", number: "6", title: "Giá, báo giá và thanh toán" },
+  { id: "dat-hang-va-xac-nhan-don-hang", number: "7", title: "Đặt hàng và xác nhận đơn hàng" },
+  { id: "giao-hang-bao-hanh-va-doi-tra", number: "8", title: "Giao hàng, bảo hành và đổi trả" },
+  { id: "quyen-so-huu-tri-tue", number: "9", title: "Quyền sở hữu trí tuệ" },
+  { id: "gioi-han-trach-nhiem-va-bat-kha-khang", number: "10", title: "Giới hạn trách nhiệm và bất khả kháng" },
+  { id: "luat-ap-dung-va-giai-quyet-tranh-chap", number: "11", title: "Luật áp dụng và giải quyết tranh chấp" },
+  { id: "sua-doi-dieu-khoan", number: "12", title: "Sửa đổi điều khoản" },
+  { id: "thong-tin-lien-he", number: "13", title: "Thông tin liên hệ" },
+] as const;
 
 export default function TermsOfUsePage() {
   return (
@@ -30,7 +44,23 @@ export default function TermsOfUsePage() {
         />
 
         <div className="grid items-start gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
-          <HelpSidebar activePath="/dieu-khoan-su-dung" />
+          <aside className="border border-slate-300 bg-white lg:sticky lg:top-4">
+            <h2 className="bg-[#536fe8] px-4 py-3 text-lg font-bold text-white">Mục lục nội dung</h2>
+            <nav aria-label="Mục lục điều khoản sử dụng">
+              <ul className="grid sm:grid-cols-2 lg:block">
+                {termsSections.map((section) => (
+                  <li key={section.id} className="border-b border-slate-100 last:border-b-0">
+                    <a
+                      href={`#${section.id}`}
+                      className="block px-4 py-3 text-[15px] leading-6 text-slate-800 transition hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      {section.number}. {section.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
 
           <article className="min-w-0 bg-white px-6 py-7 text-[16px] leading-7 text-slate-800 sm:px-8 lg:px-10 lg:py-8">
             <h1 className="text-center text-2xl font-black uppercase leading-tight text-slate-900 sm:text-3xl">
@@ -43,7 +73,7 @@ export default function TermsOfUsePage() {
               Quý khách xác nhận đã đọc, hiểu và đồng ý tuân thủ toàn bộ nội dung dưới đây.
             </p>
 
-            <PolicySection number="1" title="Giới thiệu chung">
+            <PolicySection id="gioi-thieu-chung" number="1" title="Giới thiệu chung">
               <p>
                 Website hpttech.vn được vận hành bởi Công ty TNHH Đầu tư Xây dựng và Thiết bị Công
                 nghệ HPT (&quot;HPT Tech&quot;, &quot;chúng tôi&quot;) - đơn vị cung cấp thiết bị CNTT, máy scan, máy in,
@@ -57,7 +87,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="2" title="Đối tượng và phạm vi áp dụng">
+            <PolicySection id="doi-tuong-va-pham-vi-ap-dung" number="2" title="Đối tượng và phạm vi áp dụng">
               <p>
                 Điều khoản áp dụng cho mọi cá nhân, tổ chức truy cập, tham khảo thông tin, yêu cầu
                 báo giá hoặc thực hiện giao dịch trên website. Khi sử dụng website, Quý khách cam kết:
@@ -72,7 +102,7 @@ export default function TermsOfUsePage() {
               />
             </PolicySection>
 
-            <PolicySection number="3" title="Tài khoản và thông tin khách hàng">
+            <PolicySection id="tai-khoan-va-thong-tin-khach-hang" number="3" title="Tài khoản và thông tin khách hàng">
               <p>
                 Một số tính năng có thể yêu cầu Quý khách cung cấp thông tin liên hệ hoặc tạo tài
                 khoản. Quý khách chịu trách nhiệm bảo mật thông tin đăng nhập và mọi hoạt động phát
@@ -87,7 +117,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="4" title="Quyền và nghĩa vụ của khách hàng">
+            <PolicySection id="quyen-va-nghia-vu-cua-khach-hang" number="4" title="Quyền và nghĩa vụ của khách hàng">
               <p>Quý khách có các quyền và nghĩa vụ sau:</p>
               <BulletList
                 items={[
@@ -101,7 +131,7 @@ export default function TermsOfUsePage() {
               />
             </PolicySection>
 
-            <PolicySection number="5" title="Quyền và trách nhiệm của HPT Tech">
+            <PolicySection id="quyen-va-trach-nhiem-cua-hpt-tech" number="5" title="Quyền và trách nhiệm của HPT Tech">
               <BulletList
                 items={[
                   "Cung cấp sản phẩm chính hãng 100%, đầy đủ hóa đơn, chứng từ và xuất hóa đơn VAT theo yêu cầu.",
@@ -113,7 +143,7 @@ export default function TermsOfUsePage() {
               />
             </PolicySection>
 
-            <PolicySection number="6" title="Giá, báo giá và thanh toán">
+            <PolicySection id="gia-bao-gia-va-thanh-toan" number="6" title="Giá, báo giá và thanh toán">
               <p>
                 Giá sản phẩm được niêm yết bằng Đồng Việt Nam (VNĐ). Tùy thông tin hiển thị tại từng
                 sản phẩm, giá có thể đã hoặc chưa bao gồm thuế GTGT. Giá bán, VAT, phí vận chuyển và
@@ -131,7 +161,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="7" title="Đặt hàng và xác nhận đơn hàng">
+            <PolicySection id="dat-hang-va-xac-nhan-don-hang" number="7" title="Đặt hàng và xác nhận đơn hàng">
               <p>
                 Quý khách có thể đặt hàng trực tiếp trên website, qua hotline hoặc Zalo. Đơn hàng chỉ
                 được coi là xác lập khi HPT Tech xác nhận với Quý khách về sản phẩm, số lượng, giá,
@@ -143,7 +173,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="8" title="Giao hàng, bảo hành và đổi trả">
+            <PolicySection id="giao-hang-bao-hanh-va-doi-tra" number="8" title="Giao hàng, bảo hành và đổi trả">
               <p>
                 Chính sách giao nhận, bảo hành và đổi trả áp dụng theo các trang chính sách chuyên
                 biệt của HPT Tech:
@@ -170,7 +200,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="9" title="Quyền sở hữu trí tuệ">
+            <PolicySection id="quyen-so-huu-tri-tue" number="9" title="Quyền sở hữu trí tuệ">
               <p>
                 Toàn bộ nội dung trên website - bao gồm logo, thương hiệu, hình ảnh, văn bản, thiết
                 kế giao diện, mã nguồn và dữ liệu - thuộc quyền sở hữu của HPT Tech hoặc các đối tác
@@ -182,7 +212,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="10" title="Giới hạn trách nhiệm và bất khả kháng">
+            <PolicySection id="gioi-han-trach-nhiem-va-bat-kha-khang" number="10" title="Giới hạn trách nhiệm và bất khả kháng">
               <p>
                 HPT Tech nỗ lực bảo đảm website hoạt động ổn định nhưng không cam kết website luôn
                 liền mạch, không lỗi hoặc không bị gián đoạn do bảo trì, sự cố kỹ thuật hoặc yếu tố
@@ -195,7 +225,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="11" title="Luật áp dụng và giải quyết tranh chấp">
+            <PolicySection id="luat-ap-dung-va-giai-quyet-tranh-chap" number="11" title="Luật áp dụng và giải quyết tranh chấp">
               <p>
                 Điều khoản này được điều chỉnh và giải thích theo pháp luật nước Cộng hòa Xã hội Chủ
                 nghĩa Việt Nam.
@@ -207,7 +237,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="12" title="Sửa đổi điều khoản">
+            <PolicySection id="sua-doi-dieu-khoan" number="12" title="Sửa đổi điều khoản">
               <p>
                 HPT Tech có quyền cập nhật, sửa đổi hoặc bổ sung Điều khoản sử dụng này vào bất kỳ
                 thời điểm nào nhằm phù hợp với hoạt động kinh doanh và quy định pháp luật. Các thay
@@ -219,7 +249,7 @@ export default function TermsOfUsePage() {
               </p>
             </PolicySection>
 
-            <PolicySection number="13" title="Thông tin liên hệ">
+            <PolicySection id="thong-tin-lien-he" number="13" title="Thông tin liên hệ">
               <div className="border border-slate-300 bg-slate-50 p-5 sm:p-6">
                 <h3 className="font-black uppercase leading-7 text-slate-900">
                   Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT
@@ -264,16 +294,18 @@ export default function TermsOfUsePage() {
 }
 
 function PolicySection({
+  id,
   number,
   title,
   children,
 }: {
+  id: string;
   number: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-10">
+    <section id={id} className="mt-10 scroll-mt-28">
       <h2 className="text-xl font-black uppercase leading-8 text-[#315eff]">
         {number}. {title}
       </h2>
