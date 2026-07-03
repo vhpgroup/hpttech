@@ -27,6 +27,10 @@ export const helpLinks = [
     label: "Hỗ trợ khách hàng dự án, doanh nghiệp",
     href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
   },
+  {
+    label: "Điều khoản sử dụng",
+    href: "/dieu-khoan-su-dung",
+  },
 ] as const;
 
 export type HelpPath = (typeof helpLinks)[number]["href"];
