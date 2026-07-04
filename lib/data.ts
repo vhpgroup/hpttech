@@ -29,7 +29,7 @@ export interface Solution {
 
 export const HPT_DATA = {
   banners: [
-    "/assets/herobanner/herobanner1.png",
+    "/assets/herobanner/herobanner1.jpg",
   ],
   categories: [
     { name: "Laptop doanh nghiệp", icon: "laptop" },
