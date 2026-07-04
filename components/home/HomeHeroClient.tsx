@@ -11,6 +11,11 @@ const HERO_FADE_DURATION_MS = 600;
 const HERO_IMAGE_SIZES = "(max-width: 980px) calc(100vw - 24px), 804px";
 const PROMO_IMAGE_SIZES =
   "(max-width: 760px) calc(100vw - 24px), (max-width: 980px) calc((100vw - 34px) / 2), 386px";
+const COMMERCIAL_ASSET_VERSION = "fb17d53";
+
+function commercialAsset(path: string) {
+  return `${path}?v=${COMMERCIAL_ASSET_VERSION}`;
+}
 
 type HomeHeroClientProps = {
   banners: PublicBanner[];
@@ -114,7 +119,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           <a className="commercial-tile scanner" href="/san-pham">
             <Image
               className="commercial-tile-image"
-              src="/assets/commercial-blocks/scanner.jpg"
+              src={commercialAsset("/assets/commercial-blocks/scanner.jpg")}
               alt="Commercial block máy scan"
               width={360}
               height={228}
@@ -129,7 +134,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           <a className="commercial-tile printer" href="/san-pham">
             <Image
               className="commercial-tile-image"
-              src="/assets/commercial-blocks/printer.jpg"
+              src={commercialAsset("/assets/commercial-blocks/printer.jpg")}
               alt="Commercial block máy in"
               width={360}
               height={228}
@@ -147,7 +152,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           <a className="commercial-tile office" href="/san-pham">
             <Image
               className="commercial-tile-image"
-              src="/assets/commercial-blocks/office.jpg"
+              src={commercialAsset("/assets/commercial-blocks/office.jpg")}
               alt="Commercial block thiết bị văn phòng"
               width={386}
               height={190}
@@ -162,7 +167,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           <a className="commercial-tile solution" href="/giai-phap">
             <Image
               className="commercial-tile-image"
-              src="/assets/commercial-blocks/solution.jpg"
+              src={commercialAsset("/assets/commercial-blocks/solution.jpg")}
               alt="Commercial block giải pháp"
               width={386}
               height={190}
@@ -177,7 +182,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           <a className="commercial-tile service" href="/dich-vu">
             <Image
               className="commercial-tile-image"
-              src="/assets/commercial-blocks/service.jpg"
+              src={commercialAsset("/assets/commercial-blocks/service.jpg")}
               alt="Commercial block dịch vụ"
               width={386}
               height={190}
