@@ -43,6 +43,31 @@ assert.equal(commonProductTypeCode("Nguồn Cho Server"), "server-component");
 assert.equal(commonProductTypeCode("Máy Trạm Workstation"), "workstation");
 assert.equal(commonProductTypeCode("Máy tính công nghiệp"), "industrial-pc");
 
+// h1 THẬT trên trang An Phát (xác nhận live 2026-07-07): typo "Sever" và
+// h1 cụt chỉ còn tên hãng — phải nhận diện được qua typo-tolerance + URL slug.
+assert.equal(commonProductTypeCode("Ram for Sever"), "server-component");
+assert.equal(commonProductTypeCode("HDD for Sever"), "server-component");
+assert.equal(commonProductTypeCode("VGA for Sever"), "server-component");
+assert.equal(commonProductTypeCode("RAID for Sever"), "server-component");
+assert.equal(commonProductTypeCode("CPU for Server"), "server-component");
+assert.equal(commonProductTypeCode("Nguồn cho Server"), "server-component");
+assert.equal(commonProductTypeCode("Mainboard Server"), "server-component");
+assert.equal(commonProductTypeCode("Máy tính All-in-one"), "all-in-one");
+assert.equal(commonProductTypeCode("ASUS NUC Gen 12"), "mini-pc");
+// h1 cụt "HP"/"ASUS" + URL (cách classifyCategoryProduct ghép title + url):
+assert.equal(
+  commonProductTypeCode(
+    "HP https://www.anphatpc.com.vn/may-tinh-dong-bo-hp_dm1044.html",
+  ),
+  "desktop-pc",
+);
+assert.equal(
+  commonProductTypeCode(
+    "IBM-LENOVO https://www.anphatpc.com.vn/may-tinh-dong-bo-ibm-lenovo_dm1056.html",
+  ),
+  "desktop-pc",
+);
+
 // Mã productType phải tự map về chính nó (validateExpectedProductType dùng
 // commonProductTypeCode trên cột "Loại sản phẩm" của workbook).
 for (const code of [
