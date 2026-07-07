@@ -5,6 +5,10 @@ import path from "node:path";
 import { LAPTOP_GAMING_CATEGORY_NAME } from "../lib/product-category";
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
 import { discoverSourceCategory } from "../lib/scraper/engine";
+import {
+  pcServerCategoryNameForType,
+  PC_SERVER_TYPE_CODES,
+} from "../lib/scraper/pc-server-taxonomy";
 
 loadEnvConfig(process.cwd());
 
@@ -47,7 +51,14 @@ function classifyCategoryProduct(categoryTitle: string, productName: string) {
     .toLowerCase();
   const isMixedNetworkingCameraCategory =
     categoryKey.includes("thiet bi mang") && categoryKey.includes("camera");
-  const detected = isMixedNetworkingCameraCategory
+  // Trang cha "May chu, Linh kien" (may-chu_dm1018) cua An Phat tron ca may chu
+  // nguyen chiec lan linh kien server -> uu tien nhan dien theo ten san pham.
+  const isMixedServerComponentCategory =
+    (categoryKey.includes("may chu") || categoryKey.includes("server")) &&
+    categoryKey.includes("linh kien");
+  const preferProductName =
+    isMixedNetworkingCameraCategory || isMixedServerComponentCategory;
+  const detected = preferProductName
     ? commonProductTypeCode(productName) || categoryType
     : categoryType || commonProductTypeCode(productName);
   if (detected === "camera") {
@@ -61,6 +72,10 @@ function classifyCategoryProduct(categoryTitle: string, productName: string) {
   }
   if (detected === "laptop") {
     return { categoryName: LAPTOP_GAMING_CATEGORY_NAME, productType: "laptop" };
+  }
+  if (detected && PC_SERVER_TYPE_CODES.has(detected)) {
+    const categoryName = pcServerCategoryNameForType(detected);
+    if (categoryName) return { categoryName, productType: detected };
   }
   if (!detected) return undefined;
   return { categoryName: categoryTitle, productType: detected };

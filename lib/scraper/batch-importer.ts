@@ -6,6 +6,10 @@ import {
   inferScrapedProductTypeCode,
 } from "./canonical-row";
 import { importScrapedImagesWithReport } from "./media";
+import {
+  PC_FAMILY_TYPE_CODES,
+  SERVER_FAMILY_TYPE_CODES,
+} from "./pc-server-taxonomy";
 import { evaluatePublicationGate } from "./publication-gate";
 import { generateSeo } from "./seo-generator";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
@@ -311,7 +315,11 @@ export async function importBatchProduct(
         ? { photocopierSpecs: normalizedSpecs.photocopierSpecs }
         : effectiveProductTypeCode === "laptop"
           ? { laptopSpecs: normalizedSpecs.laptopSpecs }
-          : {};
+          : PC_FAMILY_TYPE_CODES.has(effectiveProductTypeCode)
+            ? { desktopSpecs: normalizedSpecs.desktopSpecs }
+            : SERVER_FAMILY_TYPE_CODES.has(effectiveProductTypeCode)
+              ? { serverSpecs: normalizedSpecs.serverSpecs }
+              : {};
   const writePayload = payload as unknown as PayloadWrite;
   const updated = await writePayload.update({
     collection: "products",

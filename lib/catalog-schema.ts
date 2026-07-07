@@ -11,6 +11,13 @@ export const PRODUCT_TYPE_OPTIONS = [
   { label: "Muc in & phu kien", value: "ink" },
   { label: "Thiet bi mang", value: "networking" },
   { label: "Camera & Giam sat", value: "camera" },
+  { label: "PC dong bo", value: "desktop-pc" },
+  { label: "PC All-in-One", value: "all-in-one" },
+  { label: "Mini PC - NUC", value: "mini-pc" },
+  { label: "May tram Workstation", value: "workstation" },
+  { label: "May tinh cong nghiep", value: "industrial-pc" },
+  { label: "May chu - Server", value: "server" },
+  { label: "Linh kien may chu", value: "server-component" },
   { label: "Khac", value: "other" },
 ] as const;
 

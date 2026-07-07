@@ -1,4 +1,5 @@
 import { getPayloadClient } from "@/lib/payload";
+import { detectPcServerTypeCode } from "./pc-server-taxonomy";
 
 function normalize(value: string) {
   return value
@@ -37,6 +38,11 @@ export function commonProductTypeCode(value: string) {
   if (normalized.includes("may in") || normalized.includes("printer")) {
     return "printer";
   }
+  // PC/Server (anphat "Máy tính đồng bộ - Máy chủ") phải đứng TRƯỚC rule
+  // software: tên PC thường chứa "Windows 11"/"Office" nhưng không phải phần mềm.
+  // detectPcServerTypeCode tự bỏ qua khi văn bản nhắc laptop/phần mềm/bản quyền.
+  const pcServerType = detectPcServerTypeCode(value);
+  if (pcServerType) return pcServerType;
   if (
     normalized.includes("phan mem") ||
     normalized.includes("software") ||

@@ -10,6 +10,11 @@ import {
   SOFTWARE_CATEGORY_NAME,
 } from "@/lib/product-category";
 import {
+  detectPcServerTypeCode,
+  pcServerCategoryNameForType,
+  PC_SERVER_TYPE_CODES,
+} from "./pc-server-taxonomy";
+import {
   sourceIdentityKey,
   sourceVariantSku,
 } from "./source-identity";
@@ -72,6 +77,12 @@ function normalized(value: string) {
 }
 
 export function inferScrapedProductTypeCode(inputName: string, requestedTypeCode: string) {
+  // Nhóm PC/Server: chỉ tinh chỉnh TRONG nội bộ họ PC/Server (vd danh mục
+  // "Máy chủ, Linh kiện" trộn lẫn server và linh kiện) — không bao giờ để
+  // tên chứa "Windows"/"Office" kéo sản phẩm sang software.
+  if (PC_SERVER_TYPE_CODES.has(requestedTypeCode)) {
+    return detectPcServerTypeCode(inputName) ?? requestedTypeCode;
+  }
   const text = normalized(inputName);
   if (/\bmay\s+photocopy\b/.test(text) || /\bphotocop(y|ier)\b/.test(text)) {
     return "photocopier";
@@ -98,6 +109,8 @@ function categoryNameForProductType(productTypeCode: string, fallback: string) {
   if (productTypeCode === "software") return SOFTWARE_CATEGORY_NAME;
   if (productTypeCode === "ink") return INK_CATEGORY_NAME;
   if (productTypeCode === "laptop") return LAPTOP_GAMING_CATEGORY_NAME;
+  const pcServerCategoryName = pcServerCategoryNameForType(productTypeCode);
+  if (pcServerCategoryName) return pcServerCategoryName;
   return fallback;
 }
 

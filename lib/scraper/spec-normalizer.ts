@@ -1,3 +1,7 @@
+import {
+  PC_FAMILY_TYPE_CODES,
+  SERVER_FAMILY_TYPE_CODES,
+} from "./pc-server-taxonomy";
 import { cleanText } from "./text";
 import type { ProductSpec } from "./types";
 
@@ -10,10 +14,12 @@ type TypedSpecs = Record<string, boolean | number | string>;
 
 export type NormalizedScrapedSpecs = {
   attributes: CanonicalAttribute[];
+  desktopSpecs?: TypedSpecs;
   laptopSpecs?: TypedSpecs;
   photocopierSpecs?: TypedSpecs;
   printerSpecs?: TypedSpecs;
   scannerSpecs?: TypedSpecs;
+  serverSpecs?: TypedSpecs;
   specs: ProductSpec[];
 };
 
@@ -801,6 +807,255 @@ function deriveLaptopSpecs(specs: ProductSpec[]) {
   };
 }
 
+function formFactorValue(value: string) {
+  const normalized = normalize(value);
+  if (/\b(\d)\s*u\b/.test(normalized) || normalized.includes("rack")) {
+    return value;
+  }
+  if (
+    /\b(sff|usff|tower|mini tower|micro|mini pc|nuc|desktop|aio|all in one)\b/.test(
+      normalized,
+    )
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
+// Lưu ý: desktop/server KHÔNG phát attribute canonical (attributes: []) giống
+// printer/photocopier — mapAttributes sẽ throw nếu gặp code chưa có
+// AttributeDefinition. Khi cần lọc facet, seed AttributeDefinitions trước rồi
+// mới bật phát attribute ở đây.
+function deriveDesktopSpecs(specs: ProductSpec[]) {
+  const desktopSpecs: TypedSpecs = {};
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+    const combined = `${label} ${normalizedValue}`;
+    const graphicsLabel =
+      label.includes("card man hinh") ||
+      label.includes("vga") ||
+      label.includes("gpu") ||
+      label.includes("graphics") ||
+      label.includes("do hoa");
+
+    if (
+      label.includes("cpu") ||
+      label.includes("processor") ||
+      label.includes("bo xu ly") ||
+      label.includes("chip")
+    ) {
+      ensureTextField(desktopSpecs, "cpu", value);
+    }
+
+    if (graphicsLabel) {
+      ensureTextField(desktopSpecs, "gpu", value);
+    }
+
+    const looksLikeCache =
+      label.includes("cache") ||
+      label.includes("dem") ||
+      normalizedValue.includes("cache");
+    const looksLikeRam =
+      label.includes("ram") ||
+      (!looksLikeCache &&
+        (label.includes("memory") || label.includes("bo nho") || label.includes("dung luong")) &&
+        /\b(ddr|ram|\d+(?:[.,]\d+)?\s*gb)\b/i.test(value));
+    if (looksLikeRam) {
+      ensureTextField(desktopSpecs, "ram", value);
+      const ram = laptopRamGb(value);
+      if (ram !== undefined && !hasNumber(desktopSpecs.ramGb)) {
+        desktopSpecs.ramGb = ram;
+      }
+    }
+
+    if (
+      label.includes("ssd") ||
+      label.includes("hdd") ||
+      label.includes("o cung") ||
+      label.includes("storage") ||
+      label.includes("luu tru")
+    ) {
+      ensureTextField(desktopSpecs, "storage", value);
+      const storage = laptopStorageGb(value);
+      if (storage !== undefined && !hasNumber(desktopSpecs.storageGb)) {
+        desktopSpecs.storageGb = storage;
+      }
+    }
+
+    if (
+      (label.includes("man hinh") && !graphicsLabel) ||
+      label.includes("display") ||
+      label.includes("screen")
+    ) {
+      ensureTextField(desktopSpecs, "screen", value);
+      const size = laptopScreenSizeInch(value);
+      if (size !== undefined && !hasNumber(desktopSpecs.screenSizeInch)) {
+        desktopSpecs.screenSizeInch = size;
+      }
+    }
+
+    if (label.includes("he dieu hanh") || /\bos\b/.test(label) || combined.includes("windows")) {
+      ensureTextField(desktopSpecs, "os", value);
+    }
+
+    if (
+      label.includes("ket noi") ||
+      label.includes("cong giao tiep") ||
+      label.includes("wireless") ||
+      /\b(wifi|wi-fi|bluetooth|usb|hdmi|lan|displayport)\b/.test(combined)
+    ) {
+      ensureTextField(desktopSpecs, "connectivity", value);
+    }
+
+    if (
+      label.includes("kieu dang") ||
+      label.includes("form factor") ||
+      label.includes("thiet ke") ||
+      label.includes("loai may")
+    ) {
+      ensureTextField(desktopSpecs, "formFactor", formFactorValue(value) || value);
+    }
+
+    if (
+      label.includes("nguon") ||
+      label.includes("power supply") ||
+      label.includes("psu") ||
+      label.includes("cong suat nguon")
+    ) {
+      ensureTextField(desktopSpecs, "psu", value);
+    }
+
+    if (isDimensionsSpec(label, value)) {
+      ensureTextField(desktopSpecs, "dimensions", value);
+    }
+    if (isWeightSpec(label, value)) {
+      ensureTextField(desktopSpecs, "weight", value);
+    }
+  }
+
+  return Object.keys(desktopSpecs).length ? desktopSpecs : undefined;
+}
+
+function deriveServerSpecs(specs: ProductSpec[]) {
+  const serverSpecs: TypedSpecs = {};
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+
+    if (
+      label.includes("cpu") ||
+      label.includes("processor") ||
+      label.includes("bo xu ly") ||
+      label.includes("vi xu ly")
+    ) {
+      if (label.includes("socket")) {
+        ensureTextField(serverSpecs, "socket", value);
+      } else if (
+        label.includes("toi da") ||
+        label.includes("max") ||
+        label.includes("ho tro")
+      ) {
+        ensureTextField(serverSpecs, "cpuMax", value);
+      } else {
+        ensureTextField(serverSpecs, "cpu", value);
+      }
+    }
+
+    if (label.includes("socket")) {
+      ensureTextField(serverSpecs, "socket", value);
+    }
+
+    const looksLikeCache =
+      label.includes("cache") ||
+      label.includes("dem") ||
+      normalizedValue.includes("cache");
+    if (label.includes("ram") || (!looksLikeCache && label.includes("bo nho"))) {
+      if (
+        label.includes("toi da") ||
+        label.includes("max") ||
+        label.includes("ho tro")
+      ) {
+        ensureTextField(serverSpecs, "ramMax", value);
+      } else {
+        ensureTextField(serverSpecs, "ram", value);
+        const ram = laptopRamGb(value);
+        if (ram !== undefined && !hasNumber(serverSpecs.ramGb)) {
+          serverSpecs.ramGb = ram;
+        }
+      }
+    }
+
+    if (
+      label.includes("o cung") ||
+      label.includes("hdd") ||
+      label.includes("ssd") ||
+      label.includes("storage") ||
+      label.includes("luu tru")
+    ) {
+      ensureTextField(serverSpecs, "storage", value);
+    }
+
+    if (label.includes("khay") || label.includes("bay")) {
+      ensureTextField(serverSpecs, "driveBays", value);
+    }
+
+    if (label.includes("raid")) {
+      ensureTextField(serverSpecs, "raid", value);
+    }
+
+    if (
+      label.includes("nguon") ||
+      label.includes("power supply") ||
+      label.includes("psu")
+    ) {
+      ensureTextField(serverSpecs, "psu", value);
+    }
+
+    if (
+      label.includes("kieu dang") ||
+      label.includes("form factor") ||
+      label.includes("thiet ke") ||
+      /\b(\d)\s*u\b|\brack\b|\btower\b/.test(normalizedValue)
+    ) {
+      const formFactor = formFactorValue(value);
+      if (formFactor) ensureTextField(serverSpecs, "formFactor", formFactor);
+    }
+
+    if (
+      label.includes("lan") ||
+      label.includes("network") ||
+      label.includes("cong mang") ||
+      label.includes("ket noi")
+    ) {
+      ensureTextField(serverSpecs, "networkPorts", value);
+    }
+
+    if (
+      label.includes("quan ly") ||
+      label.includes("management") ||
+      normalizedValue.includes("idrac") ||
+      normalizedValue.includes("ilo") ||
+      normalizedValue.includes("xclarity")
+    ) {
+      ensureTextField(serverSpecs, "management", value);
+    }
+
+    if (isDimensionsSpec(label, value)) {
+      ensureTextField(serverSpecs, "dimensions", value);
+    }
+    if (isWeightSpec(label, value)) {
+      ensureTextField(serverSpecs, "weight", value);
+    }
+  }
+
+  return Object.keys(serverSpecs).length ? serverSpecs : undefined;
+}
+
 export function normalizeScrapedSpecs(
   input: ProductSpec[],
   productTypeCode: string,
@@ -839,6 +1094,23 @@ export function normalizeScrapedSpecs(
     return {
       attributes: laptop.attributes,
       laptopSpecs: laptop.laptopSpecs,
+      specs,
+    };
+  }
+
+  if (PC_FAMILY_TYPE_CODES.has(productTypeCode)) {
+    return {
+      attributes: [],
+      desktopSpecs: deriveDesktopSpecs(specs),
+      specs,
+    };
+  }
+
+  if (SERVER_FAMILY_TYPE_CODES.has(productTypeCode)) {
+    return {
+      attributes: [],
+      serverSpecs:
+        productTypeCode === "server" ? deriveServerSpecs(specs) : undefined,
       specs,
     };
   }

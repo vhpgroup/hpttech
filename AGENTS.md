@@ -80,6 +80,7 @@ Scraper – an toàn pipeline	npm run test:scraper-pipeline-safety	lib/scraper/*
 Scraper – đa nguồn	npm run test:scraper-multi-source	gộp/đối chiếu dữ liệu nhiều nguồn
 Scraper – canonical row	npm run test:scraper-canonical-row	chuẩn hóa 1 dòng sản phẩm
 Scraper – nhận diện nguồn	npm run test:anphat-source-identity	nhận diện nguồn (anphatpc)
+Scraper – phân loại PC/Server	npm run test:desktop-server-classify	lib/scraper/pc-server-taxonomy.ts, phân loại + spec + canonical row nhánh "Máy tính đồng bộ - Máy chủ"
 Import sản phẩm	npm run test:bulk-import	lib/*import-export*, products:bulk-import
 AI profile sản phẩm	npm run test:ai-profile	lib/ai/**, ProductAIMetadata
 Catalog (audit độ sẵn sàng)	npm run payload:audit-catalog	toàn catalog trước khi publish
@@ -217,6 +218,7 @@ products:clean-retailer-specs.
 Migration / seed / đổi schema dữ liệu: payload:migrate-existing-catalog,
 payload:merge-software-category, payload:backfill-ai-metadata,
 payload:make-attributes-optional, payload:seed-catalog, payload:seed-news-taxonomy,
+payload:add-desktop-server-types, payload:seed-desktop-server-categories,
 payload:ensure-product-indexes, và PAYLOAD_DB_PUSH=true.
 Tạo nội dung tự động: cron:create-news.
 Quy tắc bắt buộc:
