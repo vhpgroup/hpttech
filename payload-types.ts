@@ -335,7 +335,23 @@ export interface Brand {
  */
 export interface ProductType {
   id: number;
-  code: 'scanner' | 'printer' | 'photocopier' | 'laptop' | 'software' | 'ink' | 'networking' | 'camera' | 'other';
+  code:
+    | 'scanner'
+    | 'printer'
+    | 'photocopier'
+    | 'laptop'
+    | 'software'
+    | 'ink'
+    | 'networking'
+    | 'camera'
+    | 'desktop-pc'
+    | 'all-in-one'
+    | 'mini-pc'
+    | 'workstation'
+    | 'industrial-pc'
+    | 'server'
+    | 'server-component'
+    | 'other';
   name: string;
   description?: string | null;
   schemaVersion: number;
@@ -582,7 +598,23 @@ export interface Product {
    * CMS sẽ ưu tiên tự hiện bộ field theo Danh mục đã chọn ở sidebar. Nếu danh mục chưa nhận diện được, chọn thủ công tại đây.
    */
   specProfile?:
-    | ('scanner' | 'printer' | 'photocopier' | 'laptop' | 'networking' | 'camera' | 'software' | 'other')
+    | (
+        | 'scanner'
+        | 'printer'
+        | 'photocopier'
+        | 'laptop'
+        | 'networking'
+        | 'camera'
+        | 'software'
+        | 'desktop-pc'
+        | 'all-in-one'
+        | 'mini-pc'
+        | 'workstation'
+        | 'industrial-pc'
+        | 'server'
+        | 'server-component'
+        | 'other'
+      )
     | null;
   /**
    * Các trường chuẩn dành riêng cho máy scan. Nhân viên nhập theo datasheet để AI Search lọc đúng tốc độ, ADF, kết nối và nhu cầu sử dụng.
@@ -882,6 +914,107 @@ export interface Product {
     weight?: string | null;
     ramGb?: number | null;
     storageGb?: number | null;
+  };
+  /**
+   * Các trường chuẩn hóa cho PC đồng bộ, All-in-One, Mini PC, máy trạm và máy tính công nghiệp. Raw specs từ nguồn vẫn được lưu đầy đủ ở bảng thông số kỹ thuật.
+   */
+  desktopSpecs?: {
+    /**
+     * Ví dụ: Intel Core i5-13500.
+     */
+    cpu?: string | null;
+    /**
+     * Ví dụ: Intel UHD 770 / NVIDIA T1000.
+     */
+    gpu?: string | null;
+    /**
+     * Ví dụ: 16GB DDR5 4800MHz.
+     */
+    ram?: string | null;
+    /**
+     * Ví dụ: 512GB SSD NVMe.
+     */
+    storage?: string | null;
+    /**
+     * Chỉ dùng cho All-in-One, ví dụ: 23.8 inch FHD.
+     */
+    screen?: string | null;
+    /**
+     * Đơn vị inch, ví dụ: 23.8.
+     */
+    screenSizeInch?: number | null;
+    /**
+     * Ví dụ: SFF, Tower, Mini.
+     */
+    formFactor?: string | null;
+    /**
+     * Ví dụ: 260W.
+     */
+    psu?: string | null;
+    /**
+     * Ví dụ: Windows 11 Home.
+     */
+    os?: string | null;
+    /**
+     * Ví dụ: USB-A, USB-C, HDMI, LAN.
+     */
+    connectivity?: string | null;
+    dimensions?: string | null;
+    weight?: string | null;
+    ramGb?: number | null;
+    storageGb?: number | null;
+  };
+  /**
+   * Các trường chuẩn hóa cho máy chủ (server). Linh kiện máy chủ dùng bảng thông số kỹ thuật từ nguồn.
+   */
+  serverSpecs?: {
+    /**
+     * Ví dụ: Intel Xeon Silver 4410Y.
+     */
+    cpu?: string | null;
+    /**
+     * Ví dụ: 2 x LGA4677.
+     */
+    socket?: string | null;
+    /**
+     * Ví dụ: 32GB DDR5 ECC.
+     */
+    ram?: string | null;
+    /**
+     * Ví dụ: Tối đa 1TB (32 khe).
+     */
+    ramMax?: string | null;
+    /**
+     * Ví dụ: 2 x 480GB SSD.
+     */
+    storage?: string | null;
+    /**
+     * Ví dụ: 8 x 2.5 inch hot-swap.
+     */
+    driveBays?: string | null;
+    /**
+     * Ví dụ: PERC H755.
+     */
+    raid?: string | null;
+    /**
+     * Ví dụ: 2 x 800W hot-plug.
+     */
+    psu?: string | null;
+    /**
+     * Ví dụ: Rack 1U, Tower.
+     */
+    formFactor?: string | null;
+    /**
+     * Ví dụ: 4 x 1GbE.
+     */
+    networkPorts?: string | null;
+    /**
+     * Ví dụ: iDRAC9, iLO 6.
+     */
+    management?: string | null;
+    dimensions?: string | null;
+    weight?: string | null;
+    ramGb?: number | null;
   };
   /**
    * Lưu nguyên các thông số lấy được từ trang nguồn, không bắt buộc theo bộ cột cố định.
@@ -2237,6 +2370,42 @@ export interface ProductsSelect<T extends boolean = true> {
         weight?: T;
         ramGb?: T;
         storageGb?: T;
+      };
+  desktopSpecs?:
+    | T
+    | {
+        cpu?: T;
+        gpu?: T;
+        ram?: T;
+        storage?: T;
+        screen?: T;
+        screenSizeInch?: T;
+        formFactor?: T;
+        psu?: T;
+        os?: T;
+        connectivity?: T;
+        dimensions?: T;
+        weight?: T;
+        ramGb?: T;
+        storageGb?: T;
+      };
+  serverSpecs?:
+    | T
+    | {
+        cpu?: T;
+        socket?: T;
+        ram?: T;
+        ramMax?: T;
+        storage?: T;
+        driveBays?: T;
+        raid?: T;
+        psu?: T;
+        formFactor?: T;
+        networkPorts?: T;
+        management?: T;
+        dimensions?: T;
+        weight?: T;
+        ramGb?: T;
       };
   specs?:
     | T

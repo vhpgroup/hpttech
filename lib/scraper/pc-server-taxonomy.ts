@@ -6,7 +6,7 @@ import {
   SERVER_CATEGORY_NAME,
   SERVER_COMPONENT_CATEGORY_NAME,
   WORKSTATION_CATEGORY_NAME,
-} from "@/lib/product-category";
+} from "../product-category.ts";
 
 /**
  * Taxonomy dùng chung cho nhánh "Máy tính đồng bộ - Máy chủ" (nguồn anphatpc).

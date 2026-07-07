@@ -1,4 +1,4 @@
-import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
+import { SOFTWARE_CATEGORY_NAME } from "./product-category.ts";
 
 export const CATALOG_ADMIN_GROUP = "Catalog chuan";
 

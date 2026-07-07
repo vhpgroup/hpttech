@@ -1,5 +1,5 @@
-import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
-import { formatSlug } from "@/lib/payload/utils/slugify";
+import { SOFTWARE_CATEGORY_NAME } from "../product-category.ts";
+import { formatSlug } from "../payload/utils/slugify.ts";
 import { decodeHTML } from "entities";
 import type { ProductSpec } from "./types";
 

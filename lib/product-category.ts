@@ -1,4 +1,4 @@
-import { formatSlug } from "@/lib/payload/utils/slugify";
+import { formatSlug } from "./payload/utils/slugify.ts";
 
 export const SOFTWARE_CATEGORY_NAME = "Phần mềm bản quyền";
 export const SOFTWARE_CATEGORY_SLUG = "phan-mem-ban-quyen";

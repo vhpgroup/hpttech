@@ -1,4 +1,3 @@
-import { getPayloadClient } from "@/lib/payload";
 import { detectPcServerTypeCode } from "./pc-server-taxonomy";
 
 function normalize(value: string) {
@@ -90,6 +89,7 @@ export async function resolveProductTypeCode(value: string) {
   const common = commonProductTypeCode(value);
   if (common) return common;
 
+  const { getPayloadClient } = await import("../payload.ts");
   const payload = await getPayloadClient();
   const result = await payload.find({
     collection: "product-types",
