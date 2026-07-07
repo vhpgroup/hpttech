@@ -117,6 +117,24 @@ async function main() {
     category.url,
     rows,
   );
+  if (args.includes("--dry-run")) {
+    console.log(
+      JSON.stringify(
+        {
+          category: category.title,
+          categoryUrl: category.url,
+          discovered: category.products.length,
+          dryRun: true,
+          selected: selected.length,
+          workbook: filePath,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
   const { runBulkImport } = await import("../lib/scraper/batch-runner");
   const result = await runBulkImport({
     categoryUrl: category.url,
