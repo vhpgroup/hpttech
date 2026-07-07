@@ -148,6 +148,31 @@ assert.equal(
   ),
   "desktop-pc",
 );
+// Sản phẩm AIO nằm trong danh mục PC theo hãng phải về all-in-one — cả ở
+// workbook (classifyCategoryProduct tinh chỉnh theo tên) lẫn ở import
+// (inferScrapedProductTypeCode). Tên SP thật từ dry-run dm1044 (2026-07-07).
+assert.equal(
+  detectPcServerTypeCode("Máy tính để bàn HP AIO ProOne 240 G10 AY2G5PT"),
+  "all-in-one",
+);
+assert.equal(
+  inferScrapedProductTypeCode(
+    "Máy tính để bàn HP AIO ProOne 240 G10 AY2G5PT",
+    "desktop-pc",
+  ),
+  "all-in-one",
+);
+assert.equal(
+  detectPcServerTypeCode("Máy tính để bàn đồng bộ HP Pro Tower 400 G9 BG8P9AT"),
+  "desktop-pc",
+);
+// "Pro Mini" (USFF) chấp nhận ở desktop-pc — nhóm Mini PC - NUC dành cho dòng NUC.
+assert.equal(
+  detectPcServerTypeCode("Máy tính để bàn đồng bộ HP Pro Mini 400 G9 AZ8Q8PT"),
+  "desktop-pc",
+);
+// Tên không đủ tín hiệu → classify giữ loại theo danh mục (không undefined-hoá).
+assert.equal(detectPcServerTypeCode("Samsung 32GB DDR4 ECC Registered"), undefined);
 // Loại ngoài họ PC/Server giữ nguyên hành vi cũ.
 assert.equal(
   inferScrapedProductTypeCode("Máy scan Brother ADS-4700W", "scanner"),

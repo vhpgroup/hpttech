@@ -6,6 +6,7 @@ import { LAPTOP_GAMING_CATEGORY_NAME } from "../lib/product-category";
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
 import { discoverSourceCategory } from "../lib/scraper/engine";
 import {
+  detectPcServerTypeCode,
   pcServerCategoryNameForType,
   PC_SERVER_TYPE_CODES,
 } from "../lib/scraper/pc-server-taxonomy";
@@ -83,8 +84,15 @@ function classifyCategoryProduct(
     return { categoryName: LAPTOP_GAMING_CATEGORY_NAME, productType: "laptop" };
   }
   if (detected && PC_SERVER_TYPE_CODES.has(detected)) {
-    const categoryName = pcServerCategoryNameForType(detected);
-    if (categoryName) return { categoryName, productType: detected };
+    // Tinh chỉnh theo TÊN SẢN PHẨM trong nội bộ họ PC/Server để workbook khớp
+    // với kết quả import cuối (inferScrapedProductTypeCode làm y hệt ở tầng
+    // canonical-row). Vd danh mục "PC đồng bộ HP" chứa "HP AIO ProOne 240"
+    // → all-in-one, không phải desktop-pc. Tên không đủ tín hiệu → giữ loại
+    // theo danh mục (vd "RAM Samsung 32GB" trong trang RAM for Sever).
+    const refined = detectPcServerTypeCode(productName);
+    const effective = refined ?? detected;
+    const categoryName = pcServerCategoryNameForType(effective);
+    if (categoryName) return { categoryName, productType: effective };
   }
   if (!detected) return undefined;
   return { categoryName: categoryTitle, productType: detected };
