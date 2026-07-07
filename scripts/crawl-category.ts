@@ -43,8 +43,17 @@ async function createCategoryWorkbook(
   return filePath;
 }
 
-function classifyCategoryProduct(categoryTitle: string, productName: string) {
-  const categoryType = commonProductTypeCode(categoryTitle);
+function classifyCategoryProduct(
+  categoryTitle: string,
+  categoryUrl: string,
+  productName: string,
+) {
+  // Nhiều trang An Phát có h1 cụt (vd chỉ "HP", "ASUS" trên trang PC đồng bộ
+  // theo hãng — xác nhận live 2026-07-07) → bổ sung tín hiệu từ URL slug
+  // (may-tinh-dong-bo-hp_dm1044 → "may tinh dong bo hp") khi title không đủ.
+  const categoryType =
+    commonProductTypeCode(categoryTitle) ||
+    commonProductTypeCode(`${categoryTitle} ${categoryUrl}`);
   const categoryKey = categoryTitle
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -100,7 +109,11 @@ async function main() {
   if (!selected.length) throw new Error("Danh mục không có sản phẩm để chạy.");
 
   const rows = selected.map((product) => {
-    const classified = classifyCategoryProduct(category.title, product.productName);
+    const classified = classifyCategoryProduct(
+      category.title,
+      category.url,
+      product.productName,
+    );
     if (!classified) {
       throw new Error(
         `Chưa nhận diện được loại sản phẩm "${product.productName}" từ danh mục "${category.title}".`,

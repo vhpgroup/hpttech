@@ -119,8 +119,10 @@ export function detectPcServerTypeCode(
   if (text.includes("may tram") || text.includes("workstation")) {
     return "workstation";
   }
+  // "sever": typo cố hữu của An Phát trên các trang linh kiện máy chủ
+  // (h1 "Ram for Sever", slug ram-sever/hdd-for-sever/... — xác nhận live 2026-07-07).
   const mentionsServer =
-    text.includes("may chu") || /\b(server|xeon)\b/.test(text);
+    text.includes("may chu") || /\b(server|sever|xeon)\b/.test(text);
   if (mentionsServer) {
     const isComponent =
       SERVER_COMPONENT_HEAD_PATTERN.test(text) ||

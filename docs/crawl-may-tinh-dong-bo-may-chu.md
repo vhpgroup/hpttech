@@ -65,7 +65,14 @@ Máy tính đồng bộ - Máy chủ            (may-tinh-dong-bo-may-chu — no
 | server-component | `https://www.anphatpc.com.vn/mainboard-server_dm1298.html` |
 | server-component | `https://www.anphatpc.com.vn/nguon-cho-server_dm1481.html` |
 | workstation | `https://www.anphatpc.com.vn/may-tinh-workstation-may-tram_dm1469.html` |
-| industrial-pc | `https://www.anphatpc.com.vn/may-tinh-cong-nghiep.html` ⚠️ không có `_dm` — dry-run trước, nếu không bóc được categoryId thì bỏ |
+| industrial-pc | `https://www.anphatpc.com.vn/may-tinh-cong-nghiep.html` (✅ live-check 2026-07-07: categoryId dm=3223 bóc được từ `show_more_product`) |
+
+Live-check 2026-07-07 (19/19 URL trả 200, categoryId bóc được hết — NUC gen có
+dm riêng 2943/2944/2945/3030): phân loại mức danh mục **0 sai**; các h1 dị dạng
+của An Phát ("Ram for **Sever**" — typo thiếu r; h1 cụt "HP"/"IBM-LENOVO"/"ASUS"
+trên trang PC theo hãng) đã được xử lý bằng typo-tolerance trong
+`pc-server-taxonomy.ts` và ghép URL slug vào classify trong `crawl-category.ts`
+— khóa bằng test trong `verify-desktop-server-classify.ts`.
 
 KHÔNG crawl: mọi URL `?filter=` (facet), `javascript:;`, `/tim?q=` (search),
 `/pcap-graphics-ai.html` (link "Theo RAM" bị đặt nhầm của An Phát), và các trang
