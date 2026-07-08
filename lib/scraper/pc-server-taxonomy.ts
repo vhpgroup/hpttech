@@ -74,6 +74,54 @@ function normalizeDetectionText(value: string) {
 const SERVER_COMPONENT_HEAD_PATTERN =
   /^(cpu|ram|hdd|ssd|o cung|vga|card|raid|mainboard|bo mach|nguon|psu|linh kien)\b/;
 
+// Brand từ TÊN sản phẩm cho họ PC/Server. Nguồn anphat luôn match brand config
+// "APOS" theo domain (engine.ts: configuredBrand thắng detectBrand) — đúng cho
+// PC build sẵn APOS nhưng sai cho "Bộ Mini PC Asus NUC..." (phát hiện từ demo
+// publish 2026-07-08, product id 3314 bị gán brand APOS thay vì ASUS).
+// Hãng nguyên chiếc xét TRƯỚC hãng linh kiện: "Máy chủ Dell (Intel Xeon)" → Dell.
+const PC_MAKER_BRAND_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/\bhpe\b/, "HPE"],
+  [/\bhp\b/, "HP"],
+  [/\bdell\b/, "Dell"],
+  [/\blenovo\b/, "Lenovo"],
+  [/\basus\b/, "ASUS"],
+  [/\bacer\b/, "Acer"],
+  [/\bmsi\b/, "MSI"],
+  [/\bgigabyte\b/, "GIGABYTE"],
+  [/\bsupermicro\b/, "Supermicro"],
+  [/\bibm\b/, "IBM"],
+  [/\bsynology\b/, "Synology"],
+  [/\bqnap\b/, "QNAP"],
+  [/\bapos\b/, "APOS"],
+];
+
+const COMPONENT_BRAND_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
+  [/\bintel\b/, "Intel"],
+  [/\bamd\b/, "AMD"],
+  [/\bnvidia\b/, "NVIDIA"],
+  [/\bsamsung\b/, "Samsung"],
+  [/\bkingston\b/, "Kingston"],
+  [/\bhynix\b/, "SK Hynix"],
+  [/\bmicron\b/, "Micron"],
+  [/\bwestern digital\b|\bwd\b/, "Western Digital"],
+  [/\bseagate\b/, "Seagate"],
+  [/\btoshiba\b/, "Toshiba"],
+  [/\bbroadcom\b/, "Broadcom"],
+  [/\blsi\b/, "LSI"],
+];
+
+export function pcServerBrandFromName(productName: string) {
+  const text = normalizeDetectionText(productName);
+  if (!text) return undefined;
+  for (const [pattern, brand] of PC_MAKER_BRAND_PATTERNS) {
+    if (pattern.test(text)) return brand;
+  }
+  for (const [pattern, brand] of COMPONENT_BRAND_PATTERNS) {
+    if (pattern.test(text)) return brand;
+  }
+  return undefined;
+}
+
 /**
  * Nhận diện loại sản phẩm PC/Server từ tên danh mục, tên sản phẩm hoặc title+URL.
  *

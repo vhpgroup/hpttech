@@ -822,6 +822,18 @@ function formFactorValue(value: string) {
   return undefined;
 }
 
+// Trang PC/NUC của An Phát hay lẫn rác listing (giá, khuyến mãi, tên SP khác)
+// vào value của spec — demo publish 2026-07-08 cho ra desktopSpecs.ram chứa cả
+// "Giá niêm yết ... Giá Build PC ...". Bỏ qua value quá dài hoặc dính từ khoá
+// thương mại; raw specs từ nguồn vẫn được giữ nguyên ở bảng specs.
+const PC_SPEC_NOISE_PATTERN =
+  /(gia niem yet|gia khuyen mai|gia uu dai|gia build pc|khuyen mai|so sanh|con hang|het hang|dat hang|tra gop)/;
+
+function isCleanPcSpecValue(value: string, normalizedValue: string) {
+  if (value.length > 160) return false;
+  return !PC_SPEC_NOISE_PATTERN.test(normalizedValue);
+}
+
 // Lưu ý: desktop/server KHÔNG phát attribute canonical (attributes: []) giống
 // printer/photocopier — mapAttributes sẽ throw nếu gặp code chưa có
 // AttributeDefinition. Khi cần lọc facet, seed AttributeDefinitions trước rồi
@@ -833,6 +845,7 @@ function deriveDesktopSpecs(specs: ProductSpec[]) {
     const label = normalize(spec.label);
     const value = spec.value;
     const normalizedValue = normalize(value);
+    if (!isCleanPcSpecValue(value, normalizedValue)) continue;
     const combined = `${label} ${normalizedValue}`;
     const graphicsLabel =
       label.includes("card man hinh") ||
@@ -946,6 +959,7 @@ function deriveServerSpecs(specs: ProductSpec[]) {
     const label = normalize(spec.label);
     const value = spec.value;
     const normalizedValue = normalize(value);
+    if (!isCleanPcSpecValue(value, normalizedValue)) continue;
 
     if (
       label.includes("cpu") ||

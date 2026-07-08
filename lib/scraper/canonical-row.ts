@@ -11,6 +11,7 @@ import {
 } from "@/lib/product-category";
 import {
   detectPcServerTypeCode,
+  pcServerBrandFromName,
   pcServerCategoryNameForType,
   PC_SERVER_TYPE_CODES,
 } from "./pc-server-taxonomy";
@@ -165,7 +166,12 @@ export function buildCanonicalImportRow(
 
   return {
     attributesJSON: JSON.stringify(normalizedSpecs.attributes),
-    brandName: product.source.brand,
+    // Họ PC/Server: brand lấy từ TÊN sản phẩm (nguồn anphat luôn bị gán brand
+    // config "APOS" theo domain — sai cho "Asus NUC", "Máy chủ Dell"...).
+    // Không match được hãng nào thì giữ brand từ nguồn.
+    brandName: PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode)
+      ? pcServerBrandFromName(input.name) || product.source.brand
+      : product.source.brand,
     categoryName: categoryNameForProductType(effectiveProductTypeCode, input.category),
     currency: "VND",
     internalId: product.source.identity?.key || sourceIdentityKey(product.source.url),

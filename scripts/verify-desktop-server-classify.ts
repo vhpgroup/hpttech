@@ -16,6 +16,7 @@ import {
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
 import {
   detectPcServerTypeCode,
+  pcServerBrandFromName,
   pcServerCategoryNameForType,
 } from "../lib/scraper/pc-server-taxonomy";
 import {
@@ -187,6 +188,7 @@ function fakeProduct(
   title: string,
   url: string,
   specs: Array<{ label: string; value: string }>,
+  brand = "HP",
 ): ScrapedProduct {
   return {
     confidence: 0.9,
@@ -209,7 +211,7 @@ function fakeProduct(
       title: "SEO title",
     },
     source: {
-      brand: "HP",
+      brand,
       searchQuery: title,
       url,
       urls: [url],
@@ -326,6 +328,77 @@ const workstationName = pcServerCategoryNameForType("workstation");
 assert.equal(workstationName, WORKSTATION_CATEGORY_NAME);
 const miniPcName = pcServerCategoryNameForType("mini-pc");
 assert.equal(miniPcName, MINI_PC_CATEGORY_NAME);
+
+// ---------------------------------------------------------------------------
+// 8) Brand từ tên SP (họ PC/Server) — nguồn anphat gán brand config "APOS"
+//    theo domain, sai cho hàng chính hãng (phát hiện từ demo publish, id 3314)
+// ---------------------------------------------------------------------------
+assert.equal(
+  pcServerBrandFromName("Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5"),
+  "ASUS",
+);
+assert.equal(pcServerBrandFromName("Máy tính đồng bộ HP ProDesk 400 G9"), "HP");
+assert.equal(pcServerBrandFromName("Máy chủ Dell PowerEdge R750"), "Dell");
+// Hãng nguyên chiếc thắng hãng linh kiện trong cùng tên.
+assert.equal(
+  pcServerBrandFromName("Máy chủ Dell PowerEdge R750 (Intel Xeon Silver)"),
+  "Dell",
+);
+assert.equal(pcServerBrandFromName("RAM Samsung 32GB DDR4 ECC"), "Samsung");
+assert.equal(pcServerBrandFromName("CPU Intel Xeon Silver 4310"), "Intel");
+assert.equal(pcServerBrandFromName("Máy chủ HPE ProLiant DL360 Gen11"), "HPE");
+assert.equal(pcServerBrandFromName("PC APOS Office i5"), "APOS");
+assert.equal(pcServerBrandFromName("Máy tính công nghiệp Axiomtek"), undefined);
+
+// Row canonical: brand APOS từ nguồn bị thay bằng brand thật theo tên.
+const nucProduct = fakeProduct(
+  "Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5",
+  "https://www.anphatpc.com.vn/bo-mini-pc-asus-nuc-14-pro-tall-rnuc14rvsu5.html",
+  [{ label: "CPU", value: "INTEL U5-125H" }],
+  "APOS",
+);
+const nucRow = buildCanonicalImportRow(
+  {
+    category: MINI_PC_CATEGORY_NAME,
+    name: "Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5",
+    productType: "mini-pc",
+    rowNumber: 5,
+  },
+  { ...nucProduct, data: { ...nucProduct.data, sku: "RNUC14RVSU5" } },
+  "mini-pc",
+);
+assert.equal(nucRow.brandName, "ASUS");
+assert.equal(nucRow.categoryName, MINI_PC_CATEGORY_NAME);
+// Ngoài họ PC/Server: brand giữ nguyên từ nguồn (không ảnh hưởng scanner...).
+assert.equal(desktopRow.brandName, "HP");
+
+// ---------------------------------------------------------------------------
+// 9) Lọc rác listing trong spec (demo id 3314: desktopSpecs.ram dính cả giá
+//    "Giá niêm yết ... Giá Build PC ..." + tên SP khác từ trang nguồn)
+// ---------------------------------------------------------------------------
+const dirtySpecs = [
+  { label: "CPU", value: "INTEL U5-125H" },
+  {
+    label: "RAM",
+    value:
+      "Intel Processor N150, (TDP 6W , 6MB cache, up to 3.6 GHz) GPU: Intel Onboard Graphics RAM: 1x DDR5 SO-DIMM 4800MHz Giá niêm yết: 6.989.000 đ -33% Giá khuyến mãi: 4.689.000 đ Giá Build PC: 0 đ",
+  },
+  { label: "Ổ cứng", value: "Khuyến mãi tặng SSD khi So sánh Còn hàng" },
+];
+const dirtyNormalized = normalizeScrapedSpecs(dirtySpecs, "mini-pc");
+assert.equal(dirtyNormalized.desktopSpecs?.cpu, "INTEL U5-125H");
+assert.equal(dirtyNormalized.desktopSpecs?.ram, undefined);
+assert.equal(dirtyNormalized.desktopSpecs?.storage, undefined);
+// Value sạch bình thường không bị lọc oan.
+const cleanNormalized = normalizeScrapedSpecs(
+  [{ label: "RAM", value: "16GB DDR5 SO-DIMM 5600MHz (2 khe, tối đa 96GB)" }],
+  "desktop-pc",
+);
+assert.equal(
+  cleanNormalized.desktopSpecs?.ram,
+  "16GB DDR5 SO-DIMM 5600MHz (2 khe, tối đa 96GB)",
+);
+assert.equal(cleanNormalized.desktopSpecs?.ramGb, 16);
 
 console.log(
   "Desktop/Server classification verified: phân loại, guard, spec và canonical row đều đạt.",
