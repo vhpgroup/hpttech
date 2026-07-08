@@ -12,6 +12,10 @@ export type BrandConfig = {
 
 export type ProductSpec = {
   label: string;
+  // "summary": dòng tóm tắt từ API danh mục An Phát (không thuộc bảng thông số
+  // gốc của trang sản phẩm) — dùng để trích typed specs; họ PC/Server không
+  // lưu vào bảng thông số hiển thị (tránh trùng khối "thông số nổi bật").
+  source?: "summary";
   value: string;
 };
 

@@ -1090,6 +1090,7 @@ export function normalizeScrapedSpecs(
   const specs = input
     .map((spec) => ({
       label: cleanText(spec.label).replace(/[:：]\s*$/, ""),
+      source: spec.source,
       value: cleanText(spec.value),
     }))
     .filter((spec) => {
@@ -1099,11 +1100,19 @@ export function normalizeScrapedSpecs(
       seenSpecs.add(key);
       return true;
     });
+  // Bảng thông số lưu trên product: bỏ field source nội bộ. Họ PC/Server còn
+  // loại luôn các dòng tóm tắt (source: "summary") vì chúng đã được trích vào
+  // desktopSpecs/serverSpecs và hiển thị ở khối "thông số nổi bật" — bảng chỉ
+  // giữ đúng các dòng thuộc bảng thông số gốc của trang nguồn.
+  const tableSpecs = specs.map(({ label, value }) => ({ label, value }));
+  const pcServerTableSpecs = specs
+    .filter((spec) => spec.source !== "summary")
+    .map(({ label, value }) => ({ label, value }));
   if (productTypeCode === "printer") {
     return {
       attributes: [],
       printerSpecs: derivePrinterSpecs(specs),
-      specs,
+      specs: tableSpecs,
     };
   }
 
@@ -1111,7 +1120,7 @@ export function normalizeScrapedSpecs(
     return {
       attributes: [],
       photocopierSpecs: derivePhotocopierSpecs(specs),
-      specs,
+      specs: tableSpecs,
     };
   }
 
@@ -1120,7 +1129,7 @@ export function normalizeScrapedSpecs(
     return {
       attributes: laptop.attributes,
       laptopSpecs: laptop.laptopSpecs,
-      specs,
+      specs: tableSpecs,
     };
   }
 
@@ -1128,7 +1137,7 @@ export function normalizeScrapedSpecs(
     return {
       attributes: [],
       desktopSpecs: deriveDesktopSpecs(specs),
-      specs,
+      specs: pcServerTableSpecs,
     };
   }
 
@@ -1137,12 +1146,12 @@ export function normalizeScrapedSpecs(
       attributes: [],
       serverSpecs:
         productTypeCode === "server" ? deriveServerSpecs(specs) : undefined,
-      specs,
+      specs: pcServerTableSpecs,
     };
   }
 
   if (productTypeCode !== "scanner") {
-    return { attributes: [], specs };
+    return { attributes: [], specs: tableSpecs };
   }
 
   const attributes: CanonicalAttribute[] = [];
@@ -1394,5 +1403,5 @@ export function normalizeScrapedSpecs(
 
   deriveScannerSpecs(scannerSpecs, specs);
 
-  return { attributes, scannerSpecs, specs };
+  return { attributes, scannerSpecs, specs: tableSpecs };
 }

@@ -453,6 +453,41 @@ for (const junk of [
 assert.ok(!cleanedLabels.some((l) => l.includes("Mua kèm")));
 assert.equal(cleanedSpecs.length, 3);
 
+// ---------------------------------------------------------------------------
+// 11) Dòng tóm tắt từ API danh mục (source: "summary") — họ PC/Server KHÔNG
+//     lưu vào bảng thông số (đã hiển thị ở khối "thông số nổi bật" qua typed
+//     specs), nhưng VẪN được trích vào desktopSpecs. Bảng chỉ giữ đúng các
+//     dòng thuộc bảng thông số gốc của trang nguồn (yêu cầu 2026-07-09).
+// ---------------------------------------------------------------------------
+const withSummarySpecs = [
+  { label: "Part No", value: "90AR0051-M00030" },
+  { label: "CPU", value: "INTEL U5-125H" },
+  { label: "Lưu ý", source: "summary" as const, value: "Sản phẩm chưa bao gồm Ram, ổ cứng" },
+  { label: "GPU", source: "summary" as const, value: "Intel® Arc™ GPU" },
+  { label: "RAM", source: "summary" as const, value: "2 Slot SODIMM DDR5-5600 MHz kênh đôi (tối đa 96 GB)" },
+  { label: "OS hỗ trợ", source: "summary" as const, value: "Windows 10 | 11" },
+  { label: "Hệ điều hành hỗ trợ", source: "summary" as const, value: "Windows 10 | 11" },
+];
+const withSummary = normalizeScrapedSpecs(withSummarySpecs, "mini-pc");
+assert.deepEqual(
+  withSummary.specs.map((s) => s.label),
+  ["Part No", "CPU"],
+);
+// Typed specs vẫn được trích từ dòng tóm tắt.
+assert.equal(withSummary.desktopSpecs?.gpu, "Intel® Arc™ GPU");
+assert.equal(withSummary.desktopSpecs?.ramGb, 96);
+// Field source nội bộ không lọt vào bảng lưu.
+assert.ok(withSummary.specs.every((s) => !("source" in s)));
+// Ngoài họ PC/Server (scanner...): dòng tóm tắt vẫn nằm trong bảng như cũ.
+const scannerWithSummary = normalizeScrapedSpecs(
+  [
+    { label: "Tốc độ", value: "40 ppm" },
+    { label: "Khổ giấy", source: "summary" as const, value: "A4" },
+  ],
+  "scanner",
+);
+assert.equal(scannerWithSummary.specs.length, 2);
+
 console.log(
   "Desktop/Server classification verified: phân loại, guard, spec và canonical row đều đạt.",
 );
