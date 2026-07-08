@@ -355,8 +355,13 @@ function deriveScannerSpecs(scannerSpecs: TypedSpecs, specs: ProductSpec[]) {
 function isUsefulSpec(spec: ProductSpec) {
   const label = normalize(spec.label);
   const value = normalize(spec.value);
+  // Rác trang nguồn (phát hiện từ SP 3315, trang NUC An Phát): label là cả câu
+  // giới thiệu/khối SP liên quan ("... CPU"), value là nguyên đoạn mô tả/khuyến
+  // mãi 600-4000+ ký tự. Spec thật dài nhất quan sát được ~150 ký tự.
   if (
-    spec.label.length > 180 ||
+    spec.label.length > 100 ||
+    spec.value.length > 500 ||
+    /^\.{3}/.test(label) ||
     /item\.[a-z]+/i.test(`${spec.label} ${spec.value}`)
   ) {
     return false;
@@ -370,6 +375,13 @@ function isUsefulSpec(spec: ProductSpec) {
     label.includes("thong tin cong ty") ||
     /^(bao hanh|warranty)$/.test(label) ||
     /^(giao hang|van chuyen|shipping|delivery)$/.test(label) ||
+    // Khối liên hệ/footer của trang nguồn (điện thoại, email, showroom, số
+    // bảo hành theo miền... của An Phát) — tuyệt đối không được lên trang HPT.
+    /^(dien thoai|hotline|email|gio mo cua|dia chi|may cham cong|showroom|fax|zalo)$/.test(label) ||
+    /^(kinh doanh|cham soc khach hang|tong dai)/.test(label) ||
+    /^(bao hanh|ky thuat|ho tro) *[-–]/.test(label) ||
+    // Label khuyến mãi/mua kèm ("🎁 Mua kèm ... với giá").
+    /mua kem|qua tang|uu dai/.test(label) ||
     /\b(mien phi ha noi|vietbis|hotline|doi tra|nguyen dai|nguyen kien|ho tro 24\/?7)\b/.test(value)
   );
 }

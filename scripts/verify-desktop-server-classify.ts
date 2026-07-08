@@ -400,6 +400,59 @@ assert.equal(
 );
 assert.equal(cleanNormalized.desktopSpecs?.ramGb, 16);
 
+// ---------------------------------------------------------------------------
+// 10) Bảng specs lưu trên product phải loại rác footer/khuyến mãi của trang
+//     nguồn (mẫu rác THẬT từ SP 3315: 11 dòng liên hệ An Phát + khối mua kèm
+//     + label "..." + value 600-4000 ký tự lọt vào bảng thông số)
+// ---------------------------------------------------------------------------
+const noisySourceSpecs = [
+  { label: "CPU", value: "INTEL U5-125H" },
+  {
+    label: "Back I/O",
+    value:
+      "2 x Thunderbolt 4 Type-C Ports 1 x USB 3.2 Gen 2 Type-A 1 x 2.0 Type-A 2 x HDMI 2.1 (TMDS) ports 1 x RJ45 LAN Port 1 x DC-in",
+  },
+  { label: "Lưu ý", value: "Sản phẩm chưa bao gồm Ram, ổ cứng" },
+  { label: "Điện thoại", value: "1900.0323 Phím 2" },
+  { label: "Hotline", value: "0918.557.006" },
+  { label: "Email", value: "hainam@anphat.com.vn" },
+  { label: "Giờ mở cửa", value: "8H15 - 21H (Chủ nhật & ngày lễ)" },
+  { label: "Địa chỉ", value: "158 - 160 Lý Thường Kiệt - P.Diên Hồng - HCM" },
+  { label: "Bảo Hành - miền Bắc", value: "1900.0323 phím 5 hoặc 0964.599.915" },
+  { label: "Kỹ thuật - miền Bắc", value: "0981.961.296 hoặc 0902.030.408" },
+  { label: "Kinh doanh online", value: "1900.0323 phím 1" },
+  { label: "Máy chấm công", value: "0936.164.114" },
+  { label: "... CPU", value: "Intel Core Ultra 7 155H 1.4GHz up to 4.8GHz" },
+  {
+    label:
+      "🎁 Mua kèm Card mạng không dây USB Asus USB-AC53 Nano (TBAS0021) với giá",
+    value: "330,000đ",
+  },
+  { label: "Giới thiệu dài", value: "x".repeat(600) },
+];
+const cleanedSpecs = normalizeScrapedSpecs(noisySourceSpecs, "mini-pc").specs;
+const cleanedLabels = cleanedSpecs.map((s) => s.label);
+assert.ok(cleanedLabels.includes("CPU"));
+assert.ok(cleanedLabels.includes("Back I/O"));
+assert.ok(cleanedLabels.includes("Lưu ý"));
+for (const junk of [
+  "Điện thoại",
+  "Hotline",
+  "Email",
+  "Giờ mở cửa",
+  "Địa chỉ",
+  "Bảo Hành - miền Bắc",
+  "Kỹ thuật - miền Bắc",
+  "Kinh doanh online",
+  "Máy chấm công",
+  "... CPU",
+  "Giới thiệu dài",
+]) {
+  assert.ok(!cleanedLabels.includes(junk), `phải loại rác: ${junk}`);
+}
+assert.ok(!cleanedLabels.some((l) => l.includes("Mua kèm")));
+assert.equal(cleanedSpecs.length, 3);
+
 console.log(
   "Desktop/Server classification verified: phân loại, guard, spec và canonical row đều đạt.",
 );
