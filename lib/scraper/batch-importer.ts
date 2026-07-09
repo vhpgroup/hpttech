@@ -346,9 +346,17 @@ export async function importBatchProduct(
         // Bất kỳ lỗi nào -> giữ fallback lexicalParagraphs, không chặn import.
       }
     } else {
-      descriptionLexical = lexicalParagraphs("");
+      // null (không phải lexical rỗng) để frontend rơi về fallback tối giản.
+      descriptionLexical = null;
     }
   }
+  // Cột description_h_t_m_l được updateProductSeoHTML ghi raw SQL và frontend
+  // đọc TRỰC TIẾP (qua select) — phải làm trống cùng lúc, nếu không tab
+  // "Mô tả sản phẩm" vẫn hiện bài An Phát dù lexical đã trống (SP 3327).
+  const skipPcDescription =
+    PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode) &&
+    process.env.SCRAPER_PC_DESCRIPTION !== "rich";
+  const storedDescriptionHTML = skipPcDescription ? "" : descriptionHTML;
 
   const publicationGate = evaluatePublicationGate({
     articleHTML: descriptionHTML,
@@ -438,7 +446,7 @@ export async function importBatchProduct(
   await updateProductSeoHTML(
     productId,
     seoSummaryHTML,
-    descriptionHTML,
+    storedDescriptionHTML,
     summaryText,
   );
   await upsertAIMetadata(productRelationId ?? productId, displayProduct, sellingPoints);
