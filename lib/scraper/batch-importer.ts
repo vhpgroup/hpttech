@@ -314,34 +314,39 @@ export async function importBatchProduct(
           ? blockTextFromHTML(sourceDescriptionHTML)
           : cleanText(sourceDescriptionHTML)
         : product.generated.description || product.data.description || "";
-  // Họ PC/Server: dựng lexical GIÀU từ bài mô tả An Phát (heading/list/ảnh) —
-  // descriptionHTML được sinh từ lexical lúc đọc, nên đây là cách duy nhất để
-  // tab "Mô tả sản phẩm" hiển thị đúng định dạng + ảnh như trang nguồn.
+  // Họ PC/Server — quyết định người dùng 2026-07-09: TẠM THỜI BỎ phần mô tả
+  // sản phẩm khi crawl (để trống, biên tập sau). Chế độ mô tả rich (heading/
+  // list/ảnh từ bài An Phát, dựng bằng lexical-from-html) vẫn sẵn sàng — bật
+  // lại bằng env SCRAPER_PC_DESCRIPTION=rich, không cần sửa code.
   let descriptionLexical: unknown = lexicalParagraphs(descriptionText);
-  if (
-    PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode) &&
-    sourceDescriptionHTML
-  ) {
-    try {
-      const articleBlocks = parseArticleBlocks(
-        sourceDescriptionHTML,
-        product.source.url,
-      );
-      const articleImageBlocks = articleBlocks.filter(
-        (block): block is Extract<typeof block, { kind: "image" }> =>
-          block.kind === "image",
-      );
-      const articleImageReport = await importArticleImages(
-        displayProduct,
-        articleImageBlocks.map((block) => ({ alt: block.alt, url: block.src })),
-      );
-      const richLexical = lexicalFromArticleBlocks(
-        articleBlocks,
-        articleImageReport.idBySrc,
-      );
-      if (richLexical) descriptionLexical = richLexical;
-    } catch {
-      // Bất kỳ lỗi nào -> giữ fallback lexicalParagraphs, không chặn import.
+  if (PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode)) {
+    if (
+      process.env.SCRAPER_PC_DESCRIPTION === "rich" &&
+      sourceDescriptionHTML
+    ) {
+      try {
+        const articleBlocks = parseArticleBlocks(
+          sourceDescriptionHTML,
+          product.source.url,
+        );
+        const articleImageBlocks = articleBlocks.filter(
+          (block): block is Extract<typeof block, { kind: "image" }> =>
+            block.kind === "image",
+        );
+        const articleImageReport = await importArticleImages(
+          displayProduct,
+          articleImageBlocks.map((block) => ({ alt: block.alt, url: block.src })),
+        );
+        const richLexical = lexicalFromArticleBlocks(
+          articleBlocks,
+          articleImageReport.idBySrc,
+        );
+        if (richLexical) descriptionLexical = richLexical;
+      } catch {
+        // Bất kỳ lỗi nào -> giữ fallback lexicalParagraphs, không chặn import.
+      }
+    } else {
+      descriptionLexical = lexicalParagraphs("");
     }
   }
 
