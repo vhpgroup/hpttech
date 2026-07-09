@@ -512,6 +512,78 @@ const notCaptured = normalizeScrapedSpecs(
 );
 assert.equal(notCaptured.desktopSpecs?.ram, undefined);
 assert.equal(notCaptured.specs.length, 1);
+
+// ---------------------------------------------------------------------------
+// 12) Warranty không được nhận CTA/hotline của trang nguồn (SP NUC demo
+//     2026-07-09: variant.warranty = "1900.0323 phím 5 hoặc 0964.599.915").
+//     Dòng footer hotline đứng TRƯỚC dòng bảo hành thật vẫn phải bị bỏ qua.
+// ---------------------------------------------------------------------------
+const warrantyProduct = fakeProduct(
+  "Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5",
+  "https://www.anphatpc.com.vn/bo-mini-pc-asus-nuc-14-pro-tall-rnuc14rvsu5.html",
+  [
+    { label: "Bảo Hành - miền Bắc", value: "1900.0323 phím 5 hoặc 0964.599.915" },
+    { label: "Bảo hành - HCM", value: "1900.0323 phím 6 hoặc 0909.144.560" },
+    { label: "Bảo hành", value: "36 Tháng" },
+  ],
+  "APOS",
+);
+const warrantyRow = buildCanonicalImportRow(
+  {
+    category: MINI_PC_CATEGORY_NAME,
+    name: "Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5",
+    productType: "mini-pc",
+    rowNumber: 6,
+  },
+  {
+    ...warrantyProduct,
+    data: {
+      ...warrantyProduct.data,
+      sku: "RNUC14RVSU5",
+      // AI cũng có thể nhặt nhầm hotline vào data.warranty — phải bị loại.
+      warranty: "1900.0323 phím 5 hoặc 0964.599.915",
+    },
+  },
+  "mini-pc",
+);
+assert.equal(warrantyRow.warranty, "36 Tháng");
+// data.warranty hợp lệ thì giữ nguyên.
+const warrantyOkRow = buildCanonicalImportRow(
+  {
+    category: MINI_PC_CATEGORY_NAME,
+    name: "Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5",
+    productType: "mini-pc",
+    rowNumber: 7,
+  },
+  {
+    ...warrantyProduct,
+    data: { ...warrantyProduct.data, sku: "RNUC14RVSU5", warranty: "36 tháng" },
+  },
+  "mini-pc",
+);
+assert.equal(warrantyOkRow.warranty, "36 tháng");
+// Chỉ có hotline, không có bảo hành thật → để trống (không hiển thị CTA đối thủ).
+const warrantyEmptyRow = buildCanonicalImportRow(
+  {
+    category: MINI_PC_CATEGORY_NAME,
+    name: "Bộ Mini PC Asus NUC 14 PRO Tall RNUC14RVSU5",
+    productType: "mini-pc",
+    rowNumber: 8,
+  },
+  {
+    ...warrantyProduct,
+    data: {
+      ...warrantyProduct.data,
+      sku: "RNUC14RVSU5",
+      specs: [
+        { label: "Bảo Hành - miền Bắc", value: "1900.0323 phím 5 hoặc 0964.599.915" },
+      ],
+      warranty: undefined,
+    },
+  },
+  "mini-pc",
+);
+assert.equal(warrantyEmptyRow.warranty, "");
 // Ngoài họ PC/Server (scanner...): dòng tóm tắt vẫn nằm trong bảng như cũ.
 const scannerWithSummary = normalizeScrapedSpecs(
   [

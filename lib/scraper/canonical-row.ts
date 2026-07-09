@@ -52,6 +52,34 @@ function specValue(product: ScrapedProduct, labelPattern: RegExp) {
   return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
 }
 
+// CTA/hotline của trang nguồn ("Bảo Hành - miền Bắc: 1900.0323 phím 5 hoặc
+// 0964.599.915") không phải thông tin bảo hành sản phẩm — tuyệt đối không ghi
+// vào variant.warranty (phát hiện trên SP NUC demo 2026-07-09).
+function cleanWarrantyValue(value?: string) {
+  const text = (value || "").trim();
+  if (!text) return "";
+  const lowered = normalized(text);
+  if (
+    /\b(hotline|zalo|lien he|phim|tong dai)\b/.test(lowered) ||
+    /\b1900\b/.test(lowered) ||
+    /\b0\d{2,3}[.\s]?\d{3}[.\s]?\d{3,4}\b/.test(text)
+  ) {
+    return "";
+  }
+  return text;
+}
+
+// Duyệt TẤT CẢ dòng spec có label bảo hành, trả về giá trị sạch đầu tiên —
+// dòng footer hotline có thể đứng trước dòng "Bảo hành: 36 Tháng" thật.
+function warrantyFromSpecs(product: ScrapedProduct) {
+  for (const spec of product.data.specs) {
+    if (!/bảo hành|bao hanh|warranty/i.test(spec.label)) continue;
+    const cleaned = cleanWarrantyValue(spec.value);
+    if (cleaned) return cleaned;
+  }
+  return "";
+}
+
 function priceTarget() {
   return process.env.SCRAPER_PRICE_TARGET === "compareAtPrice"
     ? "compareAtPrice"
@@ -193,7 +221,8 @@ export function buildCanonicalImportRow(
     variantStatus: options.publish ? "active" : "draft",
     vatIncluded: "true",
     vatRate: "10",
-    warranty: product.data.warranty || specValue(product, /bảo hành|bao hanh/i),
+    warranty:
+      cleanWarrantyValue(product.data.warranty) || warrantyFromSpecs(product),
     warehouseName: "Kho chính",
   };
 }
