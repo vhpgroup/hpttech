@@ -54,8 +54,10 @@ function specValue(product: ScrapedProduct, labelPattern: RegExp) {
 
 // CTA/hotline của trang nguồn ("Bảo Hành - miền Bắc: 1900.0323 phím 5 hoặc
 // 0964.599.915") không phải thông tin bảo hành sản phẩm — tuyệt đối không ghi
-// vào variant.warranty (phát hiện trên SP NUC demo 2026-07-09).
-function cleanWarrantyValue(value?: string) {
+// vào variant.warranty LẪN product.warranty (batch-importer dùng chung —
+// phát hiện trên SP NUC demo 2026-07-09, field product.warranty là fallback
+// hiển thị của frontend khi variant trống).
+export function cleanWarrantyValue(value?: string) {
   const text = (value || "").trim();
   if (!text) return "";
   const lowered = normalized(text);
@@ -71,7 +73,7 @@ function cleanWarrantyValue(value?: string) {
 
 // Duyệt TẤT CẢ dòng spec có label bảo hành, trả về giá trị sạch đầu tiên —
 // dòng footer hotline có thể đứng trước dòng "Bảo hành: 36 Tháng" thật.
-function warrantyFromSpecs(product: ScrapedProduct) {
+export function warrantyFromSpecs(product: ScrapedProduct) {
   for (const spec of product.data.specs) {
     if (!/bảo hành|bao hanh|warranty/i.test(spec.label)) continue;
     const cleaned = cleanWarrantyValue(spec.value);

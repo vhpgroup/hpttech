@@ -3,7 +3,9 @@ import { relationID } from "@/lib/catalog-schema";
 import { getPayloadClient } from "@/lib/payload";
 import {
   buildCanonicalImportRow,
+  cleanWarrantyValue,
   inferScrapedProductTypeCode,
+  warrantyFromSpecs,
 } from "./canonical-row";
 import { importScrapedImagesWithReport } from "./media";
 import {
@@ -253,7 +255,10 @@ export async function importBatchProduct(
         )
           .filter((text) => text.length >= 5 && text.length <= 700)
           .slice(0, sellingPointLimit);
-  const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
+  // Dùng chung logic chống CTA/hotline với canonical-row — field này ghi vào
+  // product.warranty (fallback hiển thị khi variant.warranty trống).
+  const warranty =
+    cleanWarrantyValue(product.data.warranty) || warrantyFromSpecs(product);
   const priceValue = vndPriceNumber(product.data.price);
   const compareAtPriceValue = vndPriceNumber(product.data.compareAtPrice);
   const rating = randomRating();
