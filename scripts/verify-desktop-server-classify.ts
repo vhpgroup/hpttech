@@ -434,7 +434,6 @@ const cleanedSpecs = normalizeScrapedSpecs(noisySourceSpecs, "mini-pc").specs;
 const cleanedLabels = cleanedSpecs.map((s) => s.label);
 assert.ok(cleanedLabels.includes("CPU"));
 assert.ok(cleanedLabels.includes("Back I/O"));
-assert.ok(cleanedLabels.includes("Lưu ý"));
 for (const junk of [
   "Điện thoại",
   "Hotline",
@@ -447,11 +446,14 @@ for (const junk of [
   "Máy chấm công",
   "... CPU",
   "Giới thiệu dài",
+  // "Lưu ý" thuộc khối tóm tắt của An Phát — họ PC/Server không lưu vào bảng
+  // (yêu cầu 2026-07-09: bảng chỉ giữ đúng dòng thuộc bảng thông số gốc).
+  "Lưu ý",
 ]) {
   assert.ok(!cleanedLabels.includes(junk), `phải loại rác: ${junk}`);
 }
 assert.ok(!cleanedLabels.some((l) => l.includes("Mua kèm")));
-assert.equal(cleanedSpecs.length, 3);
+assert.equal(cleanedSpecs.length, 2);
 
 // ---------------------------------------------------------------------------
 // 11) Dòng tóm tắt từ API danh mục (source: "summary") — họ PC/Server KHÔNG
@@ -478,6 +480,38 @@ assert.equal(withSummary.desktopSpecs?.gpu, "Intel® Arc™ GPU");
 assert.equal(withSummary.desktopSpecs?.ramGb, 96);
 // Field source nội bộ không lọt vào bảng lưu.
 assert.ok(withSummary.specs.every((s) => !("source" in s)));
+
+// QUAN TRỌNG (xác minh trên SP 3319): AI extract cũng nhặt khối summary từ
+// chính trang sản phẩm — các dòng này KHÔNG có source marker. Vẫn phải loại
+// khỏi bảng khi nội dung đã capture vào typed specs (hiển thị ở khối nổi bật).
+const unmarkedSummary = normalizeScrapedSpecs(
+  [
+    { label: "Part No", value: "90AR0051-M00030" },
+    { label: "CPU", value: "INTEL U5-125H" },
+    { label: "Lưu ý", value: "Sản phẩm chưa bao gồm Ram, ổ cứng" },
+    { label: "GPU", value: "Intel® Arc™ GPU" },
+    { label: "RAM", value: "2 Slot SODIMM DDR5-5600 MHz kênh đôi (tối đa 96 GB)" },
+    { label: "Ổ cứng", value: "1 x Khe cắm M.2 2280 | 1x Khe M.2 2242" },
+    { label: "Kết nối không dây", value: "Intel Wi-Fi 6E AX211 hỗ trợ 802.11ax" },
+    { label: "OS hỗ trợ", value: "Windows 10 | 11" },
+    { label: "Hệ điều hành hỗ trợ", value: "Windows 10 | 11" },
+  ],
+  "mini-pc",
+);
+assert.deepEqual(
+  unmarkedSummary.specs.map((s) => s.label),
+  ["Part No", "CPU"],
+);
+assert.equal(unmarkedSummary.desktopSpecs?.gpu, "Intel® Arc™ GPU");
+assert.equal(unmarkedSummary.desktopSpecs?.os, "Windows 10 | 11");
+// Lưới an toàn: label summary nhưng typed KHÔNG capture được (value dính rác
+// thương mại nên derive bỏ qua) → GIỮ trong bảng, không làm mất thông tin.
+const notCaptured = normalizeScrapedSpecs(
+  [{ label: "RAM", value: "32GB DDR4 Giá khuyến mãi: 1.000.000 đ" }],
+  "mini-pc",
+);
+assert.equal(notCaptured.desktopSpecs?.ram, undefined);
+assert.equal(notCaptured.specs.length, 1);
 // Ngoài họ PC/Server (scanner...): dòng tóm tắt vẫn nằm trong bảng như cũ.
 const scannerWithSummary = normalizeScrapedSpecs(
   [

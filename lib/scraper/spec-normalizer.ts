@@ -1101,13 +1101,34 @@ export function normalizeScrapedSpecs(
       return true;
     });
   // Bảng thông số lưu trên product: bỏ field source nội bộ. Họ PC/Server còn
-  // loại luôn các dòng tóm tắt (source: "summary") vì chúng đã được trích vào
-  // desktopSpecs/serverSpecs và hiển thị ở khối "thông số nổi bật" — bảng chỉ
-  // giữ đúng các dòng thuộc bảng thông số gốc của trang nguồn.
+  // loại các dòng thuộc khối tóm tắt của An Phát — chúng đến từ 2 đường:
+  // (1) API danh mục (đã đánh dấu source: "summary"), (2) AI extract từ khối
+  // summary render trên chính trang sản phẩm (KHÔNG có dấu — xác minh trên SP
+  // 3319: dedupe giữ bản không dấu vì đứng trước). Vì vậy lọc theo label khối
+  // summary + chỉ xoá khi nội dung ĐÃ được capture vào typed specs (chắc chắn
+  // hiển thị ở khối "thông số nổi bật", không mất thông tin).
   const tableSpecs = specs.map(({ label, value }) => ({ label, value }));
-  const pcServerTableSpecs = specs
-    .filter((spec) => spec.source !== "summary")
-    .map(({ label, value }) => ({ label, value }));
+  const SUMMARY_DUP_FIELD_BY_LABEL: Record<string, string> = {
+    gpu: "gpu",
+    "he dieu hanh ho tro": "os",
+    "ket noi khong day": "connectivity",
+    "luu y": "*always*",
+    "o cung": "storage",
+    "os ho tro": "os",
+    ram: "ram",
+    sku: "*always*",
+  };
+  function pcServerTableSpecsFor(typed?: TypedSpecs) {
+    return specs
+      .filter((spec) => {
+        if (spec.source === "summary") return false;
+        const field = SUMMARY_DUP_FIELD_BY_LABEL[normalize(spec.label)];
+        if (!field) return true;
+        if (field === "*always*") return false;
+        return !typed || !typed[field];
+      })
+      .map(({ label, value }) => ({ label, value }));
+  }
   if (productTypeCode === "printer") {
     return {
       attributes: [],
@@ -1134,19 +1155,21 @@ export function normalizeScrapedSpecs(
   }
 
   if (PC_FAMILY_TYPE_CODES.has(productTypeCode)) {
+    const desktopSpecs = deriveDesktopSpecs(specs);
     return {
       attributes: [],
-      desktopSpecs: deriveDesktopSpecs(specs),
-      specs: pcServerTableSpecs,
+      desktopSpecs,
+      specs: pcServerTableSpecsFor(desktopSpecs),
     };
   }
 
   if (SERVER_FAMILY_TYPE_CODES.has(productTypeCode)) {
+    const serverSpecs =
+      productTypeCode === "server" ? deriveServerSpecs(specs) : undefined;
     return {
       attributes: [],
-      serverSpecs:
-        productTypeCode === "server" ? deriveServerSpecs(specs) : undefined,
-      specs: pcServerTableSpecs,
+      serverSpecs,
+      specs: pcServerTableSpecsFor(serverSpecs),
     };
   }
 
