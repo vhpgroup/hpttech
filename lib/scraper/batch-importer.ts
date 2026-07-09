@@ -10,6 +10,7 @@ import {
 import { importScrapedImagesWithReport } from "./media";
 import {
   PC_FAMILY_TYPE_CODES,
+  PC_SERVER_TYPE_CODES,
   SERVER_FAMILY_TYPE_CODES,
 } from "./pc-server-taxonomy";
 import { evaluatePublicationGate } from "./publication-gate";
@@ -104,7 +105,13 @@ function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
 }
 
 function shouldPublishSourceDescriptionHTML(productTypeCode: string) {
-  return productTypeCode !== "laptop";
+  // Laptop + họ PC/Server: KHÔNG đăng bài mô tả gốc của An Phát — (1) là nội
+  // dung của đối thủ (chính sách: AI viết lại, không copy nguyên văn), (2) khi
+  // đi qua cleanText sẽ mất hết heading/xuống dòng thành một khối chữ dính
+  // liền (phát hiện trên SP NUC demo 2026-07-09). Dùng bài AI + lexicalParagraphs.
+  return (
+    productTypeCode !== "laptop" && !PC_SERVER_TYPE_CODES.has(productTypeCode)
+  );
 }
 
 async function upsertAIMetadata(
