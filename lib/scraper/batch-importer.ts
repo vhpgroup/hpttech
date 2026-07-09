@@ -7,7 +7,11 @@ import {
   inferScrapedProductTypeCode,
   warrantyFromSpecs,
 } from "./canonical-row";
-import { importScrapedImagesWithReport } from "./media";
+import {
+  lexicalFromArticleBlocks,
+  parseArticleBlocks,
+} from "./lexical-from-html";
+import { importArticleImages, importScrapedImagesWithReport } from "./media";
 import {
   PC_FAMILY_TYPE_CODES,
   PC_SERVER_TYPE_CODES,
@@ -310,6 +314,37 @@ export async function importBatchProduct(
           ? blockTextFromHTML(sourceDescriptionHTML)
           : cleanText(sourceDescriptionHTML)
         : product.generated.description || product.data.description || "";
+  // Họ PC/Server: dựng lexical GIÀU từ bài mô tả An Phát (heading/list/ảnh) —
+  // descriptionHTML được sinh từ lexical lúc đọc, nên đây là cách duy nhất để
+  // tab "Mô tả sản phẩm" hiển thị đúng định dạng + ảnh như trang nguồn.
+  let descriptionLexical: unknown = lexicalParagraphs(descriptionText);
+  if (
+    PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode) &&
+    sourceDescriptionHTML
+  ) {
+    try {
+      const articleBlocks = parseArticleBlocks(
+        sourceDescriptionHTML,
+        product.source.url,
+      );
+      const articleImageBlocks = articleBlocks.filter(
+        (block): block is Extract<typeof block, { kind: "image" }> =>
+          block.kind === "image",
+      );
+      const articleImageReport = await importArticleImages(
+        displayProduct,
+        articleImageBlocks.map((block) => ({ alt: block.alt, url: block.src })),
+      );
+      const richLexical = lexicalFromArticleBlocks(
+        articleBlocks,
+        articleImageReport.idBySrc,
+      );
+      if (richLexical) descriptionLexical = richLexical;
+    } catch {
+      // Bất kỳ lỗi nào -> giữ fallback lexicalParagraphs, không chặn import.
+    }
+  }
+
   const publicationGate = evaluatePublicationGate({
     articleHTML: descriptionHTML,
     imageCount: articleImages.length,
@@ -347,7 +382,7 @@ export async function importBatchProduct(
             : compareAtPriceValue
               ? formatVnd(compareAtPriceValue)
               : product.data.compareAtPrice,
-      description: lexicalParagraphs(descriptionText),
+      description: descriptionLexical,
       ...(imageReport.images.length
         ? { images: imageReport.images.map((image) => image.id) }
         : {}),

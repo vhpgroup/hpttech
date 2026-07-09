@@ -129,6 +129,65 @@ function uploadedMediaURL(created: Record<string, unknown>, fallback: string) {
   return typeof created.url === "string" ? created.url : fallback;
 }
 
+// Tải ảnh trong BÀI MÔ TẢ (article) lên Media để nhúng vào lexical dưới dạng
+// upload node — phục vụ tab "Mô tả sản phẩm" hiển thị ảnh như trang nguồn.
+// Trả về map src -> media id; lỗi từng ảnh chỉ ghi warning, không chặn import.
+export async function importArticleImages(
+  product: ScrapedProduct,
+  images: Array<{ alt?: string; url: string }>,
+  options: ImageImportOptions = {},
+): Promise<{ idBySrc: Map<string, string | number>; warnings: string[] }> {
+  const payload = await getPayloadClient();
+  const maxImages =
+    options.maxImages ?? Number(process.env.SCRAPER_ARTICLE_MAX_IMAGES || 8);
+  const seen = new Set<string>();
+  const selected: Array<{ alt?: string; url: string }> = [];
+  for (const image of images) {
+    try {
+      const key = imageIdentity(image.url);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      selected.push(image);
+      if (selected.length >= maxImages) break;
+    } catch {
+      // URL hỏng -> bỏ qua
+    }
+  }
+
+  const idBySrc = new Map<string, string | number>();
+  const warnings: string[] = [];
+  for (const image of selected) {
+    try {
+      const { buffer, mimeType } = await downloadImage({ alt: image.alt || "", source: "article", url: image.url });
+      const filename = imageFilename(
+        product,
+        { alt: image.alt || "", source: "article", url: image.url },
+        mimeType,
+      );
+      const created = await payload.create({
+        collection: "media",
+        data: {
+          alt: image.alt || product.data.title,
+          caption: product.data.title,
+          folder: "scraper/articles",
+          tags: "article,scraper",
+        },
+        file: {
+          data: buffer,
+          mimetype: mimeType,
+          name: filename,
+          size: buffer.byteLength,
+        },
+        overrideAccess: true,
+      });
+      idBySrc.set(image.url, created.id);
+    } catch (error) {
+      warnings.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  return { idBySrc, warnings };
+}
+
 export async function importScrapedImagesWithReport(
   product: ScrapedProduct,
   options: ImageImportOptions = {},

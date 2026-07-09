@@ -48,7 +48,7 @@ export type SeoPreview = {
 
 export type ScrapedImage = {
   alt?: string;
-  source: "api" | "json-ld" | "meta" | "gallery";
+  source: "api" | "article" | "json-ld" | "meta" | "gallery";
   url: string;
 };
 
