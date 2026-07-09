@@ -10,6 +10,24 @@ export function cleanText(value?: string | null) {
     .trim();
 }
 
+// Chuyển HTML sang text nhưng GIỮ ranh giới block (p/heading/li/br...) thành
+// xuống dòng đôi — để lexicalParagraphs tách được đoạn văn. cleanText nghiền
+// mọi whitespace nên bài mô tả dài sẽ thành một khối chữ dính liền (phát hiện
+// trên tab "Mô tả sản phẩm" của SP NUC, 2026-07-09).
+export function blockTextFromHTML(value?: string | null) {
+  const withBreaks = String(value || "")
+    .replace(/<\s*(br|hr)\s*\/?\s*>/gi, "\n\n")
+    .replace(/<\/\s*(p|h[1-6]|div|tr|blockquote|ul|ol|table)\s*>/gi, "\n\n")
+    .replace(/<\s*li[^>]*>/gi, "\n\n- ")
+    .replace(/<\/\s*li\s*>/gi, "\n\n");
+  return decodeHTML(withBreaks)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 export function truncate(value: string, maxLength: number) {
   if (value.length <= maxLength) return value;
   return `${value.slice(0, maxLength - 1).trimEnd()}…`;

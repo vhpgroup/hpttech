@@ -23,6 +23,7 @@ import {
   updateProductSeoHTML,
 } from "./seo-article";
 import {
+  blockTextFromHTML,
   cleanText,
   lexicalParagraphs,
   productShortDescription,
@@ -105,13 +106,10 @@ function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
 }
 
 function shouldPublishSourceDescriptionHTML(productTypeCode: string) {
-  // Laptop + họ PC/Server: KHÔNG đăng bài mô tả gốc của An Phát — (1) là nội
-  // dung của đối thủ (chính sách: AI viết lại, không copy nguyên văn), (2) khi
-  // đi qua cleanText sẽ mất hết heading/xuống dòng thành một khối chữ dính
-  // liền (phát hiện trên SP NUC demo 2026-07-09). Dùng bài AI + lexicalParagraphs.
-  return (
-    productTypeCode !== "laptop" && !PC_SERVER_TYPE_CODES.has(productTypeCode)
-  );
+  // Mô tả lấy từ trang nguồn An Phát (trừ laptop — theo quyết định người dùng
+  // 2026-07-09: giữ nội dung mô tả An Phát; lỗi trước đó là mất định dạng do
+  // cleanText — họ PC/Server đã chuyển sang blockTextFromHTML giữ đoạn văn).
+  return productTypeCode !== "laptop";
 }
 
 async function upsertAIMetadata(
@@ -306,7 +304,11 @@ export async function importBatchProduct(
         ? cleanText(sourceDescriptionHTML)
         : summaryText
       : sourceDescriptionHTML
-        ? cleanText(sourceDescriptionHTML)
+        ? PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode)
+          // Họ PC/Server: giữ ranh giới đoạn văn của bài mô tả An Phát —
+          // cleanText nghiền hết \n làm lexicalParagraphs chỉ tạo được 1 khối.
+          ? blockTextFromHTML(sourceDescriptionHTML)
+          : cleanText(sourceDescriptionHTML)
         : product.generated.description || product.data.description || "";
   const publicationGate = evaluatePublicationGate({
     articleHTML: descriptionHTML,
