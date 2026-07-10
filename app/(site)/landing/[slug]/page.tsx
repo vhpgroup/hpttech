@@ -289,7 +289,7 @@ async function MicrotekS6570HtmlLanding() {
       ),
       "utf8",
     );
-    const { css, body } = extractStandaloneLanding(source, { keepScripts: true });
+    const { css, body } = extractStandaloneLanding(source);
 
     return (
       <main className="bg-white pb-0">
