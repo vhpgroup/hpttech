@@ -109,10 +109,7 @@ async function EpsonDS870HtmlLanding() {
       <style
         dangerouslySetInnerHTML={{
           __html: `${scopeStandaloneCss(css, ".ds870-html")}
-.ds870-html{font-family:var(--font-body),system-ui,sans-serif;background:#fff}
-.ds870-html .wrap{width:var(--shell-width);max-width:var(--shell-width);margin-inline:auto;padding-inline:clamp(20px,3vw,46px)}
-.ds870-html .hero .wrap{padding-top:60px;padding-bottom:66px}
-@media(max-width:640px){.ds870-html .wrap{width:100%;padding-inline:18px}}`,
+${landingEmbedSafetyCss(".ds870-html", "60px", "66px")}`,
         }}
       />
     </main>
@@ -150,10 +147,7 @@ async function EpsonDS790WNHtmlLanding() {
       <style
         dangerouslySetInnerHTML={{
           __html: `${scopeStandaloneCss(css, ".ds790-html")}
-.ds790-html{font-family:var(--font-body),system-ui,sans-serif;background:#fff}
-.ds790-html .wrap{width:var(--shell-width);max-width:var(--shell-width);margin-inline:auto;padding-inline:clamp(20px,3vw,46px)}
-.ds790-html .hero .wrap{padding-top:66px;padding-bottom:74px}
-@media(max-width:640px){.ds790-html .wrap{width:100%;padding-inline:18px}}`,
+${landingEmbedSafetyCss(".ds790-html", "66px", "74px")}`,
         }}
       />
     </main>
@@ -191,10 +185,7 @@ async function XeroxD35WNHtmlLanding() {
       <style
         dangerouslySetInnerHTML={{
           __html: `${scopeStandaloneCss(css, ".xerox-d35wn-html")}
-.xerox-d35wn-html{font-family:var(--font-body),system-ui,sans-serif;background:#fff}
-.xerox-d35wn-html .wrap{width:var(--shell-width);max-width:var(--shell-width);margin-inline:auto;padding-inline:clamp(20px,3vw,46px)}
-.xerox-d35wn-html .hero .wrap{padding-top:60px;padding-bottom:64px}
-@media(max-width:640px){.xerox-d35wn-html .wrap{width:100%;padding-inline:18px}}`,
+${landingEmbedSafetyCss(".xerox-d35wn-html", "60px", "64px")}`,
         }}
       />
     </main>
@@ -266,6 +257,26 @@ function scopeSelector(selector: string, scope: string) {
   return `${leadingSpace}${scope} ${trimmed}`;
 }
 
+function landingEmbedSafetyCss(
+  scope: string,
+  heroPaddingTop: string,
+  heroPaddingBottom: string,
+) {
+  return `${scope}{font-family:var(--font-body),system-ui,sans-serif;background:#fff;max-width:100%;overflow-x:hidden}
+${scope},${scope} *{box-sizing:border-box}
+${scope} section,${scope} article,${scope} div{max-width:100%}
+${scope} .wrap{width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;padding-inline:clamp(20px,3vw,46px)}
+${scope} .hero{overflow:hidden}
+${scope} .hero .wrap{padding-top:${heroPaddingTop};padding-bottom:${heroPaddingBottom}}
+${scope} img,${scope} svg,${scope} video,${scope} canvas{max-width:100%!important}
+${scope} img{height:auto!important;object-fit:contain!important}
+${scope} .hero img,${scope} .hero-art img,${scope} .plate img,${scope} .panel img,${scope} .visual img{width:auto!important;max-height:min(560px,62vh)!important;margin-inline:auto!important}
+${scope} .hero .wrap,${scope} .feature,${scope} .vol-grid{min-width:0}
+${scope} .hero .wrap > *,${scope} .feature > *,${scope} .vol-grid > *{min-width:0}
+@media(max-width:900px){${scope} .hero img,${scope} .hero-art img,${scope} .plate img,${scope} .panel img,${scope} .visual img{max-height:480px!important}}
+@media(max-width:640px){${scope} .wrap{width:100%;padding-inline:18px}${scope} .hero img,${scope} .hero-art img,${scope} .plate img,${scope} .panel img,${scope} .visual img{max-height:380px!important}}`;
+}
+
 async function MicrotekS6570HtmlLanding() {
   try {
     const source = await readFile(
@@ -298,10 +309,7 @@ async function MicrotekS6570HtmlLanding() {
         <style
           dangerouslySetInnerHTML={{
             __html: `${scopeStandaloneCss(css, ".s6570-html")}
-.s6570-html{font-family:var(--font-body),system-ui,sans-serif;background:#fff}
-.s6570-html .wrap{width:var(--shell-width);max-width:var(--shell-width);margin-inline:auto;padding-inline:clamp(20px,3vw,44px)}
-.s6570-html .hero .wrap{padding-top:60px;padding-bottom:64px}
-@media(max-width:640px){.s6570-html .wrap{width:100%;padding-inline:18px}}`,
+${landingEmbedSafetyCss(".s6570-html", "60px", "64px")}`,
           }}
         />
       </main>
@@ -434,7 +442,7 @@ function PremiumScannerLanding({
                 width={980}
                 height={760}
                 priority
-                className="mx-auto aspect-[1.08/1] w-full rounded-[24px] bg-surface object-contain"
+                className="mx-auto max-h-[min(620px,62vh)] w-auto max-w-full rounded-[24px] bg-surface object-contain"
               />
             </div>
           </div>
@@ -461,7 +469,7 @@ function PremiumScannerLanding({
             alt={config.secondaryImageAlt}
             width={860}
             height={620}
-            className="h-full min-h-[360px] w-full rounded-[22px] object-cover"
+            className="mx-auto max-h-[520px] w-auto max-w-full rounded-[22px] object-contain"
           />
         </div>
         <div className="grid gap-5">
