@@ -1,4 +1,9 @@
 import { commonProductTypeCode } from "./db-lookup";
+import {
+  detectPcServerTypeCode,
+  PC_FAMILY_TYPE_CODES,
+  SERVER_FAMILY_TYPE_CODES,
+} from "./pc-server-taxonomy";
 import type { ScrapedProduct } from "./types";
 
 function normalized(value: string) {
@@ -22,6 +27,10 @@ export function inferScrapedProductType(product: ScrapedProduct) {
   if (/\b(may scan|scanner|scanjet|scansnap|may-scan|scan)\b/.test(titleAndUrl)) {
     return "scanner";
   }
+  // PC/Server: nhận diện theo title+URL (tín hiệu mạnh) TRƯỚC các rule full-text,
+  // vì trang PC/máy chủ luôn chứa "intel core/ssd/ddr" và sẽ dính bẫy rule laptop.
+  const pcServerType = detectPcServerTypeCode(titleAndUrl);
+  if (pcServerType) return pcServerType;
   if (/\b(photocopy|copier|sao chup|copy speed)\b/.test(text)) {
     return "photocopier";
   }
@@ -55,8 +64,15 @@ export function validateExpectedProductType(
 ) {
   const expected = commonProductTypeCode(expectedProductType);
   const actual = inferScrapedProductType(product);
+  const sameFamily =
+    expected !== undefined &&
+    actual !== undefined &&
+    ((PC_FAMILY_TYPE_CODES.has(expected) && PC_FAMILY_TYPE_CODES.has(actual)) ||
+      (SERVER_FAMILY_TYPE_CODES.has(expected) &&
+        SERVER_FAMILY_TYPE_CODES.has(actual)));
   const compatible =
     expected === actual ||
+    sameFamily ||
     (expected === "networking" && actual === "networking") ||
     (expected === "camera" && actual === "camera");
   if (expected && actual && !compatible) {

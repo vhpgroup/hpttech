@@ -1,5 +1,5 @@
-import { SOFTWARE_CATEGORY_NAME } from "@/lib/product-category";
-import { formatSlug } from "@/lib/payload/utils/slugify";
+import { SOFTWARE_CATEGORY_NAME } from "../product-category.ts";
+import { formatSlug } from "../payload/utils/slugify.ts";
 import { decodeHTML } from "entities";
 import type { ProductSpec } from "./types";
 
@@ -7,6 +7,24 @@ export function cleanText(value?: string | null) {
   return decodeHTML(String(value || ""))
     .replace(/<[^>]+>/g, " ")
     .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Chuyển HTML sang text nhưng GIỮ ranh giới block (p/heading/li/br...) thành
+// xuống dòng đôi — để lexicalParagraphs tách được đoạn văn. cleanText nghiền
+// mọi whitespace nên bài mô tả dài sẽ thành một khối chữ dính liền (phát hiện
+// trên tab "Mô tả sản phẩm" của SP NUC, 2026-07-09).
+export function blockTextFromHTML(value?: string | null) {
+  const withBreaks = String(value || "")
+    .replace(/<\s*(br|hr)\s*\/?\s*>/gi, "\n\n")
+    .replace(/<\/\s*(p|h[1-6]|div|tr|blockquote|ul|ol|table)\s*>/gi, "\n\n")
+    .replace(/<\s*li[^>]*>/gi, "\n\n- ")
+    .replace(/<\/\s*li\s*>/gi, "\n\n");
+  return decodeHTML(withBreaks)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 

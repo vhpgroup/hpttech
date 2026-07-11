@@ -27,6 +27,13 @@ const specProfileOptions = [
   { label: "Thiết bị mạng", value: "networking" },
   { label: "Camera", value: "camera" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
+  { label: "PC đồng bộ", value: "desktop-pc" },
+  { label: "PC All-in-One", value: "all-in-one" },
+  { label: "Mini PC - NUC", value: "mini-pc" },
+  { label: "Máy trạm Workstation", value: "workstation" },
+  { label: "Máy tính công nghiệp", value: "industrial-pc" },
+  { label: "Máy chủ - Server", value: "server" },
+  { label: "Linh kiện máy chủ", value: "server-component" },
   { label: "Khác / nhập thủ công", value: "other" },
 ];
 
@@ -276,13 +283,43 @@ function specProfileFromCategory(category: unknown) {
   if (text.includes("photo") || text.includes("copy")) return "photocopier";
   if (text.includes("may in") || text.includes("printer")) return "printer";
   if (text.includes("laptop") || text.includes("notebook")) return "laptop";
+  if (
+    text.includes("linh kien") &&
+    (text.includes("may chu") || text.includes("server"))
+  ) {
+    return "server-component";
+  }
+  if (text.includes("may chu") || text.includes("server")) return "server";
+  if (
+    text.includes("nuc") ||
+    text.includes("mini pc") ||
+    text.includes("pc mini")
+  ) {
+    return "mini-pc";
+  }
+  if (text.includes("all in one") || text.includes("all-in-one")) {
+    return "all-in-one";
+  }
+  if (text.includes("may tram") || text.includes("workstation")) {
+    return "workstation";
+  }
+  if (text.includes("cong nghiep")) return "industrial-pc";
+  if (
+    text.includes("dong bo") ||
+    text.includes("de ban") ||
+    text.includes("desktop")
+  ) {
+    return "desktop-pc";
+  }
   return undefined;
 }
 
-function specCondition(profile: "scanner" | "printer" | "photocopier" | "laptop") {
+function specCondition(...profiles: string[]) {
   return (data: ProductFormData = {}, siblingData: ProductFormData = {}) => {
     const categoryProfile = specProfileFromCategory(data.category ?? siblingData.category);
-    return categoryProfile ? categoryProfile === profile : siblingData?.specProfile === profile;
+    return categoryProfile
+      ? profiles.includes(categoryProfile)
+      : profiles.includes(siblingData?.specProfile ?? "");
   };
 }
 
@@ -569,6 +606,90 @@ const laptopSpecsField: Field = {
     ]),
     hiddenNumberSpec("ramGb"),
     hiddenNumberSpec("storageGb"),
+  ],
+};
+
+const desktopSpecsField: Field = {
+  name: "desktopSpecs",
+  label: "Bộ thông số PC / Máy tính để bàn",
+  type: "group",
+  admin: {
+    condition: specCondition(
+      "desktop-pc",
+      "all-in-one",
+      "mini-pc",
+      "workstation",
+      "industrial-pc",
+    ),
+    description:
+      "Các trường chuẩn hóa cho PC đồng bộ, All-in-One, Mini PC, máy trạm và máy tính công nghiệp. Raw specs từ nguồn vẫn được lưu đầy đủ ở bảng thông số kỹ thuật.",
+  },
+  fields: [
+    row([
+      textSpec("cpu", "CPU", "50%", "Ví dụ: Intel Core i5-13500."),
+      textSpec("gpu", "GPU", "50%", "Ví dụ: Intel UHD 770 / NVIDIA T1000."),
+    ]),
+    row([
+      textSpec("ram", "RAM", "50%", "Ví dụ: 16GB DDR5 4800MHz."),
+      textSpec("storage", "Lưu trữ", "50%", "Ví dụ: 512GB SSD NVMe."),
+    ]),
+    row([
+      textSpec("screen", "Màn hình (AIO)", "50%", "Chỉ dùng cho All-in-One, ví dụ: 23.8 inch FHD."),
+      numberSpec("screenSizeInch", "Kích thước màn hình", "50%", "Đơn vị inch, ví dụ: 23.8."),
+    ]),
+    row([
+      textSpec("formFactor", "Kiểu dáng", "50%", "Ví dụ: SFF, Tower, Mini."),
+      textSpec("psu", "Nguồn", "50%", "Ví dụ: 260W."),
+    ]),
+    row([
+      textSpec("os", "Hệ điều hành", "50%", "Ví dụ: Windows 11 Home."),
+      textSpec("connectivity", "Kết nối / cổng", "50%", "Ví dụ: USB-A, USB-C, HDMI, LAN."),
+    ]),
+    row([
+      textSpec("dimensions", "Kích thước", "50%"),
+      textSpec("weight", "Trọng lượng", "50%"),
+    ]),
+    hiddenNumberSpec("ramGb"),
+    hiddenNumberSpec("storageGb"),
+  ],
+};
+
+const serverSpecsField: Field = {
+  name: "serverSpecs",
+  label: "Bộ thông số Máy chủ",
+  type: "group",
+  admin: {
+    condition: specCondition("server"),
+    description:
+      "Các trường chuẩn hóa cho máy chủ (server). Linh kiện máy chủ dùng bảng thông số kỹ thuật từ nguồn.",
+  },
+  fields: [
+    row([
+      textSpec("cpu", "CPU", "50%", "Ví dụ: Intel Xeon Silver 4410Y."),
+      textSpec("socket", "Socket / số CPU", "50%", "Ví dụ: 2 x LGA4677."),
+    ]),
+    row([
+      textSpec("ram", "RAM", "50%", "Ví dụ: 32GB DDR5 ECC."),
+      textSpec("ramMax", "RAM tối đa", "50%", "Ví dụ: Tối đa 1TB (32 khe)."),
+    ]),
+    row([
+      textSpec("storage", "Lưu trữ", "50%", "Ví dụ: 2 x 480GB SSD."),
+      textSpec("driveBays", "Khay ổ cứng", "50%", "Ví dụ: 8 x 2.5 inch hot-swap."),
+    ]),
+    row([
+      textSpec("raid", "RAID", "50%", "Ví dụ: PERC H755."),
+      textSpec("psu", "Nguồn", "50%", "Ví dụ: 2 x 800W hot-plug."),
+    ]),
+    row([
+      textSpec("formFactor", "Kiểu dáng", "50%", "Ví dụ: Rack 1U, Tower."),
+      textSpec("networkPorts", "Cổng mạng", "50%", "Ví dụ: 4 x 1GbE."),
+    ]),
+    row([
+      textSpec("management", "Quản lý", "50%", "Ví dụ: iDRAC9, iLO 6."),
+      textSpec("dimensions", "Kích thước", "50%"),
+    ]),
+    textSpec("weight", "Trọng lượng", "50%"),
+    hiddenNumberSpec("ramGb"),
   ],
 };
 
@@ -1179,6 +1300,8 @@ export const Products: CollectionConfig = {
             printerSpecsField,
             photocopierSpecsField,
             laptopSpecsField,
+            desktopSpecsField,
+            serverSpecsField,
             {
               name: "specs",
               label: "Thông số kỹ thuật từ nguồn",

@@ -427,7 +427,7 @@ function anphatSummarySpecs(product: AnphatCategoryProduct) {
       const [label, ...rest] = line.split(":");
       const value = rest.join(":").trim();
       return value
-        ? [{ label: label.trim(), value }]
+        ? [{ label: label.trim(), source: "summary" as const, value }]
         : [];
     });
 }

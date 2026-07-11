@@ -10,6 +10,12 @@ import {
   SOFTWARE_CATEGORY_NAME,
 } from "@/lib/product-category";
 import {
+  detectPcServerTypeCode,
+  pcServerBrandFromName,
+  pcServerCategoryNameForType,
+  PC_SERVER_TYPE_CODES,
+} from "./pc-server-taxonomy";
+import {
   sourceIdentityKey,
   sourceVariantSku,
 } from "./source-identity";
@@ -42,8 +48,35 @@ function vndPrice(value?: string) {
   return digits && Number(digits) >= 100_000 ? digits : "";
 }
 
-function specValue(product: ScrapedProduct, labelPattern: RegExp) {
-  return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
+
+// CTA/hotline của trang nguồn ("Bảo Hành - miền Bắc: 1900.0323 phím 5 hoặc
+// 0964.599.915") không phải thông tin bảo hành sản phẩm — tuyệt đối không ghi
+// vào variant.warranty LẪN product.warranty (batch-importer dùng chung —
+// phát hiện trên SP NUC demo 2026-07-09, field product.warranty là fallback
+// hiển thị của frontend khi variant trống).
+export function cleanWarrantyValue(value?: string) {
+  const text = (value || "").trim();
+  if (!text) return "";
+  const lowered = normalized(text);
+  if (
+    /\b(hotline|zalo|lien he|phim|tong dai)\b/.test(lowered) ||
+    /\b1900\b/.test(lowered) ||
+    /\b0\d{2,3}[.\s]?\d{3}[.\s]?\d{3,4}\b/.test(text)
+  ) {
+    return "";
+  }
+  return text;
+}
+
+// Duyệt TẤT CẢ dòng spec có label bảo hành, trả về giá trị sạch đầu tiên —
+// dòng footer hotline có thể đứng trước dòng "Bảo hành: 36 Tháng" thật.
+export function warrantyFromSpecs(product: ScrapedProduct) {
+  for (const spec of product.data.specs) {
+    if (!/bảo hành|bao hanh|warranty/i.test(spec.label)) continue;
+    const cleaned = cleanWarrantyValue(spec.value);
+    if (cleaned) return cleaned;
+  }
+  return "";
 }
 
 function priceTarget() {
@@ -72,6 +105,12 @@ function normalized(value: string) {
 }
 
 export function inferScrapedProductTypeCode(inputName: string, requestedTypeCode: string) {
+  // Nhóm PC/Server: chỉ tinh chỉnh TRONG nội bộ họ PC/Server (vd danh mục
+  // "Máy chủ, Linh kiện" trộn lẫn server và linh kiện) — không bao giờ để
+  // tên chứa "Windows"/"Office" kéo sản phẩm sang software.
+  if (PC_SERVER_TYPE_CODES.has(requestedTypeCode)) {
+    return detectPcServerTypeCode(inputName) ?? requestedTypeCode;
+  }
   const text = normalized(inputName);
   if (/\bmay\s+photocopy\b/.test(text) || /\bphotocop(y|ier)\b/.test(text)) {
     return "photocopier";
@@ -98,6 +137,8 @@ function categoryNameForProductType(productTypeCode: string, fallback: string) {
   if (productTypeCode === "software") return SOFTWARE_CATEGORY_NAME;
   if (productTypeCode === "ink") return INK_CATEGORY_NAME;
   if (productTypeCode === "laptop") return LAPTOP_GAMING_CATEGORY_NAME;
+  const pcServerCategoryName = pcServerCategoryNameForType(productTypeCode);
+  if (pcServerCategoryName) return pcServerCategoryName;
   return fallback;
 }
 
@@ -152,7 +193,12 @@ export function buildCanonicalImportRow(
 
   return {
     attributesJSON: JSON.stringify(normalizedSpecs.attributes),
-    brandName: product.source.brand,
+    // Họ PC/Server: brand lấy từ TÊN sản phẩm (nguồn anphat luôn bị gán brand
+    // config "APOS" theo domain — sai cho "Asus NUC", "Máy chủ Dell"...).
+    // Không match được hãng nào thì giữ brand từ nguồn.
+    brandName: PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode)
+      ? pcServerBrandFromName(input.name) || product.source.brand
+      : product.source.brand,
     categoryName: categoryNameForProductType(effectiveProductTypeCode, input.category),
     currency: "VND",
     internalId: product.source.identity?.key || sourceIdentityKey(product.source.url),
@@ -174,7 +220,8 @@ export function buildCanonicalImportRow(
     variantStatus: options.publish ? "active" : "draft",
     vatIncluded: "true",
     vatRate: "10",
-    warranty: product.data.warranty || specValue(product, /bảo hành|bao hanh/i),
+    warranty:
+      cleanWarrantyValue(product.data.warranty) || warrantyFromSpecs(product),
     warehouseName: "Kho chính",
   };
 }

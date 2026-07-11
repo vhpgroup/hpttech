@@ -1,3 +1,7 @@
+import {
+  PC_FAMILY_TYPE_CODES,
+  SERVER_FAMILY_TYPE_CODES,
+} from "./pc-server-taxonomy";
 import { cleanText } from "./text";
 import type { ProductSpec } from "./types";
 
@@ -10,10 +14,12 @@ type TypedSpecs = Record<string, boolean | number | string>;
 
 export type NormalizedScrapedSpecs = {
   attributes: CanonicalAttribute[];
+  desktopSpecs?: TypedSpecs;
   laptopSpecs?: TypedSpecs;
   photocopierSpecs?: TypedSpecs;
   printerSpecs?: TypedSpecs;
   scannerSpecs?: TypedSpecs;
+  serverSpecs?: TypedSpecs;
   specs: ProductSpec[];
 };
 
@@ -349,8 +355,13 @@ function deriveScannerSpecs(scannerSpecs: TypedSpecs, specs: ProductSpec[]) {
 function isUsefulSpec(spec: ProductSpec) {
   const label = normalize(spec.label);
   const value = normalize(spec.value);
+  // Rác trang nguồn (phát hiện từ SP 3315, trang NUC An Phát): label là cả câu
+  // giới thiệu/khối SP liên quan ("... CPU"), value là nguyên đoạn mô tả/khuyến
+  // mãi 600-4000+ ký tự. Spec thật dài nhất quan sát được ~150 ký tự.
   if (
-    spec.label.length > 180 ||
+    spec.label.length > 100 ||
+    spec.value.length > 500 ||
+    /^\.{3}/.test(label) ||
     /item\.[a-z]+/i.test(`${spec.label} ${spec.value}`)
   ) {
     return false;
@@ -364,6 +375,13 @@ function isUsefulSpec(spec: ProductSpec) {
     label.includes("thong tin cong ty") ||
     /^(bao hanh|warranty)$/.test(label) ||
     /^(giao hang|van chuyen|shipping|delivery)$/.test(label) ||
+    // Khối liên hệ/footer của trang nguồn (điện thoại, email, showroom, số
+    // bảo hành theo miền... của An Phát) — tuyệt đối không được lên trang HPT.
+    /^(dien thoai|hotline|email|gio mo cua|dia chi|may cham cong|showroom|fax|zalo)$/.test(label) ||
+    /^(kinh doanh|cham soc khach hang|tong dai)/.test(label) ||
+    /^(bao hanh|ky thuat|ho tro) *[-–]/.test(label) ||
+    // Label khuyến mãi/mua kèm ("🎁 Mua kèm ... với giá").
+    /mua kem|qua tang|uu dai/.test(label) ||
     /\b(mien phi ha noi|vietbis|hotline|doi tra|nguyen dai|nguyen kien|ho tro 24\/?7)\b/.test(value)
   );
 }
@@ -801,6 +819,269 @@ function deriveLaptopSpecs(specs: ProductSpec[]) {
   };
 }
 
+function formFactorValue(value: string) {
+  const normalized = normalize(value);
+  if (/\b(\d)\s*u\b/.test(normalized) || normalized.includes("rack")) {
+    return value;
+  }
+  if (
+    /\b(sff|usff|tower|mini tower|micro|mini pc|nuc|desktop|aio|all in one)\b/.test(
+      normalized,
+    )
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
+// Trang PC/NUC của An Phát hay lẫn rác listing (giá, khuyến mãi, tên SP khác)
+// vào value của spec — demo publish 2026-07-08 cho ra desktopSpecs.ram chứa cả
+// "Giá niêm yết ... Giá Build PC ...". Bỏ qua value quá dài hoặc dính từ khoá
+// thương mại; raw specs từ nguồn vẫn được giữ nguyên ở bảng specs.
+const PC_SPEC_NOISE_PATTERN =
+  /(gia niem yet|gia khuyen mai|gia uu dai|gia build pc|khuyen mai|so sanh|con hang|het hang|dat hang|tra gop)/;
+
+function isCleanPcSpecValue(value: string, normalizedValue: string) {
+  if (value.length > 160) return false;
+  return !PC_SPEC_NOISE_PATTERN.test(normalizedValue);
+}
+
+// Lưu ý: desktop/server KHÔNG phát attribute canonical (attributes: []) giống
+// printer/photocopier — mapAttributes sẽ throw nếu gặp code chưa có
+// AttributeDefinition. Khi cần lọc facet, seed AttributeDefinitions trước rồi
+// mới bật phát attribute ở đây.
+function deriveDesktopSpecs(specs: ProductSpec[]) {
+  const desktopSpecs: TypedSpecs = {};
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+    if (!isCleanPcSpecValue(value, normalizedValue)) continue;
+    const combined = `${label} ${normalizedValue}`;
+    const graphicsLabel =
+      label.includes("card man hinh") ||
+      label.includes("vga") ||
+      label.includes("gpu") ||
+      label.includes("graphics") ||
+      label.includes("do hoa");
+
+    if (
+      label.includes("cpu") ||
+      label.includes("processor") ||
+      label.includes("bo xu ly") ||
+      label.includes("chip")
+    ) {
+      ensureTextField(desktopSpecs, "cpu", value);
+    }
+
+    if (graphicsLabel) {
+      ensureTextField(desktopSpecs, "gpu", value);
+    }
+
+    const looksLikeCache =
+      label.includes("cache") ||
+      label.includes("dem") ||
+      normalizedValue.includes("cache");
+    const looksLikeRam =
+      label.includes("ram") ||
+      (!looksLikeCache &&
+        (label.includes("memory") || label.includes("bo nho") || label.includes("dung luong")) &&
+        /\b(ddr|ram|\d+(?:[.,]\d+)?\s*gb)\b/i.test(value));
+    if (looksLikeRam) {
+      ensureTextField(desktopSpecs, "ram", value);
+      const ram = laptopRamGb(value);
+      if (ram !== undefined && !hasNumber(desktopSpecs.ramGb)) {
+        desktopSpecs.ramGb = ram;
+      }
+    }
+
+    if (
+      label.includes("ssd") ||
+      label.includes("hdd") ||
+      label.includes("o cung") ||
+      label.includes("storage") ||
+      label.includes("luu tru")
+    ) {
+      ensureTextField(desktopSpecs, "storage", value);
+      const storage = laptopStorageGb(value);
+      if (storage !== undefined && !hasNumber(desktopSpecs.storageGb)) {
+        desktopSpecs.storageGb = storage;
+      }
+    }
+
+    if (
+      (label.includes("man hinh") && !graphicsLabel) ||
+      label.includes("display") ||
+      label.includes("screen")
+    ) {
+      ensureTextField(desktopSpecs, "screen", value);
+      const size = laptopScreenSizeInch(value);
+      if (size !== undefined && !hasNumber(desktopSpecs.screenSizeInch)) {
+        desktopSpecs.screenSizeInch = size;
+      }
+    }
+
+    if (label.includes("he dieu hanh") || /\bos\b/.test(label) || combined.includes("windows")) {
+      ensureTextField(desktopSpecs, "os", value);
+    }
+
+    if (
+      label.includes("ket noi") ||
+      label.includes("cong giao tiep") ||
+      label.includes("wireless") ||
+      /\b(wifi|wi-fi|bluetooth|usb|hdmi|lan|displayport)\b/.test(combined)
+    ) {
+      ensureTextField(desktopSpecs, "connectivity", value);
+    }
+
+    if (
+      label.includes("kieu dang") ||
+      label.includes("form factor") ||
+      label.includes("thiet ke") ||
+      label.includes("loai may")
+    ) {
+      ensureTextField(desktopSpecs, "formFactor", formFactorValue(value) || value);
+    }
+
+    if (
+      label.includes("nguon") ||
+      label.includes("power supply") ||
+      label.includes("psu") ||
+      label.includes("cong suat nguon")
+    ) {
+      ensureTextField(desktopSpecs, "psu", value);
+    }
+
+    if (isDimensionsSpec(label, value)) {
+      ensureTextField(desktopSpecs, "dimensions", value);
+    }
+    if (isWeightSpec(label, value)) {
+      ensureTextField(desktopSpecs, "weight", value);
+    }
+  }
+
+  return Object.keys(desktopSpecs).length ? desktopSpecs : undefined;
+}
+
+function deriveServerSpecs(specs: ProductSpec[]) {
+  const serverSpecs: TypedSpecs = {};
+
+  for (const spec of specs) {
+    const label = normalize(spec.label);
+    const value = spec.value;
+    const normalizedValue = normalize(value);
+    if (!isCleanPcSpecValue(value, normalizedValue)) continue;
+
+    if (
+      label.includes("cpu") ||
+      label.includes("processor") ||
+      label.includes("bo xu ly") ||
+      label.includes("vi xu ly")
+    ) {
+      if (label.includes("socket")) {
+        ensureTextField(serverSpecs, "socket", value);
+      } else if (
+        label.includes("toi da") ||
+        label.includes("max") ||
+        label.includes("ho tro")
+      ) {
+        ensureTextField(serverSpecs, "cpuMax", value);
+      } else {
+        ensureTextField(serverSpecs, "cpu", value);
+      }
+    }
+
+    if (label.includes("socket")) {
+      ensureTextField(serverSpecs, "socket", value);
+    }
+
+    const looksLikeCache =
+      label.includes("cache") ||
+      label.includes("dem") ||
+      normalizedValue.includes("cache");
+    if (label.includes("ram") || (!looksLikeCache && label.includes("bo nho"))) {
+      if (
+        label.includes("toi da") ||
+        label.includes("max") ||
+        label.includes("ho tro")
+      ) {
+        ensureTextField(serverSpecs, "ramMax", value);
+      } else {
+        ensureTextField(serverSpecs, "ram", value);
+        const ram = laptopRamGb(value);
+        if (ram !== undefined && !hasNumber(serverSpecs.ramGb)) {
+          serverSpecs.ramGb = ram;
+        }
+      }
+    }
+
+    if (
+      label.includes("o cung") ||
+      label.includes("hdd") ||
+      label.includes("ssd") ||
+      label.includes("storage") ||
+      label.includes("luu tru")
+    ) {
+      ensureTextField(serverSpecs, "storage", value);
+    }
+
+    if (label.includes("khay") || label.includes("bay")) {
+      ensureTextField(serverSpecs, "driveBays", value);
+    }
+
+    if (label.includes("raid")) {
+      ensureTextField(serverSpecs, "raid", value);
+    }
+
+    if (
+      label.includes("nguon") ||
+      label.includes("power supply") ||
+      label.includes("psu")
+    ) {
+      ensureTextField(serverSpecs, "psu", value);
+    }
+
+    if (
+      label.includes("kieu dang") ||
+      label.includes("form factor") ||
+      label.includes("thiet ke") ||
+      /\b(\d)\s*u\b|\brack\b|\btower\b/.test(normalizedValue)
+    ) {
+      const formFactor = formFactorValue(value);
+      if (formFactor) ensureTextField(serverSpecs, "formFactor", formFactor);
+    }
+
+    if (
+      label.includes("lan") ||
+      label.includes("network") ||
+      label.includes("cong mang") ||
+      label.includes("ket noi")
+    ) {
+      ensureTextField(serverSpecs, "networkPorts", value);
+    }
+
+    if (
+      label.includes("quan ly") ||
+      label.includes("management") ||
+      normalizedValue.includes("idrac") ||
+      normalizedValue.includes("ilo") ||
+      normalizedValue.includes("xclarity")
+    ) {
+      ensureTextField(serverSpecs, "management", value);
+    }
+
+    if (isDimensionsSpec(label, value)) {
+      ensureTextField(serverSpecs, "dimensions", value);
+    }
+    if (isWeightSpec(label, value)) {
+      ensureTextField(serverSpecs, "weight", value);
+    }
+  }
+
+  return Object.keys(serverSpecs).length ? serverSpecs : undefined;
+}
+
 export function normalizeScrapedSpecs(
   input: ProductSpec[],
   productTypeCode: string,
@@ -809,6 +1090,7 @@ export function normalizeScrapedSpecs(
   const specs = input
     .map((spec) => ({
       label: cleanText(spec.label).replace(/[:：]\s*$/, ""),
+      source: spec.source,
       value: cleanText(spec.value),
     }))
     .filter((spec) => {
@@ -818,11 +1100,40 @@ export function normalizeScrapedSpecs(
       seenSpecs.add(key);
       return true;
     });
+  // Bảng thông số lưu trên product: bỏ field source nội bộ. Họ PC/Server còn
+  // loại các dòng thuộc khối tóm tắt của An Phát — chúng đến từ 2 đường:
+  // (1) API danh mục (đã đánh dấu source: "summary"), (2) AI extract từ khối
+  // summary render trên chính trang sản phẩm (KHÔNG có dấu — xác minh trên SP
+  // 3319: dedupe giữ bản không dấu vì đứng trước). Vì vậy lọc theo label khối
+  // summary + chỉ xoá khi nội dung ĐÃ được capture vào typed specs (chắc chắn
+  // hiển thị ở khối "thông số nổi bật", không mất thông tin).
+  const tableSpecs = specs.map(({ label, value }) => ({ label, value }));
+  const SUMMARY_DUP_FIELD_BY_LABEL: Record<string, string> = {
+    gpu: "gpu",
+    "he dieu hanh ho tro": "os",
+    "ket noi khong day": "connectivity",
+    "luu y": "*always*",
+    "o cung": "storage",
+    "os ho tro": "os",
+    ram: "ram",
+    sku: "*always*",
+  };
+  function pcServerTableSpecsFor(typed?: TypedSpecs) {
+    return specs
+      .filter((spec) => {
+        if (spec.source === "summary") return false;
+        const field = SUMMARY_DUP_FIELD_BY_LABEL[normalize(spec.label)];
+        if (!field) return true;
+        if (field === "*always*") return false;
+        return !typed || !typed[field];
+      })
+      .map(({ label, value }) => ({ label, value }));
+  }
   if (productTypeCode === "printer") {
     return {
       attributes: [],
       printerSpecs: derivePrinterSpecs(specs),
-      specs,
+      specs: tableSpecs,
     };
   }
 
@@ -830,7 +1141,7 @@ export function normalizeScrapedSpecs(
     return {
       attributes: [],
       photocopierSpecs: derivePhotocopierSpecs(specs),
-      specs,
+      specs: tableSpecs,
     };
   }
 
@@ -839,12 +1150,31 @@ export function normalizeScrapedSpecs(
     return {
       attributes: laptop.attributes,
       laptopSpecs: laptop.laptopSpecs,
-      specs,
+      specs: tableSpecs,
+    };
+  }
+
+  if (PC_FAMILY_TYPE_CODES.has(productTypeCode)) {
+    const desktopSpecs = deriveDesktopSpecs(specs);
+    return {
+      attributes: [],
+      desktopSpecs,
+      specs: pcServerTableSpecsFor(desktopSpecs),
+    };
+  }
+
+  if (SERVER_FAMILY_TYPE_CODES.has(productTypeCode)) {
+    const serverSpecs =
+      productTypeCode === "server" ? deriveServerSpecs(specs) : undefined;
+    return {
+      attributes: [],
+      serverSpecs,
+      specs: pcServerTableSpecsFor(serverSpecs),
     };
   }
 
   if (productTypeCode !== "scanner") {
-    return { attributes: [], specs };
+    return { attributes: [], specs: tableSpecs };
   }
 
   const attributes: CanonicalAttribute[] = [];
@@ -1096,5 +1426,5 @@ export function normalizeScrapedSpecs(
 
   deriveScannerSpecs(scannerSpecs, specs);
 
-  return { attributes, scannerSpecs, specs };
+  return { attributes, scannerSpecs, specs: tableSpecs };
 }

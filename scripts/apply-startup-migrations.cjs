@@ -4,6 +4,7 @@ const certificationsMigrationName = "20260626_041300_add_certifications";
 const productTypesMigrationName = "20260630_120000_add_networking_camera_product_types";
 const quoteRequestsMigrationName = "20260630_180000_add_quote_requests";
 const pseoLandingPagesMigrationName = "20260701_082156_pseo_landing_pages";
+const desktopServerCatalogMigrationName = "20260707_101500_add_desktop_server_catalog";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -830,6 +831,98 @@ async function applyCertificationsMigration(client) {
   }
 }
 
+const desktopServerCatalogSQL = `
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_cpu" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_gpu" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_ram" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_storage" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_screen" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_screen_size_inch" numeric;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_form_factor" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_psu" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_os" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_connectivity" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_dimensions" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_weight" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_ram_gb" numeric;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "desktop_specs_storage_gb" numeric;
+
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_cpu" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_socket" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_ram" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_ram_max" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_storage" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_drive_bays" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_raid" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_psu" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_form_factor" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_network_ports" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_management" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_dimensions" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_weight" varchar;
+ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "server_specs_ram_gb" numeric;
+
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_cpu" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_gpu" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_ram" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_storage" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_screen" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_screen_size_inch" numeric;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_form_factor" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_psu" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_os" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_connectivity" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_dimensions" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_weight" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_ram_gb" numeric;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_desktop_specs_storage_gb" numeric;
+
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_cpu" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_socket" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_ram" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_ram_max" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_storage" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_drive_bays" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_raid" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_psu" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_form_factor" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_network_ports" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_management" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_dimensions" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_weight" varchar;
+ALTER TABLE "_products_v" ADD COLUMN IF NOT EXISTS "version_server_specs_ram_gb" numeric;
+
+INSERT INTO "product_types" ("code", "name", "description", "schema_version", "status", "updated_at", "created_at")
+VALUES
+  ('desktop-pc', 'PC đồng bộ', 'Máy tính để bàn đồng bộ chính hãng HP, Dell, Lenovo, ASUS.', 1, 'active', now(), now()),
+  ('all-in-one', 'PC All-in-One', 'Máy tính All-in-One tích hợp màn hình.', 1, 'active', now(), now()),
+  ('mini-pc', 'Mini PC - NUC', 'Máy tính mini, ASUS NUC các thế hệ.', 1, 'active', now(), now()),
+  ('workstation', 'Máy trạm Workstation', 'Máy trạm chuyên dụng cho đồ họa, kỹ thuật, AI.', 1, 'active', now(), now()),
+  ('industrial-pc', 'Máy tính công nghiệp', 'Máy tính công nghiệp cho môi trường sản xuất, vận hành.', 1, 'active', now(), now()),
+  ('server', 'Máy chủ - Server', 'Máy chủ nguyên chiếc Dell, HP, Lenovo/IBM.', 1, 'active', now(), now()),
+  ('server-component', 'Linh kiện máy chủ', 'CPU, RAM, ổ cứng, VGA, RAID, mainboard, nguồn cho máy chủ.', 1, 'active', now(), now())
+ON CONFLICT ("code") DO UPDATE SET
+  "name" = excluded."name",
+  "description" = excluded."description",
+  "schema_version" = excluded."schema_version",
+  "status" = excluded."status",
+  "updated_at" = now();
+
+CREATE TABLE IF NOT EXISTS "payload_migrations" (
+  "id" serial PRIMARY KEY NOT NULL,
+  "name" varchar,
+  "batch" numeric,
+  "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+);
+
+INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+SELECT '${desktopServerCatalogMigrationName}', 0, now(), now()
+WHERE NOT EXISTS (
+  SELECT 1 FROM "payload_migrations" WHERE "name" = '${desktopServerCatalogMigrationName}'
+);
+`;
+
 async function applyNetworkingCameraProductTypes(client) {
   await client.query(`alter type "enum_product_types_code" add value if not exists 'networking'`);
   await client.query(`alter type "enum_product_types_code" add value if not exists 'camera'`);
@@ -869,6 +962,35 @@ async function applyPseoLandingPagesMigration(client) {
   }
 }
 
+async function applyDesktopServerCatalogMigration(client) {
+  // ALTER TYPE ... ADD VALUE phải chạy ngoài transaction (giống block
+  // networking/camera). IF NOT EXISTS -> idempotent, chạy lại an toàn.
+  const pcServerTypeCodes = [
+    "desktop-pc",
+    "all-in-one",
+    "mini-pc",
+    "workstation",
+    "industrial-pc",
+    "server",
+    "server-component",
+  ];
+  for (const value of pcServerTypeCodes) {
+    await client.query(`alter type "enum_product_types_code" add value if not exists '${value}'`);
+    await client.query(`alter type "enum_products_spec_profile" add value if not exists '${value}'`);
+    await client.query(`alter type "enum__products_v_version_spec_profile" add value if not exists '${value}'`);
+  }
+
+  await client.query("BEGIN");
+  try {
+    await client.query(desktopServerCatalogSQL);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${desktopServerCatalogMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function main() {
   const client = new Client({ connectionString });
 
@@ -878,6 +1000,7 @@ async function main() {
     await applyNetworkingCameraProductTypes(client);
     await applyQuoteRequestsMigration(client);
     await applyPseoLandingPagesMigration(client);
+    await applyDesktopServerCatalogMigration(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;

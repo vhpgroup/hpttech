@@ -2,7 +2,7 @@ import type {
   CollectionBeforeChangeHook,
   CollectionBeforeDeleteHook,
 } from "payload";
-import { relationID } from "@/lib/catalog-schema";
+import { relationID } from "../../catalog-schema.ts";
 
 async function countRelated(
   req: Parameters<CollectionBeforeDeleteHook>[0]["req"],

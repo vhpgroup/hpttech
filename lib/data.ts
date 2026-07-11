@@ -458,7 +458,7 @@ export const HPT_DATA = {
     {
       title: "Mapstore.vn - xây dựng bản đồ doanh nghiệp Việt Nam trong kỷ nguyên dữ liệu địa phương",
       date: "30 Tháng Giêng, 2026",
-      image: "/assets/herobanner/herobanner3.png",
+      image: "/assets/herobanner/herobanner3.jpg",
       href: "https://hpttech.vn/mapstore-vn-xay-dung-ban-do-doanh-nghiep-viet-nam-trong-ky-nguyen-du-lieu-dia-phuong/",
     },
     {

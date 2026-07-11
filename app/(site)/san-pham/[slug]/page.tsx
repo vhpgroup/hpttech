@@ -93,23 +93,6 @@ function normalizeText(value?: string) {
     .toLowerCase();
 }
 
-function escapeHTML(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function textToHTML(value?: string) {
-  if (!value) return "";
-  return escapeHTML(value)
-    .split(/\n{2,}/)
-    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br />")}</p>`)
-    .join("");
-}
-
 function addLazyImageAttributes(html: string) {
   return html.replace(/<img\b([^>]*)>/gi, (_tag, attributes: string) => {
     const selfClosing = /\/\s*$/.test(attributes);
@@ -215,7 +198,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
     (spec) => spec.label?.trim() && spec.value?.trim(),
   );
   const schemaPrice = parseVNDPrice(product.price);
-  const productDescription = product.description || product.descriptionRichText || product.detail;
+  // Không tự sinh mô tả từ tóm tắt (detail) — quyết định 2026-07-09: mô tả
+  // để trống thì hiển thị trạng thái trống, không tự thêm nội dung.
+  const productDescription = product.description || product.descriptionRichText;
   const assignedRelatedProducts = uniqueProducts((product.relatedProducts ?? []).filter((item) => item.slug !== product.slug));
   const relatedProducts = assignedRelatedProducts.slice(0, 15);
   const relationSections: ProductRelationSection[] = [
@@ -326,10 +311,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       content: productDescription ? (
         product.description ? (
           <ProductHTMLContent html={product.description} />
-        ) : product.descriptionRichText ? (
-          <PayloadRichText data={product.descriptionRichText} className="rounded-[18px] bg-white p-6 text-[15px] shadow-sm ring-1 ring-slate-200/80" />
         ) : (
-          <ProductHTMLContent html={textToHTML(product.detail)} />
+          <PayloadRichText data={product.descriptionRichText} className="rounded-[18px] bg-white p-6 text-[15px] shadow-sm ring-1 ring-slate-200/80" />
         )
       ) : (
         <EmptyProductSection message="Sản phẩm này chưa có mô tả chi tiết. Vui lòng bổ sung nội dung trong Payload CMS." />

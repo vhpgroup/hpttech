@@ -3,9 +3,20 @@ import { relationID } from "@/lib/catalog-schema";
 import { getPayloadClient } from "@/lib/payload";
 import {
   buildCanonicalImportRow,
+  cleanWarrantyValue,
   inferScrapedProductTypeCode,
+  warrantyFromSpecs,
 } from "./canonical-row";
-import { importScrapedImagesWithReport } from "./media";
+import {
+  lexicalFromArticleBlocks,
+  parseArticleBlocks,
+} from "./lexical-from-html";
+import { importArticleImages, importScrapedImagesWithReport } from "./media";
+import {
+  PC_FAMILY_TYPE_CODES,
+  PC_SERVER_TYPE_CODES,
+  SERVER_FAMILY_TYPE_CODES,
+} from "./pc-server-taxonomy";
 import { evaluatePublicationGate } from "./publication-gate";
 import { generateSeo } from "./seo-generator";
 import { normalizeScrapedSpecs } from "./spec-normalizer";
@@ -16,6 +27,7 @@ import {
   updateProductSeoHTML,
 } from "./seo-article";
 import {
+  blockTextFromHTML,
   cleanText,
   lexicalParagraphs,
   productShortDescription,
@@ -93,11 +105,10 @@ function scraperPriceTarget() {
     : "price";
 }
 
-function sourceSpecValue(product: ScrapedProduct, labelPattern: RegExp) {
-  return product.data.specs.find((spec) => labelPattern.test(spec.label))?.value || "";
-}
-
 function shouldPublishSourceDescriptionHTML(productTypeCode: string) {
+  // Mô tả lấy từ trang nguồn An Phát (trừ laptop — theo quyết định người dùng
+  // 2026-07-09: giữ nội dung mô tả An Phát; lỗi trước đó là mất định dạng do
+  // cleanText — họ PC/Server đã chuyển sang blockTextFromHTML giữ đoạn văn).
   return productTypeCode !== "laptop";
 }
 
@@ -249,7 +260,10 @@ export async function importBatchProduct(
         )
           .filter((text) => text.length >= 5 && text.length <= 700)
           .slice(0, sellingPointLimit);
-  const warranty = product.data.warranty || sourceSpecValue(product, /bảo hành|bao hanh/i);
+  // Dùng chung logic chống CTA/hotline với canonical-row — field này ghi vào
+  // product.warranty (fallback hiển thị khi variant.warranty trống).
+  const warranty =
+    cleanWarrantyValue(product.data.warranty) || warrantyFromSpecs(product);
   const priceValue = vndPriceNumber(product.data.price);
   const compareAtPriceValue = vndPriceNumber(product.data.compareAtPrice);
   const rating = randomRating();
@@ -290,8 +304,56 @@ export async function importBatchProduct(
         ? cleanText(sourceDescriptionHTML)
         : summaryText
       : sourceDescriptionHTML
-        ? cleanText(sourceDescriptionHTML)
+        ? PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode)
+          // Họ PC/Server: giữ ranh giới đoạn văn của bài mô tả An Phát —
+          // cleanText nghiền hết \n làm lexicalParagraphs chỉ tạo được 1 khối.
+          ? blockTextFromHTML(sourceDescriptionHTML)
+          : cleanText(sourceDescriptionHTML)
         : product.generated.description || product.data.description || "";
+  // Họ PC/Server — quyết định người dùng 2026-07-09: TẠM THỜI BỎ phần mô tả
+  // sản phẩm khi crawl (để trống, biên tập sau). Chế độ mô tả rich (heading/
+  // list/ảnh từ bài An Phát, dựng bằng lexical-from-html) vẫn sẵn sàng — bật
+  // lại bằng env SCRAPER_PC_DESCRIPTION=rich, không cần sửa code.
+  let descriptionLexical: unknown = lexicalParagraphs(descriptionText);
+  if (PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode)) {
+    if (
+      process.env.SCRAPER_PC_DESCRIPTION === "rich" &&
+      sourceDescriptionHTML
+    ) {
+      try {
+        const articleBlocks = parseArticleBlocks(
+          sourceDescriptionHTML,
+          product.source.url,
+        );
+        const articleImageBlocks = articleBlocks.filter(
+          (block): block is Extract<typeof block, { kind: "image" }> =>
+            block.kind === "image",
+        );
+        const articleImageReport = await importArticleImages(
+          displayProduct,
+          articleImageBlocks.map((block) => ({ alt: block.alt, url: block.src })),
+        );
+        const richLexical = lexicalFromArticleBlocks(
+          articleBlocks,
+          articleImageReport.idBySrc,
+        );
+        if (richLexical) descriptionLexical = richLexical;
+      } catch {
+        // Bất kỳ lỗi nào -> giữ fallback lexicalParagraphs, không chặn import.
+      }
+    } else {
+      // null (không phải lexical rỗng) để frontend rơi về fallback tối giản.
+      descriptionLexical = null;
+    }
+  }
+  // Cột description_h_t_m_l được updateProductSeoHTML ghi raw SQL và frontend
+  // đọc TRỰC TIẾP (qua select) — phải làm trống cùng lúc, nếu không tab
+  // "Mô tả sản phẩm" vẫn hiện bài An Phát dù lexical đã trống (SP 3327).
+  const skipPcDescription =
+    PC_SERVER_TYPE_CODES.has(effectiveProductTypeCode) &&
+    process.env.SCRAPER_PC_DESCRIPTION !== "rich";
+  const storedDescriptionHTML = skipPcDescription ? "" : descriptionHTML;
+
   const publicationGate = evaluatePublicationGate({
     articleHTML: descriptionHTML,
     imageCount: articleImages.length,
@@ -311,7 +373,11 @@ export async function importBatchProduct(
         ? { photocopierSpecs: normalizedSpecs.photocopierSpecs }
         : effectiveProductTypeCode === "laptop"
           ? { laptopSpecs: normalizedSpecs.laptopSpecs }
-          : {};
+          : PC_FAMILY_TYPE_CODES.has(effectiveProductTypeCode)
+            ? { desktopSpecs: normalizedSpecs.desktopSpecs }
+            : SERVER_FAMILY_TYPE_CODES.has(effectiveProductTypeCode)
+              ? { serverSpecs: normalizedSpecs.serverSpecs }
+              : {};
   const writePayload = payload as unknown as PayloadWrite;
   const updated = await writePayload.update({
     collection: "products",
@@ -325,7 +391,7 @@ export async function importBatchProduct(
             : compareAtPriceValue
               ? formatVnd(compareAtPriceValue)
               : product.data.compareAtPrice,
-      description: lexicalParagraphs(descriptionText),
+      description: descriptionLexical,
       ...(imageReport.images.length
         ? { images: imageReport.images.map((image) => image.id) }
         : {}),
@@ -376,7 +442,7 @@ export async function importBatchProduct(
   await updateProductSeoHTML(
     productId,
     seoSummaryHTML,
-    descriptionHTML,
+    storedDescriptionHTML,
     summaryText,
   );
   await upsertAIMetadata(productRelationId ?? productId, displayProduct, sellingPoints);

@@ -5,6 +5,11 @@ import path from "node:path";
 import { LAPTOP_GAMING_CATEGORY_NAME } from "../lib/product-category";
 import { commonProductTypeCode } from "../lib/scraper/db-lookup";
 import { discoverSourceCategory } from "../lib/scraper/engine";
+import {
+  detectPcServerTypeCode,
+  pcServerCategoryNameForType,
+  PC_SERVER_TYPE_CODES,
+} from "../lib/scraper/pc-server-taxonomy";
 
 loadEnvConfig(process.cwd());
 
@@ -39,15 +44,31 @@ async function createCategoryWorkbook(
   return filePath;
 }
 
-function classifyCategoryProduct(categoryTitle: string, productName: string) {
-  const categoryType = commonProductTypeCode(categoryTitle);
+function classifyCategoryProduct(
+  categoryTitle: string,
+  categoryUrl: string,
+  productName: string,
+) {
+  // Nhiều trang An Phát có h1 cụt (vd chỉ "HP", "ASUS" trên trang PC đồng bộ
+  // theo hãng — xác nhận live 2026-07-07) → bổ sung tín hiệu từ URL slug
+  // (may-tinh-dong-bo-hp_dm1044 → "may tinh dong bo hp") khi title không đủ.
+  const categoryType =
+    commonProductTypeCode(categoryTitle) ||
+    commonProductTypeCode(`${categoryTitle} ${categoryUrl}`);
   const categoryKey = categoryTitle
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase();
   const isMixedNetworkingCameraCategory =
     categoryKey.includes("thiet bi mang") && categoryKey.includes("camera");
-  const detected = isMixedNetworkingCameraCategory
+  // Trang cha "May chu, Linh kien" (may-chu_dm1018) cua An Phat tron ca may chu
+  // nguyen chiec lan linh kien server -> uu tien nhan dien theo ten san pham.
+  const isMixedServerComponentCategory =
+    (categoryKey.includes("may chu") || categoryKey.includes("server")) &&
+    categoryKey.includes("linh kien");
+  const preferProductName =
+    isMixedNetworkingCameraCategory || isMixedServerComponentCategory;
+  const detected = preferProductName
     ? commonProductTypeCode(productName) || categoryType
     : categoryType || commonProductTypeCode(productName);
   if (detected === "camera") {
@@ -61,6 +82,17 @@ function classifyCategoryProduct(categoryTitle: string, productName: string) {
   }
   if (detected === "laptop") {
     return { categoryName: LAPTOP_GAMING_CATEGORY_NAME, productType: "laptop" };
+  }
+  if (detected && PC_SERVER_TYPE_CODES.has(detected)) {
+    // Tinh chỉnh theo TÊN SẢN PHẨM trong nội bộ họ PC/Server để workbook khớp
+    // với kết quả import cuối (inferScrapedProductTypeCode làm y hệt ở tầng
+    // canonical-row). Vd danh mục "PC đồng bộ HP" chứa "HP AIO ProOne 240"
+    // → all-in-one, không phải desktop-pc. Tên không đủ tín hiệu → giữ loại
+    // theo danh mục (vd "RAM Samsung 32GB" trong trang RAM for Sever).
+    const refined = detectPcServerTypeCode(productName);
+    const effective = refined ?? detected;
+    const categoryName = pcServerCategoryNameForType(effective);
+    if (categoryName) return { categoryName, productType: effective };
   }
   if (!detected) return undefined;
   return { categoryName: categoryTitle, productType: detected };
@@ -85,7 +117,11 @@ async function main() {
   if (!selected.length) throw new Error("Danh mục không có sản phẩm để chạy.");
 
   const rows = selected.map((product) => {
-    const classified = classifyCategoryProduct(category.title, product.productName);
+    const classified = classifyCategoryProduct(
+      category.title,
+      category.url,
+      product.productName,
+    );
     if (!classified) {
       throw new Error(
         `Chưa nhận diện được loại sản phẩm "${product.productName}" từ danh mục "${category.title}".`,
@@ -102,6 +138,24 @@ async function main() {
     category.url,
     rows,
   );
+  if (args.includes("--dry-run")) {
+    console.log(
+      JSON.stringify(
+        {
+          category: category.title,
+          categoryUrl: category.url,
+          discovered: category.products.length,
+          dryRun: true,
+          selected: selected.length,
+          workbook: filePath,
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
+
   const { runBulkImport } = await import("../lib/scraper/batch-runner");
   const result = await runBulkImport({
     categoryUrl: category.url,

@@ -12,6 +12,7 @@ const HERO_FADE_DURATION_MS = 600;
 const HERO_IMAGE_SIZES = "(max-width: 980px) calc(100vw - 24px), 804px";
 const PROMO_IMAGE_SIZES =
   "(max-width: 760px) calc(100vw - 24px), (max-width: 980px) calc((100vw - 34px) / 2), 386px";
+const COMMERCIAL_ASSET_VERSION = "fb17d53";
 const HERO_BANNER_LANDING_HREFS = [
   "/landing/herobanner1",
   "/landing/herobanner2",
@@ -33,11 +34,20 @@ type CommercialTile = {
   height: number;
 };
 
+type HomeHeroClientProps = {
+  banners: PublicBanner[];
+  categories: ProductCategoryNavItem[];
+};
+
+function commercialAsset(path: string) {
+  return `${path}?v=${COMMERCIAL_ASSET_VERSION}`;
+}
+
 const COMMERCIAL_STACK_TILES: CommercialTile[] = [
   {
     className: "commercial-tile scanner",
     href: "/landing/epson-ds-870",
-    src: "/assets/commercial-blocks/scanner.jpg",
+    src: commercialAsset("/assets/commercial-blocks/scanner.jpg"),
     alt: "Landing page máy quét Epson DS-870",
     width: 360,
     height: 228,
@@ -45,7 +55,7 @@ const COMMERCIAL_STACK_TILES: CommercialTile[] = [
   {
     className: "commercial-tile printer",
     href: "/landing/microtek-xt6060",
-    src: "/assets/commercial-blocks/printer.jpg",
+    src: commercialAsset("/assets/commercial-blocks/printer.jpg"),
     alt: "Landing page máy quét Microtek XT6060",
     width: 360,
     height: 228,
@@ -56,7 +66,7 @@ const COMMERCIAL_ROW_TILES: CommercialTile[] = [
   {
     className: "commercial-tile office",
     href: "/landing/microtek-s6570",
-    src: "/assets/commercial-blocks/office.jpg",
+    src: commercialAsset("/assets/commercial-blocks/office.jpg"),
     alt: "Landing page máy quét Microtek S6570",
     width: 386,
     height: 190,
@@ -64,7 +74,7 @@ const COMMERCIAL_ROW_TILES: CommercialTile[] = [
   {
     className: "commercial-tile solution",
     href: "/landing/xerox-d35wn",
-    src: "/assets/commercial-blocks/solution.jpg",
+    src: commercialAsset("/assets/commercial-blocks/solution.jpg"),
     alt: "Landing page máy quét Xerox D35wn",
     width: 386,
     height: 190,
@@ -72,17 +82,12 @@ const COMMERCIAL_ROW_TILES: CommercialTile[] = [
   {
     className: "commercial-tile service",
     href: "/landing/epson-ds-790wn",
-    src: "/assets/commercial-blocks/service.jpg",
+    src: commercialAsset("/assets/commercial-blocks/service.jpg"),
     alt: "Landing page máy quét Epson DS-790WN",
     width: 386,
     height: 190,
   },
 ];
-
-type HomeHeroClientProps = {
-  banners: PublicBanner[];
-  categories: ProductCategoryNavItem[];
-};
 
 function CommercialTileImage({ tile }: { tile: CommercialTile }) {
   return (
@@ -96,8 +101,8 @@ function CommercialTileImage({ tile }: { tile: CommercialTile }) {
         loading="lazy"
         sizes={PROMO_IMAGE_SIZES}
         quality={68}
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).hidden = true;
+        onError={(event) => {
+          event.currentTarget.hidden = true;
         }}
       />
     </Link>
@@ -106,21 +111,47 @@ function CommercialTileImage({ tile }: { tile: CommercialTile }) {
 
 function getHeroBannerLandingHref(banner: PublicBanner | undefined, index: number) {
   const configuredLink = banner?.link?.trim();
-  const haystack = [banner?.image, banner?.title, banner?.subtitle, configuredLink].filter(Boolean).join(" ").toLowerCase();
+  const haystack = [
+    banner?.image,
+    banner?.title,
+    banner?.subtitle,
+    configuredLink,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
   if (haystack.includes("herobanner1")) return "/landing/herobanner1";
-  if (haystack.includes("mua-may-in") || haystack.includes("may-in") || haystack.includes("printer")) {
+  if (
+    haystack.includes("mua-may-in") ||
+    haystack.includes("may-in") ||
+    haystack.includes("printer")
+  ) {
     return "/landing/herobanner1";
   }
   if (haystack.includes("herobanner2")) return "/landing/herobanner2";
-  if (haystack.includes("tenveo") || haystack.includes("conference") || haystack.includes("hoi-nghi") || haystack.includes("hoi nghi")) {
+  if (
+    haystack.includes("tenveo") ||
+    haystack.includes("conference") ||
+    haystack.includes("hoi-nghi") ||
+    haystack.includes("hoi nghi")
+  ) {
     return "/landing/herobanner2";
   }
   if (haystack.includes("herobanner3")) return "/landing/herobanner3";
   if (haystack.includes("herobanner4")) return "/landing/herobanner4";
-  if (haystack.includes("hpt-solutions") || haystack.includes("ha-tang") || haystack.includes("solutions")) {
+  if (
+    haystack.includes("hpt-solutions") ||
+    haystack.includes("ha-tang") ||
+    haystack.includes("solutions")
+  ) {
     return "/landing/herobanner4";
   }
-  if (haystack.includes("hpt-technology") || haystack.includes("technology") || haystack.includes("cong-nghe")) {
+  if (
+    haystack.includes("hpt-technology") ||
+    haystack.includes("technology") ||
+    haystack.includes("cong-nghe")
+  ) {
     return "/landing/herobanner3";
   }
 
@@ -128,18 +159,31 @@ function getHeroBannerLandingHref(banner: PublicBanner | undefined, index: numbe
     return configuredLink;
   }
 
-  if (haystack.includes("ds-870") || haystack.includes("ds870")) return "/landing/epson-ds-870";
-  if (haystack.includes("xt6060") || haystack.includes("xt-6060")) return "/landing/microtek-xt6060";
+  if (haystack.includes("ds-870") || haystack.includes("ds870")) {
+    return "/landing/epson-ds-870";
+  }
+  if (haystack.includes("xt6060") || haystack.includes("xt-6060")) {
+    return "/landing/microtek-xt6060";
+  }
   if (haystack.includes("s6570")) return "/landing/microtek-s6570";
-  if (haystack.includes("d35wn") || haystack.includes("d35")) return "/landing/xerox-d35wn";
-  if (haystack.includes("790wn") || haystack.includes("ds-790") || haystack.includes("ds790")) {
+  if (haystack.includes("d35wn") || haystack.includes("d35")) {
+    return "/landing/xerox-d35wn";
+  }
+  if (
+    haystack.includes("790wn") ||
+    haystack.includes("ds-790") ||
+    haystack.includes("ds790")
+  ) {
     return "/landing/epson-ds-790wn";
   }
 
   return HERO_BANNER_LANDING_HREFS[index % HERO_BANNER_LANDING_HREFS.length];
 }
 
-export default function HomeHeroClient({ banners, categories }: HomeHeroClientProps) {
+export default function HomeHeroClient({
+  banners,
+  categories,
+}: HomeHeroClientProps) {
   const [activeBanner, setActiveBanner] = useState(0);
   const [previousBanner, setPreviousBanner] = useState<number | null>(null);
 
@@ -152,9 +196,9 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
   useEffect(() => {
     if (banners.length <= 1) return;
     const interval = setInterval(() => {
-      setActiveBanner((prev) => {
-        setPreviousBanner(prev);
-        return (prev + 1) % banners.length;
+      setActiveBanner((previous) => {
+        setPreviousBanner(previous);
+        return (previous + 1) % banners.length;
       });
     }, HERO_ROTATE_INTERVAL_MS);
     return () => clearInterval(interval);
@@ -163,12 +207,15 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
   useEffect(() => {
     if (previousBanner === null || previousBanner === activeBanner) return;
     const timeout = setTimeout(() => {
-      setPreviousBanner((current) => (current === previousBanner ? null : current));
+      setPreviousBanner((current) =>
+        current === previousBanner ? null : current,
+      );
     }, HERO_FADE_DURATION_MS);
     return () => clearTimeout(timeout);
   }, [activeBanner, previousBanner]);
 
-  const nextBanner = banners.length > 1 ? (activeBanner + 1) % banners.length : activeBanner;
+  const nextBanner =
+    banners.length > 1 ? (activeBanner + 1) % banners.length : activeBanner;
   const mountedIndexes = new Set<number>([activeBanner, nextBanner]);
   if (previousBanner !== null) {
     mountedIndexes.add(previousBanner);
@@ -179,7 +226,11 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
       <CategoryPanel categories={categories} />
 
       <div className="hero-commerce-area">
-        <section className="hero hero-banner" aria-label="Banner HPT Tech" style={{ position: "relative" }}>
+        <section
+          className="hero hero-banner"
+          aria-label="Banner HPT Tech"
+          style={{ position: "relative" }}
+        >
           {banners.map((banner, index) => {
             if (!mountedIndexes.has(index)) return null;
             const isActive = index === activeBanner;
@@ -238,7 +289,10 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           ))}
         </aside>
 
-        <section className="commercial-row" aria-label="Khuyến mãi thương mại HPT Tech">
+        <section
+          className="commercial-row"
+          aria-label="Khuyến mãi thương mại HPT Tech"
+        >
           {COMMERCIAL_ROW_TILES.map((tile) => (
             <CommercialTileImage key={tile.src} tile={tile} />
           ))}

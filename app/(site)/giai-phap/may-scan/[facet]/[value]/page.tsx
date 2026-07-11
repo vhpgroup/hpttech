@@ -3,9 +3,7 @@ import { notFound } from "next/navigation";
 import { LandingTemplateA } from "@/components/landing/LandingTemplateA";
 import {
   buildLandingMetadata,
-  FACET_SEGMENT,
   getLandingPageByPath,
-  getPublishedLandingPages,
   getScannersForQuery,
   meetsQualityGate,
   SEGMENT_FACET,
@@ -26,13 +24,7 @@ function isFacetSegment(value: string): value is keyof typeof SEGMENT_FACET {
 }
 
 export async function generateStaticParams() {
-  const pages = await getPublishedLandingPages({ productGroup: "may-scan" });
-  return pages
-    .filter((page) => page.facetType && page.facetSlug)
-    .map((page) => ({
-      facet: FACET_SEGMENT[page.facetType!],
-      value: page.facetSlug!,
-    }));
+  return [];
 }
 
 export async function generateMetadata({ params }: RouteContext): Promise<Metadata> {
