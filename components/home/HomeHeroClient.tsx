@@ -12,6 +12,17 @@ const HERO_FADE_DURATION_MS = 600;
 const HERO_IMAGE_SIZES = "(max-width: 980px) calc(100vw - 24px), 804px";
 const PROMO_IMAGE_SIZES =
   "(max-width: 760px) calc(100vw - 24px), (max-width: 980px) calc((100vw - 34px) / 2), 386px";
+const HERO_BANNER_LANDING_HREFS = [
+  "/landing/herobanner1",
+  "/landing/herobanner2",
+  "/landing/herobanner3",
+  "/landing/herobanner4",
+  "/landing/epson-ds-870",
+  "/landing/microtek-xt6060",
+  "/landing/microtek-s6570",
+  "/landing/xerox-d35wn",
+  "/landing/epson-ds-790wn",
+];
 
 type CommercialTile = {
   className: string;
@@ -93,6 +104,41 @@ function CommercialTileImage({ tile }: { tile: CommercialTile }) {
   );
 }
 
+function getHeroBannerLandingHref(banner: PublicBanner | undefined, index: number) {
+  const configuredLink = banner?.link?.trim();
+  const haystack = [banner?.image, banner?.title, banner?.subtitle, configuredLink].filter(Boolean).join(" ").toLowerCase();
+  if (haystack.includes("herobanner1")) return "/landing/herobanner1";
+  if (haystack.includes("mua-may-in") || haystack.includes("may-in") || haystack.includes("printer")) {
+    return "/landing/herobanner1";
+  }
+  if (haystack.includes("herobanner2")) return "/landing/herobanner2";
+  if (haystack.includes("tenveo") || haystack.includes("conference") || haystack.includes("hoi-nghi") || haystack.includes("hoi nghi")) {
+    return "/landing/herobanner2";
+  }
+  if (haystack.includes("herobanner3")) return "/landing/herobanner3";
+  if (haystack.includes("herobanner4")) return "/landing/herobanner4";
+  if (haystack.includes("hpt-solutions") || haystack.includes("ha-tang") || haystack.includes("solutions")) {
+    return "/landing/herobanner4";
+  }
+  if (haystack.includes("hpt-technology") || haystack.includes("technology") || haystack.includes("cong-nghe")) {
+    return "/landing/herobanner3";
+  }
+
+  if (configuredLink?.startsWith("/landing/")) {
+    return configuredLink;
+  }
+
+  if (haystack.includes("ds-870") || haystack.includes("ds870")) return "/landing/epson-ds-870";
+  if (haystack.includes("xt6060") || haystack.includes("xt-6060")) return "/landing/microtek-xt6060";
+  if (haystack.includes("s6570")) return "/landing/microtek-s6570";
+  if (haystack.includes("d35wn") || haystack.includes("d35")) return "/landing/xerox-d35wn";
+  if (haystack.includes("790wn") || haystack.includes("ds-790") || haystack.includes("ds790")) {
+    return "/landing/epson-ds-790wn";
+  }
+
+  return HERO_BANNER_LANDING_HREFS[index % HERO_BANNER_LANDING_HREFS.length];
+}
+
 export default function HomeHeroClient({ banners, categories }: HomeHeroClientProps) {
   const [activeBanner, setActiveBanner] = useState(0);
   const [previousBanner, setPreviousBanner] = useState<number | null>(null);
@@ -137,14 +183,14 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
           {banners.map((banner, index) => {
             if (!mountedIndexes.has(index)) return null;
             const isActive = index === activeBanner;
+            const landingHref = getHeroBannerLandingHref(banner, index);
 
             return (
-              <a
+              <Link
                 key={index}
                 className="hero-slide-link"
-                href={banner?.link || "/"}
-                target="_blank"
-                rel="noreferrer"
+                href={landingHref}
+                aria-label={`Xem landing page ${banner?.title || `banner ${index + 1}`}`}
                 style={{
                   position: "absolute",
                   inset: 0,
@@ -165,7 +211,7 @@ export default function HomeHeroClient({ banners, categories }: HomeHeroClientPr
                     priority={index === 0}
                   />
                 ) : null}
-              </a>
+              </Link>
             );
           })}
 

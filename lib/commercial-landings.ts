@@ -66,6 +66,82 @@ export type CommercialLanding = {
 
 export const COMMERCIAL_LANDINGS: CommercialLanding[] = [
   {
+    slug: "herobanner1",
+    title: "Hero banner 1 - Mua máy in tặng mực in",
+    eyebrow: "Landing page hero banner",
+    description:
+      "Landing page riêng cho hero banner 1, hiện dùng cho chiến dịch mua máy in phù hợp và nhận thêm mực in tại HPT Tech.",
+    imageSrc: "/assets/herobanner/herobanner1.jpg",
+    imageAlt: "Hero banner HPT Tech mua máy in tặng mực in",
+    highlights: [
+      "Đi đúng theo tên hero banner để sau này thay ảnh hoặc đổi nội dung vẫn giữ được URL ổn định.",
+      "Dùng header, footer và contact floating chung của website HPT Tech.",
+      "Nội dung tập trung vào tư vấn máy in, quà tặng mực in và dịch vụ triển khai cho doanh nghiệp.",
+    ],
+    specs: [
+      { label: "Banner", value: "herobanner1.jpg" },
+      { label: "Route", value: "/landing/herobanner1" },
+      { label: "Chiến dịch hiện tại", value: "Mua máy in tặng mực in" },
+    ],
+  },
+  {
+    slug: "herobanner2",
+    title: "Hero banner 2 - Giải pháp hội nghị Tenveo",
+    eyebrow: "Landing page hero banner",
+    description:
+      "Landing page riêng cho hero banner 2, hiện dùng cho giải pháp hội nghị Tenveo 3 trong 1 tại HPT Tech.",
+    imageSrc: "/assets/herobanner/herobanner2.jpg",
+    imageAlt: "Hero banner HPT Tech giải pháp hội nghị Tenveo 3 trong 1",
+    highlights: [
+      "Giữ URL theo tên hero banner để sau này thay ảnh hoặc đổi chiến dịch vẫn không phụ thuộc tên sản phẩm.",
+      "Dùng header, footer và contact floating chung của website HPT Tech.",
+      "Nội dung tập trung vào giải pháp hội nghị trực tuyến cho xã, phường và doanh nghiệp.",
+    ],
+    specs: [
+      { label: "Banner", value: "herobanner2.jpg" },
+      { label: "Route", value: "/landing/herobanner2" },
+      { label: "Chiến dịch hiện tại", value: "Giải pháp hội nghị Tenveo" },
+    ],
+  },
+  {
+    slug: "herobanner3",
+    title: "Hero banner 3 - Giải pháp công nghệ HPT",
+    eyebrow: "Landing page hero banner",
+    description:
+      "Landing page riêng cho hero banner 3, hiện dùng cho thông điệp giải pháp công nghệ doanh nghiệp toàn diện của HPT Technology.",
+    imageSrc: "/assets/herobanner/herobanner3.jpg",
+    imageAlt: "Hero banner HPT Technology giải pháp công nghệ doanh nghiệp toàn diện",
+    highlights: [
+      "Giữ URL theo tên hero banner để sau này thay ảnh hoặc đổi chiến dịch vẫn không phụ thuộc tên sản phẩm.",
+      "Dùng header, footer và contact floating chung của website HPT Tech.",
+      "Nội dung tập trung vào năng lực cung cấp thiết bị, triển khai hệ thống, vận hành và bảo trì cho doanh nghiệp.",
+    ],
+    specs: [
+      { label: "Banner", value: "herobanner3.jpg" },
+      { label: "Route", value: "/landing/herobanner3" },
+      { label: "Chiến dịch hiện tại", value: "Giải pháp công nghệ HPT" },
+    ],
+  },
+  {
+    slug: "herobanner4",
+    title: "Hero banner 4 - Giải pháp hạ tầng HPT",
+    eyebrow: "Landing page hero banner",
+    description:
+      "Landing page riêng cho hero banner 4, hiện dùng cho thông điệp giải pháp công nghệ và hạ tầng toàn diện của HPT Technology.",
+    imageSrc: "/assets/herobanner/herobanner4.jpg",
+    imageAlt: "Hero banner HPT Technology giải pháp công nghệ và hạ tầng toàn diện",
+    highlights: [
+      "Giữ URL theo tên hero banner để sau này thay ảnh hoặc đổi chiến dịch vẫn không phụ thuộc tên sản phẩm.",
+      "Dùng header, footer và contact floating chung của website HPT Tech.",
+      "Nội dung tập trung vào các nhóm giải pháp thiết bị, an ninh, trình chiếu, nội thất, dịch vụ kỹ thuật và hạ tầng.",
+    ],
+    specs: [
+      { label: "Banner", value: "herobanner4.jpg" },
+      { label: "Route", value: "/landing/herobanner4" },
+      { label: "Chiến dịch hiện tại", value: "Giải pháp hạ tầng HPT" },
+    ],
+  },
+  {
     slug: "epson-ds-870",
     title: "Máy quét Epson WorkForce DS-870",
     eyebrow: "Landing page thương mại riêng",

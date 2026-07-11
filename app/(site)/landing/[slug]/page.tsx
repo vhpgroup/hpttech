@@ -65,7 +65,23 @@ export default async function LandingPage({ params }: LandingPageProps) {
   }
 
   if (slug === "microtek-xt6060") {
-    return <PremiumScannerLanding config={MICROTEK_XT6060_PREMIUM} />;
+    return <MicrotekXT6060HtmlLanding />;
+  }
+
+  if (slug === "herobanner1") {
+    return <HeroBannerEmbedLanding slug="herobanner1" title="Hero banner 1 - Mua máy in tặng mực in" />;
+  }
+
+  if (slug === "herobanner2") {
+    return <HeroBannerEmbedLanding slug="herobanner2" title="Hero banner 2 - Giải pháp hội nghị Tenveo" />;
+  }
+
+  if (slug === "herobanner3") {
+    return <HeroBannerEmbedLanding slug="herobanner3" title="Hero banner 3 - Giải pháp công nghệ HPT" />;
+  }
+
+  if (slug === "herobanner4") {
+    return <HeroBannerEmbedLanding slug="herobanner4" title="Hero banner 4 - Giải pháp hạ tầng HPT" />;
   }
 
   return <DefaultLanding landing={landing} />;
@@ -192,6 +208,139 @@ ${landingEmbedSafetyCss(".xerox-d35wn-html", "60px", "64px")}`,
   );
 }
 
+async function MicrotekXT6060HtmlLanding() {
+  try {
+    const [css, fragment] = await Promise.all([
+      readFile(
+        path.join(
+          process.cwd(),
+          "public",
+          "assets",
+          "landing",
+          "microtek-xt6060",
+          "xt6060.css",
+        ),
+        "utf8",
+      ),
+      readFile(
+        path.join(
+          process.cwd(),
+          "public",
+          "assets",
+          "landing",
+          "microtek-xt6060",
+          "fragment.html",
+        ),
+        "utf8",
+      ),
+    ]);
+    const body = fragment
+      .replace(/src="assets\//g, 'src="/assets/landing/microtek-xt6060/assets/')
+      .trim();
+
+    return (
+      <main className="bg-white pb-0">
+        <div className="subpage-main !pb-0">
+          <SubpageHeader
+            title="Máy quét Microtek XT6060"
+            breadcrumbs={[
+              { label: "Trang chủ", href: "/" },
+              { label: "Sản phẩm" },
+            ]}
+          />
+        </div>
+        <div dangerouslySetInnerHTML={{ __html: body }} />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `${css}
+${xt6060EmbedSafetyCss()}`,
+          }}
+        />
+      </main>
+    );
+  } catch {
+    return <PremiumScannerLanding config={MICROTEK_XT6060_PREMIUM} />;
+  }
+}
+
+async function HeroBannerEmbedLanding({
+  slug,
+  title,
+}: {
+  slug: string;
+  title: string;
+}) {
+  try {
+    const cssFileName =
+      slug === "herobanner2"
+        ? "tenveo.css"
+        : slug === "herobanner3"
+          ? "hpt.css"
+          : slug === "herobanner4"
+            ? "hptx.css"
+          : "printer-promo.css";
+    const safetyCss =
+      slug === "herobanner2"
+        ? tenveoEmbedSafetyCss()
+        : slug === "herobanner3"
+          ? hptTechnologyEmbedSafetyCss()
+          : slug === "herobanner4"
+            ? hptSolutionsEmbedSafetyCss()
+          : heroBannerEmbedSafetyCss();
+    const [css, fragment] = await Promise.all([
+      readFile(
+        path.join(
+          process.cwd(),
+          "public",
+          "assets",
+          "landing",
+          slug,
+          cssFileName,
+        ),
+        "utf8",
+      ),
+      readFile(
+        path.join(
+          process.cwd(),
+          "public",
+          "assets",
+          "landing",
+          slug,
+          "fragment.html",
+        ),
+        "utf8",
+      ),
+    ]);
+    const normalizedCss = css.replace(/url\("\.\.\/assets\//g, `url("/assets/landing/${slug}/assets/`);
+    const body = fragment
+      .replace(/src="assets\//g, `src="/assets/landing/${slug}/assets/`)
+      .trim();
+
+    return (
+      <main className="bg-white pb-0">
+        <div className="subpage-main !pb-0">
+          <SubpageHeader
+            title={title}
+            breadcrumbs={[
+              { label: "Trang chủ", href: "/" },
+              { label: "Hero banner" },
+            ]}
+          />
+        </div>
+        <div dangerouslySetInnerHTML={{ __html: body }} />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `${normalizedCss}
+${safetyCss}`,
+          }}
+        />
+      </main>
+    );
+  } catch {
+    notFound();
+  }
+}
+
 function extractStandaloneLanding(
   source: string,
   options: { keepScripts?: boolean } = {},
@@ -266,15 +415,118 @@ function landingEmbedSafetyCss(
 ${scope},${scope} *{box-sizing:border-box}
 ${scope} section,${scope} article,${scope} div{max-width:100%}
 ${scope} .wrap{width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;padding-inline:clamp(20px,3vw,46px)}
-${scope} .hero{overflow:hidden}
+${scope} .hero{width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow:hidden}
 ${scope} .hero .wrap{padding-top:${heroPaddingTop};padding-bottom:${heroPaddingBottom}}
 ${scope} img,${scope} svg,${scope} video,${scope} canvas{max-width:100%!important}
 ${scope} img{height:auto!important;object-fit:contain!important}
 ${scope} .hero img,${scope} .hero-art img,${scope} .plate img,${scope} .panel img,${scope} .visual img{width:auto!important;max-height:min(560px,62vh)!important;margin-inline:auto!important}
+${scope} .stats,${scope} .through,${scope} .pillars,${scope} .onetouch,${scope} .warr-sec,${scope} .soft{width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow:hidden}
+${scope} .stats .wrap,${scope} .through .wrap,${scope} .pillars .wrap,${scope} .onetouch .wrap,${scope} .warr-sec .wrap,${scope} .soft .wrap{width:100%;max-width:100%}
 ${scope} .hero .wrap,${scope} .feature,${scope} .vol-grid{min-width:0}
 ${scope} .hero .wrap > *,${scope} .feature > *,${scope} .vol-grid > *{min-width:0}
 @media(max-width:900px){${scope} .hero img,${scope} .hero-art img,${scope} .plate img,${scope} .panel img,${scope} .visual img{max-height:480px!important}}
 @media(max-width:640px){${scope} .wrap{width:100%;padding-inline:18px}${scope} .hero img,${scope} .hero-art img,${scope} .plate img,${scope} .panel img,${scope} .visual img{max-height:380px!important}}`;
+}
+
+function xt6060EmbedSafetyCss() {
+  return `.xt6060-landing{font-family:var(--font-body),system-ui,sans-serif;width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow-x:hidden}
+.xt6060-landing,.xt6060-landing *{box-sizing:border-box}
+.xt6060-landing section,.xt6060-landing div,.xt6060-landing article{max-width:100%}
+.xt6060-container{width:100%;max-width:100%;padding-inline:clamp(18px,3vw,46px)}
+.xt6060-hero,.xt6060-dark-section,.xt6060-workflow,.xt6060-offer{width:100%;max-width:100%;overflow:hidden}
+.xt6060-product-stage,.xt6060-offer-shell,.xt6060-use-card,.xt6060-feature-card{max-width:100%;overflow:hidden}
+.xt6060-product-image,.xt6060-feature-visual img,.xt6060-product-mini,.xt6060-offer-card img{height:auto!important;max-width:100%!important;object-fit:contain!important}
+.xt6060-product-image{width:min(610px,100%)!important;transform:translate(0,4%)}
+.xt6060-metrics,.xt6060-feature-grid,.xt6060-use-grid,.xt6060-workflow-grid,.xt6060-spec-wrap,.xt6060-offer-shell{min-width:0}
+.xt6060-metrics > *,.xt6060-feature-grid > *,.xt6060-use-grid > *,.xt6060-workflow-grid > *,.xt6060-spec-wrap > *,.xt6060-offer-shell > *{min-width:0}
+.xt6060-section{padding-block:clamp(64px,6vw,92px)}
+.xt6060-section-kicker,.xt6060-eyebrow{font-size:.86rem;letter-spacing:.14em}
+.xt6060-section-intro,.xt6060-hero-lede{font-size:1.12rem;line-height:1.85}
+.xt6060-problem-card p,.xt6060-feature-copy p,.xt6060-use-card p,.xt6060-step p,.xt6060-offer p{font-size:1rem;line-height:1.78}
+.xt6060-metric span,.xt6060-stage-note,.xt6060-spec-row dt,.xt6060-spec-note,.xt6060-footer-grid p,.xt6060-footer-links{font-size:.88rem;line-height:1.6}
+.xt6060-use-grid{grid-auto-rows:minmax(148px,auto)}
+.xt6060-use-card{padding:1.45rem;min-height:auto}
+.xt6060-use-card:nth-child(1){min-height:250px}
+.xt6060-use-card:nth-child(n){display:flex;flex-direction:column;justify-content:flex-start}
+.xt6060-use-card h3{font-size:clamp(1.85rem,2.2vw,2.55rem);line-height:1.12}
+.xt6060-use-icon{font-size:clamp(4.4rem,8vw,7.2rem);opacity:.8}
+.xt6060-feature-card{min-height:390px}
+.xt6060-feature-copy h3,.xt6060-step h3,.xt6060-problem-card h3{font-size:1.62rem;line-height:1.18}
+@media(max-width:720px){.xt6060-container{width:100%;padding-inline:18px}.xt6060-product-image{width:min(440px,100%)!important}.xt6060-product-stage{min-height:320px}.xt6060-offer-card{width:100%}}`;
+}
+
+function heroBannerEmbedSafetyCss() {
+  return `.printer-promo{font-family:var(--font-body),system-ui,sans-serif;width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow-x:hidden}
+.printer-promo,.printer-promo *{box-sizing:border-box}
+.printer-promo section,.printer-promo div,.printer-promo article{max-width:100%}
+.pp-container{width:100%;max-width:100%;padding-inline:clamp(18px,3vw,46px)}
+.pp-hero,.pp-section,.pp-final{width:100%;max-width:100%;overflow:hidden}
+.printer-promo img{height:auto;max-width:100%;object-fit:contain}
+.pp-banner-frame img{width:100%}
+.pp-hero-grid,.pp-trust-grid,.pp-benefit-grid,.pp-chooser-grid,.pp-service-panel,.pp-audience-grid,.pp-final-shell{min-width:0}
+.pp-hero-grid > *,.pp-trust-grid > *,.pp-benefit-grid > *,.pp-chooser-grid > *,.pp-service-panel > *,.pp-audience-grid > *,.pp-final-shell > *{min-width:0}
+.pp-section{padding-block:clamp(64px,6vw,92px)}
+.pp-lede,.pp-hero-copy p,.pp-choice p,.pp-benefit-card p,.pp-step p,.pp-audience-card p,.pp-faq p,.pp-final p{font-size:1.04rem;line-height:1.78}
+.pp-eyebrow{font-size:.86rem}
+.pp-title{font-size:clamp(2.65rem,4.7vw,5rem)}
+@media(max-width:700px){.printer-promo{width:100%}.pp-container{padding-inline:18px}.pp-section{padding-block:58px}}`;
+}
+
+function tenveoEmbedSafetyCss() {
+  return `.tenveo-landing{font-family:var(--font-body),system-ui,sans-serif;width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow-x:hidden}
+.tenveo-landing,.tenveo-landing *{box-sizing:border-box}
+.tenveo-landing section,.tenveo-landing div,.tenveo-landing article{max-width:100%}
+.tv-container{width:100%;max-width:100%;padding-inline:clamp(18px,3vw,46px)}
+.tv-hero,.tv-section,.tv-final{width:100%;max-width:100%;overflow:hidden}
+.tenveo-landing img{height:auto;max-width:100%;object-fit:contain}
+.tv-banner-frame img{width:100%}
+.tv-hero-grid,.tv-trust-grid,.tv-system-grid,.tv-benefit-grid,.tv-platform-grid,.tv-use-grid,.tv-process-grid,.tv-service-box,.tv-faq-grid,.tv-final-shell{min-width:0}
+.tv-hero-grid > *,.tv-trust-grid > *,.tv-system-grid > *,.tv-benefit-grid > *,.tv-platform-grid > *,.tv-use-grid > *,.tv-process-grid > *,.tv-service-box > *,.tv-faq-grid > *,.tv-final-shell > *{min-width:0}
+.tv-section{padding-block:clamp(64px,6vw,92px)}
+.tv-lede,.tv-hero-copy p,.tv-system-card p,.tv-benefit p,.tv-use p,.tv-step p,.tv-service-item p,.tv-faq p,.tv-final p{font-size:1.04rem;line-height:1.78}
+.tv-system-card li,.tv-hero-note,.tv-trust-item small,.tv-platform small{font-size:.78rem;line-height:1.55}
+.tv-eyebrow{font-size:.86rem}
+.tv-title{font-size:clamp(2.65rem,4.7vw,5rem)}
+@media(max-width:700px){.tenveo-landing{width:100%}.tv-container{padding-inline:18px}.tv-section{padding-block:58px}.tv-platform-list{grid-template-columns:1fr 1fr}}`;
+}
+
+function hptTechnologyEmbedSafetyCss() {
+  return `.hpt-landing{font-family:var(--font-body),system-ui,sans-serif;width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow-x:hidden}
+.hpt-landing,.hpt-landing *{box-sizing:border-box}
+.hpt-landing section,.hpt-landing div,.hpt-landing article{max-width:100%}
+.hpt-container{width:100%;max-width:100%;padding-inline:clamp(18px,3vw,46px)}
+.hpt-hero,.hpt-section,.hpt-final{width:100%;max-width:100%;overflow:hidden}
+.hpt-landing img{height:auto;max-width:100%;object-fit:contain}
+.hpt-banner-frame img{width:100%}
+.hpt-hero-grid,.hpt-trust-grid,.hpt-pillar-grid,.hpt-cat-grid,.hpt-deploy-grid,.hpt-net-grid,.hpt-av-grid,.hpt-service-grid,.hpt-process-grid,.hpt-final-shell{min-width:0}
+.hpt-hero-grid > *,.hpt-trust-grid > *,.hpt-pillar-grid > *,.hpt-cat-grid > *,.hpt-deploy-grid > *,.hpt-net-grid > *,.hpt-av-grid > *,.hpt-service-grid > *,.hpt-process-grid > *,.hpt-final-shell > *{min-width:0}
+.hpt-section{padding-block:clamp(34px,3vw,48px)}
+.hpt-lede,.hpt-hero-copy p:not(.hpt-eyebrow):not(.hpt-hero-note),.hpt-pillar p,.hpt-cat li,.hpt-deploy-card p,.hpt-service-card p,.hpt-process-card p,.hpt-final p{font-size:1.12rem;line-height:1.72}
+.hpt-pillar h3,.hpt-cat h3,.hpt-deploy-card h3,.hpt-service-card h3,.hpt-process-card h3{font-size:1.28rem;line-height:1.25}
+.hpt-trust-item span,.hpt-hero-note,.hpt-pill{font-size:.92rem;line-height:1.5}
+.hpt-eyebrow{font-size:.86rem}
+.hpt-title{font-size:clamp(2.2rem,3.35vw,3.55rem)}
+@media(max-width:700px){.hpt-landing{width:100%}.hpt-container{padding-inline:18px}.hpt-section{padding-block:32px}.hpt-badge15{right:6px}}`;
+}
+
+function hptSolutionsEmbedSafetyCss() {
+  return `.hptx-landing{font-family:var(--font-body),system-ui,sans-serif;width:var(--shell-width);max-width:min(var(--shell-width),100%);margin-inline:auto;overflow-x:hidden}
+.hptx-landing,.hptx-landing *{box-sizing:border-box}
+.hptx-landing section,.hptx-landing div,.hptx-landing article{max-width:100%}
+.hx-container{width:100%;max-width:100%;padding-inline:clamp(18px,3vw,46px)}
+.hx-hero,.hx-section,.hx-final{width:100%;max-width:100%;overflow:hidden}
+.hptx-landing img{height:auto;max-width:100%;object-fit:contain}
+.hx-banner-frame img{width:100%}
+.hx-hero-grid,.hx-trust-grid,.hx-sol-grid,.hx-why-grid,.hx-flow-grid,.hx-final-shell{min-width:0}
+.hx-hero-grid > *,.hx-trust-grid > *,.hx-sol-grid > *,.hx-why-grid > *,.hx-flow-grid > *,.hx-final-shell > *{min-width:0}
+.hx-section{padding-block:clamp(34px,3vw,48px)}
+.hx-lede,.hx-hero-copy p:not(.hx-eyebrow):not(.hx-hero-note),.hx-sol-card li,.hx-why-card p,.hx-flow-card p,.hx-final p{font-size:1.1rem;line-height:1.7}
+.hx-sol-card h3,.hx-why-card h3,.hx-flow-card h3{font-size:1.24rem;line-height:1.28}
+.hx-trust-item b{font-size:1rem}
+.hx-trust-item span,.hx-hero-note,.hx-pill,.hx-sol-brands span{font-size:.9rem;line-height:1.5}
+.hx-eyebrow{font-size:.86rem}
+.hx-title{font-size:clamp(2.15rem,3.25vw,3.45rem)}
+@media(max-width:700px){.hptx-landing{width:100%}.hx-container{padding-inline:18px}.hx-section{padding-block:32px}}`;
 }
 
 async function MicrotekS6570HtmlLanding() {
