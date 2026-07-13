@@ -1389,6 +1389,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     sort?: ProductSearchParams["sort"],
     priceMin?: string,
     priceMax?: string,
+    size?: string,
+    speed?: string,
+    feature?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1399,6 +1402,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       sort,
       priceMin,
       priceMax,
+      size,
+      speed,
+      feature,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1423,6 +1429,9 @@ export async function getProductSearchPageFromPayload({
   sort = "best",
   priceMin = "",
   priceMax = "",
+  size = "",
+  speed = "",
+  feature = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1433,6 +1442,9 @@ export async function getProductSearchPageFromPayload({
     sort,
     priceMin,
     priceMax,
+    size,
+    speed,
+    feature,
   );
 }
 
