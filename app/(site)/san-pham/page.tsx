@@ -37,6 +37,9 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
         : "best",
     priceMin: firstParam(params.priceMin) || "",
     priceMax: firstParam(params.priceMax) || "",
+    size: firstParam(params.size) || "",
+    speed: firstParam(params.speed) || "",
+    feature: firstParam(params.feature) || "",
   };
 }
 
