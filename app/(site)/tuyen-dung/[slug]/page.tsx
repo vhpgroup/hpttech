@@ -59,26 +59,25 @@ export default async function RecruitmentDetailPage({ params }: RecruitmentDetai
         <span className="line-clamp-1">{job.title}</span>
       </nav>
 
-      <section className="relative mt-5 min-h-[360px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#06162f] via-[#0b3a78] to-[#0A4BFF] text-white">
+      <section className="mt-5 overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
         {job.image ? (
-          <>
-            <Image src={job.image} alt={job.title} fill priority sizes="100vw" className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-slate-950/20" />
-          </>
+          <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
+            <Image src={job.image} alt={job.title} fill priority sizes="(max-width: 1199px) 100vw, 1200px" className="object-contain" />
+          </div>
         ) : null}
-        <div className="relative flex min-h-[360px] max-w-3xl flex-col justify-center p-7 sm:p-10">
-          <span className="inline-flex w-fit rounded bg-[#0A4BFF] px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide">
+        <div className="max-w-3xl p-6 sm:p-8">
+          <span className="inline-flex w-fit rounded bg-primary-600 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-white">
             Vị trí tuyển dụng
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">{job.title}</h1>
-          {job.summary ? <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-200">{job.summary}</p> : null}
+          {job.summary ? <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-600">{job.summary}</p> : null}
           {job.date ? (
-            <p className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-100">
+            <p className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary-700">
               <CalendarDays size={16} />
               Đăng ngày {job.date}
             </p>
           ) : null}
-          <a href="#ung-tuyen" className="mt-7 inline-flex w-fit items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#0A4BFF]">
+          <a href="#ung-tuyen" className="mt-7 inline-flex w-fit items-center gap-2 rounded-lg bg-primary-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-primary-700">
             Ứng tuyển ngay
             <ArrowRight size={16} />
           </a>
