@@ -99,6 +99,35 @@ export type ProductSearchParams = {
   sort?: "best" | "price-asc" | "price-desc" | "newest" | "popular";
   priceMin?: string;
   priceMax?: string;
+  /** Lọc máy scan theo khổ giấy tối đa: A4 | A3 | A2 | A1 | A0 */
+  size?: string;
+  /** Lọc máy scan theo tốc độ/quy mô: soho | office | dept | production */
+  speed?: string;
+  /** Lọc máy scan theo tính năng: duplex | color | ocr | passport | card */
+  feature?: string;
+};
+
+/** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
+const SCANNER_SIZE_VALUES = new Set(["A4", "A3", "A2", "A1", "A0"]);
+
+/**
+ * Bậc tốc độ/quy mô → điều kiện SQL trên cột scanner_specs_scan_speed_simplex_ppm.
+ * Giá trị được whitelist (không nội suy chuỗi người dùng vào SQL).
+ */
+const SCANNER_SPEED_SQL: Record<string, string> = {
+  soho: "p.scanner_specs_scan_speed_simplex_ppm <= 30",
+  office: "p.scanner_specs_scan_speed_simplex_ppm between 31 and 60",
+  dept: "p.scanner_specs_scan_speed_simplex_ppm between 61 and 100",
+  production: "p.scanner_specs_scan_speed_simplex_ppm > 100",
+};
+
+/** Tính năng → cột boolean tương ứng trong nhóm scannerSpecs (whitelist). */
+const SCANNER_FEATURE_COLUMN: Record<string, string> = {
+  duplex: "p.scanner_specs_duplex_scan",
+  color: "p.scanner_specs_color_scan",
+  ocr: "p.scanner_specs_ocr",
+  passport: "p.scanner_specs_passport_scan",
+  card: "p.scanner_specs_plastic_card_scan",
 };
 
 function normalizeSearchText(value?: string) {
@@ -1165,6 +1194,23 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
   if (Number.isFinite(priceMax) && priceMax > 0) {
     values.push(priceMax);
     where.push(`effective_price <= $${values.length}`);
+  }
+
+  // --- Bộ lọc chuyên biệt máy scan (dựa trên nhóm scannerSpecs) ---
+  const size = cleanCatalogParam(params.size).toUpperCase();
+  if (SCANNER_SIZE_VALUES.has(size)) {
+    values.push(size);
+    where.push(`p.scanner_specs_max_paper_size = $${values.length}`);
+  }
+
+  const speedSql = SCANNER_SPEED_SQL[cleanCatalogParam(params.speed).toLowerCase()];
+  if (speedSql) {
+    where.push(speedSql);
+  }
+
+  const featureColumn = SCANNER_FEATURE_COLUMN[cleanCatalogParam(params.feature).toLowerCase()];
+  if (featureColumn) {
+    where.push(`${featureColumn} = true`);
   }
 
   return where.join(" and ");

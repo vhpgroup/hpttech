@@ -32,66 +32,90 @@ type MegaColumn = {
   }>;
 };
 
-function buildCategoryFilterHref(category: string, options?: { search?: string; brand?: string }) {
+// Slug danh mục cha của nhóm máy scan (khớp categories.slug trong CMS).
+const SCANNER_PARENT_SLUG = "may-scan";
+
+/**
+ * Dựng href tới trang danh sách sản phẩm với bộ lọc.
+ * Mọi lọc chuyên biệt máy scan (size/speed/feature) được kèm category cha "may-scan"
+ * để chỉ áp trong phạm vi máy scan. Các trục đều trỏ chung 1 kho SP (không nhân bản dữ liệu).
+ */
+function buildProductFilterHref(options: {
+  category?: string;
+  brand?: string;
+  size?: string;
+  speed?: string;
+  feature?: string;
+}) {
   const params = new URLSearchParams();
-  params.set("category", category);
-  if (options?.search) params.set("search", options.search);
-  if (options?.brand) params.set("brand", options.brand);
+  if (options.category) params.set("category", options.category);
+  if (options.brand) params.set("brand", options.brand);
+  if (options.size) params.set("size", options.size);
+  if (options.speed) params.set("speed", options.speed);
+  if (options.feature) params.set("feature", options.feature);
   return `/san-pham?${params.toString()}`;
 }
 
 const scannerMegaColumns: MegaColumn[] = [
   {
-    title: "Theo nhu cầu",
+    // Trục 1 — DANH MỤC THẬT (category, single-select). Link tới slug danh mục con.
+    title: "Theo loại máy",
     links: [
-      { label: "Văn phòng", href: buildCategoryFilterHref("Máy scan", { search: "Văn phòng" }) },
-      { label: "Doanh nghiệp", href: buildCategoryFilterHref("Máy scan", { search: "Doanh nghiệp" }) },
-      { label: "Tốc độ cao", href: buildCategoryFilterHref("Máy scan", { search: "Tốc độ cao" }) },
-      { label: "Di động", href: buildCategoryFilterHref("Máy scan", { search: "Di động" }) },
-      { label: "Scan mạng", href: buildCategoryFilterHref("Máy scan", { search: "Scan mạng" }) },
-      { label: "Số hóa tài liệu", href: buildCategoryFilterHref("Máy scan", { search: "Số hóa tài liệu" }) },
+      { label: "Máy scan tài liệu ADF", href: buildProductFilterHref({ category: "may-scan-tai-lieu-adf" }) },
+      { label: "Máy scan ADF + Flatbed", href: buildProductFilterHref({ category: "may-scan-adf-flatbed" }) },
+      { label: "Máy scan phẳng (Flatbed)", href: buildProductFilterHref({ category: "may-scan-phang" }) },
+      { label: "Máy scan khổ lớn A2/A1/A0", href: buildProductFilterHref({ category: "may-scan-kho-lon" }) },
+      { label: "Máy scan sách & số hóa", href: buildProductFilterHref({ category: "may-scan-sach-so-hoa" }) },
+      { label: "Máy scan phim & ảnh", href: buildProductFilterHref({ category: "may-scan-phim-anh" }) },
+      { label: "Máy scan di động / cầm tay", href: buildProductFilterHref({ category: "may-scan-di-dong" }) },
+      { label: "Máy scan chuyên dụng", href: buildProductFilterHref({ category: "may-scan-chuyen-dung" }) },
     ],
   },
   {
-    title: "Loại máy scan",
+    // Trục 2 — BỘ LỌC theo hãng (field brand).
+    title: "Theo hãng",
     links: [
-      { label: "ADF", href: buildCategoryFilterHref("Máy scan", { search: "ADF" }) },
-      { label: "Flatbed", href: buildCategoryFilterHref("Máy scan", { search: "Flatbed" }) },
-      { label: "Scan 2 mặt", href: buildCategoryFilterHref("Máy scan", { search: "Scan 2 mặt" }) },
-      { label: "Duplex", href: buildCategoryFilterHref("Máy scan", { search: "Duplex" }) },
-      { label: "Sheet-fed", href: buildCategoryFilterHref("Máy scan", { search: "Sheet-fed" }) },
-      { label: "Network scanner", href: buildCategoryFilterHref("Máy scan", { search: "Network scanner" }) },
+      { label: "Canon", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Canon" }) },
+      { label: "Epson", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Epson" }) },
+      { label: "HP", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "HP" }) },
+      { label: "Ricoh / Fujitsu", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Ricoh" }) },
+      { label: "Brother", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Brother" }) },
+      { label: "Plustek", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Plustek" }) },
+      { label: "Microtek", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Microtek" }) },
+      { label: "Kodak Alaris", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Kodak Alaris" }) },
+      { label: "Avision", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Avision" }) },
     ],
   },
   {
-    title: "Khổ giấy / tính năng",
+    // Trục 3 — BỘ LỌC theo khổ giấy (scannerSpecs.maxPaperSize).
+    title: "Theo khổ giấy",
     links: [
-      { label: "A4", href: buildCategoryFilterHref("Máy scan", { search: "A4" }) },
-      { label: "A3", href: buildCategoryFilterHref("Máy scan", { search: "A3" }) },
-      { label: "WiFi", href: buildCategoryFilterHref("Máy scan", { search: "WiFi" }) },
-      { label: "USB", href: buildCategoryFilterHref("Máy scan", { search: "USB" }) },
-      { label: "LAN", href: buildCategoryFilterHref("Máy scan", { search: "LAN" }) },
-      { label: "Màn hình cảm ứng", href: buildCategoryFilterHref("Máy scan", { search: "Màn hình cảm ứng" }) },
+      { label: "Máy scan A4", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, size: "A4" }) },
+      { label: "Máy scan A3", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, size: "A3" }) },
+      { label: "Máy scan A2", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, size: "A2" }) },
+      { label: "Máy scan A1", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, size: "A1" }) },
+      { label: "Máy scan A0", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, size: "A0" }) },
     ],
   },
   {
-    title: "Thương hiệu",
+    // Trục 4 — BỘ LỌC theo tốc độ/quy mô (scannerSpecs.scanSpeedSimplexPpm).
+    title: "Theo tốc độ / quy mô",
     links: [
-      { label: "Ricoh", href: buildCategoryFilterHref("Máy scan", { brand: "Ricoh" }) },
-      { label: "Brother", href: buildCategoryFilterHref("Máy scan", { brand: "Brother" }) },
-      { label: "Epson", href: buildCategoryFilterHref("Máy scan", { brand: "Epson" }) },
-      { label: "Plustek", href: buildCategoryFilterHref("Máy scan", { brand: "Plustek" }) },
-      { label: "Microtek", href: buildCategoryFilterHref("Máy scan", { brand: "Microtek" }) },
+      { label: "Cá nhân / VP nhỏ (≤30 trang/phút)", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, speed: "soho" }) },
+      { label: "Văn phòng (31–60 trang/phút)", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, speed: "office" }) },
+      { label: "Phòng ban (61–100 trang/phút)", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, speed: "dept" }) },
+      { label: "Trung tâm số hóa (>100 trang/phút)", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, speed: "production" }) },
     ],
   },
   {
-    title: "Thương hiệu khác",
+    // Trục 5 — BỘ LỌC theo tính năng (cờ boolean trong scannerSpecs).
+    title: "Theo tính năng",
     links: [
-      { label: "Canon", href: buildCategoryFilterHref("Máy scan", { brand: "Canon" }) },
-      { label: "HP", href: buildCategoryFilterHref("Máy scan", { brand: "HP" }) },
-      { label: "Kodak", href: buildCategoryFilterHref("Máy scan", { brand: "Kodak Alaris" }) },
-      { label: "Fujitsu (Ricoh)", href: buildCategoryFilterHref("Máy scan", { search: "Fujitsu" }) },
-      { label: "Avision", href: buildCategoryFilterHref("Máy scan", { brand: "Avision" }) },
+      { label: "Quét 2 mặt (Duplex)", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, feature: "duplex" }) },
+      { label: "Quét màu", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, feature: "color" }) },
+      { label: "OCR nhận dạng chữ", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, feature: "ocr" }) },
+      { label: "Quét thẻ nhựa / CMND", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, feature: "card" }) },
+      { label: "Quét hộ chiếu", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, feature: "passport" }) },
     ],
   },
 ];
