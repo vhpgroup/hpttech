@@ -882,6 +882,11 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
         and: [
           { status: { equals: "published" } },
           { _status: { equals: "published" } },
+          // Khu sản phẩm trang chủ chỉ hiển thị 3 nhóm thiết bị — lọc ngay từ query.
+          // Nếu không, một đợt cập nhật hàng loạt ở nhóm khác (mực in, PC...) sẽ chiếm
+          // toàn bộ pool "mới cập nhật nhất" và đẩy scanner/printer/photocopier ra ngoài
+          // (sự cố trang chủ 14/07: mục Máy scan chỉ còn 1 phụ kiện).
+          { "productType.code": { in: ["scanner", "printer", "photocopier"] } },
         ],
       },
     });
