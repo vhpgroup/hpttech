@@ -111,6 +111,10 @@ export type ProductSearchParams = {
   pspeed?: string;
   /** Lọc máy in theo tính năng: color | duplex | network */
   pfeat?: string;
+  /** Lọc phần mềm theo hình thức bản quyền: vinhvien | thuebao */
+  lic?: string;
+  /** Lọc phần mềm theo đối tượng: canhan | doanhnghiep | giaoduc */
+  aud?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -160,6 +164,30 @@ const PRINTER_FEATURE_SQL: Record<string, string> = {
   color: "p.printer_specs_color_print = true",
   duplex: "p.printer_specs_auto_duplex_print = true",
   network: `(coalesce(p.name,'') || ' ' || coalesce(p.printer_specs_connectivity,'')) ~* '${PRINTER_NETWORK_REGEX}'`,
+};
+
+// Regex nhận diện phần mềm theo tên SP (Postgres ~*). Nội dung cố định, không nội suy input.
+// Thuê bao: có dấu hiệu subscription/kỳ hạn. Vĩnh viễn: key/box perpetual VÀ không có dấu hiệu thuê bao.
+const SOFTWARE_SUBSCRIPTION_REGEX =
+  "subscri|annual|năm|tháng|1 ?(yr|year)| 1y |dịch vụ trực tuyến|dịch vụ truy cập";
+const SOFTWARE_PERPETUAL_REGEX =
+  "fpp|oem|oei|medialess|perpetual|retail|esd|ggwa|license pack| core| cal|dsp|- box";
+const SOFTWARE_AUDIENCE_PERSONAL_REGEX = "personal|family|home|cá nhân|gia đình";
+const SOFTWARE_AUDIENCE_BUSINESS_REGEX =
+  "business|enterprise|teams|commercial|small office|copilot|server| cal| e[357] |volume|doanh nghiệp";
+const SOFTWARE_AUDIENCE_EDUCATION_REGEX = "education|academic|giáo dục";
+
+/** Hình thức bản quyền phần mềm → điều kiện SQL (whitelist). Thuê bao thắng khi tên chứa cả hai loại dấu hiệu. */
+const SOFTWARE_LICENSE_SQL: Record<string, string> = {
+  vinhvien: `(coalesce(p.name,'') ~* '${SOFTWARE_PERPETUAL_REGEX}' and coalesce(p.name,'') !~* '${SOFTWARE_SUBSCRIPTION_REGEX}')`,
+  thuebao: `coalesce(p.name,'') ~* '${SOFTWARE_SUBSCRIPTION_REGEX}'`,
+};
+
+/** Đối tượng sử dụng phần mềm → điều kiện SQL (whitelist). */
+const SOFTWARE_AUDIENCE_SQL: Record<string, string> = {
+  canhan: `coalesce(p.name,'') ~* '${SOFTWARE_AUDIENCE_PERSONAL_REGEX}'`,
+  doanhnghiep: `coalesce(p.name,'') ~* '${SOFTWARE_AUDIENCE_BUSINESS_REGEX}'`,
+  giaoduc: `coalesce(p.name,'') ~* '${SOFTWARE_AUDIENCE_EDUCATION_REGEX}'`,
 };
 
 function normalizeSearchText(value?: string) {
@@ -1261,6 +1289,17 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(pfeatSql);
   }
 
+  // --- Bộ lọc chuyên biệt phần mềm bản quyền (regex trên tên SP) ---
+  const licSql = SOFTWARE_LICENSE_SQL[cleanCatalogParam(params.lic).toLowerCase()];
+  if (licSql) {
+    where.push(licSql);
+  }
+
+  const audSql = SOFTWARE_AUDIENCE_SQL[cleanCatalogParam(params.aud).toLowerCase()];
+  if (audSql) {
+    where.push(audSql);
+  }
+
   return where.join(" and ");
 }
 
@@ -1443,6 +1482,8 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     func?: string,
     pspeed?: string,
     pfeat?: string,
+    lic?: string,
+    aud?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1459,6 +1500,8 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       func,
       pspeed,
       pfeat,
+      lic,
+      aud,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1489,6 +1532,8 @@ export async function getProductSearchPageFromPayload({
   func = "",
   pspeed = "",
   pfeat = "",
+  lic = "",
+  aud = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1505,6 +1550,8 @@ export async function getProductSearchPageFromPayload({
     func,
     pspeed,
     pfeat,
+    lic,
+    aud,
   );
 }
 

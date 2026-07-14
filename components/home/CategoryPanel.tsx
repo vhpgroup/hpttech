@@ -49,6 +49,8 @@ function buildProductFilterHref(options: {
   func?: string;
   pspeed?: string;
   pfeat?: string;
+  lic?: string;
+  aud?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -59,6 +61,8 @@ function buildProductFilterHref(options: {
   if (options.func) params.set("func", options.func);
   if (options.pspeed) params.set("pspeed", options.pspeed);
   if (options.pfeat) params.set("pfeat", options.pfeat);
+  if (options.lic) params.set("lic", options.lic);
+  if (options.aud) params.set("aud", options.aud);
   return `/san-pham?${params.toString()}`;
 }
 
@@ -196,6 +200,57 @@ const scannerMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Slug danh mục cha nhóm phần mềm bản quyền (khớp categories.slug trong CMS).
+const SOFTWARE_PARENT_SLUG = "phan-mem-ban-quyen";
+
+const softwareMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — DANH MỤC THẬT (category): nhóm phần mềm.
+    title: "Theo nhóm phần mềm",
+    links: [
+      { label: "Hệ điều hành", href: buildProductFilterHref({ category: "phan-mem-he-dieu-hanh" }) },
+      { label: "Office & ứng dụng văn phòng", href: buildProductFilterHref({ category: "phan-mem-office-van-phong" }) },
+      { label: "Microsoft 365 & dịch vụ đám mây", href: buildProductFilterHref({ category: "microsoft-365-dich-vu-dam-may" }) },
+      { label: "Windows Server & SQL", href: buildProductFilterHref({ category: "windows-server-sql" }) },
+      { label: "Diệt virus & bảo mật", href: buildProductFilterHref({ category: "phan-mem-diet-virus-bao-mat" }) },
+      { label: "Thiết kế & sáng tạo", href: buildProductFilterHref({ category: "phan-mem-thiet-ke-sang-tao" }) },
+      { label: "CAD & kỹ thuật", href: buildProductFilterHref({ category: "phan-mem-cad-ky-thuat" }) },
+      { label: "Tiện ích & AI", href: buildProductFilterHref({ category: "phan-mem-tien-ich-ai" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo hãng (field brand).
+    title: "Theo hãng",
+    links: [
+      { label: "Microsoft", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Microsoft" }) },
+      { label: "Adobe", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Adobe" }) },
+      { label: "Kaspersky", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Kaspersky" }) },
+      { label: "Autodesk", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Autodesk" }) },
+      { label: "Canva", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Canva" }) },
+      { label: "Bkav", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Bkav" }) },
+      { label: "OpenAI", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "OpenAI" }) },
+      { label: "CapCut", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "CapCut" }) },
+      { label: "TeamViewer", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "TeamViewer" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo hình thức bản quyền (regex tên SP, whitelist phía server).
+    title: "Theo bản quyền",
+    links: [
+      { label: "Vĩnh viễn (key/box)", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, lic: "vinhvien" }) },
+      { label: "Thuê bao (theo năm)", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, lic: "thuebao" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo đối tượng sử dụng.
+    title: "Theo đối tượng",
+    links: [
+      { label: "Cá nhân & gia đình", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, aud: "canhan" }) },
+      { label: "Doanh nghiệp", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, aud: "doanhnghiep" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
@@ -207,6 +262,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "máy in") {
     return printerMegaColumns;
+  }
+  if (nameKey === "phần mềm bản quyền") {
+    return softwareMegaColumns;
   }
 
   if (!category.children.length) {
