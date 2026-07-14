@@ -43,6 +43,8 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
     func: firstParam(params.func) || "",
     pspeed: firstParam(params.pspeed) || "",
     pfeat: firstParam(params.pfeat) || "",
+    lic: firstParam(params.lic) || "",
+    aud: firstParam(params.aud) || "",
   };
 }
 
