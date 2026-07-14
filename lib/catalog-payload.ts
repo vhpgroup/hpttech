@@ -13,7 +13,7 @@ import {
 } from "@/lib/catalog-projection";
 import { HPT_DATA } from "@/lib/data";
 import { canonicalizeCategoryName } from "@/lib/product-category";
-import { homeDeviceTypeOf, isHomeDeviceType } from "@/lib/home-category-sections";
+import { HOME_DEVICE_TYPES, homeDeviceTypeOf, isHomeDeviceType } from "@/lib/home-category-sections";
 
 type PayloadProductDoc = Record<string, unknown>;
 type PayloadCategoryDoc = Record<string, unknown>;
@@ -25,7 +25,11 @@ type RawProductHTML = {
 };
 
 const DEFAULT_HOME_PRODUCTS_LIMIT = 96;
-const HOME_PRODUCTS_POOL_LIMIT = 500;
+/**
+ * Số SP lấy cho MỖI nhóm thiết bị trang chủ (scanner/printer/photocopier).
+ * Đủ cho carousel (15) + đa dạng tab hãng + khu showcase (24), có dư đệm sau dedupe.
+ */
+const HOME_POOL_PER_DEVICE_TYPE = 32;
 const DEFAULT_PRODUCT_LIST_LIMIT = 24;
 const PRODUCT_LIST_SELECT = {
   id: true,
@@ -873,20 +877,33 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
 
   try {
     const payload = await getPayloadClient();
-    const res = await payload.find({
-      collection: "products",
-      depth: 1,
-      limit: Math.max(safeLimit, HOME_PRODUCTS_POOL_LIMIT),
-      sort: "-updatedAt",
-      where: {
-        and: [
-          { status: { equals: "published" } },
-          { _status: { equals: "published" } },
-        ],
-      },
-    });
+    // Mỗi nhóm thiết bị query RIÊNG (song song) thay vì 1 pool chung sort -updatedAt.
+    // Pool chung từng gây sự cố 14/07: một đợt cập nhật hàng loạt (mực in ~1.100 lượt,
+    // PC ~400 lượt) chiếm trọn 500 suất "mới cập nhật nhất" → mục Máy scan trang chủ
+    // chỉ còn 1 phụ kiện. Query theo từng loại đảm bảo khu nào cũng luôn đủ hàng,
+    // bất kể nhóm nào (kể cả chính scanner/printer) vừa được ghi hàng loạt.
+    const perTypeResults = await Promise.all(
+      HOME_DEVICE_TYPES.map((code) =>
+        payload.find({
+          collection: "products",
+          depth: 1,
+          limit: HOME_POOL_PER_DEVICE_TYPE,
+          // Ưu tiên "bán chạy" (lượt xem) thay vì "mới cập nhật" — SP khách quan tâm
+          // lên trang chủ, và batch-update dữ liệu không làm xáo khu trưng bày.
+          // viewCount đã backfill 0 cho toàn bộ SP null (216 con, 14/07) — an toàn NULLS FIRST.
+          sort: "-viewCount",
+          where: {
+            and: [
+              { status: { equals: "published" } },
+              { _status: { equals: "published" } },
+              { "productType.code": { equals: code } },
+            ],
+          },
+        }),
+      ),
+    );
 
-    const docs = res.docs as unknown as PayloadProductDoc[];
+    const docs = perTypeResults.flatMap((res) => res.docs as unknown as PayloadProductDoc[]);
     const productIDs = docs
       .map((doc) => doc.id)
       .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
