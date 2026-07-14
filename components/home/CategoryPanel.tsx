@@ -46,6 +46,9 @@ function buildProductFilterHref(options: {
   size?: string;
   speed?: string;
   feature?: string;
+  func?: string;
+  pspeed?: string;
+  pfeat?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -53,8 +56,69 @@ function buildProductFilterHref(options: {
   if (options.size) params.set("size", options.size);
   if (options.speed) params.set("speed", options.speed);
   if (options.feature) params.set("feature", options.feature);
+  if (options.func) params.set("func", options.func);
+  if (options.pspeed) params.set("pspeed", options.pspeed);
+  if (options.pfeat) params.set("pfeat", options.pfeat);
   return `/san-pham?${params.toString()}`;
 }
+
+// Slug danh mục cha nhóm máy in (khớp categories.slug trong CMS).
+const PRINTER_PARENT_SLUG = "may-in";
+
+const printerMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — DANH MỤC THẬT (category): công nghệ in.
+    title: "Theo công nghệ",
+    links: [
+      { label: "Máy in laser đen trắng", href: buildProductFilterHref({ category: "may-in-laser-den-trang" }) },
+      { label: "Máy in laser màu", href: buildProductFilterHref({ category: "may-in-laser-mau" }) },
+      { label: "Máy in phun", href: buildProductFilterHref({ category: "may-in-phun" }) },
+      { label: "Máy in nhiệt / tem nhãn", href: buildProductFilterHref({ category: "may-in-nhiet-tem-nhan" }) },
+      { label: "Máy in kim", href: buildProductFilterHref({ category: "may-in-kim" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo chức năng.
+    title: "Theo chức năng",
+    links: [
+      { label: "Máy in đơn năng", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, func: "don" }) },
+      { label: "Đa năng (In-Copy-Scan)", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, func: "da" }) },
+      { label: "Có Fax", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, func: "fax" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo hãng.
+    title: "Theo hãng",
+    links: [
+      { label: "HP", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "HP" }) },
+      { label: "Canon", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "Canon" }) },
+      { label: "Brother", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "Brother" }) },
+      { label: "Epson", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "Epson" }) },
+      { label: "Pantum", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "Pantum" }) },
+      { label: "Ricoh", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "Ricoh" }) },
+      { label: "Konica Minolta", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, brand: "Konica Minolta" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo tốc độ/quy mô (printSpeedPpm).
+    title: "Theo tốc độ / quy mô",
+    links: [
+      { label: "Cá nhân (≤20 trang/phút)", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pspeed: "p1" }) },
+      { label: "Văn phòng (21–40 trang/phút)", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pspeed: "p2" }) },
+      { label: "Nhóm làm việc (41–60 trang/phút)", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pspeed: "p3" }) },
+      { label: "In số lượng lớn (>60 trang/phút)", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pspeed: "p4" }) },
+    ],
+  },
+  {
+    // Trục 5 — BỘ LỌC theo tính năng.
+    title: "Theo tính năng",
+    links: [
+      { label: "In màu", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pfeat: "color" }) },
+      { label: "In 2 mặt tự động", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pfeat: "duplex" }) },
+      { label: "Kết nối mạng / WiFi", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pfeat: "network" }) },
+    ],
+  },
+];
 
 const scannerMegaColumns: MegaColumn[] = [
   {
@@ -125,8 +189,12 @@ function categoryLandingHref(category: { name: string; slug?: string }) {
 }
 
 function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
-  if (category.name.trim().toLowerCase() === "máy scan") {
+  const nameKey = category.name.trim().toLowerCase();
+  if (nameKey === "máy scan") {
     return scannerMegaColumns;
+  }
+  if (nameKey === "máy in") {
+    return printerMegaColumns;
   }
 
   if (!category.children.length) {

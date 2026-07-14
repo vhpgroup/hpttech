@@ -105,6 +105,12 @@ export type ProductSearchParams = {
   speed?: string;
   /** Lọc máy scan theo tính năng: duplex | color | ocr | passport | card */
   feature?: string;
+  /** Lọc máy in theo chức năng: don | da | fax */
+  func?: string;
+  /** Lọc máy in theo tốc độ/quy mô: p1 | p2 | p3 | p4 (ppm) */
+  pspeed?: string;
+  /** Lọc máy in theo tính năng: color | duplex | network */
+  pfeat?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -128,6 +134,32 @@ const SCANNER_FEATURE_COLUMN: Record<string, string> = {
   ocr: "p.scanner_specs_ocr",
   passport: "p.scanner_specs_passport_scan",
   card: "p.scanner_specs_plastic_card_scan",
+};
+
+// Regex nhận diện văn bản (Postgres ~* , case-insensitive). Nội dung cố định, không nội suy input.
+const PRINTER_MFP_REGEX = "copy|scan|đa năng|đa chức năng|mfp|all.?in.?one|sao chụp|quét|in/copy|print/copy";
+const PRINTER_NETWORK_REGEX = "wifi|wi-fi|lan|ethernet|network|mạng|airprint|wireless|không dây";
+
+/** Chức năng máy in → điều kiện SQL (dựa trên tên + printer_specs_functions). Whitelist. */
+const PRINTER_FUNC_SQL: Record<string, string> = {
+  da: `(coalesce(p.name,'') || ' ' || coalesce(p.printer_specs_functions,'')) ~* '${PRINTER_MFP_REGEX}'`,
+  don: `(coalesce(p.name,'') || ' ' || coalesce(p.printer_specs_functions,'')) !~* '${PRINTER_MFP_REGEX}'`,
+  fax: `(coalesce(p.name,'') || ' ' || coalesce(p.printer_specs_functions,'')) ~* 'fax'`,
+};
+
+/** Bậc tốc độ máy in (ppm) → điều kiện SQL trên cột printer_specs_print_speed_ppm. Whitelist. */
+const PRINTER_SPEED_SQL: Record<string, string> = {
+  p1: "p.printer_specs_print_speed_ppm <= 20",
+  p2: "p.printer_specs_print_speed_ppm between 21 and 40",
+  p3: "p.printer_specs_print_speed_ppm between 41 and 60",
+  p4: "p.printer_specs_print_speed_ppm > 60",
+};
+
+/** Tính năng máy in → điều kiện SQL. Whitelist. */
+const PRINTER_FEATURE_SQL: Record<string, string> = {
+  color: "p.printer_specs_color_print = true",
+  duplex: "p.printer_specs_auto_duplex_print = true",
+  network: `(coalesce(p.name,'') || ' ' || coalesce(p.printer_specs_connectivity,'')) ~* '${PRINTER_NETWORK_REGEX}'`,
 };
 
 function normalizeSearchText(value?: string) {
@@ -1213,6 +1245,22 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(`${featureColumn} = true`);
   }
 
+  // --- Bộ lọc chuyên biệt máy in (dựa trên nhóm printerSpecs) ---
+  const funcSql = PRINTER_FUNC_SQL[cleanCatalogParam(params.func).toLowerCase()];
+  if (funcSql) {
+    where.push(funcSql);
+  }
+
+  const pspeedSql = PRINTER_SPEED_SQL[cleanCatalogParam(params.pspeed).toLowerCase()];
+  if (pspeedSql) {
+    where.push(pspeedSql);
+  }
+
+  const pfeatSql = PRINTER_FEATURE_SQL[cleanCatalogParam(params.pfeat).toLowerCase()];
+  if (pfeatSql) {
+    where.push(pfeatSql);
+  }
+
   return where.join(" and ");
 }
 
@@ -1392,6 +1440,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     size?: string,
     speed?: string,
     feature?: string,
+    func?: string,
+    pspeed?: string,
+    pfeat?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1405,6 +1456,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       size,
       speed,
       feature,
+      func,
+      pspeed,
+      pfeat,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1432,6 +1486,9 @@ export async function getProductSearchPageFromPayload({
   size = "",
   speed = "",
   feature = "",
+  func = "",
+  pspeed = "",
+  pfeat = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1445,6 +1502,9 @@ export async function getProductSearchPageFromPayload({
     size,
     speed,
     feature,
+    func,
+    pspeed,
+    pfeat,
   );
 }
 
