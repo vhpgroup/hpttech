@@ -74,6 +74,21 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
     { label: "Công ty", value: HPT_LEGAL_NAME, icon: Building2 },
     { label: "Mã số thuế", value: HPT_TAX_CODE, icon: FileText },
     { label: "Địa chỉ", value: "SB04 Vinhomes Marina, phường An Biên, thành phố Hải Phòng.", icon: MapPin },
+    {
+      label: "Văn phòng Hồ Chí Minh",
+      value: "VP Hồ Chí Minh: 285 Trần Bình Trọng, Phường 4, Quận 5, Thành phố Hồ Chí Minh.",
+      icon: MapPin,
+    },
+    {
+      label: "Văn phòng Hà Nội",
+      value: "VP Hà Nội: Số 3, Ngõ 198, Đường Lê Trọng Tấn, Phường Phương Liệt, Thành phố Hà Nội.",
+      icon: MapPin,
+    },
+    {
+      label: "Văn phòng Cần Thơ",
+      value: "VP Cần Thơ: 69 Nguyễn Trãi, Phường Ninh Kiều, Thành phố Cần Thơ.",
+      icon: MapPin,
+    },
     { label: "Hotline", value: phone, href: phoneHref(phone), icon: Phone },
     { label: "Email", value: settings.email, href: `mailto:${settings.email}`, icon: Mail },
     { label: "Website", value: "hpttech.vn", href: "https://hpttech.vn", icon: Globe2 },
