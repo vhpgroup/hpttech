@@ -54,6 +54,8 @@ function buildProductFilterHref(options: {
   fb?: string;
   mau?: string;
   orig?: string;
+  cpu?: string;
+  ram?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -69,6 +71,8 @@ function buildProductFilterHref(options: {
   if (options.fb) params.set("fb", options.fb);
   if (options.mau) params.set("mau", options.mau);
   if (options.orig) params.set("orig", options.orig);
+  if (options.cpu) params.set("cpu", options.cpu);
+  if (options.ram) params.set("ram", options.ram);
   return `/san-pham?${params.toString()}`;
 }
 
@@ -308,6 +312,62 @@ const inkMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Slug danh mục cha nhóm máy tính đồng bộ - máy chủ (khớp categories.slug trong CMS).
+const PC_PARENT_SLUG = "may-tinh-dong-bo-may-chu";
+
+const pcMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — DANH MỤC THẬT (category): dòng máy.
+    title: "Theo dòng máy",
+    links: [
+      { label: "PC đồng bộ", href: buildProductFilterHref({ category: "pc-dong-bo" }) },
+      { label: "PC All-in-One", href: buildProductFilterHref({ category: "pc-all-in-one" }) },
+      { label: "Mini PC - NUC", href: buildProductFilterHref({ category: "mini-pc-nuc" }) },
+      { label: "Máy trạm Workstation", href: buildProductFilterHref({ category: "may-tram-workstation" }) },
+      { label: "Máy chủ - Server", href: buildProductFilterHref({ category: "may-chu-server" }) },
+      { label: "Linh kiện máy chủ", href: buildProductFilterHref({ category: "linh-kien-may-chu" }) },
+      { label: "Máy tính công nghiệp", href: buildProductFilterHref({ category: "may-tinh-cong-nghiep" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo hãng (field brand).
+    title: "Theo hãng",
+    links: [
+      { label: "HP", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "HP" }) },
+      { label: "Dell", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "Dell" }) },
+      { label: "Lenovo", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "Lenovo" }) },
+      { label: "ASUS", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "ASUS" }) },
+      { label: "Supermicro", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "Supermicro" }) },
+      { label: "AOC", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "AOC" }) },
+      { label: "SingPC", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "SingPC" }) },
+      { label: "Advantech", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "Advantech" }) },
+      { label: "MSI", href: buildProductFilterHref({ category: PC_PARENT_SLUG, brand: "MSI" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo CPU (tên + spec, whitelist phía server).
+    title: "Theo CPU",
+    links: [
+      { label: "Intel Core i3 / Core 3", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "i3" }) },
+      { label: "Intel Core i5 / Core 5", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "i5" }) },
+      { label: "Intel Core i7 / Core 7", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "i7" }) },
+      { label: "Intel Core i9 / Core 9", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "i9" }) },
+      { label: "Intel Core Ultra", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "ultra" }) },
+      { label: "Intel Xeon (trạm / chủ)", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "xeon" }) },
+      { label: "AMD Ryzen", href: buildProductFilterHref({ category: PC_PARENT_SLUG, cpu: "ryzen" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo RAM (cột số desktop/server_specs_ram_gb).
+    title: "Theo RAM",
+    links: [
+      { label: "RAM 8GB", href: buildProductFilterHref({ category: PC_PARENT_SLUG, ram: "8" }) },
+      { label: "RAM 16GB", href: buildProductFilterHref({ category: PC_PARENT_SLUG, ram: "16" }) },
+      { label: "RAM 32GB trở lên", href: buildProductFilterHref({ category: PC_PARENT_SLUG, ram: "32" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
@@ -325,6 +385,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "mực in & phụ kiện" || nameKey === "mực in & vật tư") {
     return inkMegaColumns;
+  }
+  if (nameKey === "máy tính đồng bộ - máy chủ" || nameKey === "máy tính đồng bộ & máy chủ") {
+    return pcMegaColumns;
   }
 
   if (!category.children.length) {
