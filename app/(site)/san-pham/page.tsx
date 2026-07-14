@@ -40,6 +40,9 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
     size: firstParam(params.size) || "",
     speed: firstParam(params.speed) || "",
     feature: firstParam(params.feature) || "",
+    func: firstParam(params.func) || "",
+    pspeed: firstParam(params.pspeed) || "",
+    pfeat: firstParam(params.pfeat) || "",
   };
 }
 
