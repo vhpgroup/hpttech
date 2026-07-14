@@ -121,6 +121,10 @@ export type ProductSearchParams = {
   mau?: string;
   /** Lọc mực in theo nguồn gốc: chinhhang | tuongthich */
   orig?: string;
+  /** Lọc PC/máy chủ theo CPU: i3 | i5 | i7 | i9 | ultra | xeon | ryzen */
+  cpu?: string;
+  /** Lọc PC/máy chủ theo RAM (GB): 8 | 16 | 32 (32 = từ 32GB trở lên) */
+  ram?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -224,6 +228,31 @@ const INK_COMPATIBLE_BRANDS = `'Aicon','Orink','Maetone','iziNet','XP','PT','LPT
 const INK_ORIGIN_SQL: Record<string, string> = {
   chinhhang: `coalesce(p.name,'') ~* 'chính hãng'`,
   tuongthich: `(b.name in (${INK_COMPATIBLE_BRANDS}) or coalesce(p.name,'') ~* 'tương thích')`,
+};
+
+// Chuỗi gộp để nhận diện CPU cho PC đồng bộ / máy chủ (tên + spec đã flatten thành cột).
+const PC_CPU_TEXT = `(coalesce(p.name,'') || ' ' || coalesce(p.desktop_specs_cpu,'') || ' ' || coalesce(p.server_specs_cpu,''))`;
+
+/**
+ * CPU → điều kiện SQL (whitelist).
+ * Nhận cả chuẩn tên Intel mới không có "i" (Core 3/5/7 Processor 100U/210H/240H)
+ * và ký hiệu Ultra rút gọn (U5/U7/U9-265, U7 155H).
+ */
+const PC_CPU_SQL: Record<string, string> = {
+  i3: `${PC_CPU_TEXT} ~* 'core[^a-z0-9]{0,2}i?3\\M|i3[-/ ][0-9]'`,
+  i5: `${PC_CPU_TEXT} ~* 'core[^a-z0-9]{0,2}i?5\\M|i5[-/ ][0-9]'`,
+  i7: `${PC_CPU_TEXT} ~* 'core[^a-z0-9]{0,2}i?7\\M|i7[-/ ][0-9]'`,
+  i9: `${PC_CPU_TEXT} ~* 'core[^a-z0-9]{0,2}i?9\\M|i9[-/ ][0-9]'`,
+  ultra: `${PC_CPU_TEXT} ~* 'core ?ultra|ultra [579]|\\mu[579][- ]?[0-9]'`,
+  xeon: `${PC_CPU_TEXT} ~* 'xeon'`,
+  ryzen: `${PC_CPU_TEXT} ~* 'ryzen'`,
+};
+
+/** RAM (GB) → điều kiện SQL trên cột số desktop_specs_ram_gb / server_specs_ram_gb. Whitelist. */
+const PC_RAM_SQL: Record<string, string> = {
+  "8": "(p.desktop_specs_ram_gb = 8 or p.server_specs_ram_gb = 8)",
+  "16": "(p.desktop_specs_ram_gb = 16 or p.server_specs_ram_gb = 16)",
+  "32": "(p.desktop_specs_ram_gb >= 32 or p.server_specs_ram_gb >= 32)",
 };
 
 function normalizeSearchText(value?: string) {
@@ -1352,6 +1381,17 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(origSql);
   }
 
+  // --- Bộ lọc chuyên biệt PC đồng bộ / máy chủ (CPU từ tên+spec, RAM từ cột số) ---
+  const cpuSql = PC_CPU_SQL[cleanCatalogParam(params.cpu).toLowerCase()];
+  if (cpuSql) {
+    where.push(cpuSql);
+  }
+
+  const ramSql = PC_RAM_SQL[cleanCatalogParam(params.ram).toLowerCase()];
+  if (ramSql) {
+    where.push(ramSql);
+  }
+
   return where.join(" and ");
 }
 
@@ -1539,6 +1579,8 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     fb?: string,
     mau?: string,
     orig?: string,
+    cpu?: string,
+    ram?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1560,6 +1602,8 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       fb,
       mau,
       orig,
+      cpu,
+      ram,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1595,6 +1639,8 @@ export async function getProductSearchPageFromPayload({
   fb = "",
   mau = "",
   orig = "",
+  cpu = "",
+  ram = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1616,6 +1662,8 @@ export async function getProductSearchPageFromPayload({
     fb,
     mau,
     orig,
+    cpu,
+    ram,
   );
 }
 
