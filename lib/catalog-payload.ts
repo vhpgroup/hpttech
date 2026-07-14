@@ -888,7 +888,10 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
           collection: "products",
           depth: 1,
           limit: HOME_POOL_PER_DEVICE_TYPE,
-          sort: "-updatedAt",
+          // Ưu tiên "bán chạy" (lượt xem) thay vì "mới cập nhật" — SP khách quan tâm
+          // lên trang chủ, và batch-update dữ liệu không làm xáo khu trưng bày.
+          // viewCount đã backfill 0 cho toàn bộ SP null (216 con, 14/07) — an toàn NULLS FIRST.
+          sort: "-viewCount",
           where: {
             and: [
               { status: { equals: "published" } },
