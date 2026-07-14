@@ -44,7 +44,7 @@ export const HPT_DATA = {
     { name: "Linh kiện & Phụ kiện", icon: "cable" },
     { name: "Máy in", icon: "printer" },
     { name: "Máy scan", icon: "scan-line" },
-    { name: "Mực in & Vật tư", icon: "droplets" },
+    { name: "Mực in & Phụ kiện", icon: "droplets" },
     { name: "Lưu trữ & Backup", icon: "hard-drive" },
     { name: "Dịch vụ kỹ thuật", icon: "wrench" },
     { name: "Giải pháp số hóa", icon: "workflow" },
