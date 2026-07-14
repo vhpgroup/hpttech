@@ -51,6 +51,9 @@ function buildProductFilterHref(options: {
   pfeat?: string;
   lic?: string;
   aud?: string;
+  fb?: string;
+  mau?: string;
+  orig?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -63,6 +66,9 @@ function buildProductFilterHref(options: {
   if (options.pfeat) params.set("pfeat", options.pfeat);
   if (options.lic) params.set("lic", options.lic);
   if (options.aud) params.set("aud", options.aud);
+  if (options.fb) params.set("fb", options.fb);
+  if (options.mau) params.set("mau", options.mau);
+  if (options.orig) params.set("orig", options.orig);
   return `/san-pham?${params.toString()}`;
 }
 
@@ -251,6 +257,57 @@ const softwareMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Slug danh mục cha nhóm mực in & phụ kiện (khớp categories.slug trong CMS).
+const INK_PARENT_SLUG = "muc-in-phu-kien";
+
+const inkMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — DANH MỤC THẬT (category): loại vật tư.
+    title: "Theo loại vật tư",
+    links: [
+      { label: "Mực in laser (Toner)", href: buildProductFilterHref({ category: "muc-in-laser" }) },
+      { label: "Mực in phun (Cartridge)", href: buildProductFilterHref({ category: "muc-in-phun-cartridge" }) },
+      { label: "Mực chai / bình (Ink Tank)", href: buildProductFilterHref({ category: "muc-chai-binh" }) },
+      { label: "Mực máy photocopy", href: buildProductFilterHref({ category: "muc-may-photocopy" }) },
+      { label: "Trống / Drum", href: buildProductFilterHref({ category: "trong-drum" }) },
+      { label: "Ruy băng & mực in tem nhãn", href: buildProductFilterHref({ category: "ruy-bang-muc-in-tem" }) },
+      { label: "Linh kiện & phụ kiện in ấn", href: buildProductFilterHref({ category: "linh-kien-phu-kien-in" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo hãng máy sử dụng (regex tên SP, whitelist phía server).
+    title: "Dùng cho máy hãng",
+    links: [
+      { label: "HP", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "hp" }) },
+      { label: "Canon", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "canon" }) },
+      { label: "Brother", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "brother" }) },
+      { label: "Epson", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "epson" }) },
+      { label: "Ricoh", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "ricoh" }) },
+      { label: "Fuji Xerox / Fujifilm", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "fujixerox" }) },
+      { label: "Pantum", href: buildProductFilterHref({ category: INK_PARENT_SLUG, fb: "pantum" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo màu mực.
+    title: "Theo màu mực",
+    links: [
+      { label: "Đen", href: buildProductFilterHref({ category: INK_PARENT_SLUG, mau: "den" }) },
+      { label: "Xanh (Cyan)", href: buildProductFilterHref({ category: INK_PARENT_SLUG, mau: "xanh" }) },
+      { label: "Đỏ (Magenta)", href: buildProductFilterHref({ category: INK_PARENT_SLUG, mau: "do" }) },
+      { label: "Vàng (Yellow)", href: buildProductFilterHref({ category: INK_PARENT_SLUG, mau: "vang" }) },
+      { label: "Bộ nhiều màu", href: buildProductFilterHref({ category: INK_PARENT_SLUG, mau: "bo" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo nguồn gốc.
+    title: "Theo nguồn gốc",
+    links: [
+      { label: "Mực chính hãng", href: buildProductFilterHref({ category: INK_PARENT_SLUG, orig: "chinhhang" }) },
+      { label: "Mực tương thích", href: buildProductFilterHref({ category: INK_PARENT_SLUG, orig: "tuongthich" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
@@ -265,6 +322,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "phần mềm bản quyền") {
     return softwareMegaColumns;
+  }
+  if (nameKey === "mực in & phụ kiện" || nameKey === "mực in & vật tư") {
+    return inkMegaColumns;
   }
 
   if (!category.children.length) {
