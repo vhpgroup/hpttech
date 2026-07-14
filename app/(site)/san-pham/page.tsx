@@ -45,6 +45,9 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
     pfeat: firstParam(params.pfeat) || "",
     lic: firstParam(params.lic) || "",
     aud: firstParam(params.aud) || "",
+    fb: firstParam(params.fb) || "",
+    mau: firstParam(params.mau) || "",
+    orig: firstParam(params.orig) || "",
   };
 }
 

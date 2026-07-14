@@ -115,6 +115,12 @@ export type ProductSearchParams = {
   lic?: string;
   /** Lọc phần mềm theo đối tượng: canhan | doanhnghiep | giaoduc */
   aud?: string;
+  /** Lọc mực in theo hãng máy sử dụng: hp | canon | brother | epson | ricoh | fujixerox | pantum */
+  fb?: string;
+  /** Lọc mực in theo màu: den | xanh | do | vang | bo */
+  mau?: string;
+  /** Lọc mực in theo nguồn gốc: chinhhang | tuongthich */
+  orig?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -188,6 +194,36 @@ const SOFTWARE_AUDIENCE_SQL: Record<string, string> = {
   canhan: `coalesce(p.name,'') ~* '${SOFTWARE_AUDIENCE_PERSONAL_REGEX}'`,
   doanhnghiep: `coalesce(p.name,'') ~* '${SOFTWARE_AUDIENCE_BUSINESS_REGEX}'`,
   giaoduc: `coalesce(p.name,'') ~* '${SOFTWARE_AUDIENCE_EDUCATION_REGEX}'`,
+};
+
+// Regex nhận diện mực in/vật tư theo tên SP (Postgres ~*, POSIX — không dùng lookahead).
+// Nhận cả mã cartridge đặc trưng từng hãng (TN/DR/LC=Brother, CF/CE/Q/W=HP, PGI/CLI/NPG=Canon...).
+const INK_FB_SQL: Record<string, string> = {
+  hp: `coalesce(p.name,'') ~* 'hp|hewlett|laserjet|deskjet|neverstop|\\mcf ?\\d|\\mce ?\\d|\\mcb\\d{3}|\\mq\\d{4}|\\mw\\d{3,4}|\\m\\d{2,3}a\\M'`,
+  canon: `coalesce(p.name,'') ~* 'canon|pixma|imagerunner|\\mcrg|\\mnpg|\\mgpr|\\mpgi|\\mcli|\\mpfi|\\mgi-?\\d|\\mlbp|\\mmf ?\\d'`,
+  brother: `coalesce(p.name,'') ~* 'brother|\\mtn ?-?\\d|\\mdr ?-?\\d|\\mlc ?-?\\d|\\mbt ?-?\\d|\\msp01|\\mdcp|\\mhl-|\\mmfc'`,
+  epson: `coalesce(p.name,'') ~* 'epson|ecotank|\\merc|\\mt\\d{3,4}|workforce|\\mlq ?-?\\d'`,
+  ricoh: `coalesce(p.name,'') ~* 'ricoh|aficio|\\msp ?c?\\d{3}|\\mmp ?c?\\d{4}'`,
+  fujixerox: `coalesce(p.name,'') ~* 'xerox|fujifilm|fuji xerox|apeos|docuprint|\\mct\\d{6}'`,
+  pantum: `coalesce(p.name,'') ~* 'pantum|\\mtl ?-?\\d|\\mdl ?-?\\d|\\mpc ?-?2\\d{2}'`,
+};
+
+/** Màu mực → điều kiện SQL (whitelist). Toner đen thường không ghi màu nên bộ lọc "đen" chỉ bắt tên có ghi rõ. */
+const INK_COLOR_SQL: Record<string, string> = {
+  den: `coalesce(p.name,'') ~* 'đen|black|\\mbk\\M|pgbk'`,
+  xanh: `coalesce(p.name,'') ~* 'cyan|xanh'`,
+  do: `coalesce(p.name,'') ~* 'magenta|đỏ|hồng'`,
+  vang: `coalesce(p.name,'') ~* 'yellow|vàng'`,
+  bo: `coalesce(p.name,'') ~* 'combo|\\m[34] ?pk|bộ|multipack|value pack'`,
+};
+
+// Các brand nhãn mực tương thích trong CMS (Aicon, Orink... và nhãn phân khúc của shop).
+const INK_COMPATIBLE_BRANDS = `'Aicon','Orink','Maetone','iziNet','XP','PT','LPT','XP Pro'`;
+
+/** Nguồn gốc mực → điều kiện SQL (whitelist). */
+const INK_ORIGIN_SQL: Record<string, string> = {
+  chinhhang: `coalesce(p.name,'') ~* 'chính hãng'`,
+  tuongthich: `(b.name in (${INK_COMPATIBLE_BRANDS}) or coalesce(p.name,'') ~* 'tương thích')`,
 };
 
 function normalizeSearchText(value?: string) {
@@ -1300,6 +1336,22 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(audSql);
   }
 
+  // --- Bộ lọc chuyên biệt mực in & phụ kiện (regex trên tên SP + brand) ---
+  const fbSql = INK_FB_SQL[cleanCatalogParam(params.fb).toLowerCase()];
+  if (fbSql) {
+    where.push(fbSql);
+  }
+
+  const mauSql = INK_COLOR_SQL[cleanCatalogParam(params.mau).toLowerCase()];
+  if (mauSql) {
+    where.push(mauSql);
+  }
+
+  const origSql = INK_ORIGIN_SQL[cleanCatalogParam(params.orig).toLowerCase()];
+  if (origSql) {
+    where.push(origSql);
+  }
+
   return where.join(" and ");
 }
 
@@ -1484,6 +1536,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     pfeat?: string,
     lic?: string,
     aud?: string,
+    fb?: string,
+    mau?: string,
+    orig?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1502,6 +1557,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       pfeat,
       lic,
       aud,
+      fb,
+      mau,
+      orig,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1534,6 +1592,9 @@ export async function getProductSearchPageFromPayload({
   pfeat = "",
   lic = "",
   aud = "",
+  fb = "",
+  mau = "",
+  orig = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1552,6 +1613,9 @@ export async function getProductSearchPageFromPayload({
     pfeat,
     lic,
     aud,
+    fb,
+    mau,
+    orig,
   );
 }
 
