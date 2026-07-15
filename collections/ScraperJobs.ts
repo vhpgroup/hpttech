@@ -3,21 +3,21 @@ import type { CollectionConfig } from "payload";
 export const ScraperJobs: CollectionConfig = {
   slug: "scraper-jobs",
   labels: {
-    singular: "Lich su cao san pham",
-    plural: "Lich su cao san pham",
+    singular: "Lịch sử cào sản phẩm",
+    plural: "Lịch sử cào sản phẩm",
   },
   access: {
     read: ({ req }) => Boolean(req.user),
   },
   admin: {
     defaultColumns: ["query", "brandDetected", "reviewStatus", "confidence", "productCreated", "createdAt"],
-    group: "Danh muc san pham",
+    group: "Danh mục sản phẩm",
     useAsTitle: "query",
   },
   fields: [
     {
       name: "query",
-      label: "Tu khoa san pham",
+      label: "Từ khóa sản phẩm",
       type: "text",
       required: true,
     },
@@ -38,15 +38,15 @@ export const ScraperJobs: CollectionConfig = {
     },
     {
       name: "reviewStatus",
-      label: "Trang thai review",
+      label: "Trạng thái review",
       type: "select",
       defaultValue: "ready_to_review",
       options: [
-        { label: "Can review", value: "ready_to_review" },
-        { label: "Can nhap them", value: "needs_human_input" },
-        { label: "Da duyet", value: "approved" },
-        { label: "Da publish", value: "published" },
-        { label: "Loi", value: "failed" },
+        { label: "Cần review", value: "ready_to_review" },
+        { label: "Cần nhập thêm", value: "needs_human_input" },
+        { label: "Đã duyệt", value: "approved" },
+        { label: "Đã publish", value: "published" },
+        { label: "Lỗi", value: "failed" },
       ],
     },
     {
@@ -63,7 +63,7 @@ export const ScraperJobs: CollectionConfig = {
       fields: [
         {
           name: "message",
-          label: "Noi dung",
+          label: "Nội dung",
           type: "text",
         },
       ],
