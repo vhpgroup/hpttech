@@ -235,33 +235,64 @@ assert.throws(
   /Sai loại sản phẩm/,
 );
 
-// Chính sách giá khi re-crawl: offer đã có KHÔNG bị đè (giá thuộc quyền
-// bảng giá Google Sheet / admin sau lần import đầu). Offer chưa có vẫn được
-// tạo để lần import đầu có giá khởi tạo từ nguồn.
+// Chính sách giá khi re-crawl: sản phẩm đã tồn tại (resolve theo
+// internalId/sourceUrl/SKU/slug) hoặc offer đã có trên variant → KHÔNG ghi
+// offer (giá thuộc quyền bảng giá Google Sheet / admin sau lần import đầu).
+// Chỉ sản phẩm hoàn toàn mới được tạo offer với giá khởi tạo từ nguồn.
 assert.equal(
   shouldPreserveExistingOfferPricing(
     { preserveExistingOfferPricing: true },
-    { id: 123 },
+    { existingOffer: { id: 123 }, productAlreadyExisted: true },
   ),
   true,
+);
+// SKU trôi giữa 2 lần crawl: product vẫn resolve được nhưng variant mới chưa
+// có offer → vẫn phải preserve (đây là lỗ hổng của guard tra theo SKU cũ).
+assert.equal(
+  shouldPreserveExistingOfferPricing(
+    { preserveExistingOfferPricing: true },
+    { existingOffer: undefined, productAlreadyExisted: true },
+  ),
+  true,
+);
+// SKU va chạm: product mới nhưng variant SKU trùng mang offer cũ → preserve.
+assert.equal(
+  shouldPreserveExistingOfferPricing(
+    { preserveExistingOfferPricing: true },
+    { existingOffer: { id: "offer-abc" }, productAlreadyExisted: false },
+  ),
+  true,
+);
+// Sản phẩm hoàn toàn mới → được tạo offer.
+assert.equal(
+  shouldPreserveExistingOfferPricing(
+    { preserveExistingOfferPricing: true },
+    { existingOffer: undefined, productAlreadyExisted: false },
+  ),
+  false,
 );
 assert.equal(
   shouldPreserveExistingOfferPricing(
     { preserveExistingOfferPricing: true },
-    { id: "offer-abc" },
+    { existingOffer: {}, productAlreadyExisted: false },
   ),
-  true,
+  false,
 );
+// Option tắt (đường import xlsx admin) → hành vi ghi đè giữ nguyên.
 assert.equal(
-  shouldPreserveExistingOfferPricing({ preserveExistingOfferPricing: true }, undefined),
+  shouldPreserveExistingOfferPricing(
+    {},
+    { existingOffer: { id: 123 }, productAlreadyExisted: true },
+  ),
   false,
 );
 assert.equal(
-  shouldPreserveExistingOfferPricing({ preserveExistingOfferPricing: true }, {}),
+  shouldPreserveExistingOfferPricing(undefined, {
+    existingOffer: { id: 123 },
+    productAlreadyExisted: true,
+  }),
   false,
 );
-assert.equal(shouldPreserveExistingOfferPricing({}, { id: 123 }), false);
-assert.equal(shouldPreserveExistingOfferPricing(undefined, { id: 123 }), false);
 
 // Scraper chỉ được ghi compareAtPrice hiển thị ở lần import đầu tiên.
 assert.equal(scraperMayWritePricing(false), true);

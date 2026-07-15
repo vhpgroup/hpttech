@@ -220,24 +220,20 @@ export async function importBatchProduct(
     );
     row.attributesJSON = JSON.stringify(attributes);
   }
-  // Chính sách giá: scraper chỉ được ghi giá ở lần import đầu tiên. SKU đã có
-  // variant trong Payload nghĩa là sản phẩm từng được import — giá (offer +
-  // compareAtPrice hiển thị) do bảng giá Google Sheet / admin quản lý,
-  // re-crawl không được đè (đường crawl theo tên không có guard chống trùng).
-  const preexistingVariant = await payload.find({
-    collection: "product-variants",
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    where: { sku: { equals: row.sku } },
-  });
-  const hadExistingProduct = preexistingVariant.docs.length > 0;
+  // Chính sách giá: scraper chỉ được ghi giá ở lần import đầu tiên — sản phẩm
+  // đã tồn tại thì giá (offer + compareAtPrice hiển thị) do bảng giá Google
+  // Sheet / admin quản lý, re-crawl không được đè (đường crawl theo tên
+  // không có guard chống trùng).
   const result = await importCanonicalProductsRows([row], {
     preserveExistingOfferPricing: true,
   });
   if (result.errors.length) {
     throw new Error(result.errors[0].message);
   }
+  // "Đã tồn tại" lấy từ chính kết quả resolve của importer (internalId /
+  // sourceUrl / SKU-variant / slug) thay vì tra variant theo SKU ở đây —
+  // SKU sinh từ crawl có thể trôi giữa 2 lần chạy và né guard.
+  const hadExistingProduct = result.updated > 0;
 
   const variantResult = await payload.find({
     collection: "product-variants",

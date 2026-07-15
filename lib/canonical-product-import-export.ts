@@ -3,6 +3,7 @@ import ExcelJS from "exceljs";
 import { getPayloadClient } from "@/lib/payload";
 import { relationID } from "@/lib/catalog-schema";
 import {
+  promotionPriceForOfferWrite,
   shouldPreserveExistingOfferPricing,
   type CanonicalImportPricingOptions,
 } from "@/lib/import-pricing-policy";
@@ -901,18 +902,30 @@ export async function importCanonicalProductsRows(
             );
 
       // Giá thuộc quyền bảng giá Google Sheet / admin sau lần import đầu:
-      // khi bật preserveExistingOfferPricing (scraper re-crawl), offer đã có
-      // được giữ nguyên price/promotionPrice/saleStatus — chỉ tạo offer mới
-      // khi variant chưa có (xem lib/import-pricing-policy.ts).
+      // khi bật preserveExistingOfferPricing (scraper re-crawl), sản phẩm đã
+      // tồn tại (resolve theo internalId/sourceUrl/SKU/slug — chống cả SKU
+      // trôi) hoặc offer đã có trên variant (SKU va chạm) thì KHÔNG ghi offer;
+      // chỉ tạo offer cho sản phẩm hoàn toàn mới (lib/import-pricing-policy.ts).
+      const productAlreadyExisted = existingProduct?.id !== undefined;
       const offerWhere: Where = { variant: { equals: variant.id } };
-      const existingOffer = options.preserveExistingOfferPricing
-        ? await findOne(payload, "product-offers", offerWhere)
-        : undefined;
-      if (!shouldPreserveExistingOfferPricing(options, existingOffer)) {
+      const existingOffer =
+        options.preserveExistingOfferPricing && !productAlreadyExisted
+          ? await findOne(payload, "product-offers", offerWhere)
+          : undefined;
+      if (
+        !shouldPreserveExistingOfferPricing(options, {
+          existingOffer,
+          productAlreadyExisted,
+        })
+      ) {
         await upsert(payload, "product-offers", offerWhere, {
           currency: text(row, "currency") || "VND",
           price: numberValue(row, "price") || 0,
-          promotionPrice: numberValue(row, "promotionPrice"),
+          // Ô trống phải XÓA được khuyến mãi cũ: drizzle bỏ qua field
+          // undefined khi update nên phải ghi null tường minh.
+          promotionPrice: promotionPriceForOfferWrite(
+            numberValue(row, "promotionPrice"),
+          ),
           saleStatus: normalizedChoice(
             text(row, "saleStatus"),
             {
