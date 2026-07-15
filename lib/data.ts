@@ -32,7 +32,7 @@ export const HPT_DATA = {
     "/assets/herobanner/herobanner1.jpg",
   ],
   categories: [
-    { name: "Laptop doanh nghiệp", icon: "laptop" },
+    { name: "Laptop Gaming - Đồ Họa", icon: "laptop" },
     { name: "Máy tính để bàn", icon: "monitor" },
     { name: "Máy tính đồng bộ & Máy chủ", icon: "server" },
     { name: "Thiết bị mạng", icon: "network" },
