@@ -3,6 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import ExcelJS from "exceljs";
+import { promotionPriceForOfferWrite } from "../lib/import-pricing-policy";
 import { parseBulkImportArgs } from "../lib/scraper/batch-options";
 import { parseExcelInput } from "../lib/scraper/excel-parser";
 import { buildReportPath, generateReport } from "../lib/scraper/report";
@@ -86,6 +87,16 @@ async function main() {
   } finally {
     await rm(directory, { force: true, recursive: true });
   }
+
+  // Ô promotionPrice trống trong file import phải XÓA được khuyến mãi cũ:
+  // Payload/drizzle bỏ qua field undefined khi update nên offer write phải
+  // chuẩn hóa về null tường minh (numberValue trả undefined cho ô trống).
+  assert.equal(promotionPriceForOfferWrite(undefined), null);
+  assert.equal(promotionPriceForOfferWrite(null), null);
+  assert.equal(promotionPriceForOfferWrite(0), null);
+  assert.equal(promotionPriceForOfferWrite(-5), null);
+  assert.equal(promotionPriceForOfferWrite(Number.NaN), null);
+  assert.equal(promotionPriceForOfferWrite(1500000), 1500000);
 
   console.log("bulk import core verification passed");
 }

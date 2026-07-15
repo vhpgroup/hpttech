@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
     ? body.paths.filter((item: unknown): item is string => typeof item === "string")
     : [];
   const bodySlugs = Array.isArray(body.slugs)
-    ? body.slugs.filter((item: unknown): item is string => typeof item === "string")
+    ? body.slugs.filter(
+        (item: unknown): item is string =>
+          typeof item === "string" && item.trim().length > 0,
+      )
     : [];
   const tags = new Set<string>();
 
