@@ -147,6 +147,7 @@ const scannerMegaColumns: MegaColumn[] = [
       { label: "Máy scan phim & ảnh", href: buildProductFilterHref({ category: "may-scan-phim-anh" }) },
       { label: "Máy scan di động / cầm tay", href: buildProductFilterHref({ category: "may-scan-di-dong" }) },
       { label: "Máy scan chuyên dụng", href: buildProductFilterHref({ category: "may-scan-chuyen-dung" }) },
+      { label: "Máy chiếu vật thể (Document Camera)", href: buildProductFilterHref({ category: "may-chieu-vat-the-document-camera" }) },
     ],
   },
   {
@@ -174,6 +175,7 @@ const scannerMegaColumns: MegaColumn[] = [
       { label: "SMA", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "SMA" }) },
       { label: "Fuji Xerox", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Fuji Xerox" }) },
       { label: "GP", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "GP" }) },
+      { label: "Joyusing", href: buildProductFilterHref({ category: SCANNER_PARENT_SLUG, brand: "Joyusing" }) },
     ],
   },
   {
