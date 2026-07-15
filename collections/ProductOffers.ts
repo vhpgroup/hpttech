@@ -18,8 +18,17 @@ export const ProductOffers: CollectionConfig = {
     read: () => true,
   },
   admin: {
-    defaultColumns: ["variant", "price", "currency", "saleStatus", "validTo"],
+    defaultColumns: ["variant", "price", "promotionPrice", "saleStatus", "validTo"],
+    description:
+      "Gõ tên sản phẩm hoặc SKU vào ô tìm kiếm để tìm giá cần sửa.",
     group: CATALOG_ADMIN_GROUP,
+    // Ô tìm kiếm mặc định chỉ tìm theo ID (collection không có useAsTitle).
+    // Cho phép tìm xuyên relationship: offer → variant → product.
+    listSearchableFields: [
+      "variant.product.name",
+      "variant.product.title",
+      "variant.sku",
+    ],
   },
   hooks: {
     afterChange: [revalidateCollection],
