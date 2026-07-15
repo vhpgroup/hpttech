@@ -3,6 +3,7 @@ import path from "node:path";
 import { unstable_cache } from "next/cache";
 import { extractHighlightBulletPoints } from "@/lib/scraper/text";
 import { getPayloadClient } from "@/lib/payload";
+import { shouldUseLocalPublicFixtures } from "@/lib/local-public-fixtures";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 import type { CatalogProduct } from "@/lib/catalog";
 import { Pool } from "pg";
@@ -117,7 +118,7 @@ function normalizeCategoryNavKey(value?: string) {
 }
 
 function loadLocalCatalogFixtures(): CatalogProduct[] {
-  const fixturePath = process.env.LOCAL_CATALOG_FIXTURE_PATH;
+  const fixturePath = process.env.LOCAL_CATALOG_FIXTURE_PATH?.trim();
   if (process.env.NODE_ENV === "production" || !fixturePath) return [];
 
   try {
@@ -140,6 +141,120 @@ function loadLocalCatalogFixtures(): CatalogProduct[] {
     console.warn(`[catalog] Cannot load local fixture from ${fixturePath}.`, error);
     return [];
   }
+}
+
+function normalizeLocalSearchValue(value?: string) {
+  return normalizeSearchText(value).replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function filterLocalProducts(products: CatalogProduct[], params: ProductSearchParams = {}) {
+  const query = normalizeLocalSearchValue(params.search);
+  const category = normalizeLocalSearchValue(params.category);
+  const brand = normalizeLocalSearchValue(params.brand);
+  const priceMin = Number(params.priceMin);
+  const priceMax = Number(params.priceMax);
+
+  return products.filter((product) => {
+    if (query) {
+      const haystack = normalizeLocalSearchValue(
+        [
+          product.title,
+          product.slug,
+          product.brand,
+          product.category,
+          product.model,
+          product.sku,
+          product.detail,
+          product.description,
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
+      if (!haystack.includes(query)) return false;
+    }
+
+    if (category) {
+      const categoryText = normalizeLocalSearchValue(product.category);
+      if (!categoryText.includes(category)) return false;
+    }
+
+    if (brand) {
+      const brandText = normalizeLocalSearchValue(product.brand);
+      if (!brandText.includes(brand)) return false;
+    }
+
+    if (Number.isFinite(priceMin) && (product.priceValue || 0) < priceMin) return false;
+    if (Number.isFinite(priceMax) && priceMax > 0 && (product.priceValue || 0) > priceMax) return false;
+
+    return true;
+  });
+}
+
+function sortLocalProducts(products: CatalogProduct[], sort: ProductSearchParams["sort"] = "best") {
+  const items = [...products];
+
+  switch (sort) {
+    case "price-asc":
+      return items.sort((a, b) => (a.priceValue || Number.MAX_SAFE_INTEGER) - (b.priceValue || Number.MAX_SAFE_INTEGER));
+    case "price-desc":
+      return items.sort((a, b) => (b.priceValue || 0) - (a.priceValue || 0));
+    case "popular":
+      return items.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0) || (b.reviewCount || 0) - (a.reviewCount || 0));
+    case "newest":
+      return items.sort((a, b) => String(b.id || "").localeCompare(String(a.id || "")));
+    case "best":
+    default:
+      return items.sort(
+        (a, b) =>
+          Number(Boolean(b.tag)) - Number(Boolean(a.tag)) ||
+          (b.reviewCount || 0) - (a.reviewCount || 0) ||
+          (b.viewCount || 0) - (a.viewCount || 0),
+      );
+  }
+}
+
+function localFacets(products: CatalogProduct[]): ProductListFacets {
+  const categories = new Map<string, ProductFacetOption>();
+  const brands = new Map<string, ProductFacetOption>();
+
+  for (const product of products) {
+    if (product.category) {
+      categories.set(product.category, {
+        label: canonicalizeCategoryName(product.category),
+        value: product.category,
+        count: (categories.get(product.category)?.count || 0) + 1,
+      });
+    }
+
+    if (product.brand) {
+      brands.set(product.brand, {
+        label: product.brand,
+        value: product.brand,
+        count: (brands.get(product.brand)?.count || 0) + 1,
+      });
+    }
+  }
+
+  return {
+    categories: Array.from(categories.values()).sort((a, b) => a.label.localeCompare(b.label, "vi")),
+    brands: Array.from(brands.values()).sort((a, b) => a.label.localeCompare(b.label, "vi")),
+  };
+}
+
+function localProductPageResult(params: ProductSearchParams = {}): ProductListPageResult {
+  const safePage = safePositiveInt(params.page, 1, 10000);
+  const safeLimit = safePositiveInt(params.limit, DEFAULT_PRODUCT_LIST_LIMIT, 60);
+  const filtered = sortLocalProducts(filterLocalProducts(loadLocalCatalogFixtures(), params), params.sort);
+  const start = (safePage - 1) * safeLimit;
+
+  return {
+    products: filtered.slice(start, start + safeLimit),
+    page: safePage,
+    limit: safeLimit,
+    totalProducts: filtered.length,
+    totalPages: Math.max(1, Math.ceil(filtered.length / safeLimit)),
+    facets: localFacets(filtered),
+  };
 }
 
 const uploadDisplayWidths: Record<string, string> = {
@@ -717,6 +832,10 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
   const safeLimit = Math.max(1, Math.min(limit, 500));
   const localProducts = loadLocalCatalogFixtures().slice(0, safeLimit);
 
+  if (shouldUseLocalPublicFixtures()) {
+    return selectHomeProducts(localProducts, safeLimit);
+  }
+
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -811,6 +930,11 @@ function selectHomeProducts(products: CatalogProduct[], limit: number) {
 
 async function loadProductsFromPayload(): Promise<CatalogProduct[]> {
   const localProducts = loadLocalCatalogFixtures();
+
+  if (shouldUseLocalPublicFixtures()) {
+    return localProducts;
+  }
+
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -963,6 +1087,10 @@ async function loadProductCategoryNavFromPayload(): Promise<ProductCategoryNavIt
     children: [],
   }));
 
+  if (shouldUseLocalPublicFixtures()) {
+    return localFallback;
+  }
+
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -1059,6 +1187,10 @@ async function loadProductListPageFromPayload({
   const safePage = Math.max(1, Math.floor(page) || 1);
   const safeLimit = Math.max(1, Math.min(Math.floor(limit) || DEFAULT_PRODUCT_LIST_LIMIT, 60));
   const localProducts = loadLocalCatalogFixtures();
+
+  if (shouldUseLocalPublicFixtures()) {
+    return localProductPageResult({ page: safePage, limit: safeLimit, sort: "best" });
+  }
 
   try {
     const payload = await getPayloadClient();
@@ -1217,6 +1349,14 @@ async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}
   const safeLimit = safePositiveInt(params.limit, DEFAULT_PRODUCT_LIST_LIMIT, 60);
   const pool = getPgPool();
   const localProducts = loadLocalCatalogFixtures();
+
+  if (shouldUseLocalPublicFixtures()) {
+    return localProductPageResult({
+      ...params,
+      page: safePage,
+      limit: safeLimit,
+    });
+  }
 
   if (!pool) {
     const start = (safePage - 1) * safeLimit;

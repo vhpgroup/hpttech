@@ -615,7 +615,7 @@ main {
   justify-content: flex-start;
 }
 
-main {
+.desktop-stage > main:not([class]) {
   background: var(--bg);
 }
 
@@ -3035,12 +3035,12 @@ svg {
   }
 
   body {
-    background: #020a1c;
+    background: var(--bg);
   }
 
   .site-shell {
     padding-bottom: calc(68px + env(safe-area-inset-bottom));
-    background: #03111f;
+    background: var(--bg);
   }
 
   .desktop-only {
@@ -3171,7 +3171,7 @@ svg {
     flex: 0 0 38px;
   }
 
-  main {
+  main:has(.hero-section) {
     background: #020a1c;
   }
 

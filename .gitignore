@@ -1,6 +1,7 @@
 .vercel
 node_modules
 .next
+.nextpreview
 tmp
 public/assets/test
 /media/
@@ -11,3 +12,5 @@ app/(payload)/admin/importMap.js
 !.env.example
 *.tsbuildinfo
 dev-server*.log
+*.out.log
+*.err.log

@@ -149,3 +149,86 @@
   }
 }
 
+.commercial-landing-shell {
+  --commercial-backdrop-bg: var(--bg);
+  --commercial-backdrop-color: var(--color-ink);
+  --commercial-backdrop-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-surface));
+  --landing-top-bg: var(--color-surface);
+  --landing-top-color: var(--color-ink);
+  --landing-top-muted: color-mix(in srgb, var(--color-ink) 68%, var(--color-surface));
+  background: var(--commercial-backdrop-bg);
+}
+
+.commercial-landing-shell .subpage-main:first-child {
+  background: transparent;
+}
+
+.commercial-landing-shell .subpage-main:first-child nav,
+.commercial-landing-shell .subpage-main:first-child nav span {
+  color: var(--commercial-backdrop-muted);
+}
+
+.commercial-landing-shell .subpage-main:first-child nav a:hover {
+  color: var(--commercial-backdrop-color);
+}
+
+.commercial-landing-shell .subpage-main:first-child nav svg {
+  color: var(--commercial-backdrop-muted);
+}
+
+.commercial-landing-shell > section {
+  width: var(--shell-width);
+  max-width: var(--shell-width);
+  margin-inline: auto;
+  overflow: hidden;
+}
+
+.commercial-landing-shell--light-blue {
+  --landing-top-bg:
+    radial-gradient(900px 420px at 82% -12%, var(--color-primary-100), transparent 62%),
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-primary-50) 100%);
+}
+
+.commercial-landing-shell--light-red,
+.commercial-landing-shell--herobanner1 {
+  --landing-top-bg:
+    radial-gradient(900px 420px at 92% 0%, var(--color-accent-50), transparent 62%),
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface) 100%);
+}
+
+.commercial-landing-shell--light-green {
+  --landing-top-bg:
+    radial-gradient(900px 420px at 88% -8%, color-mix(in srgb, var(--color-success) 12%, var(--color-surface)), transparent 60%),
+    linear-gradient(180deg, var(--color-surface) 0%, color-mix(in srgb, var(--color-success) 5%, var(--color-surface)) 100%);
+}
+
+.commercial-landing-shell--dark-blue {
+  --landing-top-bg:
+    radial-gradient(900px 520px at 88% -10%, color-mix(in srgb, var(--color-info) 34%, transparent), transparent 60%),
+    radial-gradient(800px 620px at 6% 108%, color-mix(in srgb, var(--color-primary-600) 36%, transparent), transparent 55%),
+    linear-gradient(160deg, var(--color-primary-900) 0%, var(--color-ink) 100%);
+  --landing-top-color: var(--color-primary-50);
+  --landing-top-muted: var(--color-primary-100);
+}
+
+.commercial-landing-shell--paper {
+  --landing-top-bg: color-mix(in srgb, var(--color-surface) 86%, var(--color-primary-50));
+}
+
+.commercial-landing-shell--herobanner2,
+.commercial-landing-shell--herobanner3,
+.commercial-landing-shell--herobanner4,
+.commercial-landing-shell--default {
+  --landing-top-bg: var(--color-surface);
+}
+
+body:has(.commercial-landing-shell) {
+  --commercial-page-bg: var(--bg);
+  background: var(--commercial-page-bg);
+}
+
+body:has(.commercial-landing-shell) .site-shell,
+body:has(.commercial-landing-shell) .desktop-stage {
+  background: var(--commercial-page-bg);
+}
+

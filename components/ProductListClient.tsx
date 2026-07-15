@@ -561,7 +561,7 @@ function ProductListInner({
                 />
               </label>
 
-              <div className="grid grid-cols-2 gap-3 sm:flex">
+              <div className="grid grid-cols-1 gap-3 sm:flex">
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(true)}
@@ -570,7 +570,7 @@ function ProductListInner({
                   <Filter size={17} />
                   Bộ lọc {activeCount ? `(${activeCount})` : ""}
                 </button>
-                <label className="inline-flex h-12 min-w-52 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
+                <label className="inline-flex h-12 min-w-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 shadow-sm sm:min-w-52">
                   <SlidersHorizontal size={17} className="text-slate-400" />
                   <select
                     className="w-full bg-transparent text-sm font-semibold text-slate-800 outline-none"

@@ -6,6 +6,7 @@ import { Pool } from "pg";
 import { HPT_DATA } from "@/lib/data";
 import { defaultAboutPage } from "@/globals/AboutPage";
 import { getPayloadClient } from "@/lib/payload";
+import { shouldUseLocalPublicFixtures } from "@/lib/local-public-fixtures";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
 
 export type PublicBanner = {
@@ -585,6 +586,10 @@ function formatDate(value: unknown) {
 }
 
 async function findDocs(collection: PublicCollectionSlug, options: Record<string, unknown> = {}): Promise<PayloadFindResult> {
+  if (shouldUseLocalPublicFixtures()) {
+    return { docs: [] };
+  }
+
   try {
     const payload = await getPayloadClient();
     return (await payload.find({
@@ -1716,6 +1721,10 @@ export async function getStaticPageFromPayload(slug: string): Promise<PublicStat
 }
 
 async function loadSiteSettingsFromPayload(): Promise<PublicSiteSettings | null> {
+  if (shouldUseLocalPublicFixtures()) {
+    return null;
+  }
+
   try {
     const payload = await getPayloadClient();
     return (await payload.findGlobal({ slug: "site-settings" })) as PublicSiteSettings;
