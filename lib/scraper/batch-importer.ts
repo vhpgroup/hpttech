@@ -1,5 +1,6 @@
 import { importCanonicalProductsRows } from "@/lib/canonical-product-import-export";
 import { relationID } from "@/lib/catalog-schema";
+import { scraperMayWritePricing } from "@/lib/import-pricing-policy";
 import { getPayloadClient } from "@/lib/payload";
 import {
   buildCanonicalImportRow,
@@ -219,7 +220,21 @@ export async function importBatchProduct(
     );
     row.attributesJSON = JSON.stringify(attributes);
   }
-  const result = await importCanonicalProductsRows([row]);
+  // Chính sách giá: scraper chỉ được ghi giá ở lần import đầu tiên. SKU đã có
+  // variant trong Payload nghĩa là sản phẩm từng được import — giá (offer +
+  // compareAtPrice hiển thị) do bảng giá Google Sheet / admin quản lý,
+  // re-crawl không được đè (đường crawl theo tên không có guard chống trùng).
+  const preexistingVariant = await payload.find({
+    collection: "product-variants",
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    where: { sku: { equals: row.sku } },
+  });
+  const hadExistingProduct = preexistingVariant.docs.length > 0;
+  const result = await importCanonicalProductsRows([row], {
+    preserveExistingOfferPricing: true,
+  });
   if (result.errors.length) {
     throw new Error(result.errors[0].message);
   }
@@ -383,14 +398,20 @@ export async function importBatchProduct(
     collection: "products",
     data: {
       ...typedSpecs,
-      compareAtPrice:
-        effectiveProductTypeCode === "software" && compareAtPriceValue
-          ? formatVnd(compareAtPriceValue)
-          : scraperPriceTarget() === "compareAtPrice" && priceValue
-            ? formatVnd(normalizeScannerPrice(priceValue))
-            : compareAtPriceValue
-              ? formatVnd(compareAtPriceValue)
-              : product.data.compareAtPrice,
+      // Chỉ ghi compareAtPrice ở lần import đầu — SP đã tồn tại thì giá
+      // hiển thị thuộc quyền bảng giá Google Sheet / admin.
+      ...(scraperMayWritePricing(hadExistingProduct)
+        ? {
+            compareAtPrice:
+              effectiveProductTypeCode === "software" && compareAtPriceValue
+                ? formatVnd(compareAtPriceValue)
+                : scraperPriceTarget() === "compareAtPrice" && priceValue
+                  ? formatVnd(normalizeScannerPrice(priceValue))
+                  : compareAtPriceValue
+                    ? formatVnd(compareAtPriceValue)
+                    : product.data.compareAtPrice,
+          }
+        : {}),
       description: descriptionLexical,
       ...(imageReport.images.length
         ? { images: imageReport.images.map((image) => image.id) }

@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 
+import {
+  scraperMayWritePricing,
+  shouldPreserveExistingOfferPricing,
+} from "../lib/import-pricing-policy";
 import { evaluatePublicationGate } from "../lib/scraper/publication-gate";
 import { validateExpectedProductType } from "../lib/scraper/product-type-guard";
 import {
@@ -230,5 +234,37 @@ assert.throws(
     }),
   /Sai loại sản phẩm/,
 );
+
+// Chính sách giá khi re-crawl: offer đã có KHÔNG bị đè (giá thuộc quyền
+// bảng giá Google Sheet / admin sau lần import đầu). Offer chưa có vẫn được
+// tạo để lần import đầu có giá khởi tạo từ nguồn.
+assert.equal(
+  shouldPreserveExistingOfferPricing(
+    { preserveExistingOfferPricing: true },
+    { id: 123 },
+  ),
+  true,
+);
+assert.equal(
+  shouldPreserveExistingOfferPricing(
+    { preserveExistingOfferPricing: true },
+    { id: "offer-abc" },
+  ),
+  true,
+);
+assert.equal(
+  shouldPreserveExistingOfferPricing({ preserveExistingOfferPricing: true }, undefined),
+  false,
+);
+assert.equal(
+  shouldPreserveExistingOfferPricing({ preserveExistingOfferPricing: true }, {}),
+  false,
+);
+assert.equal(shouldPreserveExistingOfferPricing({}, { id: 123 }), false);
+assert.equal(shouldPreserveExistingOfferPricing(undefined, { id: 123 }), false);
+
+// Scraper chỉ được ghi compareAtPrice hiển thị ở lần import đầu tiên.
+assert.equal(scraperMayWritePricing(false), true);
+assert.equal(scraperMayWritePricing(true), false);
 
 console.log("scraper pipeline safety verification passed");
