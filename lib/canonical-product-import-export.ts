@@ -3,6 +3,10 @@ import ExcelJS from "exceljs";
 import { getPayloadClient } from "@/lib/payload";
 import { relationID } from "@/lib/catalog-schema";
 import {
+  shouldPreserveExistingOfferPricing,
+  type CanonicalImportPricingOptions,
+} from "@/lib/import-pricing-policy";
+import {
   canonicalizeCategoryName,
   canonicalizeCategorySlug,
 } from "@/lib/product-category";
@@ -730,7 +734,10 @@ export type CanonicalImportResult = {
   updated: number;
 };
 
-export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
+export async function importCanonicalProductsRows(
+  parsedRows: RecordRow[],
+  options: CanonicalImportPricingOptions = {},
+) {
   const payload = await getPayloadClient();
   const rows = prepareCanonicalImportRows(parsedRows);
   const result: CanonicalImportResult = {
@@ -893,11 +900,16 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
               variantData,
             );
 
-      await upsert(
-        payload,
-        "product-offers",
-        { variant: { equals: variant.id } },
-        {
+      // Giá thuộc quyền bảng giá Google Sheet / admin sau lần import đầu:
+      // khi bật preserveExistingOfferPricing (scraper re-crawl), offer đã có
+      // được giữ nguyên price/promotionPrice/saleStatus — chỉ tạo offer mới
+      // khi variant chưa có (xem lib/import-pricing-policy.ts).
+      const offerWhere: Where = { variant: { equals: variant.id } };
+      const existingOffer = options.preserveExistingOfferPricing
+        ? await findOne(payload, "product-offers", offerWhere)
+        : undefined;
+      if (!shouldPreserveExistingOfferPricing(options, existingOffer)) {
+        await upsert(payload, "product-offers", offerWhere, {
           currency: text(row, "currency") || "VND",
           price: numberValue(row, "price") || 0,
           promotionPrice: numberValue(row, "promotionPrice"),
@@ -918,8 +930,8 @@ export async function importCanonicalProductsRows(parsedRows: RecordRow[]) {
           variant: variant.id,
           vatIncluded: booleanValue(row, "vatIncluded", true),
           vatRate: numberValue(row, "vatRate") ?? 10,
-        },
-      );
+        });
+      }
 
       const warehouseName = text(row, "warehouseName") || "Kho chính";
       await upsert(

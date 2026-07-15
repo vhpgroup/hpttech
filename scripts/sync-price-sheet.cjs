@@ -414,6 +414,7 @@ async function loadPriceContext(client) {
       p.title,
       p.name,
       p.sku,
+      p.slug,
       p.price,
       p.compare_at_price as "compareAtPrice",
       p.discount_badge as "discountBadge",
@@ -744,6 +745,7 @@ async function importFromSheet() {
 
     let skipped = 0;
     let updated = 0;
+    const updatedSlugs = new Set();
 
     for (const row of rows) {
       const price = parsePriceInput(row.price);
@@ -925,10 +927,18 @@ async function importFromSheet() {
       }
 
       updated += 1;
+      const updatedSlug = docText(product, "slug");
+      if (updatedSlug) updatedSlugs.add(updatedSlug);
     }
 
     if (updated > 0) {
-      await postRevalidate({ collection: "products" });
+      // Gửi kèm slug để /api/revalidate làm mới cả tag product:{slug} của
+      // trang chi tiết — không chỉ trang danh sách (trước đây trang chi tiết
+      // chờ ISR 300s mới thấy giá mới).
+      await postRevalidate({
+        collection: "products",
+        slugs: Array.from(updatedSlugs),
+      });
     }
 
     console.log(
@@ -936,6 +946,7 @@ async function importFromSheet() {
         {
           imported: rows.length,
           revalidated: updated > 0,
+          revalidatedSlugs: updatedSlugs.size,
           skipped,
           updated,
         },

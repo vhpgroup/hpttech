@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
   const bodyPaths = Array.isArray(body.paths)
     ? body.paths.filter((item: unknown): item is string => typeof item === "string")
     : [];
+  const bodySlugs = Array.isArray(body.slugs)
+    ? body.slugs.filter((item: unknown): item is string => typeof item === "string")
+    : [];
   const tags = new Set<string>();
 
   const paths = new Set<string>(["/"]);
@@ -38,9 +41,14 @@ export async function POST(request: NextRequest) {
 
   if (collection === "products") {
     tags.add("products:list");
-    if (slug) {
-      tags.add(`product:${slug}`);
-      paths.add(`/san-pham/${slug}`);
+    // slug (đơn) từ hook afterChange; slugs (mảng) từ sync bảng giá hàng loạt
+    // — làm mới tag product:{slug} để trang chi tiết thấy giá mới ngay,
+    // không chờ ISR.
+    const productSlugs = new Set<string>(bodySlugs);
+    if (slug) productSlugs.add(slug);
+    for (const productSlug of productSlugs) {
+      tags.add(`product:${productSlug}`);
+      paths.add(`/san-pham/${productSlug}`);
     }
   }
   if (collection === "product-offers" || collection === "product-variants" || collection === "product-inventory") {
