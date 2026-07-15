@@ -1,44 +1,44 @@
 import { SOFTWARE_CATEGORY_NAME } from "./product-category.ts";
 
-export const CATALOG_ADMIN_GROUP = "Catalog chuan";
+export const CATALOG_ADMIN_GROUP = "Catalog chuẩn";
 
 export const PRODUCT_TYPE_OPTIONS = [
-  { label: "May scan", value: "scanner" },
-  { label: "May in", value: "printer" },
-  { label: "May photocopy", value: "photocopier" },
+  { label: "Máy scan", value: "scanner" },
+  { label: "Máy in", value: "printer" },
+  { label: "Máy photocopy", value: "photocopier" },
   { label: "Laptop", value: "laptop" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
-  { label: "Muc in & phu kien", value: "ink" },
-  { label: "Thiet bi mang", value: "networking" },
-  { label: "Camera & Giam sat", value: "camera" },
-  { label: "PC dong bo", value: "desktop-pc" },
+  { label: "Mực in & phụ kiện", value: "ink" },
+  { label: "Thiết bị mạng", value: "networking" },
+  { label: "Camera & Giám sát", value: "camera" },
+  { label: "PC đồng bộ", value: "desktop-pc" },
   { label: "PC All-in-One", value: "all-in-one" },
   { label: "Mini PC - NUC", value: "mini-pc" },
-  { label: "May tram Workstation", value: "workstation" },
-  { label: "May tinh cong nghiep", value: "industrial-pc" },
-  { label: "May chu - Server", value: "server" },
-  { label: "Linh kien may chu", value: "server-component" },
-  { label: "Khac", value: "other" },
+  { label: "Máy trạm Workstation", value: "workstation" },
+  { label: "Máy tính công nghiệp", value: "industrial-pc" },
+  { label: "Máy chủ - Server", value: "server" },
+  { label: "Linh kiện máy chủ", value: "server-component" },
+  { label: "Khác", value: "other" },
 ] as const;
 
 export const ATTRIBUTE_DATA_TYPE_OPTIONS = [
-  { label: "So", value: "number" },
-  { label: "Van ban", value: "text" },
-  { label: "Co / Khong", value: "boolean" },
-  { label: "Mot lua chon", value: "enum" },
-  { label: "Nhieu lua chon", value: "enum_list" },
+  { label: "Số", value: "number" },
+  { label: "Văn bản", value: "text" },
+  { label: "Có / Không", value: "boolean" },
+  { label: "Một lựa chọn", value: "enum" },
+  { label: "Nhiều lựa chọn", value: "enum_list" },
 ] as const;
 
 export const ATTRIBUTE_UNIT_OPTIONS = [
-  { label: "Khong co don vi", value: "none" },
-  { label: "Trang/phut (ppm)", value: "ppm" },
-  { label: "Anh/phut (ipm)", value: "ipm" },
-  { label: "Ban/phut (cpm)", value: "cpm" },
-  { label: "To", value: "sheets" },
-  { label: "Trang/ngay", value: "pages_per_day" },
-  { label: "Trang/thang", value: "pages_per_month" },
+  { label: "Không có đơn vị", value: "none" },
+  { label: "Trang/phút (ppm)", value: "ppm" },
+  { label: "Ảnh/phút (ipm)", value: "ipm" },
+  { label: "Bản/phút (cpm)", value: "cpm" },
+  { label: "Tờ", value: "sheets" },
+  { label: "Trang/ngày", value: "pages_per_day" },
+  { label: "Trang/tháng", value: "pages_per_month" },
   { label: "dpi", value: "dpi" },
-  { label: "Millimet", value: "mm" },
+  { label: "Milimét", value: "mm" },
   { label: "Inch", value: "inch" },
   { label: "Hertz", value: "hz" },
   { label: "Kilogram", value: "kg" },
@@ -46,7 +46,7 @@ export const ATTRIBUTE_UNIT_OPTIONS = [
   { label: "Gigabyte", value: "gb" },
   { label: "Watt", value: "w" },
   { label: "Volt", value: "v" },
-  { label: "Phan tram", value: "percent" },
+  { label: "Phần trăm", value: "percent" },
 ] as const;
 
 export const CURRENCY_OPTIONS = [
@@ -55,9 +55,9 @@ export const CURRENCY_OPTIONS = [
 ] as const;
 
 export const PRODUCT_STATUS_OPTIONS = [
-  { label: "Ban nhap", value: "draft" },
-  { label: "Da xuat ban", value: "published" },
-  { label: "Luu tru", value: "archived" },
+  { label: "Bản nháp", value: "draft" },
+  { label: "Đã xuất bản", value: "published" },
+  { label: "Lưu trữ", value: "archived" },
 ] as const;
 
 export type AttributeDataType =
@@ -77,10 +77,10 @@ export function normalizeCatalogCode(value: string) {
 
 export function validateCatalogCode(value: unknown) {
   if (typeof value !== "string" || !value.trim()) {
-    return "Ma khong duoc de trong.";
+    return "Mã không được để trống.";
   }
   if (!/^[a-z][a-z0-9_]*$/.test(value)) {
-    return "Ma chi gom chu thuong, so va dau gach duoi; phai bat dau bang chu.";
+    return "Mã chỉ gồm chữ thường, số và dấu gạch dưới; phải bắt đầu bằng chữ.";
   }
   return true;
 }
