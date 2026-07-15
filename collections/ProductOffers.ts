@@ -18,7 +18,14 @@ export const ProductOffers: CollectionConfig = {
     read: () => true,
   },
   admin: {
-    defaultColumns: ["variant", "price", "promotionPrice", "saleStatus", "validTo"],
+    defaultColumns: [
+      "variant",
+      "productName",
+      "price",
+      "promotionPrice",
+      "saleStatus",
+      "validTo",
+    ],
     description:
       "Gõ tên sản phẩm hoặc SKU vào ô tìm kiếm để tìm giá cần sửa.",
     group: CATALOG_ADMIN_GROUP,
@@ -43,6 +50,15 @@ export const ProductOffers: CollectionConfig = {
       required: true,
       index: true,
       unique: true,
+    },
+    {
+      // Virtual field trỏ xuyên relationship (offer → variant → product):
+      // hiện tên sản phẩm trong list + edit view, không tạo cột DB,
+      // Payload tự resolve qua join và tự đặt readOnly.
+      name: "productName",
+      label: "Tên sản phẩm",
+      type: "text",
+      virtual: "variant.product.name",
     },
     {
       type: "row",
