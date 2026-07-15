@@ -203,7 +203,8 @@ async function XeroxD35WNHtmlLanding() {
       <style
         dangerouslySetInnerHTML={{
           __html: `${scopeStandaloneCss(css, ".xerox-d35wn-html")}
-${landingEmbedSafetyCss(".xerox-d35wn-html", "28px", "58px")}`,
+${landingEmbedSafetyCss(".xerox-d35wn-html", "28px", "58px")}
+.xerox-d35wn-html .hero::after{content:none!important}`,
         }}
       />
     </main>
