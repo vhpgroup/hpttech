@@ -125,10 +125,14 @@ export type ProductSearchParams = {
   mau?: string;
   /** Lọc mực in theo nguồn gốc: chinhhang | tuongthich */
   orig?: string;
-  /** Lọc PC/máy chủ theo CPU: i3 | i5 | i7 | i9 | ultra | xeon | ryzen */
+  /** Lọc PC/máy chủ/laptop theo CPU: i3 | i5 | i7 | i9 | ultra | xeon | ryzen */
   cpu?: string;
-  /** Lọc PC/máy chủ theo RAM (GB): 8 | 16 | 32 (32 = từ 32GB trở lên) */
+  /** Lọc PC/máy chủ/laptop theo RAM (GB): 8 | 16 | 32 (32 = từ 32GB trở lên) */
   ram?: string;
+  /** Lọc laptop theo GPU: rtx50 | rtx40 | rtx30 | radeon */
+  gpu?: string;
+  /** Lọc laptop theo kích màn hình (inch): 14 | 15 | 16 | 17 */
+  sc?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -234,8 +238,8 @@ const INK_ORIGIN_SQL: Record<string, string> = {
   tuongthich: `(b.name in (${INK_COMPATIBLE_BRANDS}) or coalesce(p.name,'') ~* 'tương thích')`,
 };
 
-// Chuỗi gộp để nhận diện CPU cho PC đồng bộ / máy chủ (tên + spec đã flatten thành cột).
-const PC_CPU_TEXT = `(coalesce(p.name,'') || ' ' || coalesce(p.desktop_specs_cpu,'') || ' ' || coalesce(p.server_specs_cpu,''))`;
+// Chuỗi gộp để nhận diện CPU cho PC đồng bộ / máy chủ / laptop (tên + spec đã flatten thành cột).
+const PC_CPU_TEXT = `(coalesce(p.name,'') || ' ' || coalesce(p.desktop_specs_cpu,'') || ' ' || coalesce(p.server_specs_cpu,'') || ' ' || coalesce(p.laptop_specs_cpu,''))`;
 
 /**
  * CPU → điều kiện SQL (whitelist).
@@ -252,11 +256,30 @@ const PC_CPU_SQL: Record<string, string> = {
   ryzen: `${PC_CPU_TEXT} ~* 'ryzen'`,
 };
 
-/** RAM (GB) → điều kiện SQL trên cột số desktop_specs_ram_gb / server_specs_ram_gb. Whitelist. */
+/** RAM (GB) → điều kiện SQL trên cột số desktop/server/laptop_specs_ram_gb. Whitelist. */
 const PC_RAM_SQL: Record<string, string> = {
-  "8": "(p.desktop_specs_ram_gb = 8 or p.server_specs_ram_gb = 8)",
-  "16": "(p.desktop_specs_ram_gb = 16 or p.server_specs_ram_gb = 16)",
-  "32": "(p.desktop_specs_ram_gb >= 32 or p.server_specs_ram_gb >= 32)",
+  "8": "(p.desktop_specs_ram_gb = 8 or p.server_specs_ram_gb = 8 or p.laptop_specs_ram_gb = 8)",
+  "16": "(p.desktop_specs_ram_gb = 16 or p.server_specs_ram_gb = 16 or p.laptop_specs_ram_gb = 16)",
+  "32": "(p.desktop_specs_ram_gb >= 32 or p.server_specs_ram_gb >= 32 or p.laptop_specs_ram_gb >= 32)",
+};
+
+// Chuỗi nhận diện GPU laptop (tên + spec).
+const LAPTOP_GPU_TEXT = `(coalesce(p.name,'') || ' ' || coalesce(p.laptop_specs_gpu,''))`;
+
+/** GPU laptop → điều kiện SQL theo thế hệ (whitelist). */
+const LAPTOP_GPU_SQL: Record<string, string> = {
+  rtx50: `${LAPTOP_GPU_TEXT} ~* 'rtx ?50\\d{2}'`,
+  rtx40: `${LAPTOP_GPU_TEXT} ~* 'rtx ?40\\d{2}'`,
+  rtx30: `${LAPTOP_GPU_TEXT} ~* 'rtx ?[23]0\\d{2}'`,
+  radeon: `${LAPTOP_GPU_TEXT} ~* 'gtx|radeon rx|\\mrx ?\\d{3,4}'`,
+};
+
+/** Kích màn hình laptop (inch) → điều kiện SQL trên cột số laptop_specs_screen_size_inch. Whitelist. */
+const LAPTOP_SCREEN_SQL: Record<string, string> = {
+  "14": "p.laptop_specs_screen_size_inch <= 14.5",
+  "15": "p.laptop_specs_screen_size_inch between 14.6 and 15.9",
+  "16": "p.laptop_specs_screen_size_inch between 16 and 16.9",
+  "17": "p.laptop_specs_screen_size_inch >= 17",
 };
 
 function normalizeSearchText(value?: string) {
@@ -1409,6 +1432,17 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(ramSql);
   }
 
+  // --- Bộ lọc chuyên biệt laptop (GPU + kích màn hình) ---
+  const gpuSql = LAPTOP_GPU_SQL[cleanCatalogParam(params.gpu).toLowerCase()];
+  if (gpuSql) {
+    where.push(gpuSql);
+  }
+
+  const scSql = LAPTOP_SCREEN_SQL[cleanCatalogParam(params.sc).toLowerCase()];
+  if (scSql) {
+    where.push(scSql);
+  }
+
   return where.join(" and ");
 }
 
@@ -1598,6 +1632,8 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     orig?: string,
     cpu?: string,
     ram?: string,
+    gpu?: string,
+    sc?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1621,6 +1657,8 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       orig,
       cpu,
       ram,
+      gpu,
+      sc,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1658,6 +1696,8 @@ export async function getProductSearchPageFromPayload({
   orig = "",
   cpu = "",
   ram = "",
+  gpu = "",
+  sc = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1681,6 +1721,8 @@ export async function getProductSearchPageFromPayload({
     orig,
     cpu,
     ram,
+    gpu,
+    sc,
   );
 }
 

@@ -56,6 +56,8 @@ function buildProductFilterHref(options: {
   orig?: string;
   cpu?: string;
   ram?: string;
+  gpu?: string;
+  sc?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -73,6 +75,8 @@ function buildProductFilterHref(options: {
   if (options.orig) params.set("orig", options.orig);
   if (options.cpu) params.set("cpu", options.cpu);
   if (options.ram) params.set("ram", options.ram);
+  if (options.gpu) params.set("gpu", options.gpu);
+  if (options.sc) params.set("sc", options.sc);
   return `/san-pham?${params.toString()}`;
 }
 
@@ -370,6 +374,65 @@ const pcMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Slug danh mục laptop gaming - đồ họa (khớp categories.slug trong CMS).
+const LAPTOP_PARENT_SLUG = "laptop-gaming-do-hoa";
+
+const laptopMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — BỘ LỌC theo hãng (field brand).
+    title: "Theo hãng",
+    links: [
+      { label: "ASUS", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "ASUS" }) },
+      { label: "Lenovo", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "Lenovo" }) },
+      { label: "Acer", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "Acer" }) },
+      { label: "MSI", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "MSI" }) },
+      { label: "HP", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "HP" }) },
+      { label: "Gigabyte", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "Gigabyte" }) },
+      { label: "Dell", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, brand: "Dell" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo CPU (dùng chung whitelist cpu với PC/máy chủ).
+    title: "Theo CPU",
+    links: [
+      { label: "Intel Core Ultra", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, cpu: "ultra" }) },
+      { label: "Intel Core i9", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, cpu: "i9" }) },
+      { label: "Intel Core i7", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, cpu: "i7" }) },
+      { label: "Intel Core i5", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, cpu: "i5" }) },
+      { label: "AMD Ryzen", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, cpu: "ryzen" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo GPU (thế hệ card rời).
+    title: "Theo card đồ họa",
+    links: [
+      { label: "RTX 50 series", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, gpu: "rtx50" }) },
+      { label: "RTX 40 series", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, gpu: "rtx40" }) },
+      { label: "RTX 20/30 series", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, gpu: "rtx30" }) },
+      { label: "GTX / Radeon RX", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, gpu: "radeon" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo RAM (cột số laptop_specs_ram_gb).
+    title: "Theo RAM",
+    links: [
+      { label: "RAM 8GB", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, ram: "8" }) },
+      { label: "RAM 16GB", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, ram: "16" }) },
+      { label: "RAM 32GB trở lên", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, ram: "32" }) },
+    ],
+  },
+  {
+    // Trục 5 — BỘ LỌC theo kích màn hình (cột số laptop_specs_screen_size_inch).
+    title: "Theo màn hình",
+    links: [
+      { label: "14 inch trở xuống", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, sc: "14" }) },
+      { label: "15.6 inch", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, sc: "15" }) },
+      { label: "16 inch", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, sc: "16" }) },
+      { label: "17 inch trở lên", href: buildProductFilterHref({ category: LAPTOP_PARENT_SLUG, sc: "17" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
@@ -390,6 +453,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "máy tính đồng bộ - máy chủ" || nameKey === "máy tính đồng bộ & máy chủ") {
     return pcMegaColumns;
+  }
+  if (nameKey === "laptop gaming - đồ họa") {
+    return laptopMegaColumns;
   }
 
   if (!category.children.length) {
