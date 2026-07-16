@@ -133,6 +133,8 @@ export type ProductSearchParams = {
   gpu?: string;
   /** Lọc laptop theo kích màn hình (inch): 14 | 15 | 16 | 17 */
   sc?: string;
+  /** Lọc laptop theo dòng máy: thinkpad | vivobook | zenbook | yoga | swift | ideapad | xps | prestige */
+  line?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -281,6 +283,18 @@ const LAPTOP_SCREEN_SQL: Record<string, string> = {
   "15": "p.laptop_specs_screen_size_inch between 14.6 and 15.9",
   "16": "p.laptop_specs_screen_size_inch between 16 and 16.9",
   "17": "p.laptop_specs_screen_size_inch >= 17",
+};
+
+/** Dòng laptop → điều kiện SQL trên tên (whitelist). */
+const LAPTOP_LINE_SQL: Record<string, string> = {
+  thinkpad: `coalesce(p.name,'') ~* 'thinkpad'`,
+  vivobook: `coalesce(p.name,'') ~* 'vivobook'`,
+  zenbook: `coalesce(p.name,'') ~* 'zenbook'`,
+  yoga: `coalesce(p.name,'') ~* '\\myoga'`,
+  swift: `coalesce(p.name,'') ~* '\\mswift'`,
+  ideapad: `coalesce(p.name,'') ~* 'ideapad'`,
+  xps: `coalesce(p.name,'') ~* '\\mxps'`,
+  prestige: `coalesce(p.name,'') ~* 'prestige|\\mmodern \\d'`,
 };
 
 function normalizeSearchText(value?: string) {
@@ -1444,6 +1458,11 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(scSql);
   }
 
+  const lineSql = LAPTOP_LINE_SQL[cleanCatalogParam(params.line).toLowerCase()];
+  if (lineSql) {
+    where.push(lineSql);
+  }
+
   return where.join(" and ");
 }
 
@@ -1635,6 +1654,7 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     ram?: string,
     gpu?: string,
     sc?: string,
+    line?: string,
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1660,6 +1680,7 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       ram,
       gpu,
       sc,
+      line,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1699,6 +1720,7 @@ export async function getProductSearchPageFromPayload({
   ram = "",
   gpu = "",
   sc = "",
+  line = "",
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1724,6 +1746,7 @@ export async function getProductSearchPageFromPayload({
     ram,
     gpu,
     sc,
+    line,
   );
 }
 

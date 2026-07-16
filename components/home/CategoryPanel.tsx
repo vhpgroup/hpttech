@@ -58,6 +58,7 @@ function buildProductFilterHref(options: {
   ram?: string;
   gpu?: string;
   sc?: string;
+  line?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -77,6 +78,7 @@ function buildProductFilterHref(options: {
   if (options.ram) params.set("ram", options.ram);
   if (options.gpu) params.set("gpu", options.gpu);
   if (options.sc) params.set("sc", options.sc);
+  if (options.line) params.set("line", options.line);
   return `/san-pham?${params.toString()}`;
 }
 
@@ -477,6 +479,20 @@ const officeLaptopMegaColumns: MegaColumn[] = [
       { label: "14 inch trở xuống", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, sc: "14" }) },
       { label: "15.6 inch", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, sc: "15" }) },
       { label: "16 inch", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, sc: "16" }) },
+    ],
+  },
+  {
+    // Trục 5 — BỘ LỌC theo dòng máy (regex tên, whitelist).
+    title: "Theo dòng",
+    links: [
+      { label: "ThinkPad", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "thinkpad" }) },
+      { label: "Vivobook", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "vivobook" }) },
+      { label: "Zenbook", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "zenbook" }) },
+      { label: "Yoga", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "yoga" }) },
+      { label: "Swift", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "swift" }) },
+      { label: "IdeaPad", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "ideapad" }) },
+      { label: "XPS", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "xps" }) },
+      { label: "Prestige / Modern", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "prestige" }) },
     ],
   },
 ];
