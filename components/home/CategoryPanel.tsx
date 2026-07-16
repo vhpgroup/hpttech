@@ -58,6 +58,7 @@ function buildProductFilterHref(options: {
   ram?: string;
   gpu?: string;
   sc?: string;
+  line?: string;
 }) {
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
@@ -77,6 +78,7 @@ function buildProductFilterHref(options: {
   if (options.ram) params.set("ram", options.ram);
   if (options.gpu) params.set("gpu", options.gpu);
   if (options.sc) params.set("sc", options.sc);
+  if (options.line) params.set("line", options.line);
   return `/san-pham?${params.toString()}`;
 }
 
@@ -433,6 +435,68 @@ const laptopMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Slug danh mục laptop văn phòng (khớp categories.slug trong CMS — giữ slug "laptop" cũ).
+const OFFICE_LAPTOP_PARENT_SLUG = "laptop";
+
+const officeLaptopMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — BỘ LỌC theo hãng (field brand).
+    title: "Theo hãng",
+    links: [
+      { label: "ASUS", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, brand: "ASUS" }) },
+      { label: "Lenovo", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, brand: "Lenovo" }) },
+      { label: "Dell", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, brand: "Dell" }) },
+      { label: "Acer", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, brand: "Acer" }) },
+      { label: "MSI", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, brand: "MSI" }) },
+      { label: "HP", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, brand: "HP" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo CPU (whitelist dùng chung, có cả chip ARM Snapdragon).
+    title: "Theo CPU",
+    links: [
+      { label: "Intel Core Ultra", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, cpu: "ultra" }) },
+      { label: "Intel Core i7", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, cpu: "i7" }) },
+      { label: "Intel Core i5", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, cpu: "i5" }) },
+      { label: "Intel Core i3", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, cpu: "i3" }) },
+      { label: "AMD Ryzen", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, cpu: "ryzen" }) },
+      { label: "Snapdragon (ARM)", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, cpu: "snapdragon" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo RAM (cột số laptop_specs_ram_gb).
+    title: "Theo RAM",
+    links: [
+      { label: "RAM 8GB", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, ram: "8" }) },
+      { label: "RAM 16GB", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, ram: "16" }) },
+      { label: "RAM 32GB trở lên", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, ram: "32" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo kích màn hình (nhóm văn phòng không có 17").
+    title: "Theo màn hình",
+    links: [
+      { label: "14 inch trở xuống", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, sc: "14" }) },
+      { label: "15.6 inch", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, sc: "15" }) },
+      { label: "16 inch", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, sc: "16" }) },
+    ],
+  },
+  {
+    // Trục 5 — BỘ LỌC theo dòng máy (regex tên, whitelist).
+    title: "Theo dòng",
+    links: [
+      { label: "ThinkPad", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "thinkpad" }) },
+      { label: "Vivobook", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "vivobook" }) },
+      { label: "Zenbook", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "zenbook" }) },
+      { label: "Yoga", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "yoga" }) },
+      { label: "Swift", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "swift" }) },
+      { label: "IdeaPad", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "ideapad" }) },
+      { label: "XPS", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "xps" }) },
+      { label: "Prestige / Modern", href: buildProductFilterHref({ category: OFFICE_LAPTOP_PARENT_SLUG, line: "prestige" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
@@ -456,6 +520,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "laptop gaming - đồ họa") {
     return laptopMegaColumns;
+  }
+  if (nameKey === "laptop văn phòng") {
+    return officeLaptopMegaColumns;
   }
 
   if (!category.children.length) {

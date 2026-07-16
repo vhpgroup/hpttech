@@ -52,6 +52,7 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
     ram: firstParam(params.ram) || "",
     gpu: firstParam(params.gpu) || "",
     sc: firstParam(params.sc) || "",
+    line: firstParam(params.line) || "",
   };
 }
 
