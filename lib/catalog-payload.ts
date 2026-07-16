@@ -125,7 +125,7 @@ export type ProductSearchParams = {
   mau?: string;
   /** Lọc mực in theo nguồn gốc: chinhhang | tuongthich */
   orig?: string;
-  /** Lọc PC/máy chủ/laptop theo CPU: i3 | i5 | i7 | i9 | ultra | xeon | ryzen */
+  /** Lọc PC/máy chủ/laptop theo CPU: i3 | i5 | i7 | i9 | ultra | xeon | ryzen | snapdragon */
   cpu?: string;
   /** Lọc PC/máy chủ/laptop theo RAM (GB): 8 | 16 | 32 (32 = từ 32GB trở lên) */
   ram?: string;
@@ -254,6 +254,7 @@ const PC_CPU_SQL: Record<string, string> = {
   ultra: `${PC_CPU_TEXT} ~* 'core ?ultra|ultra [579]|\\mu[579][- ]?[0-9]'`,
   xeon: `${PC_CPU_TEXT} ~* 'xeon'`,
   ryzen: `${PC_CPU_TEXT} ~* 'ryzen'`,
+  snapdragon: `${PC_CPU_TEXT} ~* 'snapdragon|\\moryon'`,
 };
 
 /** RAM (GB) → điều kiện SQL trên cột số desktop/server/laptop_specs_ram_gb. Whitelist. */

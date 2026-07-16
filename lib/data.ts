@@ -33,7 +33,7 @@ export const HPT_DATA = {
   ],
   categories: [
     { name: "Laptop Gaming - Đồ Họa", icon: "laptop" },
-    { name: "Máy tính để bàn", icon: "monitor" },
+    { name: "Laptop văn phòng", icon: "monitor" },
     { name: "Máy tính đồng bộ & Máy chủ", icon: "server" },
     { name: "Thiết bị mạng", icon: "network" },
     { name: "Thiết bị văn phòng", icon: "printer" },
