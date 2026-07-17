@@ -5,8 +5,7 @@ Ban thiet ke lai trang **/ve-hpt** — phien ban KHONG kem header/footer (dung h
 ## File tren branch nay
 | File | Mo ta |
 |---|---|
-| `public/ve-hpt-redesign/index.html` | Trang hoan chinh (CSS + JS inline, icon/logo nhung data URI) — xem truc tiep tai `/ve-hpt-redesign/index.html` khi chay du an |
-| `public/ve-hpt-redesign/hpt-team.jpg` | Anh tru so + doi ngu (dung trong muc "Ve HPT Technology") |
+| `public/ve-hpt-redesign/index.html` | Trang hoan chinh, TU CHUA 100% (CSS + JS + toan bo anh/icon nhung data URI) — xem truc tiep tai `/ve-hpt-redesign/index.html` khi chay du an |
 
 ## Cach tich hop vao app/(site)
 1. Tao route moi hoac thay noi dung route `ve-hpt` hien tai.
@@ -17,7 +16,7 @@ Ban thiet ke lai trang **/ve-hpt** — phien ban KHONG kem header/footer (dung h
 ## Viec can lam khi tich hop that
 - [ ] **Form lien he** (`#ctaForm`): hien gui qua `mailto:info@hpttech.vn`. Can noi vao API/CRM (da danh dau `TODO (deploy)` trong HTML).
 - [ ] **og:image** dang tro `https://hpttech.vn/ve-hpt-redesign/hpt-team.jpg` — cap nhat theo duong dan media thuc te.
-- [ ] Neu can toi uu them: tach cac icon data-URI thanh file trong `public/` (hien nhung inline de tu chua).
+- [ ] Toi uu dung luong: tach anh tru so + cac icon data-URI thanh file rieng trong `public/` hoac CMS media (hien nhung inline de ban preview tu chua, ~800KB).
 - [ ] Xoa favicon inline trong `<head>` neu site da co favicon rieng.
 
 ## So lieu da duoc xac nhan (KHONG doi)
