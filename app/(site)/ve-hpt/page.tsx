@@ -1,29 +1,17 @@
-import { AboutEnterprisePage } from "@/components/about/AboutEnterprisePage";
-import {
-  getAboutPageFromPayload,
-  getSiteSettingsFromPayload,
-} from "@/lib/content-payload";
+import AboutRedesign from "@/components/about/AboutRedesign";
 import { pageMetadata } from "@/lib/seo";
-import { normalizeSiteSettings } from "@/lib/site-settings";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
-export default async function AboutPage() {
-  const [aboutPage, rawSettings] = await Promise.all([
-    getAboutPageFromPayload(),
-    getSiteSettingsFromPayload(),
-  ]);
-  const settings = normalizeSiteSettings(rawSettings);
-
-  return <AboutEnterprisePage content={aboutPage} settings={settings} />;
-}
-
-export async function generateMetadata() {
-  const aboutPage = await getAboutPageFromPayload();
-
+export function generateMetadata() {
   return pageMetadata({
-    title: aboutPage.hero.title,
-    description: aboutPage.hero.description,
+    title: "Giới thiệu HPT Technology — Đối tác tích hợp hệ thống & chuyển đổi số",
+    description:
+      "HPT TECH — tư vấn, cung cấp thiết bị, tích hợp hệ thống, phát triển phần mềm và triển khai chuyển đổi số cho cơ quan nhà nước và doanh nghiệp tại Việt Nam.",
     path: "/ve-hpt",
   });
+}
+
+export default function AboutPage() {
+  return <AboutRedesign />;
 }
