@@ -11,3 +11,6 @@ app/(payload)/admin/importMap.js
 !.env.example
 *.tsbuildinfo
 dev-server*.log
+
+# generated: asset trang Ve HPT (giai ma tu scripts/ve-hpt-assets-data.json)
+public/ve-hpt/
