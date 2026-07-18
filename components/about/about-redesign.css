@@ -335,3 +335,17 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offse
   .vehpt *,.vehpt *::before,.vehpt *::after{transition-duration:.01ms!important;animation-duration:.01ms!important}
   .vehpt .reveal{opacity:1;transform:none}
 }
+
+/* ===== PERF: cuon muot tren mobile ===== */
+@media (max-width: 920px) {
+  /* backdrop blur rat nang tren GPU dien thoai -> nen mo dac */
+  .vehpt .cred-card { backdrop-filter: none; background: rgba(13, 34, 78, 0.6); }
+  /* reveal: chi fade nhe, khong truot doc -> giam composite khi vuot nhanh */
+  .vehpt .reveal { transform: none; transition: opacity 0.35s ease; }
+  /* bo lop blend trang tri o hero */
+  .vehpt .hero .nodes { display: none; }
+  /* bong do nho hon -> giam chi phi paint */
+  .vehpt { --shadow: 0 8px 20px -12px rgba(9,26,61,.28); --shadow-lg: 0 16px 36px -22px rgba(9,26,61,.38); }
+  /* bo qua render cac section ngoai man hinh (progressive enhancement) */
+  .vehpt .sec, .vehpt .about { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+}
