@@ -497,6 +497,52 @@ const officeLaptopMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Mega-menu "Thiết bị mạng" — 4 nhóm theo bản chất thiết bị (cây danh mục thật 3 tầng).
+// Mỗi cột: "Tất cả …" trỏ danh mục cấp 2 (gom cả nhóm qua filter 2/3 tầng) + các danh mục lá cấp 3.
+const networkMegaColumns: MegaColumn[] = [
+  {
+    title: "Router - Bộ phát Wifi - 4G",
+    links: [
+      { label: "Tất cả Router & Wifi", href: buildProductFilterHref({ category: "router-bo-phat-wifi-4g" }) },
+      { label: "Router Wifi", href: buildProductFilterHref({ category: "router-wifi" }) },
+      { label: "Mesh / Mở rộng sóng", href: buildProductFilterHref({ category: "mesh-bo-mo-rong-song" }) },
+      { label: "Access Point / Controller", href: buildProductFilterHref({ category: "access-point-controller" }) },
+      { label: "Router 4G / LTE", href: buildProductFilterHref({ category: "router-4g-lte" }) },
+    ],
+  },
+  {
+    title: "Switch - Chia mạng",
+    links: [
+      { label: "Tất cả Switch", href: buildProductFilterHref({ category: "thiet-bi-chia-mang-switch" }) },
+      { label: "Switch thường", href: buildProductFilterHref({ category: "switch-thuong" }) },
+      { label: "Switch PoE", href: buildProductFilterHref({ category: "switch-poe" }) },
+      { label: "Switch Smart / Quản lý", href: buildProductFilterHref({ category: "switch-smart-quan-ly" }) },
+    ],
+  },
+  {
+    title: "Card mạng",
+    links: [
+      { label: "Tất cả Card mạng", href: buildProductFilterHref({ category: "card-mang-nw" }) },
+      { label: "Card USB Wifi", href: buildProductFilterHref({ category: "card-usb-wifi" }) },
+      { label: "Card PCIe", href: buildProductFilterHref({ category: "card-pcie" }) },
+      { label: "Card Wifi khác", href: buildProductFilterHref({ category: "card-wifi-khac" }) },
+      { label: "Card mạng có dây", href: buildProductFilterHref({ category: "card-mang-co-day" }) },
+    ],
+  },
+  {
+    title: "Linh phụ kiện TB mạng",
+    links: [
+      { label: "Tất cả linh phụ kiện", href: buildProductFilterHref({ category: "linh-phu-kien-tb-mang" }) },
+      { label: "Kìm bấm, Cáp mạng, Tool", href: buildProductFilterHref({ category: "kim-bam-cap-mang-tool" }) },
+      { label: "Thiết bị Firewall", href: buildProductFilterHref({ category: "thiet-bi-firewall" }) },
+      { label: "Tủ mạng / Rack", href: buildProductFilterHref({ category: "tu-mang-rack" }) },
+      { label: "Converter / Module quang", href: buildProductFilterHref({ category: "converter-module-quang" }) },
+      { label: "Nguồn PoE / Adapter", href: buildProductFilterHref({ category: "nguon-poe-adapter" }) },
+      { label: "Cân bằng tải", href: buildProductFilterHref({ category: "can-bang-tai" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
 }
@@ -523,6 +569,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "laptop văn phòng") {
     return officeLaptopMegaColumns;
+  }
+  if (nameKey === "thiết bị mạng") {
+    return networkMegaColumns;
   }
 
   if (!category.children.length) {
