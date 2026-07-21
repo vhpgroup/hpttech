@@ -1357,7 +1357,9 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
 
   if (category) {
     values.push(category);
-    where.push(`(c.slug = $${values.length} or pc.slug = $${values.length})`);
+    where.push(
+      `(c.slug = $${values.length} or pc.slug = $${values.length} or ppc.slug = $${values.length})`,
+    );
   }
 
   if (brand) {
@@ -1543,6 +1545,7 @@ async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}
           from products p
           left join categories c on c.id = p.category_id
           left join categories pc on pc.id = c.parent_id
+          left join categories ppc on ppc.id = pc.parent_id
           left join brands b on b.id = p.brand_id
           left join lateral (
             select coalesce(o.promotion_price, o.price) as effective_price
