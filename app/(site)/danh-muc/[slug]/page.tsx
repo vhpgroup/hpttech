@@ -9,8 +9,11 @@ import { SubpageBreadcrumb } from "@/components/layout/SubpageHeader";
 import CategoryLandingClient from "@/components/category/CategoryLandingClient";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
 
-export const revalidate = 300;
-export const dynamicParams = true;
+// Landing đọc searchParams (bộ lọc ?brand/?cpu/...) = dynamic API → route PHẢI render
+// dynamic. KHÔNG dùng revalidate/generateStaticParams ở đây: tổ hợp ISR + searchParams
+// ném DYNAMIC_SERVER_USAGE → 500 (sự cố deploy 22/07). Dữ liệu nav/facet bên dưới đã có
+// unstable_cache riêng nên không lo tải DB.
+export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -59,10 +62,6 @@ function parseLandingSearchParams(
     sc: firstParam(params.sc) || "",
     line: firstParam(params.line) || "",
   };
-}
-
-export async function generateStaticParams() {
-  return [];
 }
 
 export async function generateMetadata({ params }: PageProps) {
