@@ -61,7 +61,6 @@ function buildProductFilterHref(options: {
   line?: string;
 }) {
   const params = new URLSearchParams();
-  if (options.category) params.set("category", options.category);
   if (options.brand) params.set("brand", options.brand);
   if (options.size) params.set("size", options.size);
   if (options.speed) params.set("speed", options.speed);
@@ -79,7 +78,14 @@ function buildProductFilterHref(options: {
   if (options.gpu) params.set("gpu", options.gpu);
   if (options.sc) params.set("sc", options.sc);
   if (options.line) params.set("line", options.line);
-  return `/san-pham?${params.toString()}`;
+  const query = params.toString();
+
+  // Có danh mục → trỏ về LANDING PAGE riêng của danh mục (kiểu An Phát);
+  // bộ lọc kèm theo đi dưới dạng query trên landing. Không danh mục → /san-pham.
+  if (options.category) {
+    return `/danh-muc/${encodeURIComponent(options.category)}${query ? `?${query}` : ""}`;
+  }
+  return `/san-pham${query ? `?${query}` : ""}`;
 }
 
 // Slug danh mục cha nhóm máy in (khớp categories.slug trong CMS).
@@ -544,7 +550,8 @@ const networkMegaColumns: MegaColumn[] = [
 ];
 
 function categoryLandingHref(category: { name: string; slug?: string }) {
-  return `/san-pham?category=${encodeURIComponent(category.slug || category.name)}`;
+  // Landing page riêng của danh mục (kiểu An Phát). Nhận cả tên (server tự resolve về slug).
+  return `/danh-muc/${encodeURIComponent(category.slug || category.name)}`;
 }
 
 function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
