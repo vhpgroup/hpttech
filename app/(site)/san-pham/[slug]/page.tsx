@@ -8,6 +8,7 @@ import {
   FileText,
 } from "lucide-react";
 import {
+  getCategoryBreadcrumbTrail,
   getProductBySlugFromPayload,
   getProductsByBrandFromPayload,
   getProductsByCategoryFromPayload,
@@ -183,9 +184,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   if (!product) notFound();
 
-  const [similarProducts, sameBrandProducts] = await Promise.all([
+  const [similarProducts, sameBrandProducts, categoryTrail] = await Promise.all([
     product.category ? getProductsByCategoryFromPayload(product.category, product.slug, 8) : Promise.resolve([]),
     product.brand ? getProductsByBrandFromPayload(product.brand, product.slug, 8) : Promise.resolve([]),
+    product.category ? getCategoryBreadcrumbTrail(product.category) : Promise.resolve([]),
   ]);
 
   const settings = normalizeSiteSettings(rawSettings);
@@ -268,7 +270,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Trang chủ", item: absoluteURL("/") },
       { "@type": "ListItem", position: 2, name: "Sản phẩm", item: absoluteURL("/san-pham") },
-      { "@type": "ListItem", position: 3, name: product.title, item: absoluteURL(`/san-pham/${product.slug}`) },
+      ...categoryTrail.map((item, index) => ({
+        "@type": "ListItem",
+        position: 3 + index,
+        name: item.name,
+        item: absoluteURL(`/san-pham?category=${encodeURIComponent(item.slug)}`),
+      })),
+      {
+        "@type": "ListItem",
+        position: 3 + categoryTrail.length,
+        name: product.title,
+        item: absoluteURL(`/san-pham/${product.slug}`),
+      },
     ],
   };
 
@@ -394,6 +407,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <Link href="/san-pham" className="transition-colors hover:text-slate-800">
           Sản phẩm
         </Link>
+        {categoryTrail.map((item) => (
+          <span key={item.slug} className="inline-flex items-center gap-1.5">
+            <ChevronRight size={14} className="text-slate-300" />
+            <Link
+              href={`/san-pham?category=${encodeURIComponent(item.slug)}`}
+              className="truncate transition-colors hover:text-slate-800"
+            >
+              {item.name}
+            </Link>
+          </span>
+        ))}
         <ChevronRight size={14} className="text-slate-300" />
         <span className="truncate font-medium text-slate-900">{product.title}</span>
       </nav>
