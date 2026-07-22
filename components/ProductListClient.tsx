@@ -532,8 +532,12 @@ function ProductListInner({
           { label: "Sản phẩm", href: "/san-pham" },
           ...(categoryTrail ?? []).map((item) => ({
             label: item.name,
+            // Link về danh mục (bỏ mọi bộ lọc) — cho phép quay lên cấp cây danh mục.
             href: `/san-pham?category=${encodeURIComponent(item.slug)}`,
           })),
+          // Bộ lọc hãng là một "cấp" của trục mega-menu (vd Laptop Gaming › ASUS) → hiện thành
+          // mắt breadcrumb cuối (trang hiện tại). Nhất quán với chip "Đang lọc".
+          ...(filters.brands[0] ? [{ label: filters.brands[0] }] : []),
         ]}
       />
 
