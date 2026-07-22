@@ -24,7 +24,7 @@ export async function GET() {
   const base = siteURL();
   const entries = await getCategorySitemapEntries();
   const urls = entries.map((entry) =>
-    url(`${base}/san-pham?category=${encodeURIComponent(entry.slug)}`, entry.lastModified),
+    url(`${base}/danh-muc/${encodeURIComponent(entry.slug)}`, entry.lastModified),
   );
 
   return new Response(

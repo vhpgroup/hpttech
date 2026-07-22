@@ -100,6 +100,9 @@ export type ProductSearchParams = {
   search?: string;
   category?: string;
   brand?: string;
+  /** "category": facet (Danh mục/Thương hiệu) scope theo nhánh danh mục đang xem —
+   * dùng cho landing /danh-muc. Mặc định: facet toàn catalog (hành vi /san-pham cũ). */
+  facetScope?: "category" | "global";
   sort?: "best" | "price-asc" | "price-desc" | "newest" | "popular";
   priceMin?: string;
   priceMax?: string;
@@ -1593,12 +1596,32 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
   return where.join(" and ");
 }
 
-async function loadProductListFacets(): Promise<ProductListFacets> {
+async function loadProductListFacets(categoryParam = ""): Promise<ProductListFacets> {
   const pool = getPgPool();
   if (!pool) return { categories: [], brands: [] };
 
-  const [categoriesResult, brandsResult] = await Promise.all([
-    pool.query<{ label: string; value: string; count: string }>(`
+  // Landing danh mục (kiểu An Phát): facet CHỈ trong phạm vi danh mục đang xem —
+  // "Danh mục" = các danh mục lá bên trong nhánh, "Thương hiệu" = hãng CÓ hàng trong nhánh.
+  // Không có category → facet toàn catalog như cũ.
+  const category = cleanCatalogParam(categoryParam);
+  const scopeValues: unknown[] = category ? [category] : [];
+  const scopeSQL = category
+    ? " and (c.slug = $1 or pc.slug = $1 or ppc.slug = $1)"
+    : "";
+  const scopeJoins = `
+      join categories c on c.id = p.category_id
+      left join categories pc on pc.id = c.parent_id
+      left join categories ppc on ppc.id = pc.parent_id`;
+
+  const categoriesSQL = category
+    ? `
+      select c.name as label, c.slug as value, count(*)::text as count, min(c.sort_order) as sort_order
+      from products p${scopeJoins}
+      where p.status = 'published' and p._status = 'published'${scopeSQL}
+      group by c.name, c.slug
+      order by min(c.sort_order) asc nulls last, c.name asc
+    `
+    : `
       select
         coalesce(pc.name, c.name) as label,
         coalesce(pc.slug, c.slug) as value,
@@ -1610,15 +1633,21 @@ async function loadProductListFacets(): Promise<ProductListFacets> {
       where p.status = 'published' and p._status = 'published'
       group by coalesce(pc.name, c.name), coalesce(pc.slug, c.slug)
       order by min(coalesce(pc.sort_order, c.sort_order)) asc nulls last, coalesce(pc.name, c.name) asc
-    `),
-    pool.query<{ label: string; value: string; count: string }>(`
+    `;
+
+  const [categoriesResult, brandsResult] = await Promise.all([
+    pool.query<{ label: string; value: string; count: string }>(categoriesSQL, scopeValues),
+    pool.query<{ label: string; value: string; count: string }>(
+      `
       select b.name as label, b.name as value, count(*)::text as count
-      from products p
+      from products p${scopeJoins}
       join brands b on b.id = p.brand_id
-      where p.status = 'published' and p._status = 'published'
+      where p.status = 'published' and p._status = 'published'${scopeSQL}
       group by b.id, b.name
-      order by b.name asc
-    `),
+      order by count(*) desc, b.name asc
+    `,
+      scopeValues,
+    ),
   ]);
 
   return {
@@ -1688,7 +1717,7 @@ async function loadProductSearchPageFromPayload(params: ProductSearchParams = {}
         `,
         values,
       ),
-      loadProductListFacets(),
+      loadProductListFacets(params.facetScope === "category" ? params.category : ""),
     ]);
 
     const ids = idsResult.rows.map((row) => row.id);

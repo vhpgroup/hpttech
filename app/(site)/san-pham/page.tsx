@@ -10,10 +10,9 @@ import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
 
-// Metadata ĐỘNG: mỗi view danh mục là landing page riêng, self-canonical về
-// /san-pham?category=<slug chuẩn> (gộp mọi bộ lọc brand/cpu/... về trang danh mục).
-// Tìm kiếm / không danh mục → canonical /san-pham. (Bước đệm cho SEO kiểu An Phát,
-// chưa đổi sang route path riêng.)
+// Metadata ĐỘNG: view danh mục trên /san-pham canonical về LANDING PAGE riêng
+// /danh-muc/<slug> (trang chính thức để Google index). Tìm kiếm / không danh mục
+// → canonical /san-pham như cũ.
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const resolved = searchParams ? await searchParams : {};
   const category = firstParam(resolved.category) || "";
@@ -27,7 +26,7 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
     return pageMetadata({
       title: `${name} chính hãng, giá tốt`,
       description: `${name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc. Tư vấn kỹ thuật tận nơi cho doanh nghiệp.`,
-      path: `/san-pham?category=${encodeURIComponent(canonicalSlug)}`,
+      path: `/danh-muc/${encodeURIComponent(canonicalSlug)}`,
     });
   }
 

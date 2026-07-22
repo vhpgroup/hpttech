@@ -104,3 +104,41 @@ export function filterCrumbLabel(key: string, value: string): string {
   if (key === "brand") return clean;
   return FILTER_CRUMB_LABELS[key]?.[clean] ?? clean;
 }
+
+// ---------------------------------------------------------------------------
+// BỘ LỌC THEO NGÀNH HÀNG (kiểu An Phát): mỗi danh mục GỐC có bộ nhóm lọc riêng,
+// hiển thị ở sidebar /san-pham. Nhóm lọc nối thẳng vào các query param chuyên
+// biệt sẵn có của productSearchWhere (size/speed/feature/func/.../cpu/ram/gpu).
+// Nhãn tái dùng FILTER_CRUMB_LABELS — một nguồn chân lý với breadcrumb.
+// ---------------------------------------------------------------------------
+
+export type FilterGroupDef = {
+  param: string;
+  title: string;
+  options: Array<{ value: string; label: string }>;
+};
+
+function group(param: string, title: string): FilterGroupDef {
+  return {
+    param,
+    title,
+    options: Object.entries(FILTER_CRUMB_LABELS[param] ?? {}).map(([value, label]) => ({ value, label })),
+  };
+}
+
+// Key = slug danh mục GỐC (categoryTrail[0]). Danh mục không có ở đây → chỉ có
+// bộ lọc chung (Danh mục / Thương hiệu / Giá).
+export const CATEGORY_FILTER_GROUPS: Record<string, FilterGroupDef[]> = {
+  "may-scan": [group("size", "Khổ giấy"), group("speed", "Tốc độ quét"), group("feature", "Tính năng")],
+  "may-in": [group("func", "Loại máy in"), group("pspeed", "Tốc độ in"), group("pfeat", "Tính năng in")],
+  "muc-in-phu-kien": [group("fb", "Dùng cho máy"), group("mau", "Màu mực"), group("orig", "Loại mực")],
+  "may-tinh-dong-bo-may-chu": [group("cpu", "CPU"), group("ram", "RAM")],
+  "laptop-gaming-do-hoa": [group("cpu", "CPU"), group("gpu", "Card đồ họa"), group("sc", "Màn hình"), group("line", "Dòng máy")],
+  laptop: [group("cpu", "CPU"), group("gpu", "Card đồ họa"), group("sc", "Màn hình"), group("line", "Dòng máy")],
+  "phan-mem-ban-quyen": [group("lic", "Loại bản quyền"), group("aud", "Đối tượng")],
+};
+
+export function filterGroupsForCategory(rootSlug: string | undefined | null): FilterGroupDef[] {
+  if (!rootSlug) return [];
+  return CATEGORY_FILTER_GROUPS[rootSlug] ?? [];
+}
