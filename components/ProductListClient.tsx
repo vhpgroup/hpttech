@@ -11,6 +11,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import type { CatalogProduct } from "@/lib/catalog";
 import { canonicalizeCategoryName } from "@/lib/product-category";
 import type { ProductListFacets } from "@/lib/catalog-payload";
+import { FILTER_CRUMB_ORDER, filterCrumbLabel } from "@/lib/product-filter-labels";
 
 type MultiFilterKey =
   | "categories"
@@ -520,6 +521,14 @@ function ProductListInner({
     });
   };
 
+  // Mọi bộ lọc mega-menu đang bật (brand + cpu/ram/gpu/line/size/speed/feature/func/... )
+  // → mỗi cái thành một mắt breadcrumb (sau chuỗi danh mục), nhãn bám sát menu.
+  const activeFilterCrumbs = FILTER_CRUMB_ORDER.flatMap((key) => {
+    const raw = cleanFilterValue(searchParams?.get(key) ?? "");
+    if (!raw) return [];
+    return [{ label: filterCrumbLabel(key, raw) }];
+  });
+
   return (
     <main className="subpage-main bg-slate-50/70 pb-28">
       <SubpageHeader
@@ -535,9 +544,8 @@ function ProductListInner({
             // Link về danh mục (bỏ mọi bộ lọc) — cho phép quay lên cấp cây danh mục.
             href: `/san-pham?category=${encodeURIComponent(item.slug)}`,
           })),
-          // Bộ lọc hãng là một "cấp" của trục mega-menu (vd Laptop Gaming › ASUS) → hiện thành
-          // mắt breadcrumb cuối (trang hiện tại). Nhất quán với chip "Đang lọc".
-          ...(filters.brands[0] ? [{ label: filters.brands[0] }] : []),
+          // Các bộ lọc mega-menu đang bật → mỗi cái một mắt (mắt cuối = trang hiện tại).
+          ...activeFilterCrumbs,
         ]}
       />
 
