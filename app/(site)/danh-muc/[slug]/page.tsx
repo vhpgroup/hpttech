@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import {
   getCategoryBreadcrumbTrail,
@@ -141,15 +142,19 @@ export default async function CategoryLandingPage({ params, searchParams }: Page
         </p>
       </header>
 
-      <CategoryLandingClient
-        leaf={leaf}
-        trail={trail}
-        products={result.products}
-        facets={result.facets}
-        page={result.page}
-        totalPages={result.totalPages}
-        totalProducts={result.totalProducts}
-      />
+      {/* CategoryLandingClient dùng useSearchParams → PHẢI bọc Suspense (như /san-pham),
+          nếu không SSR/ISR sẽ throw → 500 toàn route. */}
+      <Suspense fallback={null}>
+        <CategoryLandingClient
+          leaf={leaf}
+          trail={trail}
+          products={result.products}
+          facets={result.facets}
+          page={result.page}
+          totalPages={result.totalPages}
+          totalProducts={result.totalProducts}
+        />
+      </Suspense>
     </main>
   );
 }
