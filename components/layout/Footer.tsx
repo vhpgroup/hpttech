@@ -93,6 +93,16 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
       value: "VP Cần Thơ: 69 Nguyễn Trãi, Phường Ninh Kiều, TP. Cần Thơ.",
       icon: MapPin,
     },
+    {
+      label: "Văn phòng Thanh Hóa",
+      value: "VP Thanh Hóa: Lô 32 Nơ 18 Nguyễn Thị Anh, P. Hạc Thành, TP. Thanh Hoá.",
+      icon: MapPin,
+    },
+    {
+      label: "Văn phòng Quảng Ngãi",
+      value: "VP Quảng Ngãi: 199 Đoàn Thị Điểm, phường Kon Tum, tỉnh Quảng Ngãi.",
+      icon: MapPin,
+    },
     { label: "Hotline", value: phone, href: phoneHref(phone), icon: Phone },
     { label: "Email", value: settings.email, href: `mailto:${settings.email}`, icon: Mail },
     { label: "Website", value: "hpttech.vn", href: "https://hpttech.vn", icon: Globe2 },
