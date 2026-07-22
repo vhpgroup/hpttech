@@ -1261,7 +1261,7 @@ export async function getProductCategoryNavFromPayload(): Promise<ProductCategor
 export type CategoryTrailItem = { name: string; slug: string };
 
 async function loadCategoriesFlatFromPayload(): Promise<
-  Array<{ id: string; name: string; slug: string; parentId: string | null }>
+  Array<{ id: string; name: string; slug: string; parentId: string | null; updatedAt?: string }>
 > {
   try {
     const payload = await getPayloadClient();
@@ -1282,6 +1282,7 @@ async function loadCategoriesFlatFromPayload(): Promise<
         name: categoryTextField(doc, "name") || "",
         slug: categoryTextField(doc, "slug") || "",
         parentId: rel != null ? String(rel) : null,
+        updatedAt: typeof doc.updatedAt === "string" ? doc.updatedAt : undefined,
       };
     });
   } catch (error) {
@@ -1325,6 +1326,62 @@ export async function getCategoryBreadcrumbTrail(categoryParam: string): Promise
   }
   return trail;
 }
+
+export type CategorySitemapEntry = { slug: string; lastModified?: string };
+
+// Danh sách danh mục ĐỦ ĐIỀU KIỆN làm landing page cho sitemap: chỉ những danh mục
+// CÓ sản phẩm published (trực tiếp hoặc trong nhánh con). Tự động loại các "menu dựng
+// mẫu" / danh mục rỗng (vd cụm gaming chưa populate, nav placeholder) — tránh thin content.
+async function loadCategorySitemapEntries(): Promise<CategorySitemapEntry[]> {
+  const cats = await getCachedCategoriesFlatFromPayload();
+  if (!cats.length) return [];
+  const pool = getPgPool();
+  if (!pool) return [];
+
+  // Đếm SP published TRỰC TIẾP theo category_id (1 query).
+  const directById = new Map<string, number>();
+  try {
+    const res = await pool.query<{ category_id: string | number | null; n: string }>(
+      `select category_id, count(*)::text as n
+       from products
+       where status = 'published' and _status = 'published' and category_id is not null
+       group by category_id`,
+    );
+    for (const row of res.rows) directById.set(String(row.category_id), Number(row.n) || 0);
+  } catch (error) {
+    handlePayloadReadError("category-sitemap-counts", error);
+    return [];
+  }
+
+  // Index con theo cha để cộng dồn theo nhánh (khớp filter 2/3 tầng của storefront).
+  const childrenOf = new Map<string, string[]>();
+  for (const category of cats) {
+    if (!category.parentId) continue;
+    const arr = childrenOf.get(category.parentId);
+    if (arr) arr.push(category.id);
+    else childrenOf.set(category.parentId, [category.id]);
+  }
+  const memo = new Map<string, number>();
+  const reachable = (id: string): number => {
+    const cached = memo.get(id);
+    if (cached != null) return cached;
+    memo.set(id, 0); // chặn vòng lặp nếu dữ liệu cây lỗi
+    let sum = directById.get(id) ?? 0;
+    for (const child of childrenOf.get(id) ?? []) sum += reachable(child);
+    memo.set(id, sum);
+    return sum;
+  };
+
+  return cats
+    .filter((category) => category.slug && reachable(category.id) > 0)
+    .map((category) => ({ slug: category.slug, lastModified: category.updatedAt }));
+}
+
+export const getCategorySitemapEntries = unstable_cache(
+  loadCategorySitemapEntries,
+  ["category-sitemap-entries"],
+  { revalidate: 86400, tags: ["categories:list"] },
+);
 
 async function loadProductListPageFromPayload({
   page = 1,

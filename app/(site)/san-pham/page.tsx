@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import {
   getCategoryBreadcrumbTrail,
   getProductSearchPageFromPayload,
@@ -9,11 +10,41 @@ import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
 
-export const metadata = pageMetadata({
-  title: "Sản phẩm",
-  description: "Danh mục máy in, máy scan và thiết bị văn phòng chính hãng do HPT Tech tư vấn và triển khai.",
-  path: "/san-pham",
-});
+// Metadata ĐỘNG: mỗi view danh mục là landing page riêng, self-canonical về
+// /san-pham?category=<slug chuẩn> (gộp mọi bộ lọc brand/cpu/... về trang danh mục).
+// Tìm kiếm / không danh mục → canonical /san-pham. (Bước đệm cho SEO kiểu An Phát,
+// chưa đổi sang route path riêng.)
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
+  const resolved = searchParams ? await searchParams : {};
+  const category = firstParam(resolved.category) || "";
+  const search = firstParam(resolved.search) || "";
+
+  if (category) {
+    const trail = await getCategoryBreadcrumbTrail(category);
+    const leaf = trail.length ? trail[trail.length - 1] : null;
+    const name = leaf?.name || category;
+    const canonicalSlug = leaf?.slug || category;
+    return pageMetadata({
+      title: `${name} chính hãng, giá tốt`,
+      description: `${name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc. Tư vấn kỹ thuật tận nơi cho doanh nghiệp.`,
+      path: `/san-pham?category=${encodeURIComponent(canonicalSlug)}`,
+    });
+  }
+
+  if (search) {
+    return pageMetadata({
+      title: `Kết quả tìm kiếm: ${search}`,
+      description: "Kết quả tìm kiếm sản phẩm chính hãng tại HPT Tech.",
+      path: "/san-pham",
+    });
+  }
+
+  return pageMetadata({
+    title: "Sản phẩm",
+    description: "Danh mục máy in, máy scan và thiết bị văn phòng chính hãng do HPT Tech tư vấn và triển khai.",
+    path: "/san-pham",
+  });
+}
 
 type ProductsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
