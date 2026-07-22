@@ -106,9 +106,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   return (
     <Suspense fallback={null}>
-      <h1 className="sr-only">
-        {heading} - Máy scan, máy in &amp; thiết bị văn phòng | HPT Tech
-      </h1>
+      {/* Khi xem danh mục, H1 nhìn thấy được do ProductListClient render (khối landing) —
+          chỉ giữ H1 ẩn cho view tìm kiếm / không danh mục để tránh trùng 2 thẻ H1. */}
+      {categoryTrail.length === 0 ? (
+        <h1 className="sr-only">
+          {heading} - Máy scan, máy in &amp; thiết bị văn phòng | HPT Tech
+        </h1>
+      ) : null}
       <ProductListClient
         products={result.products}
         facets={result.facets}

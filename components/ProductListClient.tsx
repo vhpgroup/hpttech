@@ -11,7 +11,12 @@ import { ProductCard } from "@/components/product/ProductCard";
 import type { CatalogProduct } from "@/lib/catalog";
 import { canonicalizeCategoryName } from "@/lib/product-category";
 import type { ProductListFacets } from "@/lib/catalog-payload";
-import { FILTER_CRUMB_ORDER, filterCrumbLabel } from "@/lib/product-filter-labels";
+import {
+  FILTER_CRUMB_ORDER,
+  filterCrumbLabel,
+  filterGroupsForCategory,
+  type FilterGroupDef,
+} from "@/lib/product-filter-labels";
 
 type MultiFilterKey =
   | "categories"
@@ -294,6 +299,9 @@ function ProductFilters({
   categoryOptions,
   brandOptions,
   filters,
+  specGroups = [],
+  specValues = {},
+  onSpecToggle,
   onToggle,
   onPriceChange,
   onClear,
@@ -303,6 +311,9 @@ function ProductFilters({
   categoryOptions: FilterOption[];
   brandOptions: FilterOption[];
   filters: Filters;
+  specGroups?: FilterGroupDef[];
+  specValues?: Record<string, string>;
+  onSpecToggle?: (param: string, value: string) => void;
   onToggle: (key: MultiFilterKey, value: string) => void;
   onPriceChange: (key: "priceMin" | "priceMax", value: string) => void;
   onClear: () => void;
@@ -331,6 +342,20 @@ function ProductFilters({
 
       <FilterSection title="Danh mục">{renderOptions("categories", categoryOptionsWithCount)}</FilterSection>
       <FilterSection title="Thương hiệu">{renderOptions("brands", brandOptions)}</FilterSection>
+
+      {/* Bộ lọc theo NGÀNH HÀNG — đổi theo danh mục gốc đang xem (kiểu An Phát). */}
+      {specGroups.map((groupDef) => (
+        <FilterSection key={groupDef.param} title={groupDef.title}>
+          {groupDef.options.map((option) => (
+            <FilterCheckbox
+              key={option.value}
+              option={option}
+              checked={specValues[groupDef.param] === option.value}
+              onChange={() => onSpecToggle?.(groupDef.param, option.value)}
+            />
+          ))}
+        </FilterSection>
+      ))}
 
       <FilterSection title="Khoảng giá">
         <div className="grid grid-cols-2 gap-2">
@@ -454,12 +479,20 @@ function ProductListInner({
     query?: string;
     sort?: SortValue;
     page?: number;
+    clearSpecs?: boolean;
   }) => {
     const nextFilters = next.filters ?? filters;
     const params = new URLSearchParams(searchParams?.toString());
     const nextQuery = next.query ?? query;
     const nextSort = next.sort ?? sort;
     const nextPage = next.page ?? 1;
+
+    // Đổi danh mục (hoặc xóa tất cả) → dọn các param lọc NGÀNH của danh mục cũ,
+    // tránh bộ lọc cũ (vd cpu=i5) dính sang ngành khác gây 0 kết quả khó hiểu.
+    const categoryChanged = (nextFilters.categories[0] || "") !== (filters.categories[0] || "");
+    if (categoryChanged || next.clearSpecs) {
+      for (const key of FILTER_CRUMB_ORDER) if (key !== "brand") params.delete(key);
+    }
 
     params.delete("category");
     params.delete("brand");
@@ -502,7 +535,7 @@ function ProductListInner({
     setFilters(nextFilters);
     setQuery("");
     setSort("best");
-    pushCatalogState({ filters: nextFilters, query: "", sort: "best" });
+    pushCatalogState({ filters: nextFilters, query: "", sort: "best", clearSpecs: true });
   };
 
   const removeChip = (key: MultiFilterKey, value: string) => {
@@ -529,6 +562,27 @@ function ProductListInner({
     return [{ label: filterCrumbLabel(key, raw) }];
   });
 
+  // --- Landing theo danh mục (kiểu An Phát) ---
+  const landingCategory = categoryTrail?.length ? categoryTrail[categoryTrail.length - 1] : null;
+  // Bộ lọc theo NGÀNH HÀNG: nhóm lọc phụ thuộc danh mục GỐC của trục đang xem.
+  const specGroups = filterGroupsForCategory(categoryTrail?.[0]?.slug);
+  const specValues: Record<string, string> = {};
+  for (const groupDef of specGroups) {
+    const raw = cleanFilterValue(searchParams?.get(groupDef.param) ?? "");
+    if (raw) specValues[groupDef.param] = raw;
+  }
+  const specActiveCount = Object.keys(specValues).length;
+
+  // Bật/tắt 1 giá trị lọc ngành: ghi thẳng vào URL (server lọc qua productSearchWhere).
+  const pushSpecFilter = (param: string, value: string) => {
+    const params = new URLSearchParams(searchParams?.toString());
+    if (cleanFilterValue(params.get(param) ?? "") === value) params.delete(param);
+    else params.set(param, value);
+    params.delete("page");
+    const href = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+    startTransition(() => router.push(href, { scroll: false }));
+  };
+
   return (
     <main className="subpage-main bg-slate-50/70 pb-28">
       <SubpageHeader
@@ -549,6 +603,24 @@ function ProductListInner({
         ]}
       />
 
+      {/* Khối landing theo danh mục — H1 nhìn thấy được + số SP + mô tả (kiểu An Phát). */}
+      {landingCategory ? (
+        <header className="mt-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-[28px]">
+              {landingCategory.name}
+            </h1>
+            <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-[#0A4BFF]">
+              {totalProducts} sản phẩm
+            </span>
+          </div>
+          <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-500">
+            {landingCategory.name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng
+            toàn quốc, tư vấn kỹ thuật cho doanh nghiệp.
+          </p>
+        </header>
+      ) : null}
+
       <div className="mt-6 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         <div className="hidden lg:block">
           <div className="sticky top-28">
@@ -557,6 +629,9 @@ function ProductListInner({
               categoryOptions={categoryOptions}
               brandOptions={brandOptions}
               filters={filters}
+              specGroups={specGroups}
+              specValues={specValues}
+              onSpecToggle={pushSpecFilter}
               onToggle={toggleFilter}
               onPriceChange={updatePrice}
               onClear={clearFilters}
@@ -589,7 +664,7 @@ function ProductListInner({
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-bold text-slate-800 shadow-sm lg:hidden"
                 >
                   <Filter size={17} />
-                  Bộ lọc {activeCount ? `(${activeCount})` : ""}
+                  Bộ lọc {activeCount + specActiveCount ? `(${activeCount + specActiveCount})` : ""}
                 </button>
                 <label className="inline-flex h-12 min-w-52 items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 shadow-sm">
                   <SlidersHorizontal size={17} className="text-slate-400" />
@@ -612,7 +687,7 @@ function ProductListInner({
               </div>
             </div>
 
-            {activeCount || query.trim() ? (
+            {activeCount + specActiveCount || query.trim() ? (
               <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
                 <span className="font-semibold text-slate-700">Đang lọc:</span>
                 {query.trim() ? (
@@ -631,6 +706,11 @@ function ProductListInner({
                 {filters.brands.map((value) => (
                   <button key={value} type="button" onClick={() => removeChip("brands", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
                     {value} <X size={14} />
+                  </button>
+                ))}
+                {Object.entries(specValues).map(([param, value]) => (
+                  <button key={param} type="button" onClick={() => pushSpecFilter(param, value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                    {filterCrumbLabel(param, value)} <X size={14} />
                   </button>
                 ))}
                 {filters.duplex.map((value) => (
@@ -710,6 +790,9 @@ function ProductListInner({
               categoryOptions={categoryOptions}
               brandOptions={brandOptions}
               filters={filters}
+              specGroups={specGroups}
+              specValues={specValues}
+              onSpecToggle={pushSpecFilter}
               onToggle={toggleFilter}
               onPriceChange={updatePrice}
               onClear={clearFilters}
