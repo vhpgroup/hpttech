@@ -34,12 +34,15 @@ type FilterOption = {
   count?: number;
 };
 
+type CategoryTrailItem = { name: string; slug: string };
+
 type ProductListClientProps = {
   products: CatalogProduct[];
   facets?: ProductListFacets;
   page: number;
   totalPages: number;
   totalProducts: number;
+  categoryTrail?: CategoryTrailItem[];
 };
 
 const BRAND_OPTIONS = ["Brother", "Ricoh", "Epson", "HP", "Canon", "Fujitsu"];
@@ -375,7 +378,7 @@ function removeValue(values: string[], value: string) {
   return values.filter((item) => item !== value);
 }
 
-export default function ProductListClient({ products, facets, page, totalPages, totalProducts }: ProductListClientProps) {
+export default function ProductListClient({ products, facets, page, totalPages, totalProducts, categoryTrail }: ProductListClientProps) {
   const searchParams = useSearchParams();
   const safeSearchParams = searchParams ?? new URLSearchParams();
   const queryKey = safeSearchParams.toString();
@@ -410,6 +413,7 @@ export default function ProductListClient({ products, facets, page, totalPages, 
       page={page}
       totalPages={totalPages}
       totalProducts={totalProducts}
+      categoryTrail={categoryTrail}
     />
   );
 }
@@ -424,6 +428,7 @@ function ProductListInner({
   page,
   totalPages,
   totalProducts,
+  categoryTrail,
 }: ProductListClientProps & {
   categoryOptions: FilterOption[];
   brandOptions: FilterOption[];
@@ -524,7 +529,11 @@ function ProductListInner({
         badge={`${totalProducts} sản phẩm`}
         breadcrumbs={[
           { label: "Trang chủ", href: "/" },
-          { label: "Sản phẩm" },
+          { label: "Sản phẩm", href: "/san-pham" },
+          ...(categoryTrail ?? []).map((item) => ({
+            label: item.name,
+            href: `/san-pham?category=${encodeURIComponent(item.slug)}`,
+          })),
         ]}
       />
 

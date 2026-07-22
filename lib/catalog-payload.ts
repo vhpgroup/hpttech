@@ -1258,6 +1258,74 @@ export async function getProductCategoryNavFromPayload(): Promise<ProductCategor
   return getCachedProductCategoryNavFromPayload();
 }
 
+export type CategoryTrailItem = { name: string; slug: string };
+
+async function loadCategoriesFlatFromPayload(): Promise<
+  Array<{ id: string; name: string; slug: string; parentId: string | null }>
+> {
+  try {
+    const payload = await getPayloadClient();
+    const res = await payload.find({
+      collection: "categories",
+      depth: 0,
+      limit: 300,
+      sort: "sortOrder",
+    });
+    const docs = res.docs as unknown as PayloadCategoryDoc[];
+    return docs.map((doc, index) => {
+      const rel = categoryRelationId(doc.parent);
+      return {
+        id:
+          typeof doc.id === "string" || typeof doc.id === "number"
+            ? String(doc.id)
+            : `category-${index}`,
+        name: categoryTextField(doc, "name") || "",
+        slug: categoryTextField(doc, "slug") || "",
+        parentId: rel != null ? String(rel) : null,
+      };
+    });
+  } catch (error) {
+    handlePayloadReadError("categories-flat", error);
+    return [];
+  }
+}
+
+const getCachedCategoriesFlatFromPayload = unstable_cache(
+  loadCategoriesFlatFromPayload,
+  ["categories-flat"],
+  { revalidate: 300, tags: ["categories:list"] },
+);
+
+// Dựng chuỗi breadcrumb theo TRỤC CÂY DANH MỤC (gốc → nhóm → lá) cho một category param.
+// Khớp param theo slug hoặc tên (thường hóa). Trả mảng [{name, slug}] thứ tự từ gốc tới
+// danh mục đang xem — để breadcrumb bám đúng trục của mega-menu (kể cả cây 3 tầng).
+export async function getCategoryBreadcrumbTrail(categoryParam: string): Promise<CategoryTrailItem[]> {
+  const param = (categoryParam || "").trim();
+  if (!param) return [];
+  const cats = await getCachedCategoriesFlatFromPayload();
+  if (!cats.length) return [];
+
+  const byId = new Map(cats.map((category) => [category.id, category]));
+  const key = normalizeCategoryNavKey(param);
+  const current =
+    cats.find((category) => category.slug === param) ||
+    cats.find(
+      (category) =>
+        normalizeCategoryNavKey(category.slug) === key || normalizeCategoryNavKey(category.name) === key,
+    );
+  if (!current) return [];
+
+  const trail: CategoryTrailItem[] = [];
+  const seen = new Set<string>();
+  let node: (typeof cats)[number] | undefined = current;
+  while (node && !seen.has(node.id)) {
+    seen.add(node.id);
+    trail.unshift({ name: canonicalizeCategoryName(node.name) || node.name, slug: node.slug });
+    node = node.parentId ? byId.get(node.parentId) : undefined;
+  }
+  return trail;
+}
+
 async function loadProductListPageFromPayload({
   page = 1,
   limit = DEFAULT_PRODUCT_LIST_LIMIT,

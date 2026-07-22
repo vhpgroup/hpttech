@@ -1,5 +1,9 @@
 import { Suspense } from "react";
-import { getProductSearchPageFromPayload, type ProductSearchParams } from "@/lib/catalog-payload";
+import {
+  getCategoryBreadcrumbTrail,
+  getProductSearchPageFromPayload,
+  type ProductSearchParams,
+} from "@/lib/catalog-payload";
 import ProductListClient from "@/components/ProductListClient";
 import { pageMetadata } from "@/lib/seo";
 
@@ -59,7 +63,10 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const parsed = parseProductsSearchParams(resolvedSearchParams);
-  const result = await getProductSearchPageFromPayload(parsed);
+  const [result, categoryTrail] = await Promise.all([
+    getProductSearchPageFromPayload(parsed),
+    parsed.category ? getCategoryBreadcrumbTrail(parsed.category) : Promise.resolve([]),
+  ]);
   const heading = parsed.search
     ? `Kết quả tìm kiếm: "${parsed.search}"`
     : parsed.category
@@ -77,6 +84,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         page={result.page}
         totalPages={result.totalPages}
         totalProducts={result.totalProducts}
+        categoryTrail={categoryTrail}
       />
     </Suspense>
   );
