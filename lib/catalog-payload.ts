@@ -1812,6 +1812,10 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     gpu?: string,
     sc?: string,
     line?: string,
+    // ⚠️ CACHE-KEY 3 TẦNG: param mới PHẢI có mặt ở arg-list này (khóa cache),
+    // ở getProductSearchPageFromPayload VÀ ở object truyền xuống — thiếu 1 tầng
+    // là param "không ăn" âm thầm (bài học facetScope 23/07 + PR #5).
+    facetScope?: ProductSearchParams["facetScope"],
   ) =>
     loadProductSearchPageFromPayload({
       page,
@@ -1838,6 +1842,7 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       gpu,
       sc,
       line,
+      facetScope,
     }),
   ["product-search-page"],
   { revalidate: 300, tags: ["products:list"] },
@@ -1878,6 +1883,7 @@ export async function getProductSearchPageFromPayload({
   gpu = "",
   sc = "",
   line = "",
+  facetScope,
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
     page,
@@ -1904,6 +1910,7 @@ export async function getProductSearchPageFromPayload({
     gpu,
     sc,
     line,
+    facetScope,
   );
 }
 
