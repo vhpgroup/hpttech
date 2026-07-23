@@ -10,8 +10,8 @@ type PayloadRichTextProps = {
 const baseClassName = [
   "payload-rich-text",
   "max-w-none text-base leading-8 text-slate-700",
-  "[&_a]:font-semibold [&_a]:text-blue-700 [&_a]:underline [&_a]:underline-offset-4",
-  "[&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-blue-200 [&_blockquote]:bg-blue-50/50 [&_blockquote]:px-5 [&_blockquote]:py-3 [&_blockquote]:italic",
+  "[&_a]:font-semibold [&_a]:text-primary-700 [&_a]:underline [&_a]:underline-offset-4",
+  "[&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-primary-200 [&_blockquote]:bg-primary-50/50 [&_blockquote]:px-5 [&_blockquote]:py-3 [&_blockquote]:italic",
   "[&_code]:rounded [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.95em] [&_code]:text-slate-800",
   "[&_figure]:my-8 [&_figure]:overflow-hidden [&_figure]:rounded-lg [&_figure]:border [&_figure]:border-slate-200 [&_figure]:bg-slate-50",
   "[&_h1]:mb-4 [&_h1]:mt-8 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:leading-tight [&_h1]:text-slate-950",
