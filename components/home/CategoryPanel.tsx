@@ -550,8 +550,11 @@ const networkMegaColumns: MegaColumn[] = [
 ];
 
 function categoryLandingHref(category: { name: string; slug?: string }) {
-  // Landing page rút gọn /<slug> của danh mục (kiểu An Phát). Nhận cả tên (server resolve → redirect slug).
-  return `/${encodeURIComponent(category.slug || category.name)}`;
+  // Landing page rút gọn /<slug> của danh mục (kiểu An Phát).
+  // Mục nav CHƯA có category trong CMS (không slug — vd Máy chiếu, UPS, Lưu trữ...)
+  // → về catalog tổng thay vì phát URL tên-encode 404.
+  if (!category.slug) return "/san-pham";
+  return `/${encodeURIComponent(category.slug)}`;
 }
 
 function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {

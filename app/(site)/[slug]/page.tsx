@@ -45,6 +45,16 @@ function firstParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+// Next giữ param URL-ENCODED (vd /M%C3%A1y%20scan → "M%C3%A1y%20scan") — phải decode
+// trước khi tra trang tĩnh/danh mục, nếu không URL dạng tên có dấu sẽ 404 oan.
+function decodeSlugParam(raw: string) {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 function parseLandingSearchParams(
   categorySlug: string,
   params: Record<string, string | string[] | undefined>,
@@ -149,7 +159,8 @@ async function renderCategoryLanding(slug: string, searchParams: PageProps["sear
 }
 
 export default async function ContentPage({ params, searchParams }: PageProps) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeSlugParam(rawSlug);
   const [payloadPage, rawSettings, aboutPage] = await Promise.all([
     getStaticPageFromPayload(slug),
     getSiteSettingsFromPayload(),
@@ -213,7 +224,8 @@ export default async function ContentPage({ params, searchParams }: PageProps) {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = decodeSlugParam(rawSlug);
   if (slug === "ve-hpt") {
     const aboutPage = await getAboutPageFromPayload();
     return pageMetadata({

@@ -10,7 +10,15 @@ type PageProps = {
 };
 
 export default async function LegacyDanhMucRedirect({ params, searchParams }: PageProps) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  // Param đến dạng URL-encoded — decode trước khi re-encode để tránh double-encode
+  // với slug/tên có dấu (vd /danh-muc/M%C3%A1y%20scan).
+  let slug = rawSlug;
+  try {
+    slug = decodeURIComponent(rawSlug);
+  } catch {
+    /* giữ nguyên nếu chuỗi encode hỏng */
+  }
   const resolved = searchParams ? await searchParams : {};
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(resolved)) {
