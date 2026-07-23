@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "../styles.css";
 
+/* Chặn Tailwind v4 auto-scan các thư mục ngoài app — tránh sinh dead-utility
+   (vd utility hex rogue cũ lọt vào bundle từ code mẫu trong docs/*.md) */
+@source not "../docs";
+@source not "../legacy";
+@source not "../scratch";
+@source not "../tmp";
+@source not "../reports";
+
 @theme {
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
