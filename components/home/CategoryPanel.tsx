@@ -80,10 +80,10 @@ function buildProductFilterHref(options: {
   if (options.line) params.set("line", options.line);
   const query = params.toString();
 
-  // Có danh mục → trỏ về LANDING PAGE riêng của danh mục (kiểu An Phát);
+  // Có danh mục → trỏ về LANDING PAGE rút gọn /<slug> của danh mục (kiểu An Phát);
   // bộ lọc kèm theo đi dưới dạng query trên landing. Không danh mục → /san-pham.
   if (options.category) {
-    return `/danh-muc/${encodeURIComponent(options.category)}${query ? `?${query}` : ""}`;
+    return `/${encodeURIComponent(options.category)}${query ? `?${query}` : ""}`;
   }
   return `/san-pham${query ? `?${query}` : ""}`;
 }
@@ -550,8 +550,8 @@ const networkMegaColumns: MegaColumn[] = [
 ];
 
 function categoryLandingHref(category: { name: string; slug?: string }) {
-  // Landing page riêng của danh mục (kiểu An Phát). Nhận cả tên (server tự resolve về slug).
-  return `/danh-muc/${encodeURIComponent(category.slug || category.name)}`;
+  // Landing page rút gọn /<slug> của danh mục (kiểu An Phát). Nhận cả tên (server resolve → redirect slug).
+  return `/${encodeURIComponent(category.slug || category.name)}`;
 }
 
 function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {

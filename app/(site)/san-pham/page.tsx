@@ -10,8 +10,8 @@ import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
 
-// Metadata ĐỘNG: view danh mục trên /san-pham canonical về LANDING PAGE riêng
-// /danh-muc/<slug> (trang chính thức để Google index). Tìm kiếm / không danh mục
+// Metadata ĐỘNG: view danh mục trên /san-pham canonical về LANDING PAGE rút gọn
+// /<slug> (trang chính thức để Google index — kiểu An Phát). Tìm kiếm / không danh mục
 // → canonical /san-pham như cũ.
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const resolved = searchParams ? await searchParams : {};
@@ -26,7 +26,7 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
     return pageMetadata({
       title: `${name} chính hãng, giá tốt`,
       description: `${name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc. Tư vấn kỹ thuật tận nơi cho doanh nghiệp.`,
-      path: `/danh-muc/${encodeURIComponent(canonicalSlug)}`,
+      path: `/${encodeURIComponent(canonicalSlug)}`,
     });
   }
 

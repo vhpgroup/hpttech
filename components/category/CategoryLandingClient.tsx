@@ -212,7 +212,7 @@ export default function CategoryLandingClient({
                     type="button"
                     onClick={() => {
                       setOpenFilter(null);
-                      startTransition(() => router.push(`/danh-muc/${encodeURIComponent(option.value)}`));
+                      startTransition(() => router.push(`/${encodeURIComponent(option.value)}`));
                     }}
                     className="flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-[#0A4BFF]"
                   >
