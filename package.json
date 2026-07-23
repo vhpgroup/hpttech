@@ -43,7 +43,8 @@
     "test:desktop-stage": "node scripts/verify-desktop-stage.cjs",
     "test:home-grouping": "tsx scripts/verify-home-category-grouping.ts",
     "test:landing-brand": "tsx scripts/verify-landing-brand-facet.ts",
-    "test:quote": "tsx scripts/verify-quote-totals.ts"
+    "test:quote": "tsx scripts/verify-quote-totals.ts",
+    "test:design-tokens": "node scripts/verify-design-tokens.cjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.85.0",

@@ -1,10 +1,10 @@
 :root {
-  --ink: #071225;
+  --ink: var(--color-ink);
   --panel: #0b1d37;
   --panel-2: #102b52;
   --line: rgba(255, 255, 255, 0.14);
   --muted: #6b7890;
-  --blue: #0f7cff;
+  --blue: var(--color-primary-600);
   --blue-2: #22a7ff;
   --bg: #f4f7fb;
   --card: #ffffff;
@@ -226,8 +226,8 @@ main {
 }
 
 .search:focus-within {
-  border-color: #0057ff;
-  box-shadow: 0 0 0 3px rgba(0, 87, 255, 0.12);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .search button,
@@ -266,12 +266,12 @@ main {
 .quick a:first-child {
   border-color: #bfdbfe;
   background: #eff6ff;
-  color: #0057ff;
+  color: var(--blue);
 }
 
 .quick svg {
   grid-row: span 2;
-  color: #0057ff;
+  color: var(--blue);
 }
 
 .quick b {
@@ -546,7 +546,7 @@ main {
   display: flex;
   align-items: stretch;
   padding: 0;
-  background: #0b3a78;
+  background: var(--color-primary-800);
   color: white;
   box-shadow: 0 8px 22px rgba(11, 58, 120, 0.14);
   overflow-x: auto;
@@ -610,7 +610,7 @@ main {
 .catalog-trigger {
   width: var(--catalog-width);
   flex: 0 0 var(--catalog-width);
-  background: #0057ff;
+  background: var(--blue);
   border-radius: 0;
   justify-content: flex-start;
 }
@@ -684,15 +684,15 @@ main {
 .category-panel a:hover,
 .category-item.active > a,
 .category-item:hover > a {
-  color: #0057ff;
+  color: var(--blue);
   background: #eff6ff;
-  box-shadow: inset 3px 0 0 #0057ff;
+  box-shadow: inset 3px 0 0 var(--blue);
   transform: translateX(2px);
 }
 
 .category-item:hover > a svg,
 .category-panel a:hover svg {
-  color: #0f7cff;
+  color: var(--blue);
 }
 
 .category-panel a svg {
@@ -854,7 +854,7 @@ main {
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.88);
-  color: #071225;
+  color: var(--ink);
   box-shadow: 0 10px 24px rgba(7, 18, 37, 0.16);
   cursor: pointer;
   transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
@@ -1078,7 +1078,7 @@ main {
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%, #fff 0 18%, transparent 19%),
-    conic-gradient(from 22deg, #0f7cff, #22a7ff, #fff200, #0f7cff);
+    conic-gradient(from 22deg, var(--blue), #22a7ff, #fff200, var(--blue));
 }
 
 .commercial-tile:hover {
@@ -1127,7 +1127,7 @@ main {
   flex: 0 0 30px;
   border-radius: 999px;
   background: #eff6ff;
-  color: #0057ff;
+  color: var(--blue);
   padding: 6px;
 }
 
@@ -1471,7 +1471,7 @@ main {
   border: 1px solid #d7e0ec;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.96);
-  color: #0a4bff;
+  color: var(--blue);
   box-shadow: 0 8px 18px rgba(15, 35, 65, 0.12);
   cursor: pointer;
   opacity: 0;
@@ -1485,7 +1485,7 @@ main {
 }
 
 .home-carousel-arrow:hover {
-  background: #0a4bff;
+  background: var(--blue);
   color: #fff;
   transform: translateY(-50%) scale(1.04);
 }
