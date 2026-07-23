@@ -33,7 +33,7 @@ const ROGUE_HEX =
   /#(0a4bff|0057ff|0f7cff|0049d8|0b74ff|145cff|536fe8|061b63|0b246c|062b5f|102b62|071b3e|0b3a78|2457e8|637cf5)\b/i;
 const RAW_SCALE =
   /-(?:blue-(?:50|100|200|300|400|500|600|700|800|900)|orange-(?:50|100|200|300|400|500|600|700))(?![0-9])/;
-const ROGUE_RGBA = /rgba\(\s*(?:0\s*,\s*87\s*,\s*255|10\s*,\s*75\s*,\s*255)\s*,/i;
+const ROGUE_RGBA = /rgba\(\s*(?:0\s*,\s*87\s*,\s*255|10\s*,\s*75\s*,\s*255|15\s*,\s*124\s*,\s*255|7\s*,\s*18\s*,\s*37|11\s*,\s*58\s*,\s*120)\s*,/i;
 const ARBITRARY_COLOR =
   /(?:bg|text|border|ring|from|via|to|fill|stroke|shadow|outline|decoration)-\[#[0-9a-fA-F]{3,8}\]/g;
 
