@@ -254,3 +254,17 @@ scan/máy in chuyên dụng cao cấp mà bán lẻ phổ thông không có: Fuj
 Microtek, Panasonic. Liên hệ: hotline 0967286889, email kinhoanh@hpttech.vn. Khi
 viết nội dung/CTA, hướng tới khách doanh nghiệp (số lượng, dự án, số hóa tài liệu), luôn
 nhấn mạnh tư vấn + báo giá + hotline.
+
+---
+
+Bổ sung 2026-07-23 — Chuẩn hóa token màu (design-token compliance)
+Đợt chuẩn hóa lớn đã thay toàn bộ hex "xanh rogue" (#0A4BFF, #0057FF, #0f7cff, #0049d8, #0b74ff, #145cff, #536fe8, #061b63, #0b246c, #062b5f, #102b62, #071b3e, #0b3a78, #2457e8, #637cf5) về token primary-*, và blue-*/orange-* (thang Tailwind gốc) về primary-*/accent-* trong app/ + components/. Quy tắc từ nay:
+
+1. Xanh thương hiệu DUY NHẤT là thang primary-* (chính: primary-600). Cam nhấn là accent-*. Cấm tạo thêm biến thể xanh mới.
+2. Không dùng bg-blue-*/text-blue-*/bg-orange-*... (thang màu gốc) trong code MỚI — dùng token semantic primary-*/accent-* dù giá trị trùng nhau, để đổi brand sau này không sót.
+3. Button (components/ui/Button.tsx): variant "primary" = XANH primary-600, "accent" = CAM accent-500 ("secondary" là alias deprecated của primary — đừng dùng cho code mới; có thêm variant "danger").
+4. styles.css :root đã trỏ --blue/--ink về token @theme (var(--color-primary-600)/var(--color-ink)) — KHÔNG khai màu mới trong styles.css; muốn đổi brand chỉ sửa app/globals.css @theme.
+5. tailwind.config.ts là stub (Tailwind v4 đọc token từ @theme trong app/globals.css) — đừng thêm màu/font vào đó.
+6. Verifier: npm run test:design-tokens (scripts/verify-design-tokens.cjs) — FAIL khi tái xuất hiện hex xanh rogue hoặc -blue-*/-orange-* utility trong app/, components/, lib/, styles.css; WARN (không fail) với arbitrary hex màu khác trong className để theo dõi nợ còn lại. Chạy nó sau mọi thay đổi UI, thêm vào bảng verifier mục 5.
+7. Ngoại lệ được phép (allowlist trong verifier): app/(site)/landing/[slug]/page.tsx (landing template scoped), app/(payload)/admin-theme.css (theme admin), components/about/AboutRedesign.tsx + about-redesign.css (khu redesign scoped — nợ P2, sẽ chuẩn hóa riêng).
+8. Nợ còn lại có chủ đích (cần quyết định design trước khi thay): gradient khuyến mãi đỏ-cam (#E32929/#FF6A00/#D71920/#e53935/#f36b3c trong ProductPromotionsPanel + HomeCategoryCarouselsClient), xanh lá #12a663/#edfdf5 (AboutEnterprisePage), nền xám #eef0f4 (HelpPlaceholderPage), --bg/--blue-2 trong styles.css, font "Be Vietnam Pro" trong about-redesign.css.

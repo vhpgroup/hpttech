@@ -54,7 +54,7 @@ export default function AISearchPage() {
     <main className="bg-slate-50">
       <div className="mx-auto max-w-[1440px] px-3 py-4 sm:px-5 md:py-6">
         <nav className="mb-3 flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
-          <Link href="/" className="transition hover:text-blue-700">Trang chủ</Link>
+          <Link href="/" className="transition hover:text-primary-700">Trang chủ</Link>
           <ChevronRight size={13} className="text-slate-300" />
           <span>AI Search</span>
         </nav>

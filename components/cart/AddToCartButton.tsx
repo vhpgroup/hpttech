@@ -18,7 +18,7 @@ export default function AddToCartButton({ product, className, label = "Thêm và
     <button
       type="button"
       aria-label={ariaLabel}
-      className={className || "inline-flex items-center justify-center gap-2 rounded-md bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700"}
+      className={className || "inline-flex items-center justify-center gap-2 rounded-md bg-accent-600 px-3 py-2 text-sm font-semibold text-white hover:bg-accent-700"}
       onClick={() => addProduct(product)}
     >
       <ShoppingCart size={18} />

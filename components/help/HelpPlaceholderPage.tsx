@@ -27,7 +27,7 @@ export default function HelpPlaceholderPage({
 
           <article className="min-h-[520px] bg-white px-6 py-7 sm:px-8 lg:px-10 lg:py-8">
             <div className="mt-8 flex flex-col items-center justify-center text-center">
-              <span className="grid h-16 w-16 place-items-center rounded-full bg-blue-50 text-[#536fe8]">
+              <span className="grid h-16 w-16 place-items-center rounded-full bg-primary-50 text-primary-500">
                 <Clock3 size={30} />
               </span>
               <h2 className="mt-5 text-2xl font-bold text-slate-900">Nội dung đang được cập nhật</h2>

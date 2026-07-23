@@ -44,13 +44,13 @@ export default async function ContactPage() {
         <section className="mt-6 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Bản đồ</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary-700">Bản đồ</p>
               <h2 className="mt-1 text-2xl font-bold text-slate-950">{settings.googleMapsTitle}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">{settings.address}</p>
             </div>
             {settings.googleMapsDirectionsUrl ? (
               <a
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-4 text-sm font-semibold text-white transition hover:bg-blue-800"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary-700 px-4 text-sm font-semibold text-white transition hover:bg-primary-800"
                 href={settings.googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noreferrer"
@@ -97,8 +97,8 @@ function ContactCard({
   href?: string;
 }) {
   const content = (
-    <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300">
-      <span className="grid h-11 w-11 place-items-center rounded-md bg-blue-50 text-blue-700">{icon}</span>
+    <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300">
+      <span className="grid h-11 w-11 place-items-center rounded-md bg-primary-50 text-primary-700">{icon}</span>
       <div>
         <h2 className="font-semibold text-slate-950">{title}</h2>
         <p className="text-sm text-slate-600">{value}</p>
@@ -111,8 +111,8 @@ function ContactCard({
 
 function PaymentInfoCard() {
   return (
-    <section className="overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
-      <div className="flex items-center gap-3 bg-gradient-to-r from-[#0f4fd6] to-[#2368f2] px-5 py-4 text-white">
+    <section className="overflow-hidden rounded-2xl border border-primary-100 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
+      <div className="flex items-center gap-3 bg-gradient-to-r from-primary-700 to-primary-600 px-5 py-4 text-white">
         <span className="grid h-10 w-10 place-items-center rounded-full bg-white/14 ring-1 ring-white/20">
           <Building2 size={20} />
         </span>
@@ -123,9 +123,9 @@ function PaymentInfoCard() {
 
       <div className="space-y-4 px-5 py-5">
         <dl className="space-y-3 text-sm text-slate-700">
-          <div className="rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3">
+          <div className="rounded-xl border border-primary-100 bg-primary-50/70 px-4 py-3">
             <dt className="inline font-semibold text-slate-900">Số tài khoản: </dt>
-            <dd className="inline text-xl font-extrabold tracking-[0.08em] text-blue-700">{PAYMENT_INFO.accountNumber}</dd>
+            <dd className="inline text-xl font-extrabold tracking-[0.08em] text-primary-700">{PAYMENT_INFO.accountNumber}</dd>
           </div>
           <div className="border-b border-slate-100 pb-3">
             <dt className="inline font-semibold text-slate-900">Chủ tài khoản: </dt>

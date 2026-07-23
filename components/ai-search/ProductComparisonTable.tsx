@@ -15,7 +15,7 @@ type ProductComparisonTableProps = {
 const matchToneClasses: Record<AISearchProduct["matchTone"], string> = {
   best: "bg-emerald-50 text-emerald-700",
   stretch: "bg-amber-50 text-amber-700",
-  stable: "bg-blue-50 text-blue-700",
+  stable: "bg-primary-50 text-primary-700",
 };
 
 export default function ProductComparisonTable({ products, zaloHref, onCompare }: ProductComparisonTableProps) {
@@ -65,9 +65,9 @@ export default function ProductComparisonTable({ products, zaloHref, onCompare }
               </thead>
               <tbody>
                 {products.map((product) => (
-                  <tr key={product.slug} className="border-b border-slate-100 align-middle hover:bg-blue-50/30">
+                  <tr key={product.slug} className="border-b border-slate-100 align-middle hover:bg-primary-50/30">
                     <td className="border-r border-slate-100 px-3 py-4">
-                      <Link href={product.href || `/san-pham/${product.slug}`} className="font-bold text-blue-700 hover:text-blue-800">
+                      <Link href={product.href || `/san-pham/${product.slug}`} className="font-bold text-primary-700 hover:text-primary-800">
                         {product.title}
                       </Link>
                       <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{product.summary}</p>
@@ -115,7 +115,7 @@ export default function ProductComparisonTable({ products, zaloHref, onCompare }
                 <div className="flex gap-3">
                   <ProductImage product={product} />
                   <div className="min-w-0 flex-1">
-                    <Link href={product.href || `/san-pham/${product.slug}`} className="font-bold text-blue-700">
+                    <Link href={product.href || `/san-pham/${product.slug}`} className="font-bold text-primary-700">
                       {product.title}
                     </Link>
                     <p className="mt-1 text-sm font-extrabold text-red-600">{product.price}</p>
@@ -171,7 +171,7 @@ function Rating({ rating, reviewCount }: { rating: number; reviewCount: number }
   return (
     <div className="flex items-center gap-1 text-sm">
       <Star size={15} className="fill-amber-400 text-amber-400" />
-      <span className="font-bold text-blue-700">{rating.toFixed(1)}</span>
+      <span className="font-bold text-primary-700">{rating.toFixed(1)}</span>
       <span className="text-xs text-slate-500">({reviewCount} đánh giá)</span>
     </div>
   );
@@ -192,7 +192,7 @@ function ProductActions({
     <div className={cn("grid gap-2", compact ? "min-w-[150px]" : "sm:grid-cols-2")}>
       <Link
         href={product.href || `/san-pham/${product.slug}`}
-        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-white px-2 text-xs font-bold text-blue-700 transition hover:bg-blue-50"
+        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-primary-200 bg-white px-2 text-xs font-bold text-primary-700 transition hover:bg-primary-50"
       >
         <ExternalLink size={14} />
         Xem chi tiết
@@ -200,7 +200,7 @@ function ProductActions({
       <button
         type="button"
         onClick={() => onCompare(product)}
-        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-white px-2 text-xs font-bold text-blue-700 transition hover:bg-blue-50"
+        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-primary-200 bg-white px-2 text-xs font-bold text-primary-700 transition hover:bg-primary-50"
       >
         <Scale size={14} />
         So sánh
@@ -209,13 +209,13 @@ function ProductActions({
         product={product}
         label="Thêm vào báo giá"
         ariaLabel={`Thêm ${product.title} vào báo giá`}
-        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-blue-700 bg-blue-700 px-2 text-xs font-bold text-white transition hover:bg-blue-800"
+        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-primary-700 bg-primary-700 px-2 text-xs font-bold text-white transition hover:bg-primary-800"
       />
       <a
         href={`${zaloHref}?text=${encodeURIComponent(`Tôi cần tư vấn ${product.title}`)}`}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-blue-200 bg-white px-2 text-xs font-bold text-blue-700 transition hover:bg-blue-50"
+        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-primary-200 bg-white px-2 text-xs font-bold text-primary-700 transition hover:bg-primary-50"
       >
         <MessageCircle size={14} />
         Tư vấn Zalo

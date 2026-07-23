@@ -28,9 +28,9 @@ type AboutEnterprisePageProps = {
 };
 
 const capabilityAccent = [
-  { bg: "bg-[#145cff]", text: "text-[#145cff]", soft: "bg-[#eef4ff]" },
+  { bg: "bg-primary-600", text: "text-primary-600", soft: "bg-primary-50" },
   { bg: "bg-[#12a663]", text: "text-[#12a663]", soft: "bg-[#edfdf5]" },
-  { bg: "bg-[#f26a21]", text: "text-[#f26a21]", soft: "bg-[#fff4ed]" },
+  { bg: "bg-accent-500", text: "text-accent-500", soft: "bg-accent-50" },
 ];
 
 const statIcons = [CalendarCheck, Users, Award, MapPinned];
@@ -66,9 +66,9 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
   const heroBackground = "/assets/banner/congty.jpg";
 
   return (
-    <main className="about-page bg-[#f5f8fc] text-[#0f172a]">
+    <main className="about-page bg-surface text-ink">
 
-      <section className="relative overflow-hidden bg-[#041222] text-white">
+      <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute inset-0">
           <Image
             src={heroBackground}
@@ -83,16 +83,16 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
 
         <div className="relative mx-auto grid min-h-[440px] max-w-[1280px] content-center px-10 py-16">
           <div className="max-w-[650px] about-reveal">
-            <p className="mb-6 text-sm font-bold uppercase tracking-wide text-[#60a5fa]">Giới thiệu HPT Tech</p>
+            <p className="mb-6 text-sm font-bold uppercase tracking-wide text-primary-400">Giới thiệu HPT Tech</p>
             <h1 className="text-[48px] font-bold leading-[1.08] tracking-normal text-white">
               Đối tác công nghệ
-              <span className="block text-[#5b9cff]">cho doanh nghiệp hiện đại</span>
+              <span className="block text-primary-400">cho doanh nghiệp hiện đại</span>
             </h1>
             <p className="mt-6 max-w-[560px] text-[17px] leading-8 text-white/88">{content.hero.description}</p>
             <div className="mt-8 flex gap-4">
               <Link
                 href={content.hero.primaryCta?.href || "/lien-he"}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#145cff] px-6 text-sm font-bold text-white shadow-[0_12px_28px_rgba(20,92,255,0.32)] transition hover:bg-[#004fe8]"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary-600 px-6 text-sm font-bold text-white shadow-[0_12px_28px_rgba(20,92,255,0.32)] transition hover:bg-primary-600"
               >
                 {content.hero.primaryCta?.label || "Nhận tư vấn giải pháp"}
                 <ArrowRight size={17} />
@@ -114,11 +114,11 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
             const Icon = statIcons[index % statIcons.length];
             return (
               <article key={`${stat.value}-${stat.label}`} className="flex gap-5 border-r border-slate-200 px-4 last:border-r-0">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#f0f6ff] text-[#145cff]">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                   <Icon size={30} strokeWidth={1.8} />
                 </div>
                 <div>
-                  <strong className="block text-[28px] font-bold leading-none text-[#145cff]">{stat.value}</strong>
+                  <strong className="block text-[28px] font-bold leading-none text-primary-600">{stat.value}</strong>
                   <span className="mt-2 block text-sm font-bold text-slate-950">{stat.label}</span>
                   {stat.description ? <p className="mt-2 text-sm leading-5 text-slate-600">{stat.description}</p> : null}
                 </div>
@@ -170,7 +170,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
             const Icon = processIcons[index % processIcons.length];
             return (
               <li key={`${step.title}-${index}`} className="flex items-center gap-4 border-r border-slate-200 px-3 last:border-r-0">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#f0f6ff] text-[#145cff]">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-600">
                   <Icon size={22} />
                 </span>
                 <div>
@@ -206,7 +206,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
           })}
         </div>
         <div className="mt-3 flex justify-center gap-3">
-          <span className="h-2 w-2 rounded-full bg-[#145cff]" />
+          <span className="h-2 w-2 rounded-full bg-primary-600" />
           <span className="h-2 w-2 rounded-full bg-slate-300" />
           <span className="h-2 w-2 rounded-full bg-slate-300" />
           <span className="h-2 w-2 rounded-full bg-slate-300" />
@@ -219,8 +219,8 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
             const Icon = advantageIcons[index % advantageIcons.length];
             return (
               <article key={advantage.title} className="border-r border-slate-200 px-5 last:border-r-0">
-                <Icon className="text-[#145cff]" size={31} strokeWidth={1.8} />
-                <h3 className="mt-4 text-base font-bold leading-5 text-[#0b2d67]">{advantage.title}</h3>
+                <Icon className="text-primary-600" size={31} strokeWidth={1.8} />
+                <h3 className="mt-4 text-base font-bold leading-5 text-primary-900">{advantage.title}</h3>
                 {advantage.description ? <p className="mt-4 text-sm leading-6 text-slate-600">{advantage.description}</p> : null}
               </article>
             );
@@ -242,7 +242,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
                 />
               </div>
               <div className="p-5">
-                <p className="text-sm font-bold text-[#145cff]">{study.segment}</p>
+                <p className="text-sm font-bold text-primary-600">{study.segment}</p>
                 <h3 className="mt-2 text-[16px] font-bold leading-6 text-slate-950">{study.title}</h3>
               </div>
             </article>
@@ -251,7 +251,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
         <div className="mt-5 text-center">
           <Link
             href="/du-an"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-6 text-sm font-bold text-[#145cff] shadow-[0_8px_22px_rgba(15,23,42,0.08)]"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-white px-6 text-sm font-bold text-primary-600 shadow-[0_8px_22px_rgba(15,23,42,0.08)]"
           >
             Xem tất cả dự án
             <ArrowRight size={16} />
@@ -260,7 +260,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
       </AboutBand>
 
       <section className="mx-auto max-w-[1280px] px-10 pb-10">
-        <div className="flex items-center justify-between rounded-[12px] bg-[#145cff] px-14 py-9 text-white shadow-[0_18px_42px_rgba(20,92,255,0.24)]">
+        <div className="flex items-center justify-between rounded-[12px] bg-primary-600 px-14 py-9 text-white shadow-[0_18px_42px_rgba(20,92,255,0.24)]">
           <div>
             <h2 className="max-w-[620px] text-[30px] font-bold leading-tight tracking-normal">{content.cta.title}</h2>
             {content.cta.description ? <p className="mt-3 text-base text-white/86">{content.cta.description}</p> : null}
@@ -268,14 +268,14 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
           <div className="flex gap-5">
             <Link
               href={content.cta.primaryCta?.href || "/lien-he"}
-              className="inline-flex h-12 min-w-[190px] items-center justify-center gap-2 rounded-md bg-white px-6 text-sm font-bold text-[#145cff]"
+              className="inline-flex h-12 min-w-[190px] items-center justify-center gap-2 rounded-md bg-white px-6 text-sm font-bold text-primary-600"
             >
               {content.cta.primaryCta?.label || "Liên hệ tư vấn"}
               <ArrowRight size={16} />
             </Link>
             <a
               href={content.cta.secondaryCta?.href || phoneHref(phone)}
-              className="inline-flex h-12 min-w-[230px] items-center justify-center gap-2 rounded-md bg-[#063b98] px-6 text-sm font-bold text-white"
+              className="inline-flex h-12 min-w-[230px] items-center justify-center gap-2 rounded-md bg-primary-800 px-6 text-sm font-bold text-white"
             >
               <PhoneCall size={16} />
               Gọi ngay: {phone}
@@ -291,7 +291,7 @@ export function AboutEnterprisePage({ content, settings }: AboutEnterprisePagePr
 function AboutBand({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mx-auto max-w-[1280px] px-10 pt-7">
-      <h2 className="mb-3 text-[17px] font-bold uppercase tracking-normal text-[#0b2d67]">{title}</h2>
+      <h2 className="mb-3 text-[17px] font-bold uppercase tracking-normal text-primary-900">{title}</h2>
       {children}
     </section>
   );

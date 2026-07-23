@@ -31,7 +31,7 @@ export function ProductSellingPoints({ items }: ProductSellingPointsProps) {
           >
             <CheckCircle2
               size={17}
-              className="mt-1 shrink-0 fill-orange-500 text-white"
+              className="mt-1 shrink-0 fill-accent-500 text-white"
             />
             <span>
               {spec.label ? (
@@ -53,7 +53,7 @@ export function ProductSellingPoints({ items }: ProductSellingPointsProps) {
         <button
           type="button"
           onClick={() => setExpanded((current) => !current)}
-          className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800"
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 transition-colors hover:text-primary-800"
           aria-expanded={expanded}
         >
           {expanded ? (

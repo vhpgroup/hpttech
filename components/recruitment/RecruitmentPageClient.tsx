@@ -37,18 +37,18 @@ function updateURL(query: string, page: number) {
 
 function JobCard({ job }: { job: PublicPost }) {
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition motion-reduce:transition-none hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md">
+    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition motion-reduce:transition-none hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-md">
       <Link href={`/tuyen-dung/${job.slug}`} className="grid gap-4 p-5 sm:grid-cols-[64px_1fr_auto] sm:items-center">
-        <span className="grid size-14 place-items-center rounded-full bg-blue-50 text-[#0A4BFF]">
+        <span className="grid size-14 place-items-center rounded-full bg-primary-50 text-primary-600">
           <BriefcaseBusiness size={24} />
         </span>
         <span className="min-w-0">
-          <span className="block text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">Vị trí tuyển dụng</span>
-          <strong className="mt-1.5 block text-base text-slate-900 transition group-hover:text-[#0A4BFF]">{job.title}</strong>
+          <span className="block text-[10px] font-extrabold uppercase tracking-wide text-primary-600">Vị trí tuyển dụng</span>
+          <strong className="mt-1.5 block text-base text-slate-900 transition group-hover:text-primary-600">{job.title}</strong>
           {job.summary ? <span className="mt-2 line-clamp-2 block text-sm leading-6 text-slate-500">{job.summary}</span> : null}
           {job.date ? <span className="mt-2 block text-xs text-slate-400">Đăng ngày {job.date}</span> : null}
         </span>
-        <span className="hidden size-9 place-items-center rounded-lg border border-slate-200 text-[#0A4BFF] transition group-hover:border-blue-300 group-hover:bg-blue-50 sm:grid">
+        <span className="hidden size-9 place-items-center rounded-lg border border-slate-200 text-primary-600 transition group-hover:border-primary-300 group-hover:bg-primary-50 sm:grid">
           <ArrowRight size={17} className="transition-transform group-hover:translate-x-0.5" />
         </span>
       </Link>
@@ -99,24 +99,24 @@ export function RecruitmentPageClient({
   return (
     <main className="subpage-main bg-slate-50/70 pb-20">
       <nav className="flex items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
-        <Link href="/" className="transition hover:text-[#0A4BFF]">Trang chủ</Link>
+        <Link href="/" className="transition hover:text-primary-600">Trang chủ</Link>
         <ChevronRight size={13} className="text-slate-300" />
         <span>Tuyển dụng</span>
       </nav>
 
-      <section className="relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-[#071b3e] via-[#0b3a78] to-[#0A4BFF] px-6 py-12 text-white sm:px-10 sm:py-16">
+      <section className="relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-primary-900 via-primary-800 to-primary-600 px-6 py-12 text-white sm:px-10 sm:py-16">
         <div className="absolute -right-24 -top-28 size-80 rounded-full bg-cyan-300/15 blur-3xl" />
-        <div className="absolute -bottom-36 right-32 size-72 rounded-full bg-blue-200/10 blur-3xl" />
+        <div className="absolute -bottom-36 right-32 size-72 rounded-full bg-primary-200/10 blur-3xl" />
         <div className="relative max-w-2xl">
-          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-blue-200">Gia nhập đội ngũ HPT Tech</p>
+          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-primary-200">Gia nhập đội ngũ HPT Tech</p>
           <h1 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">
             Cùng chúng tôi kiến tạo
             <span className="block text-cyan-300">giá trị công nghệ</span>
           </h1>
-          <p className="mt-5 max-w-xl text-sm leading-7 text-blue-100">
+          <p className="mt-5 max-w-xl text-sm leading-7 text-primary-100">
             HPT Tech chào đón những ứng viên mong muốn phát triển chuyên môn và tạo ra giá trị thiết thực cho khách hàng.
           </p>
-          <a href="#vi-tri-tuyen-dung" className="mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#0A4BFF] transition hover:bg-blue-50">
+          <a href="#vi-tri-tuyen-dung" className="mt-7 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-primary-600 transition hover:bg-primary-50">
             Xem vị trí đang tuyển
             <ArrowRight size={16} />
           </a>
@@ -126,8 +126,8 @@ export function RecruitmentPageClient({
       <section id="vi-tri-tuyen-dung" className="mt-8 scroll-mt-24">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0A4BFF]">Cơ hội nghề nghiệp</p>
-            <h2 className="mt-2 text-2xl font-black uppercase text-[#102b62]">Vị trí đang tuyển</h2>
+            <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-600">Cơ hội nghề nghiệp</p>
+            <h2 className="mt-2 text-2xl font-black uppercase text-primary-900">Vị trí đang tuyển</h2>
           </div>
           {jobs.length ? (
             <label className="relative w-full sm:max-w-md">
@@ -136,7 +136,7 @@ export function RecruitmentPageClient({
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 placeholder="Tìm kiếm vị trí tuyển dụng..."
-                className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-11 text-sm outline-none transition focus:border-primary-600 focus:ring-4 focus:ring-primary-100"
               />
               {input ? (
                 <button type="button" aria-label="Xóa tìm kiếm" onClick={() => setInput("")} className="absolute right-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-full text-slate-400 hover:bg-slate-100">
@@ -161,7 +161,7 @@ export function RecruitmentPageClient({
               {jobs.length ? "Hãy thử một từ khóa khác." : "Các cơ hội nghề nghiệp mới sẽ được cập nhật tại đây."}
             </p>
             {jobs.length && input ? (
-              <button type="button" onClick={() => setInput("")} className="mt-5 rounded-lg bg-[#0A4BFF] px-5 py-2.5 text-sm font-bold text-white">
+              <button type="button" onClick={() => setInput("")} className="mt-5 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-bold text-white">
                 Xóa tìm kiếm
               </button>
             ) : null}
@@ -172,7 +172,7 @@ export function RecruitmentPageClient({
           <nav className="mt-7 flex items-center justify-center gap-2" aria-label="Phân trang tuyển dụng">
             <button type="button" disabled={safePage === 1} onClick={() => setPage((value) => Math.max(1, value - 1))} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white disabled:opacity-40"><ChevronLeft size={17} /></button>
             {Array.from({ length: totalPages }, (_, index) => index + 1).map((value) => (
-              <button key={value} type="button" onClick={() => setPage(value)} className={cn("size-9 rounded-lg border text-sm font-bold", safePage === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 bg-white text-slate-600")}>{value}</button>
+              <button key={value} type="button" onClick={() => setPage(value)} className={cn("size-9 rounded-lg border text-sm font-bold", safePage === value ? "border-primary-600 bg-primary-600 text-white" : "border-slate-200 bg-white text-slate-600")}>{value}</button>
             ))}
             <button type="button" disabled={safePage === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))} className="grid size-9 place-items-center rounded-lg border border-slate-200 bg-white disabled:opacity-40"><ChevronRight size={17} /></button>
           </nav>
@@ -181,15 +181,15 @@ export function RecruitmentPageClient({
 
       {culturePosts.length ? (
         <section className="mt-12">
-          <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0A4BFF]">Con người HPT</p>
-          <h2 className="mt-2 text-2xl font-black uppercase text-[#102b62]">Văn hóa HPT Tech</h2>
+          <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-600">Con người HPT</p>
+          <h2 className="mt-2 text-2xl font-black uppercase text-primary-900">Văn hóa HPT Tech</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {culturePosts.slice(0, 4).map((post) => (
               <Link key={post.slug} href={post.href || `/tin-tuc/${post.fullPath || post.slug}`} className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                   {post.image ? <Image src={post.image} alt={post.title} fill sizes="25vw" className="object-cover transition duration-300 group-hover:scale-[1.04]" /> : null}
                 </div>
-                <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-[#0A4BFF]">{post.title}</h3>
+                <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-primary-600">{post.title}</h3>
               </Link>
             ))}
           </div>

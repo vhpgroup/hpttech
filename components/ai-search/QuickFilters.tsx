@@ -21,13 +21,13 @@ export default function QuickFilters({ filters, resultCount, onChange, onReset }
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Filter size={18} className="text-blue-700" />
+          <Filter size={18} className="text-primary-700" />
           <div>
             <h2 className="text-base font-bold text-slate-950">Bộ lọc nhanh</h2>
             <p className="text-xs text-slate-500">{resultCount} sản phẩm đang khớp</p>
           </div>
         </div>
-        <button type="button" onClick={onReset} className="inline-flex items-center gap-1 text-xs font-bold text-blue-700">
+        <button type="button" onClick={onReset} className="inline-flex items-center gap-1 text-xs font-bold text-primary-700">
           <RotateCcw size={14} />
           Đặt lại
         </button>
@@ -43,7 +43,7 @@ export default function QuickFilters({ filters, resultCount, onChange, onReset }
             step={500000}
             value={filters.priceCeiling}
             onChange={(event) => updateFilter("priceCeiling", Number(event.target.value))}
-            className="mt-3 w-full accent-blue-700"
+            className="mt-3 w-full accent-primary-700"
           />
           <span className="mt-1 flex items-center justify-between text-xs font-medium text-slate-500">
             <span>10.000.000 đ</span>
@@ -118,7 +118,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+        className="mt-2 h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none transition focus:border-primary-600 focus:ring-2 focus:ring-primary-100"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>

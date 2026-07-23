@@ -32,8 +32,8 @@ export default function ProductPromotionsPanel({
             className={[
               "group rounded-r-lg border-y border-r bg-white/85 px-3 py-3 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-md",
               promotion.kind === "monthly"
-                ? "border-l-[3px] border-blue-100 border-l-blue-200"
-                : "border-l-[3px] border-orange-100 border-l-orange-200",
+                ? "border-l-[3px] border-primary-100 border-l-primary-200"
+                : "border-l-[3px] border-accent-100 border-l-accent-200",
             ].join(" ")}
           >
             <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">

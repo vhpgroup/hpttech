@@ -15,7 +15,7 @@ export default function QuoteButton({ product, className, label = "Nhận báo g
   return (
     <button
       type="button"
-      className={className || "inline-flex h-11 items-center justify-center rounded-lg bg-[#0A4BFF] px-4 text-sm font-bold text-white hover:bg-blue-700"}
+      className={className || "inline-flex h-11 items-center justify-center rounded-lg bg-primary-600 px-4 text-sm font-bold text-white hover:bg-primary-700"}
       onClick={() => openQuote(product)}
     >
       {label}

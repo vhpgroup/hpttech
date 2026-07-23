@@ -45,14 +45,14 @@ export default function TermsOfUsePage() {
 
         <div className="grid items-start gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
           <aside className="border border-slate-300 bg-white lg:sticky lg:top-4">
-            <h2 className="bg-[#536fe8] px-4 py-3 text-lg font-bold text-white">Mục lục nội dung</h2>
+            <h2 className="bg-primary-500 px-4 py-3 text-lg font-bold text-white">Mục lục nội dung</h2>
             <nav aria-label="Mục lục điều khoản sử dụng">
               <ul className="grid sm:grid-cols-2 lg:block">
                 {termsSections.map((section) => (
                   <li key={section.id} className="border-b border-slate-100 last:border-b-0">
                     <a
                       href={`#${section.id}`}
-                      className="block px-4 py-3 text-[15px] leading-6 text-slate-800 transition hover:bg-blue-50 hover:text-blue-700"
+                      className="block px-4 py-3 text-[15px] leading-6 text-slate-800 transition hover:bg-primary-50 hover:text-primary-700"
                     >
                       {section.number}. {section.title}
                     </a>
@@ -110,7 +110,7 @@ export default function TermsOfUsePage() {
               </p>
               <p>
                 Việc thu thập và sử dụng thông tin cá nhân được thực hiện theo{" "}
-                <Link className="font-semibold text-blue-700 hover:underline" href="/chinh-sach-bao-mat">
+                <Link className="font-semibold text-primary-700 hover:underline" href="/chinh-sach-bao-mat">
                   Chính sách bảo mật thông tin
                 </Link>{" "}
                 của HPT Tech.
@@ -154,7 +154,7 @@ export default function TermsOfUsePage() {
                 Với đơn hàng doanh nghiệp và dự án, HPT Tech hỗ trợ báo giá riêng, hợp đồng và công
                 nợ theo thỏa thuận. Trường hợp giá hiển thị sai do lỗi hệ thống, hai bên sẽ thống
                 nhất lại mức giá cuối cùng trước khi xử lý đơn hàng. Chi tiết quy trình xem tại{" "}
-                <Link className="font-semibold text-blue-700 hover:underline" href="/huong-dan-mua-hang">
+                <Link className="font-semibold text-primary-700 hover:underline" href="/huong-dan-mua-hang">
                   Hướng dẫn mua hàng
                 </Link>
                 .
@@ -186,12 +186,12 @@ export default function TermsOfUsePage() {
               />
               <p>
                 Vui lòng tham khảo{" "}
-                <Link className="font-semibold text-blue-700 hover:underline" href="/chinh-sach-giao-hang">
+                <Link className="font-semibold text-primary-700 hover:underline" href="/chinh-sach-giao-hang">
                   Chính sách giao hàng
                 </Link>{" "}
                 và{" "}
                 <Link
-                  className="font-semibold text-blue-700 hover:underline"
+                  className="font-semibold text-primary-700 hover:underline"
                   href="/chinh-sach-bao-hanh-doi-tra"
                 >
                   Chính sách bảo hành đổi trả
@@ -265,21 +265,21 @@ export default function TermsOfUsePage() {
               <div className="mt-8 flex flex-wrap gap-3 border-t border-slate-200 pt-6">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#536fe8] px-5 py-3 font-semibold text-white transition hover:bg-[#405cd2]"
+                  className="inline-flex items-center gap-2 bg-primary-500 px-5 py-3 font-semibold text-white transition hover:bg-primary-600"
                 >
                   <Phone size={18} />
                   Gọi {hotline}
                 </a>
                 <a
                   href={`mailto:${email}?subject=${encodeURIComponent("Yêu cầu hỗ trợ về điều khoản sử dụng")}`}
-                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   <Mail size={18} />
                   Gửi email
                 </a>
                 <Link
                   href="/lien-he"
-                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   <FileText size={18} />
                   Trang liên hệ
@@ -306,7 +306,7 @@ function PolicySection({
 }) {
   return (
     <section id={id} className="mt-10 scroll-mt-28">
-      <h2 className="text-xl font-black uppercase leading-8 text-[#315eff]">
+      <h2 className="text-xl font-black uppercase leading-8 text-primary-600">
         {number}. {title}
       </h2>
       <div className="mt-5 space-y-4">{children}</div>
@@ -340,7 +340,7 @@ function ContactItem({
 }) {
   const content = (
     <>
-      <Icon className="mt-1 shrink-0 text-[#315eff]" size={19} />
+      <Icon className="mt-1 shrink-0 text-primary-600" size={19} />
       <div>
         <span className="font-bold text-slate-900">{label}: </span>
         <span>{value}</span>
@@ -349,7 +349,7 @@ function ContactItem({
   );
 
   return href ? (
-    <a href={href} className="flex gap-3 transition hover:text-blue-700">
+    <a href={href} className="flex gap-3 transition hover:text-primary-700">
       {content}
     </a>
   ) : (

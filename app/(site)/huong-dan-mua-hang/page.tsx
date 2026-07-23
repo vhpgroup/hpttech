@@ -120,7 +120,7 @@ export default function ShoppingGuidePage() {
                   description={
                     <>
                       Gọi trực tiếp{" "}
-                      <a className="font-bold text-blue-700 hover:underline" href={phoneHref(hotline)}>
+                      <a className="font-bold text-primary-700 hover:underline" href={phoneHref(hotline)}>
                         {hotline}
                       </a>
                       .
@@ -150,10 +150,10 @@ export default function ShoppingGuidePage() {
                 Zalo thuận tiện cho việc gửi hình ảnh, đường dẫn sản phẩm, danh sách thiết bị và trao
                 đổi báo giá.
               </p>
-              <div className="mt-5 border border-blue-200 bg-blue-50 p-5">
+              <div className="mt-5 border border-primary-200 bg-primary-50 p-5">
                 <p className="font-semibold text-slate-900">Zalo HPT Tech</p>
                 <a
-                  className="mt-1 inline-flex items-center gap-2 text-lg font-bold text-blue-700 hover:underline"
+                  className="mt-1 inline-flex items-center gap-2 text-lg font-bold text-primary-700 hover:underline"
                   href={zaloHref}
                   target="_blank"
                   rel="noreferrer"
@@ -185,7 +185,7 @@ export default function ShoppingGuidePage() {
                 ].map((item, index, items) => (
                   <span key={item} className="inline-flex items-center gap-2">
                     <span>{item}</span>
-                    {index < items.length - 1 ? <span className="text-blue-600">→</span> : null}
+                    {index < items.length - 1 ? <span className="text-primary-600">→</span> : null}
                   </span>
                 ))}
               </div>
@@ -251,7 +251,7 @@ export default function ShoppingGuidePage() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   href="/san-pham"
-                  className="inline-flex items-center gap-2 bg-[#536fe8] px-5 py-3 font-semibold text-white transition hover:bg-[#405cd2]"
+                  className="inline-flex items-center gap-2 bg-primary-500 px-5 py-3 font-semibold text-white transition hover:bg-primary-600"
                 >
                   <ShoppingCart size={18} />
                   Xem sản phẩm
@@ -260,7 +260,7 @@ export default function ShoppingGuidePage() {
                   href={zaloHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   <MessageCircle size={18} />
                   Tư vấn Zalo
@@ -285,7 +285,7 @@ function GuideSection({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="text-xl font-black uppercase leading-8 text-[#315eff]">
+      <h2 className="text-xl font-black uppercase leading-8 text-primary-600">
         {number}. {title}
       </h2>
       <div className="mt-5 space-y-4">{children}</div>
@@ -313,7 +313,7 @@ function ActionCard({
 }) {
   return (
     <div className="border border-slate-200 p-5">
-      <Icon className="text-[#315eff]" size={25} />
+      <Icon className="text-primary-600" size={25} />
       <h4 className="mt-3 font-bold text-slate-900">{title}</h4>
       <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
     </div>
@@ -325,7 +325,7 @@ function BulletList({ items }: { items: string[] }) {
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={item} className="flex gap-2">
-          <CheckCircle2 className="mt-1 shrink-0 text-blue-600" size={18} />
+          <CheckCircle2 className="mt-1 shrink-0 text-primary-600" size={18} />
           <span>{item}</span>
         </li>
       ))}
@@ -344,7 +344,7 @@ function NumberedStep({
 }) {
   return (
     <li className="flex gap-3">
-      <span className="grid h-7 w-7 shrink-0 place-items-center bg-blue-50 text-sm font-bold text-blue-700">
+      <span className="grid h-7 w-7 shrink-0 place-items-center bg-primary-50 text-sm font-bold text-primary-700">
         {number}
       </span>
       <div>
@@ -377,7 +377,7 @@ function ContactItem({
 }) {
   const content = (
     <>
-      <Icon className="mt-1 shrink-0 text-[#315eff]" size={19} />
+      <Icon className="mt-1 shrink-0 text-primary-600" size={19} />
       <div>
         <span className="font-bold text-slate-900">{label}: </span>
         <span>{value}</span>
@@ -386,7 +386,7 @@ function ContactItem({
   );
 
   return href ? (
-    <a href={href} className="flex gap-3 transition hover:text-blue-700">
+    <a href={href} className="flex gap-3 transition hover:text-primary-700">
       {content}
     </a>
   ) : (

@@ -72,12 +72,12 @@ function orderPosts(posts: PublicPost[]) {
 function TypeNavigation({ activeType }: { activeType?: NewsType }) {
   return (
     <nav aria-label="Chuyển nhanh loại bài viết" className="mt-4 flex gap-2 overflow-x-auto border-y border-slate-200 bg-white py-2">
-      <Link href="/tin-tuc" className={cn("inline-flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-bold transition", !activeType ? "text-[#0A4BFF]" : "text-slate-600 hover:text-[#0A4BFF]")}>
+      <Link href="/tin-tuc" className={cn("inline-flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-bold transition", !activeType ? "text-primary-600" : "text-slate-600 hover:text-primary-600")}>
         <Home size={16} />
         Tổng quan
       </Link>
       {NEWS_TYPES.map(({ value, label, icon: Icon }) => (
-        <Link key={value} href={`/tin-tuc?loai=${value}`} className={cn("inline-flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-bold transition", activeType === value ? "text-[#0A4BFF]" : "text-slate-600 hover:text-[#0A4BFF]")}>
+        <Link key={value} href={`/tin-tuc?loai=${value}`} className={cn("inline-flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-bold transition", activeType === value ? "text-primary-600" : "text-slate-600 hover:text-primary-600")}>
           <Icon size={16} />
           {label}
         </Link>
@@ -92,7 +92,7 @@ function ImageBox({ post, sizes, priority = false, className }: { post: PublicPo
       {post.image ? (
         <Image src={post.image} alt={post.title} fill priority={priority} sizes={sizes} className="object-cover transition duration-300 group-hover:scale-[1.04]" />
       ) : (
-        <span className="grid size-full place-items-center bg-blue-50 text-[#0A4BFF]">
+        <span className="grid size-full place-items-center bg-primary-50 text-primary-600">
           <Newspaper size={34} />
         </span>
       )}
@@ -119,7 +119,7 @@ function SectionTitle({ title, href }: { title: string; href?: string }) {
     <>
       <span className="text-sm font-extrabold uppercase text-[#d60000]">{title}</span>
       <span className="h-px flex-1 bg-slate-200" />
-      {href ? <span className="text-xs font-bold text-slate-400 transition group-hover:text-[#0A4BFF]">Xem thêm</span> : null}
+      {href ? <span className="text-xs font-bold text-slate-400 transition group-hover:text-primary-600">Xem thêm</span> : null}
     </>
   );
 
@@ -137,7 +137,7 @@ function HeroLead({ post }: { post: PublicPost }) {
     <article className="group">
       <Link href={postHref(post)} className="block">
         <ImageBox post={post} priority sizes="(max-width: 1023px) 100vw, 58vw" className="aspect-[16/9] rounded-md" />
-        <h1 className="mt-3 text-xl font-extrabold leading-tight text-slate-900 transition group-hover:text-[#0A4BFF] md:text-2xl">
+        <h1 className="mt-3 text-xl font-extrabold leading-tight text-slate-900 transition group-hover:text-primary-600 md:text-2xl">
           {post.title}
         </h1>
       </Link>
@@ -155,7 +155,7 @@ function LatestList({ posts }: { posts: PublicPost[] }) {
         {posts.map((post) => (
           <article key={post.fullPath || post.slug} className="group grid grid-cols-[1fr_112px] gap-3 border-b border-slate-100 pb-3">
             <Link href={postHref(post)} className="min-w-0">
-              <h3 className="line-clamp-2 text-sm font-bold leading-5 text-slate-900 transition group-hover:text-[#0A4BFF]">{post.title}</h3>
+              <h3 className="line-clamp-2 text-sm font-bold leading-5 text-slate-900 transition group-hover:text-primary-600">{post.title}</h3>
               <MetaLine post={post} compact />
             </Link>
             <Link href={postHref(post)} aria-label={post.title}>
@@ -173,7 +173,7 @@ function SmallStory({ post }: { post: PublicPost }) {
     <article className="group">
       <Link href={postHref(post)}>
         <ImageBox post={post} sizes="(max-width: 767px) 100vw, 20vw" className="aspect-[16/9] rounded" />
-        <h3 className="mt-2 line-clamp-2 min-h-10 text-sm font-bold leading-5 text-slate-900 transition group-hover:text-[#0A4BFF]">{post.title}</h3>
+        <h3 className="mt-2 line-clamp-2 min-h-10 text-sm font-bold leading-5 text-slate-900 transition group-hover:text-primary-600">{post.title}</h3>
       </Link>
       <MetaLine post={post} compact />
     </article>
@@ -188,7 +188,7 @@ function NewsListItem({ post }: { post: PublicPost }) {
       </Link>
       <div className="min-w-0">
         <Link href={postHref(post)}>
-          <h3 className="line-clamp-2 text-base font-extrabold leading-6 text-slate-900 transition group-hover:text-[#0A4BFF]">{post.title}</h3>
+          <h3 className="line-clamp-2 text-base font-extrabold leading-6 text-slate-900 transition group-hover:text-primary-600">{post.title}</h3>
         </Link>
         <MetaLine post={post} compact />
         {post.summary ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{post.summary}</p> : null}
@@ -225,7 +225,7 @@ function RankedPosts({ posts }: { posts: PublicPost[] }) {
           <article className="group">
             <Link href={postHref(posts[0])}>
               <ImageBox post={posts[0]} sizes="(max-width: 1023px) 100vw, 360px" className="aspect-[16/9] rounded" />
-              <h3 className="mt-2 line-clamp-2 text-sm font-extrabold leading-5 text-slate-900 transition group-hover:text-[#0A4BFF]">{posts[0].title}</h3>
+              <h3 className="mt-2 line-clamp-2 text-sm font-extrabold leading-5 text-slate-900 transition group-hover:text-primary-600">{posts[0].title}</h3>
             </Link>
           </article>
         ) : null}
@@ -234,7 +234,7 @@ function RankedPosts({ posts }: { posts: PublicPost[] }) {
             <li key={post.fullPath || post.slug} className="group grid grid-cols-[44px_1fr] gap-3 border-b border-slate-100 pb-3">
               <span className="text-3xl font-black italic leading-none text-slate-200">{String(index + 1).padStart(2, "0")}</span>
               <Link href={postHref(post)} className="min-w-0">
-                <h3 className="line-clamp-2 text-sm font-bold leading-5 text-slate-900 transition group-hover:text-[#0A4BFF]">{post.title}</h3>
+                <h3 className="line-clamp-2 text-sm font-bold leading-5 text-slate-900 transition group-hover:text-primary-600">{post.title}</h3>
                 <MetaLine post={post} compact />
               </Link>
             </li>
@@ -368,17 +368,17 @@ function FilteredNews({
     <>
       <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-2xl font-extrabold uppercase tracking-tight text-[#12366d]">{typeInfo?.label || "Tin tức"}</h1>
+          <h1 className="text-2xl font-extrabold uppercase tracking-tight text-primary-900">{typeInfo?.label || "Tin tức"}</h1>
           <p className="mt-1 text-sm text-slate-500">{totalDocs} bài viết được tìm thấy</p>
         </div>
         <div className="flex flex-1 flex-col gap-3 sm:flex-row lg:max-w-3xl">
           <label className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input value={input} onChange={(event) => setInput(event.target.value)} placeholder={`Tìm trong ${(typeInfo?.label || "tin tức").toLowerCase()}...`} className="h-12 w-full border border-slate-200 bg-white pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
+            <input value={input} onChange={(event) => setInput(event.target.value)} placeholder={`Tìm trong ${(typeInfo?.label || "tin tức").toLowerCase()}...`} className="h-12 w-full border border-slate-200 bg-white pl-11 pr-11 text-sm outline-none transition focus:border-primary-600 focus:ring-4 focus:ring-primary-100" />
             {input ? <button type="button" aria-label="Xóa tìm kiếm" onClick={() => setInput("")} className="absolute right-3 top-1/2 grid size-7 -translate-y-1/2 place-items-center text-slate-400 hover:bg-slate-100 hover:text-slate-700"><X size={16} /></button> : null}
           </label>
           <label className="relative">
-            <select value={sort} onChange={(event) => { setSort(event.target.value as SortValue); setPage(1); }} className="h-12 min-w-40 appearance-none border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100">
+            <select value={sort} onChange={(event) => { setSort(event.target.value as SortValue); setPage(1); }} className="h-12 min-w-40 appearance-none border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:border-primary-600 focus:ring-4 focus:ring-primary-100">
               <option value="newest">Mới nhất</option>
               <option value="oldest">Cũ nhất</option>
             </select>
@@ -397,8 +397,8 @@ function FilteredNews({
           <h2 className="mt-4 text-lg font-bold text-slate-900">Không tìm thấy bài viết phù hợp</h2>
           <p className="mt-2 text-sm text-slate-500">Hãy thử từ khóa khác hoặc xóa tìm kiếm hiện tại.</p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <button type="button" onClick={() => setInput("")} className="bg-[#0A4BFF] px-4 py-2 text-sm font-bold text-white">Xóa tìm kiếm</button>
-            <Link href="/tin-tuc" className="border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:border-blue-300 hover:text-[#0A4BFF]">Về tổng quan</Link>
+            <button type="button" onClick={() => setInput("")} className="bg-primary-600 px-4 py-2 text-sm font-bold text-white">Xóa tìm kiếm</button>
+            <Link href="/tin-tuc" className="border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:border-primary-300 hover:text-primary-600">Về tổng quan</Link>
           </div>
         </section>
       )}
@@ -409,7 +409,7 @@ function FilteredNews({
           {Array.from({ length: totalPages }, (_, index) => index + 1).filter((value) => value === 1 || value === totalPages || Math.abs(value - safePage) <= 2).map((value, index, values) => (
             <span key={value} className="contents">
               {index > 0 && value - values[index - 1] > 1 ? <span className="px-1 text-slate-400">...</span> : null}
-              <button type="button" onClick={() => setPage(value)} className={cn("size-9 border text-sm font-bold", safePage === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-300")}>{value}</button>
+              <button type="button" onClick={() => setPage(value)} className={cn("size-9 border text-sm font-bold", safePage === value ? "border-primary-600 bg-primary-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-primary-300")}>{value}</button>
             </span>
           ))}
           <button type="button" disabled={safePage === totalPages} onClick={() => setPage((value) => Math.min(totalPages, value + 1))} className="grid size-9 place-items-center border border-slate-200 bg-white disabled:cursor-not-allowed disabled:opacity-40"><ChevronRight size={17} /></button>
@@ -445,11 +445,11 @@ export function NewsPageClient({
   return (
     <main className="subpage-main bg-white pb-20">
       <nav className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
-        <Link href="/" className="transition hover:text-[#0A4BFF]">Trang chủ</Link>
+        <Link href="/" className="transition hover:text-primary-600">Trang chủ</Link>
         <ChevronRight size={13} className="text-slate-300" />
         {activeType ? (
           <>
-            <Link href="/tin-tuc" className="transition hover:text-[#0A4BFF]">Tin tức</Link>
+            <Link href="/tin-tuc" className="transition hover:text-primary-600">Tin tức</Link>
             <ChevronRight size={13} className="text-slate-300" />
             <span>{NEWS_TYPES.find((item) => item.value === activeType)?.label}</span>
           </>

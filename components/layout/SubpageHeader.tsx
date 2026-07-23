@@ -26,7 +26,7 @@ export function SubpageBreadcrumb({ items, className }: { items: BreadcrumbItem[
         return (
           <span key={`${item.label}-${index}`} className="inline-flex items-center gap-1.5">
             {item.href && !isLast ? (
-              <Link href={item.href} className="transition hover:text-[#0A4BFF]">
+              <Link href={item.href} className="transition hover:text-primary-600">
                 {item.label}
               </Link>
             ) : (

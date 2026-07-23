@@ -35,7 +35,7 @@ export function ProductSpecTable({ specs }: ProductSpecTableProps) {
                 className={cn(
                   "grid grid-cols-[160px_1fr] transition-colors sm:grid-cols-[200px_1fr]",
                   idx % 2 === 0 ? "bg-white/90" : "bg-slate-50/50",
-                  "hover:bg-[#0057FF]/[0.04]",
+                  "hover:bg-primary-600/[0.04]",
                 )}
               >
                 <td className="border-r border-slate-200/60 px-4 py-3 font-medium text-slate-500">
@@ -54,7 +54,7 @@ export function ProductSpecTable({ specs }: ProductSpecTableProps) {
         <button
           type="button"
           onClick={() => setExpanded((current) => !current)}
-          className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-700 transition-colors hover:text-blue-800"
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 transition-colors hover:text-primary-800"
           aria-expanded={expanded}
         >
           {expanded ? (

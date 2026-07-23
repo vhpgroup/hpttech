@@ -159,20 +159,20 @@ export default function PrivacyPolicyPage() {
                 <p>Địa chỉ: {address}</p>
                 <p>
                   Hotline:{" "}
-                  <a className="font-semibold text-blue-700 hover:underline" href={phoneHref(hotline)}>
+                  <a className="font-semibold text-primary-700 hover:underline" href={phoneHref(hotline)}>
                     {hotline}
                   </a>
                 </p>
                 <p>
                   Email:{" "}
-                  <a className="font-semibold text-blue-700 hover:underline" href={`mailto:${email}`}>
+                  <a className="font-semibold text-primary-700 hover:underline" href={`mailto:${email}`}>
                     {email}
                   </a>
                 </p>
                 <p>
                   Website:{" "}
                   <a
-                    className="font-semibold text-blue-700 hover:underline"
+                    className="font-semibold text-primary-700 hover:underline"
                     href="https://hpttech.vn"
                   >
                     hpttech.vn
@@ -183,21 +183,21 @@ export default function PrivacyPolicyPage() {
               <div className="mt-8 flex flex-wrap gap-3 border-t border-slate-200 pt-6">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#536fe8] px-5 py-3 font-semibold text-white transition hover:bg-[#405cd2]"
+                  className="inline-flex items-center gap-2 bg-primary-500 px-5 py-3 font-semibold text-white transition hover:bg-primary-600"
                 >
                   <Phone size={18} />
                   Gọi {hotline}
                 </a>
                 <a
                   href={`mailto:${email}?subject=${encodeURIComponent("Yêu cầu hỗ trợ về chính sách bảo mật")}`}
-                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   <Mail size={18} />
                   Gửi email
                 </a>
                 <Link
                   href="/lien-he"
-                  className="inline-flex items-center border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   Trang liên hệ
                 </Link>
@@ -221,7 +221,7 @@ function PolicySection({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="text-xl font-black uppercase leading-8 text-[#315eff]">
+      <h2 className="text-xl font-black uppercase leading-8 text-primary-600">
         {number}. {title}
       </h2>
       <div className="mt-5 space-y-4">{children}</div>
@@ -255,7 +255,7 @@ function ContactItem({
 }) {
   const content = (
     <>
-      <Icon className="mt-1 shrink-0 text-[#315eff]" size={19} />
+      <Icon className="mt-1 shrink-0 text-primary-600" size={19} />
       <div>
         <span className="font-bold text-slate-900">{label}: </span>
         <span>{value}</span>
@@ -264,7 +264,7 @@ function ContactItem({
   );
 
   return href ? (
-    <a href={href} className="flex gap-3 transition hover:text-blue-700">
+    <a href={href} className="flex gap-3 transition hover:text-primary-700">
       {content}
     </a>
   ) : (

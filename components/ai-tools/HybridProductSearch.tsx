@@ -38,7 +38,7 @@ const INITIAL_QUERY = EXAMPLE_PROMPTS[0];
 function statusTone(status: string) {
   if (status === "in_hpt") return "bg-emerald-50 text-emerald-700 ring-emerald-200";
   if (status === "need_verify") return "bg-amber-50 text-amber-700 ring-amber-200";
-  return "bg-blue-50 text-blue-700 ring-blue-200";
+  return "bg-primary-50 text-primary-700 ring-primary-200";
 }
 
 function statusIcon(status: string) {
@@ -133,17 +133,17 @@ export default function HybridProductSearch() {
 
   return (
     <main className="min-h-screen bg-slate-100">
-      <section className="bg-[#0b246c] text-white">
+      <section className="bg-primary-900 text-white">
         <div className="mx-auto max-w-[1440px] px-3 py-5 sm:px-5">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-50">
+            <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-primary-50">
               <Sparkles size={13} />
               HPT Tech AI Product Finder
             </div>
             <h1 className="text-2xl font-extrabold tracking-normal sm:text-3xl">
               AI Search - Tìm sản phẩm thông minh
             </h1>
-            <p className="mx-auto mt-2 max-w-2xl text-sm font-medium leading-6 text-blue-100">
+            <p className="mx-auto mt-2 max-w-2xl text-sm font-medium leading-6 text-primary-100">
               Hỏi theo nhu cầu, AI sẽ phân tích và đề xuất sản phẩm phù hợp nhất cho mua sắm B2B.
             </p>
 
@@ -153,13 +153,13 @@ export default function HybridProductSearch() {
                   Nhu cầu sản phẩm
                 </label>
                 <textarea
-                  className="min-h-[58px] flex-1 resize-none rounded border border-slate-200 px-3 py-2 text-sm leading-5 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="min-h-[58px] flex-1 resize-none rounded border border-slate-200 px-3 py-2 text-sm leading-5 text-slate-900 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
                   id="hybrid-product-query"
                   onChange={(event) => setQuery(event.target.value)}
                   value={query}
                 />
                 <button
-                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded bg-blue-700 px-4 text-sm font-extrabold text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                  className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded bg-primary-700 px-4 text-sm font-extrabold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:bg-slate-400"
                   disabled={loading}
                   type="submit"
                 >
@@ -172,7 +172,7 @@ export default function HybridProductSearch() {
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
               {EXAMPLE_PROMPTS.slice(1).map((prompt) => (
                 <button
-                  className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-blue-50 transition hover:bg-white/15"
+                  className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-primary-50 transition hover:bg-white/15"
                   key={prompt}
                   onClick={() => setQuery(prompt)}
                   type="button"
@@ -208,7 +208,7 @@ export default function HybridProductSearch() {
           <aside className="space-y-3">
             <section className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
               <div className="mb-3 flex items-center gap-2">
-                <PackageSearch className="text-blue-700" size={18} />
+                <PackageSearch className="text-primary-700" size={18} />
                 <div>
                   <h2 className="text-sm font-extrabold text-slate-950">AI hiểu nhu cầu của bạn</h2>
                   <p className="text-xs text-slate-500">Các tiêu chí được bóc tách từ câu hỏi.</p>
@@ -233,7 +233,7 @@ export default function HybridProductSearch() {
 
             <section className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
               <div className="mb-2 flex items-center gap-2">
-                <Search className="text-blue-700" size={17} />
+                <Search className="text-primary-700" size={17} />
                 <h2 className="text-sm font-extrabold text-slate-950">Câu hỏi bổ sung</h2>
               </div>
               <div className="space-y-2">
@@ -242,7 +242,7 @@ export default function HybridProductSearch() {
                   "Mỗi ngày cần xử lý bao nhiêu tài liệu?",
                 ]).map((question) => (
                   <button
-                    className="flex w-full items-center justify-between rounded border border-slate-200 px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700"
+                    className="flex w-full items-center justify-between rounded border border-slate-200 px-3 py-2 text-left text-xs font-semibold text-slate-700 hover:border-primary-300 hover:text-primary-700"
                     key={question}
                     type="button"
                     onClick={() => setQuery(`${query}. ${question}`)}
@@ -286,7 +286,7 @@ export default function HybridProductSearch() {
               <div className="flex flex-col gap-3 border-b border-slate-200 p-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <Table2 className="text-blue-700" size={18} />
+                    <Table2 className="text-primary-700" size={18} />
                     <h2 className="text-base font-extrabold text-slate-950">
                       Sản phẩm phù hợp nhất ({products.length})
                     </h2>
@@ -358,7 +358,7 @@ export default function HybridProductSearch() {
                   <h2 className="text-sm font-extrabold text-slate-950">Sản phẩm liên quan khác</h2>
                   <p className="text-xs text-slate-500">Các lựa chọn cùng nhóm để hỏi tiếp hoặc đặt hàng.</p>
                 </div>
-                <Link className="inline-flex items-center gap-1 text-xs font-bold text-blue-700" href="/san-pham">
+                <Link className="inline-flex items-center gap-1 text-xs font-bold text-primary-700" href="/san-pham">
                   Xem tất cả
                   <ArrowRight size={14} />
                 </Link>
@@ -380,11 +380,11 @@ export default function HybridProductSearch() {
             <section className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Filter className="text-blue-700" size={17} />
+                  <Filter className="text-primary-700" size={17} />
                   <h2 className="text-sm font-extrabold text-slate-950">Bộ lọc nhanh</h2>
                 </div>
                 <button
-                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-700"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-primary-700"
                   onClick={() => {
                     setMinScore(75);
                     setStatusFilter("all");
@@ -399,7 +399,7 @@ export default function HybridProductSearch() {
                 <label className="block">
                   <span className="text-xs font-bold text-slate-700">Độ phù hợp tối thiểu</span>
                   <input
-                    className="mt-2 w-full accent-blue-700"
+                    className="mt-2 w-full accent-primary-700"
                     max={100}
                     min={60}
                     onChange={(event) => setMinScore(Number(event.target.value))}
@@ -427,18 +427,18 @@ export default function HybridProductSearch() {
 
             <section className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
               <div className="mb-3 flex items-center gap-2">
-                <Headphones className="text-blue-700" size={17} />
+                <Headphones className="text-primary-700" size={17} />
                 <h2 className="text-sm font-extrabold text-slate-950">Cần tư vấn thêm?</h2>
               </div>
               <p className="text-xs leading-5 text-slate-600">
                 Gửi kết quả AI cho tư vấn viên HPT để chốt model, tồn kho, giá và cấu hình phù hợp.
               </p>
               <div className="mt-3 grid gap-2">
-                <Link className="inline-flex h-9 items-center justify-center gap-2 rounded border border-blue-700 bg-white text-xs font-bold text-blue-700 hover:bg-blue-50" href="/lien-he">
+                <Link className="inline-flex h-9 items-center justify-center gap-2 rounded border border-primary-700 bg-white text-xs font-bold text-primary-700 hover:bg-primary-50" href="/lien-he">
                   <MessageCircle size={15} />
                   Chat Zalo với chuyên viên
                 </Link>
-                <a className="inline-flex h-9 items-center justify-center rounded bg-blue-700 text-xs font-bold text-white hover:bg-blue-800" href="tel:0967286889">
+                <a className="inline-flex h-9 items-center justify-center rounded bg-primary-700 text-xs font-bold text-white hover:bg-primary-800" href="tel:0967286889">
                   Gọi ngay: 0918 871 414
                 </a>
               </div>
@@ -453,7 +453,7 @@ export default function HybridProductSearch() {
 function SummaryCard({ icon, label, text }: { icon: React.ReactNode; label: string; text: string }) {
   return (
     <article className="rounded-md border border-slate-200 bg-white p-3 shadow-sm">
-      <div className="mb-2 flex items-center gap-2 text-blue-700">
+      <div className="mb-2 flex items-center gap-2 text-primary-700">
         {icon}
         <strong className="text-sm text-slate-950">{label}</strong>
       </div>
@@ -464,7 +464,7 @@ function SummaryCard({ icon, label, text }: { icon: React.ReactNode; label: stri
 
 function ProductImageBox({ product }: { product: EnrichedRecommendedProduct }) {
   return (
-    <div className="grid h-20 w-24 place-items-center rounded border border-blue-100 bg-blue-50 text-center text-[11px] font-extrabold leading-4 text-blue-700">
+    <div className="grid h-20 w-24 place-items-center rounded border border-primary-100 bg-primary-50 text-center text-[11px] font-extrabold leading-4 text-primary-700">
       <span className="whitespace-pre-line">{productImageLabel(product)}</span>
     </div>
   );
@@ -473,12 +473,12 @@ function ProductImageBox({ product }: { product: EnrichedRecommendedProduct }) {
 function ProductRow({ product }: { product: EnrichedRecommendedProduct }) {
   const rating = ratingFor(product);
   return (
-    <tr className="border-b border-slate-100 align-middle hover:bg-blue-50/40">
+    <tr className="border-b border-slate-100 align-middle hover:bg-primary-50/40">
       <td className="border-r border-slate-100 px-3 py-3">
-        <div className="font-extrabold text-blue-700">{product.name}</div>
+        <div className="font-extrabold text-primary-700">{product.name}</div>
         {product.sourceUrl ? (
           <a
-            className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-[11px] font-bold text-slate-500 hover:text-blue-700"
+            className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-[11px] font-bold text-slate-500 hover:text-primary-700"
             href={product.sourceUrl}
             rel="noreferrer"
             target="_blank"
@@ -497,7 +497,7 @@ function ProductRow({ product }: { product: EnrichedRecommendedProduct }) {
       <td className="border-r border-slate-100 px-3 py-3">
         <div className="font-extrabold text-slate-950">{product.score}/100</div>
         <div className="mt-1 h-1.5 rounded-full bg-slate-100">
-          <div className="h-1.5 rounded-full bg-blue-700" style={{ width: `${Math.min(100, product.score)}%` }} />
+          <div className="h-1.5 rounded-full bg-primary-700" style={{ width: `${Math.min(100, product.score)}%` }} />
         </div>
       </td>
       <td className="border-r border-slate-100 px-3 py-3">
@@ -510,16 +510,16 @@ function ProductRow({ product }: { product: EnrichedRecommendedProduct }) {
       <td className="border-r border-slate-100 px-3 py-3">
         <div className="flex items-center gap-1">
           <Star className="fill-amber-400 text-amber-400" size={14} />
-          <span className="font-extrabold text-blue-700">{rating.toFixed(1)}</span>
+          <span className="font-extrabold text-primary-700">{rating.toFixed(1)}</span>
         </div>
       </td>
       <td className="px-3 py-3">
         {product.hptHref ? (
-          <Link className="inline-flex h-8 items-center justify-center rounded bg-blue-700 px-3 text-[11px] font-extrabold text-white hover:bg-blue-800" href={product.hptHref}>
+          <Link className="inline-flex h-8 items-center justify-center rounded bg-primary-700 px-3 text-[11px] font-extrabold text-white hover:bg-primary-800" href={product.hptHref}>
             {product.cta}
           </Link>
         ) : (
-          <Link className="inline-flex h-8 items-center justify-center rounded border border-blue-700 px-3 text-[11px] font-extrabold text-blue-700 hover:bg-blue-50" href="/lien-he">
+          <Link className="inline-flex h-8 items-center justify-center rounded border border-primary-700 px-3 text-[11px] font-extrabold text-primary-700 hover:bg-primary-50" href="/lien-he">
             {product.cta}
           </Link>
         )}
@@ -538,7 +538,7 @@ function RelatedCard({ product }: { product: EnrichedRecommendedProduct }) {
       <div className="grid h-24 place-items-center rounded bg-white">
         <ProductImageBox product={product} />
       </div>
-      <h3 className="mt-3 line-clamp-2 min-h-[38px] text-xs font-extrabold leading-5 text-blue-700">{product.name}</h3>
+      <h3 className="mt-3 line-clamp-2 min-h-[38px] text-xs font-extrabold leading-5 text-primary-700">{product.name}</h3>
       <p className="mt-1 text-sm font-extrabold text-red-600">{product.priceText || "Liên hệ"}</p>
       <span className={`mt-2 inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold ${statusTone(product.hptStatus)}`}>
         {statusIcon(product.hptStatus)}

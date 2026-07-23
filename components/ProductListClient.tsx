@@ -281,7 +281,7 @@ function FilterCheckbox({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="h-4 w-4 rounded border-slate-300 text-[#0A4BFF] focus:ring-[#0A4BFF]"
+        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600"
       />
       <span className="min-w-0 flex-1 truncate">{option.label}</span>
       {typeof option.count === "number" ? <span className="text-xs font-semibold text-slate-400">{option.count}</span> : null}
@@ -324,7 +324,7 @@ function ProductFilters({
     <aside className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-sm font-extrabold uppercase tracking-wide text-slate-950">Bộ lọc sản phẩm</h2>
-        <button type="button" onClick={onClear} className="text-xs font-bold text-[#0A4BFF] hover:text-blue-700">
+        <button type="button" onClick={onClear} className="text-xs font-bold text-primary-600 hover:text-primary-700">
           Xóa tất cả
         </button>
       </div>
@@ -342,7 +342,7 @@ function ProductFilters({
               value={filters.priceMin}
               onChange={(event) => onPriceChange("priceMin", event.target.value)}
               placeholder="0"
-              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-[#0A4BFF]"
+              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-primary-600"
             />
           </label>
           <label className="space-y-1">
@@ -353,7 +353,7 @@ function ProductFilters({
               value={filters.priceMax}
               onChange={(event) => onPriceChange("priceMax", event.target.value)}
               placeholder="50000000"
-              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-[#0A4BFF]"
+              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-primary-600"
             />
           </label>
         </div>
@@ -366,7 +366,7 @@ function ProductFilters({
         <button
           type="button"
           onClick={onApply}
-          className="h-10 rounded-lg bg-[#0A4BFF] text-sm font-bold text-white shadow-[0_14px_30px_-20px_rgba(10,75,255,0.8)] hover:bg-blue-700"
+          className="h-10 rounded-lg bg-primary-600 text-sm font-bold text-white shadow-[0_14px_30px_-20px_rgba(37,99,235,0.8)] hover:bg-primary-700"
         >
           Áp dụng
         </button>
@@ -567,7 +567,7 @@ function ProductListInner({
         <section className="min-w-0">
           <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3 xl:flex-row">
-              <label className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 shadow-sm focus-within:border-[#0A4BFF]">
+              <label className="flex h-12 flex-1 items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 shadow-sm focus-within:border-primary-600">
                 <Search size={18} className="text-slate-400" />
                 <input
                   className="w-full bg-transparent text-sm outline-none"
@@ -624,32 +624,32 @@ function ProductListInner({
                   </button>
                 ) : null}
                 {filters.categories.map((value) => (
-                  <button key={value} type="button" onClick={() => removeChip("categories", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button key={value} type="button" onClick={() => removeChip("categories", value)} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {categoryOptions.find((item) => item.value === value)?.label || value} <X size={14} />
                   </button>
                 ))}
                 {filters.brands.map((value) => (
-                  <button key={value} type="button" onClick={() => removeChip("brands", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button key={value} type="button" onClick={() => removeChip("brands", value)} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {value} <X size={14} />
                   </button>
                 ))}
                 {filters.duplex.map((value) => (
-                  <button key={value} type="button" onClick={() => removeChip("duplex", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button key={value} type="button" onClick={() => removeChip("duplex", value)} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {value === "yes" ? "Duplex" : "Không duplex"} <X size={14} />
                   </button>
                 ))}
                 {filters.scanSpeeds.map((value) => (
-                  <button key={value} type="button" onClick={() => removeChip("scanSpeeds", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button key={value} type="button" onClick={() => removeChip("scanSpeeds", value)} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {SCAN_SPEED_OPTIONS.find((item) => item.value === value)?.label || value} <X size={14} />
                   </button>
                 ))}
                 {filters.adf.map((value) => (
-                  <button key={value} type="button" onClick={() => removeChip("adf", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button key={value} type="button" onClick={() => removeChip("adf", value)} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {ADF_OPTIONS.find((item) => item.value === value)?.label || value} <X size={14} />
                   </button>
                 ))}
                 {[...filters.connectivity, ...filters.paperSizes].map((value) => (
-                  <button key={value} type="button" onClick={() => removeChip(filters.connectivity.includes(value) ? "connectivity" : "paperSizes", value)} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  <button key={value} type="button" onClick={() => removeChip(filters.connectivity.includes(value) ? "connectivity" : "paperSizes", value)} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {value.toUpperCase()} <X size={14} />
                   </button>
                 ))}
@@ -658,11 +658,11 @@ function ProductListInner({
                     const nextFilters = { ...filters, priceMin: "", priceMax: "" };
                     setFilters(nextFilters);
                     pushCatalogState({ filters: nextFilters });
-                  }} className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]">
+                  }} className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600">
                     {filters.priceMin ? `Từ ${formatVND(Number(filters.priceMin))}` : ""} {filters.priceMax ? `Đến ${formatVND(Number(filters.priceMax))}` : ""} <X size={14} />
                   </button>
                 ) : null}
-                <button type="button" onClick={clearFilters} className="ml-auto text-sm font-bold text-slate-500 hover:text-[#0A4BFF]">
+                <button type="button" onClick={clearFilters} className="ml-auto text-sm font-bold text-slate-500 hover:text-primary-600">
                   Xóa tất cả
                 </button>
               </div>
@@ -720,7 +720,7 @@ function ProductListInner({
       ) : null}
 
       {compareProducts.length ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-blue-100 bg-white/95 px-4 py-3 shadow-[0_-18px_40px_-28px_rgba(15,23,42,0.45)] backdrop-blur">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-primary-100 bg-white/95 px-4 py-3 shadow-[0_-18px_40px_-28px_rgba(15,23,42,0.45)] backdrop-blur">
           <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Đã chọn so sánh</p>
@@ -730,7 +730,7 @@ function ProductListInner({
                     key={productKey(product)}
                     type="button"
                     onClick={() => toggleCompare(product)}
-                    className="inline-flex max-w-[220px] items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-bold text-[#0A4BFF]"
+                    className="inline-flex max-w-[220px] items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 text-sm font-bold text-primary-600"
                   >
                     <span className="truncate">{product.title}</span>
                     <X size={14} />
@@ -740,7 +740,7 @@ function ProductListInner({
             </div>
             <Link
               href={`/compare?products=${encodeURIComponent(compareProducts.map(productKey).join(","))}`}
-              className="inline-flex h-11 items-center justify-center rounded-lg bg-[#0A4BFF] px-5 text-sm font-extrabold text-white hover:bg-blue-700"
+              className="inline-flex h-11 items-center justify-center rounded-lg bg-primary-600 px-5 text-sm font-extrabold text-white hover:bg-primary-700"
             >
               So sánh ngay
             </Link>

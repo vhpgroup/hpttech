@@ -148,8 +148,8 @@ export default async function EnterpriseSupportPage() {
           <HelpSidebar activePath="/ho-tro-khach-hang-du-an-doanh-nghiep" />
 
           <article className="min-w-0 overflow-hidden border border-slate-200 bg-white text-[16px] leading-7 text-slate-800">
-            <section className="relative flex min-h-[520px] flex-col justify-start overflow-hidden border-b border-blue-100 bg-gradient-to-br from-white via-blue-50 to-slate-100 px-6 pb-10 pt-3 sm:px-8 lg:min-h-[610px] lg:px-10 lg:pt-3">
-              <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[36px] border-blue-100/60" />
+            <section className="relative flex min-h-[520px] flex-col justify-start overflow-hidden border-b border-primary-100 bg-gradient-to-br from-white via-primary-50 to-slate-100 px-6 pb-10 pt-3 sm:px-8 lg:min-h-[610px] lg:px-10 lg:pt-3">
+              <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full border-[36px] border-primary-100/60" />
               <div className="relative">
                 <div className="flex items-center gap-5">
                   <Image
@@ -162,10 +162,10 @@ export default async function EnterpriseSupportPage() {
                   />
                   <div className="h-16 w-px bg-slate-300" />
                   <div>
-                    <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-700">
+                    <p className="text-sm font-bold uppercase tracking-[0.18em] text-primary-700">
                       HPT Technology
                     </p>
-                    <h1 className="mt-1 max-w-2xl text-2xl font-black uppercase leading-tight text-[#102b62] sm:text-3xl">
+                    <h1 className="mt-1 max-w-2xl text-2xl font-black uppercase leading-tight text-primary-900 sm:text-3xl">
                       Phòng dự án và khách hàng doanh nghiệp
                     </h1>
                   </div>
@@ -177,14 +177,14 @@ export default async function EnterpriseSupportPage() {
                 </p>
               </div>
 
-              <div className="relative mt-6 border border-blue-100 bg-white/70 p-4">
+              <div className="relative mt-6 border border-primary-100 bg-white/70 p-4">
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   {heroFallbackIcons.map((Icon, index) => {
                       const image = supportPage.heroImages[index] || defaultHeroImages[index];
                       return (
                     <div
                       key={index}
-                      className="relative grid aspect-[4/3] place-items-center overflow-hidden border border-blue-200 bg-blue-50 text-blue-700"
+                      className="relative grid aspect-[4/3] place-items-center overflow-hidden border border-primary-200 bg-primary-50 text-primary-700"
                     >
                       {image.url ? (
                         <Image
@@ -203,14 +203,14 @@ export default async function EnterpriseSupportPage() {
                 </div>
               </div>
 
-              <div className="relative mt-6 grid gap-px overflow-hidden border border-blue-100 bg-blue-100 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="relative mt-6 grid gap-px overflow-hidden border border-primary-100 bg-primary-100 sm:grid-cols-2 xl:grid-cols-4">
                 {benefits.map(({ icon: Icon, title: itemTitle, description }) => (
                   <div key={itemTitle} className="flex items-center gap-3 bg-white px-4 py-4">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-blue-200 text-blue-700">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-primary-200 text-primary-700">
                       <Icon size={20} />
                     </span>
                     <div>
-                      <h2 className="text-sm font-black uppercase leading-5 text-[#102b62]">
+                      <h2 className="text-sm font-black uppercase leading-5 text-primary-900">
                         {itemTitle}
                       </h2>
                       <p className="text-xs leading-5 text-slate-500">{description}</p>
@@ -225,7 +225,7 @@ export default async function EnterpriseSupportPage() {
                 <section className="overflow-hidden border border-slate-200 bg-white">
                   <SectionBar title="Nhận báo giá ngay" />
                   <div className="space-y-3 p-5">
-                    <p className="border-b border-slate-100 pb-4 text-sm font-black uppercase leading-6 text-[#102b62]">
+                    <p className="border-b border-slate-100 pb-4 text-sm font-black uppercase leading-6 text-primary-900">
                       {companyName}
                     </p>
                     <ContactRow
@@ -248,8 +248,8 @@ export default async function EnterpriseSupportPage() {
                       external
                     />
                   </div>
-                  <div className="border-t border-blue-100 bg-blue-50 p-5">
-                    <p className="text-sm font-bold text-[#102b62]">Thông tin nên chuẩn bị</p>
+                  <div className="border-t border-primary-100 bg-primary-50 p-5">
+                    <p className="text-sm font-bold text-primary-900">Thông tin nên chuẩn bị</p>
                     <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
                       {[
                         "Mô tả nhu cầu hoặc danh sách thiết bị.",
@@ -257,7 +257,7 @@ export default async function EnterpriseSupportPage() {
                         "Địa điểm, thời gian triển khai.",
                       ].map((item) => (
                         <li key={item} className="flex gap-2">
-                          <CheckCircle2 className="mt-1 shrink-0 text-blue-600" size={16} />
+                          <CheckCircle2 className="mt-1 shrink-0 text-primary-600" size={16} />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -273,8 +273,8 @@ export default async function EnterpriseSupportPage() {
                         key={itemTitle}
                         className="grid gap-3 py-4 sm:grid-cols-[190px_minmax(0,1fr)] sm:items-center"
                       >
-                        <div className="flex items-center gap-3 font-black uppercase leading-5 text-[#102b62]">
-                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-blue-50 text-blue-700">
+                        <div className="flex items-center gap-3 font-black uppercase leading-5 text-primary-900">
+                          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-50 text-primary-700">
                             <Icon size={21} />
                           </span>
                           <h3 className="text-sm">{itemTitle}</h3>
@@ -297,17 +297,17 @@ export default async function EnterpriseSupportPage() {
                       href={`/ho-tro-khach-hang-du-an-doanh-nghiep/${service.slug}`}
                       className={`p-5 ${
                         index % 4 !== 3 ? "xl:border-r xl:border-slate-200" : ""
-                      } ${index < 4 ? "border-b border-slate-200" : ""} group block transition hover:bg-blue-50`}
+                      } ${index < 4 ? "border-b border-slate-200" : ""} group block transition hover:bg-primary-50`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#102b62] text-white">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-900 text-white">
                           <Icon size={20} />
                         </span>
-                        <h3 className="text-sm font-black uppercase leading-5 text-[#102b62]">
+                        <h3 className="text-sm font-black uppercase leading-5 text-primary-900">
                           {service.title}
                         </h3>
                       </div>
-                      <div className="relative mt-4 grid h-24 place-items-center overflow-hidden bg-gradient-to-br from-blue-50 to-slate-100 text-blue-700">
+                      <div className="relative mt-4 grid h-24 place-items-center overflow-hidden bg-gradient-to-br from-primary-50 to-slate-100 text-primary-700">
                         {service.image?.url ? (
                           <Image
                             src={service.image.url}
@@ -321,7 +321,7 @@ export default async function EnterpriseSupportPage() {
                         )}
                       </div>
                       <p className="mt-3 text-sm leading-6 text-slate-600">{service.summary}</p>
-                      <span className="mt-3 inline-block text-sm font-bold text-blue-700">
+                      <span className="mt-3 inline-block text-sm font-bold text-primary-700">
                         Xem nội dung
                       </span>
                     </Link>
@@ -331,13 +331,13 @@ export default async function EnterpriseSupportPage() {
               </section>
 
               <section className="mt-7 border border-slate-200 bg-slate-50 p-5 sm:p-6">
-                <h2 className="text-center text-lg font-black uppercase text-[#102b62]">
+                <h2 className="text-center text-lg font-black uppercase text-primary-900">
                   Quy trình làm việc
                 </h2>
                 <ol className="mt-5 grid gap-3 md:grid-cols-5">
                   {processSteps.map((step, index) => (
                     <li key={step} className="relative bg-white p-4 text-center shadow-sm">
-                      <span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-blue-700 text-sm font-black text-white">
+                      <span className="mx-auto grid h-9 w-9 place-items-center rounded-full bg-primary-700 text-sm font-black text-white">
                         {index + 1}
                       </span>
                       <p className="mt-3 text-sm font-bold leading-5 text-slate-800">{step}</p>
@@ -347,7 +347,7 @@ export default async function EnterpriseSupportPage() {
               </section>
             </div>
 
-            <section className="grid gap-px bg-blue-300 sm:grid-cols-3">
+            <section className="grid gap-px bg-primary-300 sm:grid-cols-3">
               {[
                 {
                   icon: Building2,
@@ -364,7 +364,7 @@ export default async function EnterpriseSupportPage() {
               ].map(({ icon: Icon, title: itemTitle }) => (
                 <div
                   key={itemTitle}
-                  className="flex items-center justify-center gap-3 bg-[#102b62] px-5 py-5 text-white"
+                  className="flex items-center justify-center gap-3 bg-primary-900 px-5 py-5 text-white"
                 >
                   <Icon size={25} />
                   <p className="text-sm font-black uppercase leading-5">{itemTitle}</p>
@@ -396,7 +396,7 @@ function SectionBar({ title, dark = false }: { title: string; dark?: boolean }) 
   return (
     <h2
       className={`px-5 py-3 text-center text-base font-black uppercase tracking-wide text-white ${
-        dark ? "bg-[#102b62]" : "bg-[#536fe8]"
+        dark ? "bg-primary-900" : "bg-primary-500"
       }`}
     >
       {title}
@@ -422,9 +422,9 @@ function ContactRow({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="flex items-start gap-3 border-b border-slate-100 pb-3 transition last:border-0 last:pb-0 hover:text-blue-700"
+      className="flex items-start gap-3 border-b border-slate-100 pb-3 transition last:border-0 last:pb-0 hover:text-primary-700"
     >
-      <Icon className="mt-1 shrink-0 text-blue-700" size={19} />
+      <Icon className="mt-1 shrink-0 text-primary-700" size={19} />
       <span className="min-w-0">
         <span className="block text-xs font-bold uppercase tracking-wide text-slate-500">{label}</span>
         <span className="mt-1 block break-words text-sm font-bold leading-6">{value}</span>

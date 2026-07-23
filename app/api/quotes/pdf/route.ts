@@ -155,15 +155,15 @@ function quoteHTML(data: QuoteRequest, origin: string) {
           grid-template-columns: 165px 1fr;
           gap: 26px;
           padding-bottom: 18px;
-          border-bottom: 4px solid #0A4BFF;
+          border-bottom: 4px solid #2563eb;
         }
         .logo-image { width: 155px; height: auto; object-fit: contain; display: block; }
         .company { font-size: 15px; line-height: 1.25; font-weight: 900; text-transform: uppercase; margin: 0 0 10px; white-space: nowrap; letter-spacing: -0.1px; }
         .muted { color: #475569; }
         .company-lines { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 8px; }
         .title-row { display: grid; grid-template-columns: 1fr 230px; gap: 20px; padding: 30px 0 22px; align-items: start; }
-        h1 { margin: 0; text-align: center; color: #0A4BFF; font-size: 42px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
-        .title-rule { width: 190px; height: 2px; background: #94b7ff; margin: 10px auto 0; }
+        h1 { margin: 0; text-align: center; color: #2563eb; font-size: 42px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .title-rule { width: 190px; height: 2px; background: #93c5fd; margin: 10px auto 0; }
         .quote-meta { font-size: 13px; line-height: 1.9; }
         .customer {
           display: grid;
@@ -176,7 +176,7 @@ function quoteHTML(data: QuoteRequest, origin: string) {
         }
         .customer p { margin: 0 0 12px; }
         .quote-table { width: 100%; border-collapse: collapse; table-layout: fixed; border: 1px solid #b8cdfd; }
-        .quote-table th { background: #0A4BFF; color: #fff; font-size: 11px; font-weight: 900; padding: 10px 6px; text-align: center; text-transform: uppercase; border: 1px solid #0A4BFF; }
+        .quote-table th { background: #2563eb; color: #fff; font-size: 11px; font-weight: 900; padding: 10px 6px; text-align: center; text-transform: uppercase; border: 1px solid #2563eb; }
         .quote-table td { border: 1px solid #b8cdfd; padding: 10px 8px; vertical-align: middle; }
         .stt-col { width: 42px; text-align: center; }
         .image-col { width: 108px; text-align: center; }
@@ -186,13 +186,13 @@ function quoteHTML(data: QuoteRequest, origin: string) {
         .image-box { height: 92px; display: flex; align-items: center; justify-content: center; background: #f8fafc; }
         .image-box img { max-width: 88px; max-height: 82px; object-fit: contain; }
         .product-title { font-size: 14px; line-height: 1.35; font-weight: 900; margin: 0 0 5px; }
-        .detail { color: #0A4BFF; font-weight: 700; margin: 0 0 7px; line-height: 1.35; }
+        .detail { color: #2563eb; font-weight: 700; margin: 0 0 7px; line-height: 1.35; }
         ul { margin: 0; padding-left: 18px; }
         li { margin: 2px 0; line-height: 1.35; }
         .red { color: #ff0000; font-weight: 900; }
         .summary-row td { background: #f1f5f9; font-weight: 800; padding: 8px; }
         .summary-label { text-align: right; }
-        .grand-total td { color: #0A4BFF; font-size: 16px; font-weight: 900; text-transform: uppercase; }
+        .grand-total td { color: #2563eb; font-size: 16px; font-weight: 900; text-transform: uppercase; }
         .footer-box {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
@@ -202,8 +202,8 @@ function quoteHTML(data: QuoteRequest, origin: string) {
           padding: 18px;
           margin-top: 22px;
         }
-        .footer-box h3 { color: #0A4BFF; font-size: 15px; margin: 0 0 10px; text-transform: uppercase; }
-        .thanks { margin-top: 24px; text-align: center; color: #0A4BFF; font-weight: 900; font-size: 18px; font-style: italic; }
+        .footer-box h3 { color: #2563eb; font-size: 15px; margin: 0 0 10px; text-transform: uppercase; }
+        .thanks { margin-top: 24px; text-align: center; color: #2563eb; font-weight: 900; font-size: 18px; font-style: italic; }
         .product-row { break-inside: avoid; page-break-inside: avoid; }
         .footer-box { break-inside: avoid; page-break-inside: avoid; }
       </style>

@@ -57,7 +57,7 @@ function projectCategorySlug(project: PublicProject) {
 
 function RelatedProjectCard({ project }: { project: PublicProject }) {
   return (
-    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
+    <article className="group overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-primary-200 hover:shadow-md">
       <Link href={`/du-an/${project.slug}`} className="relative block aspect-[16/9] overflow-hidden bg-slate-100">
         {project.image ? (
           <Image
@@ -68,19 +68,19 @@ function RelatedProjectCard({ project }: { project: PublicProject }) {
             className="object-cover transition duration-300 group-hover:scale-[1.04]"
           />
         ) : (
-          <span className="grid h-full place-items-center bg-gradient-to-br from-blue-50 to-slate-200 text-blue-300">
+          <span className="grid h-full place-items-center bg-gradient-to-br from-primary-50 to-slate-200 text-primary-300">
             <BriefcaseBusiness size={36} />
           </span>
         )}
       </Link>
       <div className="p-4">
         {projectCategoryLabel(project) ? (
-          <p className="text-[10px] font-extrabold uppercase tracking-wide text-[#0A4BFF]">
+          <p className="text-[10px] font-extrabold uppercase tracking-wide text-primary-600">
             {projectCategoryLabel(project)}
           </p>
         ) : null}
         <h3 className="mt-2 line-clamp-2 text-base font-bold leading-6 text-slate-900">
-          <Link href={`/du-an/${project.slug}`} className="hover:text-[#0A4BFF]">
+          <Link href={`/du-an/${project.slug}`} className="hover:text-primary-600">
             {project.title}
           </Link>
         </h3>
@@ -127,9 +127,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   return (
     <main className="subpage-main bg-slate-50/70 pb-20">
       <nav className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
-        <Link href="/" className="transition hover:text-[#0A4BFF]">Trang chủ</Link>
+        <Link href="/" className="transition hover:text-primary-600">Trang chủ</Link>
         <ChevronRight size={13} className="text-slate-300" />
-        <Link href="/du-an" className="transition hover:text-[#0A4BFF]">Dự án</Link>
+        <Link href="/du-an" className="transition hover:text-primary-600">Dự án</Link>
         <ChevronRight size={13} className="text-slate-300" />
         <span className="line-clamp-1">{project.title}</span>
       </nav>
@@ -152,7 +152,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <section className="grid gap-3 border-b border-slate-100 bg-slate-50/70 p-6 sm:grid-cols-3 sm:p-8">
             {project.client ? (
               <div className="flex items-start gap-3">
-                <Building2 size={19} className="mt-0.5 text-[#0A4BFF]" />
+                <Building2 size={19} className="mt-0.5 text-primary-600" />
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Khách hàng</p>
                   <p className="mt-1 text-sm font-bold text-slate-800">{project.client}</p>
@@ -161,7 +161,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             ) : null}
             {projectCategory ? (
               <div className="flex items-start gap-3">
-                <BriefcaseBusiness size={19} className="mt-0.5 text-[#0A4BFF]" />
+                <BriefcaseBusiness size={19} className="mt-0.5 text-primary-600" />
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Danh mục dự án</p>
                   <p className="mt-1 text-sm font-bold text-slate-800">{projectCategory}</p>
@@ -170,7 +170,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             ) : null}
             {completedAt ? (
               <div className="flex items-start gap-3">
-                <CalendarDays size={19} className="mt-0.5 text-[#0A4BFF]" />
+                <CalendarDays size={19} className="mt-0.5 text-primary-600" />
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Hoàn thành</p>
                   <p className="mt-1 text-sm font-bold text-slate-800">{completedAt}</p>
@@ -182,7 +182,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
         <div className="p-6 sm:p-8">
           {project.content ? (
-            <PayloadRichText data={project.content} className="[&_h1]:text-[#102b62] [&_h2]:text-[#102b62] [&_h3]:text-[#102b62]" />
+            <PayloadRichText data={project.content} className="[&_h1]:text-primary-900 [&_h2]:text-primary-900 [&_h3]:text-primary-900" />
           ) : project.summary ? (
             <div className="max-w-4xl text-base leading-8 text-slate-700">
               <p>{project.summary}</p>
@@ -191,7 +191,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
           {project.gallery && project.gallery.length > 1 ? (
             <section className="mt-10">
-              <h2 className="text-xl font-black uppercase text-[#102b62]">Hình ảnh dự án</h2>
+              <h2 className="text-xl font-black uppercase text-primary-900">Hình ảnh dự án</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {project.gallery.map((image, index) => image.url ? (
                   <div key={`${image.url}-${index}`} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100">
@@ -210,14 +210,14 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
           {project.products?.length ? (
             <section className="mt-10">
-              <h2 className="text-xl font-black uppercase text-[#102b62]">Sản phẩm đã sử dụng</h2>
+              <h2 className="text-xl font-black uppercase text-primary-900">Sản phẩm đã sử dụng</h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {project.products.map((product) => (
                   <ProductQuickInfoTrigger
                     key={product.slug}
                     product={{ ...product, href: `/san-pham/${product.slug}` }}
                   >
-                    <Link href={`/san-pham/${product.slug}`} className="group block h-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
+                    <Link href={`/san-pham/${product.slug}`} className="group block h-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:border-primary-200 hover:shadow-md">
                       <div className="relative aspect-square bg-slate-50">
                         {product.image ? (
                           <Image
@@ -229,7 +229,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                           />
                         ) : null}
                       </div>
-                      <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-[#0A4BFF]">{product.title}</h3>
+                      <h3 className="p-4 text-sm font-bold leading-6 text-slate-900 group-hover:text-primary-600">{product.title}</h3>
                     </Link>
                   </ProductQuickInfoTrigger>
                 ))}
@@ -242,8 +242,8 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       {relatedProjects.length ? (
         <section className="mt-10">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-black uppercase text-[#102b62]">Dự án liên quan</h2>
-            <Link href={`/du-an?danh-muc=${projectCategorySlug(project)}`} className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A4BFF]">
+            <h2 className="text-xl font-black uppercase text-primary-900">Dự án liên quan</h2>
+            <Link href={`/du-an?danh-muc=${projectCategorySlug(project)}`} className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-600">
               Xem cùng danh mục <ArrowRight size={15} />
             </Link>
           </div>
@@ -253,16 +253,16 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         </section>
       ) : null}
 
-      <section className="mt-10 overflow-hidden rounded-2xl bg-[#102b62] px-6 py-8 text-white sm:px-10 sm:py-10">
+      <section className="mt-10 overflow-hidden rounded-2xl bg-primary-900 px-6 py-8 text-white sm:px-10 sm:py-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-blue-300">Tư vấn triển khai</p>
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary-300">Tư vấn triển khai</p>
             <h2 className="mt-2 text-2xl font-black">Bạn cần triển khai giải pháp tương tự?</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
               Trao đổi nhu cầu với HPT Tech để nhận phương án phù hợp với quy mô và hạ tầng hiện tại.
             </p>
           </div>
-          <Link href="/lien-he" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-[#102b62] transition hover:bg-blue-50">
+          <Link href="/lien-he" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-bold text-primary-900 transition hover:bg-primary-50">
             Liên hệ tư vấn
             <ArrowRight size={16} />
           </Link>

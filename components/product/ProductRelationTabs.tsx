@@ -64,8 +64,8 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
                 aria-controls={`product-relation-panel-${section.id}`}
                 onClick={() => setActiveId(section.id)}
                 className={cn(
-                  "whitespace-nowrap rounded-md px-3 py-2 text-sm font-extrabold uppercase tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0057FF] focus-visible:ring-offset-2 sm:px-4 sm:text-base lg:text-lg",
-                  isActive ? "bg-blue-50 text-[#0057FF]" : "text-slate-400 hover:bg-slate-50 hover:text-slate-700",
+                  "whitespace-nowrap rounded-md px-3 py-2 text-sm font-extrabold uppercase tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 sm:px-4 sm:text-base lg:text-lg",
+                  isActive ? "bg-primary-50 text-primary-600" : "text-slate-400 hover:bg-slate-50 hover:text-slate-700",
                 )}
               >
                 {section.label}
@@ -76,7 +76,7 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
 
         <Link
           href={allProductsHref}
-          className="shrink-0 text-sm font-semibold text-slate-500 transition-colors hover:text-[#0057FF]"
+          className="shrink-0 text-sm font-semibold text-slate-500 transition-colors hover:text-primary-600"
         >
           Xem toàn bộ sản phẩm
         </Link>
@@ -99,7 +99,7 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
                   type="button"
                   onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
                   disabled={currentPage === 0}
-                  className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:text-[#0057FF] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-primary-200 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeft size={16} />
                   Trước
@@ -111,7 +111,7 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
                   type="button"
                   onClick={() => setCurrentPage((page) => Math.min(totalPages - 1, page + 1))}
                   disabled={currentPage >= totalPages - 1}
-                  className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:text-[#0057FF] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-primary-200 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Sau
                   <ChevronRight size={16} />

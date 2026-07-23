@@ -122,7 +122,7 @@ function ProjectImage({
 }) {
   if (!project.image) {
     return (
-      <div className={cn("grid h-full w-full place-items-center bg-gradient-to-br from-blue-50 to-slate-200 text-blue-300", className)}>
+      <div className={cn("grid h-full w-full place-items-center bg-gradient-to-br from-primary-50 to-slate-200 text-primary-300", className)}>
         <BriefcaseBusiness size={44} strokeWidth={1.5} />
       </div>
     );
@@ -147,13 +147,13 @@ function ProjectMeta({ project, className }: { project: PublicProject; className
     <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600", className)}>
       {project.client ? (
         <span className="inline-flex items-center gap-1.5">
-          <Building2 size={14} className="text-[#0A4BFF]" />
+          <Building2 size={14} className="text-primary-600" />
           {project.client}
         </span>
       ) : null}
       {year ? (
         <span className="inline-flex items-center gap-1.5">
-          <CalendarDays size={14} className="text-[#0A4BFF]" />
+          <CalendarDays size={14} className="text-primary-600" />
           {year}
         </span>
       ) : null}
@@ -164,11 +164,11 @@ function ProjectMeta({ project, className }: { project: PublicProject; className
 function StatCard({ iconSrc, value, label }: { iconSrc: string; value: string; label: string }) {
   return (
     <div className="flex items-center gap-4 border-slate-200 px-6 py-5 md:border-r last:md:border-r-0">
-      <div className="grid size-11 shrink-0 place-items-center rounded-full bg-blue-50">
+      <div className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-50">
         <Image src={iconSrc} alt="" width={24} height={24} className="size-6 object-contain" />
       </div>
       <div>
-        <div className="text-2xl font-black leading-none text-[#0A4BFF]">{value}</div>
+        <div className="text-2xl font-black leading-none text-primary-600">{value}</div>
         <div className="mt-1 text-xs font-semibold leading-5 text-slate-600">{label}</div>
       </div>
     </div>
@@ -179,7 +179,7 @@ function ProjectCard({ project }: { project: PublicProject }) {
   const categoryLabel = projectCategoryLabel(project);
 
   return (
-    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_18px_45px_rgba(10,75,255,0.13)]">
+    <article className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-[0_18px_45px_rgba(37,99,235,0.13)]">
       <Link href={`/du-an/${project.slug}`} className="block">
         <div className="relative aspect-[16/9] overflow-hidden bg-slate-100">
           <ProjectImage
@@ -188,23 +188,23 @@ function ProjectCard({ project }: { project: PublicProject }) {
             className="transition duration-500 group-hover:scale-105"
           />
           {categoryLabel ? (
-            <span className="absolute left-4 top-4 rounded-md bg-[#0A4BFF] px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white shadow-lg">
+            <span className="absolute left-4 top-4 rounded-md bg-primary-600 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white shadow-lg">
               {categoryLabel}
             </span>
           ) : null}
         </div>
       </Link>
       <div className="p-5">
-        <Link href={`/du-an/${project.slug}`} className="line-clamp-2 text-base font-black leading-6 text-slate-950 transition group-hover:text-[#0A4BFF]">
+        <Link href={`/du-an/${project.slug}`} className="line-clamp-2 text-base font-black leading-6 text-slate-950 transition group-hover:text-primary-600">
           {project.title}
         </Link>
         <ProjectMeta project={project} className="mt-4" />
         {project.summary ? (
-          <p className="mt-4 line-clamp-3 border-l-2 border-blue-100 pl-3 text-sm leading-6 text-slate-600">
+          <p className="mt-4 line-clamp-3 border-l-2 border-primary-100 pl-3 text-sm leading-6 text-slate-600">
             {project.summary}
           </p>
         ) : null}
-        <Link href={`/du-an/${project.slug}`} className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#0A4BFF]">
+        <Link href={`/du-an/${project.slug}`} className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-primary-600">
           Xem chi tiết dự án
           <ArrowRight size={16} className="transition group-hover:translate-x-1" />
         </Link>
@@ -313,12 +313,12 @@ export function ProjectsPageClient({
   return (
     <main className="projects-page px-4 pb-14 pt-5 sm:px-6">
       <nav className="mb-5 flex items-center gap-2 text-xs text-slate-500">
-        <Link href="/" className="hover:text-[#0A4BFF]">Trang chủ</Link>
+        <Link href="/" className="hover:text-primary-600">Trang chủ</Link>
         <ChevronRight size={14} />
         <span>Dự án</span>
       </nav>
 
-      <section className="relative overflow-hidden rounded-t-[28px] bg-[#062b5f] text-white shadow-[0_24px_80px_rgba(4,27,61,0.22)]">
+      <section className="relative overflow-hidden rounded-t-[28px] bg-primary-900 text-white shadow-[0_24px_80px_rgba(4,27,61,0.22)]">
         <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
           <Image
             src="/assets/anhcongty/mattruoc.jpg"
@@ -328,18 +328,18 @@ export function ProjectsPageClient({
             sizes="680px"
             className="object-cover object-[50%_28%] opacity-70"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#062b5f] via-[#062b5f]/75 to-[#062b5f]/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/75 to-primary-900/20" />
         </div>
         <div className="relative max-w-3xl px-6 py-12 sm:px-10 lg:py-16">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-300">Dự án tiêu biểu</p>
           <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">
             Dự án tiêu biểu đã triển khai cho khối Nhà nước, Tài chính, Ngân hàng và Doanh nghiệp lớn
           </h1>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-blue-50/90 sm:text-base">
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-primary-50/90 sm:text-base">
             HPT Tech cung cấp thiết bị CNTT, máy scan, giải pháp số hóa tài liệu và hạ tầng công nghệ cho các đơn vị yêu cầu cao về tiến độ, bảo mật và năng lực triển khai.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <a href="#project-list" className="inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-[#062b5f] transition hover:bg-yellow-300">
+            <a href="#project-list" className="inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-primary-900 transition hover:bg-yellow-300">
               Xem dự án tiêu biểu
               <ArrowRight size={16} />
             </a>
@@ -367,7 +367,7 @@ export function ProjectsPageClient({
                 setCategory("");
                 setPage(1);
               }}
-              className={cn("inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition", !category ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
+              className={cn("inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition", !category ? "border-primary-600 bg-primary-600 text-white" : "border-slate-200 text-slate-600 hover:border-primary-300 hover:text-primary-600")}
             >
               <span className="grid size-5 place-items-center overflow-hidden rounded-full bg-white/90">
                 <Image src="/assets/logo/grid.webp" alt="" width={18} height={18} className="size-[18px] object-contain" />
@@ -385,7 +385,7 @@ export function ProjectsPageClient({
                     setCategory(slug);
                     setPage(1);
                   }}
-                  className={cn("inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition", category === slug ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 text-slate-600 hover:border-blue-300 hover:text-[#0A4BFF]")}
+                  className={cn("inline-flex h-11 shrink-0 items-center gap-2 rounded-lg border px-4 text-sm font-bold transition", category === slug ? "border-primary-600 bg-primary-600 text-white" : "border-slate-200 text-slate-600 hover:border-primary-300 hover:text-primary-600")}
                 >
                   {logo ? (
                     <span className="grid size-5 place-items-center overflow-hidden rounded-full bg-white/90">
@@ -402,7 +402,7 @@ export function ProjectsPageClient({
               <button
                 type="button"
                 onClick={() => setShowAllCategories((value) => !value)}
-                className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-4 text-sm font-bold text-[#0A4BFF] hover:border-blue-300"
+                className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 px-4 text-sm font-bold text-primary-600 hover:border-primary-300"
               >
                 {showAllCategories ? "Thu gọn" : "Xem thêm"}
                 <ChevronDown size={15} className={cn("transition-transform", showAllCategories && "rotate-180")} />
@@ -416,7 +416,7 @@ export function ProjectsPageClient({
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder="Tìm dự án, khách hàng..."
-              className="h-11 w-full rounded-xl border border-slate-200 pl-11 pr-11 text-sm outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100"
+              className="h-11 w-full rounded-xl border border-slate-200 pl-11 pr-11 text-sm outline-none transition focus:border-primary-600 focus:ring-4 focus:ring-primary-100"
             />
             {input ? (
               <button
@@ -437,7 +437,7 @@ export function ProjectsPageClient({
                 setSort(event.target.value as SortValue);
                 setPage(1);
               }}
-              className="h-11 w-full min-w-36 appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100 xl:w-auto"
+              className="h-11 w-full min-w-36 appearance-none rounded-xl border border-slate-200 bg-white px-4 pr-10 text-sm font-semibold text-slate-700 outline-none transition focus:border-primary-600 focus:ring-4 focus:ring-primary-100 xl:w-auto"
             >
               <option value="newest">Mới nhất</option>
               <option value="oldest">Cũ nhất</option>
@@ -459,7 +459,7 @@ export function ProjectsPageClient({
             {projects.length ? "Hãy thử từ khóa hoặc danh mục khác." : "Các dự án mới sẽ được hiển thị ngay khi dữ liệu được cập nhật."}
           </p>
           {projects.length ? (
-            <button type="button" onClick={clearFilters} className="mt-5 rounded-lg bg-[#0A4BFF] px-5 py-2.5 text-sm font-bold text-white">
+            <button type="button" onClick={clearFilters} className="mt-5 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-bold text-white">
               Xóa bộ lọc
             </button>
           ) : null}
@@ -476,7 +476,7 @@ export function ProjectsPageClient({
             .map((value, index, values) => (
               <span key={value} className="contents">
                 {index > 0 && value - values[index - 1] > 1 ? <span className="px-1 text-slate-400">...</span> : null}
-                <button type="button" onClick={() => setPage(value)} className={cn("size-9 rounded-lg border text-sm font-bold", safePage === value ? "border-[#0A4BFF] bg-[#0A4BFF] text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-300")}>
+                <button type="button" onClick={() => setPage(value)} className={cn("size-9 rounded-lg border text-sm font-bold", safePage === value ? "border-primary-600 bg-primary-600 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-primary-300")}>
                   {value}
                 </button>
               </span>
@@ -487,7 +487,7 @@ export function ProjectsPageClient({
         </nav>
       ) : null}
 
-      <section className="mt-10 overflow-hidden rounded-[28px] bg-[#062b5f] text-white shadow-[0_24px_70px_rgba(4,27,61,0.18)]">
+      <section className="mt-10 overflow-hidden rounded-[28px] bg-primary-900 text-white shadow-[0_24px_70px_rgba(4,27,61,0.18)]">
         <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_360px] lg:p-10">
           <div>
             <p className="text-sm font-black">Cam kết từ HPT Tech</p>
@@ -500,17 +500,17 @@ export function ProjectsPageClient({
               ].map(({ label, icon: Icon }) => (
                 <div key={label} className="border-white/10 sm:border-r sm:pr-5 last:sm:border-r-0">
                   <Icon className="text-yellow-300" size={26} strokeWidth={1.8} />
-                  <p className="mt-3 text-xs font-semibold leading-6 text-blue-50/90">{label}</p>
+                  <p className="mt-3 text-xs font-semibold leading-6 text-primary-50/90">{label}</p>
                 </div>
               ))}
             </div>
           </div>
           <div className="rounded-2xl border border-white/15 bg-white/5 p-6">
             <h2 className="text-xl font-black leading-7">Bạn cần tư vấn giải pháp cho dự án của mình?</h2>
-            <p className="mt-3 text-sm leading-6 text-blue-50/80">
+            <p className="mt-3 text-sm leading-6 text-primary-50/80">
               Đội ngũ kỹ thuật của HPT Tech phối hợp khảo sát, tư vấn và cung cấp hồ sơ năng lực theo yêu cầu.
             </p>
-            <Link href="/lien-he" className="mt-5 inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-[#062b5f] transition hover:bg-yellow-300">
+            <Link href="/lien-he" className="mt-5 inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-primary-900 transition hover:bg-yellow-300">
               Liên hệ ngay
               <ArrowRight size={16} />
             </Link>
