@@ -128,18 +128,9 @@ async function renderCategoryLanding(slug: string, searchParams: PageProps["sear
         ]}
       />
 
-      <header className="mt-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-[28px]">{leaf.name}</h1>
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-sm font-bold text-[#0A4BFF]">
-            {result.totalProducts.toLocaleString("vi-VN")} sản phẩm
-          </span>
-        </div>
-        <p className="mt-1.5 max-w-3xl text-sm leading-6 text-slate-500">
-          {leaf.name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc, tư vấn
-          kỹ thuật cho doanh nghiệp.
-        </p>
-      </header>
+      {/* Khối tiêu đề hiển thị (tên + badge + mô tả) đã BỎ theo yêu cầu 23/07 —
+          giữ H1 ẩn cho SEO; số SP vẫn hiện ở thanh phân trang cuối trang. */}
+      <h1 className="sr-only">{leaf.name} chính hãng, giá tốt | HPT Tech</h1>
 
       {/* CategoryLandingClient dùng useSearchParams → PHẢI bọc Suspense. */}
       <Suspense fallback={null}>
