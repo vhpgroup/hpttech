@@ -9,7 +9,7 @@ type ConsultationBoxProps = {
 
 export default function ConsultationBox({ phone, email, zaloHref }: ConsultationBoxProps) {
   return (
-    <section className="rounded-lg border border-blue-100 bg-blue-50/70 p-4 shadow-sm">
+    <section className="rounded-lg border border-primary-100 bg-primary-50/70 p-4 shadow-sm">
       <h2 className="text-base font-bold text-slate-950">Cần tư vấn thêm?</h2>
       <div className="mt-4 flex items-center gap-3">
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white">
@@ -24,21 +24,21 @@ export default function ConsultationBox({ phone, email, zaloHref }: Consultation
           href={zaloHref}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-700 bg-white text-sm font-bold text-blue-700 transition hover:bg-blue-50"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-primary-700 bg-white text-sm font-bold text-primary-700 transition hover:bg-primary-50"
         >
           <MessageCircle size={17} />
           Chat Zalo với chuyên viên
         </a>
         <a
           href={`tel:${phone.replace(/[^\d+]/g, "")}`}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-blue-700 bg-white text-sm font-bold text-blue-700 transition hover:bg-blue-50"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-primary-700 bg-white text-sm font-bold text-primary-700 transition hover:bg-primary-50"
         >
           <PhoneCall size={17} />
           Gọi ngay: {phone}
         </a>
         <a
           href={`mailto:${email}?subject=${encodeURIComponent("Yêu cầu tư vấn AI Search HPT Tech")}`}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-blue-700 text-sm font-bold text-white transition hover:bg-blue-800"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary-700 text-sm font-bold text-white transition hover:bg-primary-800"
         >
           <Mail size={17} />
           Gửi yêu cầu tư vấn

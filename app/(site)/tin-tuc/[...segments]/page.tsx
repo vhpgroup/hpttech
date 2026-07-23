@@ -176,7 +176,7 @@ function PostSidebarList({
               <h3 className="line-clamp-3 text-sm font-bold leading-6 text-slate-900">
                 <Link
                   href={item.href || `/tin-tuc/${item.fullPath || item.slug}`}
-                  className="transition hover:text-blue-700"
+                  className="transition hover:text-primary-700"
                 >
                   {item.title}
                 </Link>
@@ -235,7 +235,7 @@ function ProductSidebarList({
               <h3 className="line-clamp-3 text-sm font-bold leading-6 text-slate-900">
                 <Link
                   href={product.href || `/san-pham/${product.slug}`}
-                  className="transition hover:text-blue-700"
+                  className="transition hover:text-primary-700"
                 >
                   {product.title}
                 </Link>
@@ -327,7 +327,7 @@ function NewsDetail({
               {post.tags?.length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
-                    <span key={tag.slug} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                    <span key={tag.slug} className="rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                       {tag.name}
                     </span>
                   ))}
@@ -403,7 +403,7 @@ function NewsCategory({
           {subcategories.map((child) => (
             <Link
               key={child.fullSlug || child.slug}
-              className="rounded-lg border border-slate-200 bg-white p-4 font-semibold text-slate-900 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+              className="rounded-lg border border-slate-200 bg-white p-4 font-semibold text-slate-900 shadow-sm transition hover:border-primary-300 hover:text-primary-700"
               href={`/tin-tuc/${child.fullSlug || child.slug}`}
             >
               {child.name}
@@ -450,7 +450,7 @@ function NewsCategory({
           {posts.hasPrevPage ? (
             <Link
               href={pageHref(posts.page - 1)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary-300 hover:text-primary-700"
             >
               Trang trước
             </Link>
@@ -461,7 +461,7 @@ function NewsCategory({
           {posts.hasNextPage ? (
             <Link
               href={pageHref(posts.page + 1)}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-300 hover:text-blue-700"
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-primary-300 hover:text-primary-700"
             >
               Trang sau
             </Link>

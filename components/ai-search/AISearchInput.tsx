@@ -17,7 +17,7 @@ export default function AISearchInput({
 }: AISearchInputProps) {
   return (
     <div className="mx-auto mt-6 max-w-5xl">
-      <div className="rounded-lg border border-blue-200 bg-white p-2 shadow-[0_18px_50px_-30px_rgba(15,23,42,0.65)]">
+      <div className="rounded-lg border border-primary-200 bg-white p-2 shadow-[0_18px_50px_-30px_rgba(15,23,42,0.65)]">
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <label className="sr-only" htmlFor="ai-search-question">
             Nhập nhu cầu sản phẩm
@@ -34,12 +34,12 @@ export default function AISearchInput({
               }
             }}
             placeholder="Mô tả nhu cầu, môi trường dùng, tốc độ, kết nối, ngân sách..."
-            className="min-h-[72px] flex-1 resize-none rounded-md border border-transparent px-4 py-3 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-200 focus:bg-blue-50/40"
+            className="min-h-[72px] flex-1 resize-none rounded-md border border-transparent px-4 py-3 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400 focus:border-primary-200 focus:bg-primary-50/40"
           />
           <button
             type="button"
             onClick={onSubmit}
-            className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-200"
+            className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-md bg-primary-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
           >
             <SendHorizontal size={18} />
             Tìm bằng AI
@@ -48,7 +48,7 @@ export default function AISearchInput({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm">
-        <span className="inline-flex items-center gap-1.5 font-semibold text-blue-100">
+        <span className="inline-flex items-center gap-1.5 font-semibold text-primary-100">
           <Sparkles size={15} />
           Gợi ý
         </span>

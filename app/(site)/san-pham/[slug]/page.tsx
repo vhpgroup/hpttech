@@ -68,7 +68,7 @@ const consultantItems = [
     phone: "0372 767 995",
     email: "kinhdoanh@hpttech.vn",
     initials: "NT",
-    color: "#2563EB",
+    color: "#2563eb",
     imageSrc: "/assets/consultants/nguyen-duc-thang.jpg",
   },
 ];
@@ -135,7 +135,7 @@ function ProductHTMLContent({ html }: { html?: string }) {
 
   return (
     <div
-      className="product-description-content rounded-[18px] bg-white p-6 text-[15px] leading-7 text-slate-700 shadow-sm ring-1 ring-slate-200/80 [&_a]:font-semibold [&_a]:text-blue-700 [&_figure]:my-6 [&_h2]:mb-3 [&_h2]:mt-7 [&_h2]:border-l-4 [&_h2]:border-blue-600 [&_h2]:pl-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-slate-950 [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-slate-900 [&_img]:mx-auto [&_img]:my-5 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-200 [&_img]:bg-white [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-4 [&_picture]:mx-auto [&_picture]:block [&_table]:my-5 [&_table]:w-full [&_table]:overflow-hidden [&_table]:rounded-xl [&_table]:border [&_table]:border-slate-200 [&_td]:border [&_td]:border-slate-200 [&_td]:p-3 [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-100 [&_th]:p-3 [&_ul]:mb-4 [&_ol]:mb-4"
+      className="product-description-content rounded-[18px] bg-white p-6 text-[15px] leading-7 text-slate-700 shadow-sm ring-1 ring-slate-200/80 [&_a]:font-semibold [&_a]:text-primary-700 [&_figure]:my-6 [&_h2]:mb-3 [&_h2]:mt-7 [&_h2]:border-l-4 [&_h2]:border-primary-600 [&_h2]:pl-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-slate-950 [&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-slate-900 [&_img]:mx-auto [&_img]:my-5 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-xl [&_img]:border [&_img]:border-slate-200 [&_img]:bg-white [&_li]:ml-5 [&_li]:list-disc [&_ol_li]:list-decimal [&_p]:mb-4 [&_picture]:mx-auto [&_picture]:block [&_table]:my-5 [&_table]:w-full [&_table]:overflow-hidden [&_table]:rounded-xl [&_table]:border [&_table]:border-slate-200 [&_td]:border [&_td]:border-slate-200 [&_td]:p-3 [&_th]:border [&_th]:border-slate-200 [&_th]:bg-slate-100 [&_th]:p-3 [&_ul]:mb-4 [&_ol]:mb-4"
       dangerouslySetInnerHTML={{ __html: htmlWithLazyImages }}
     />
   );
@@ -360,7 +360,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 className="rounded-[18px] bg-slate-50 p-5 transition-shadow hover:shadow-[0_18px_40px_-28px_rgba(15,23,42,0.18)]"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#0057FF] shadow-sm">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-primary-600 shadow-sm">
                     <FileText size={20} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -457,7 +457,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
 
           <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-[#4F64E8] px-4 py-3">
+            <div className="bg-primary-500 px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>
             </div>
             <div className="space-y-2 px-4 py-4">
@@ -465,9 +465,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-start gap-2 text-sm leading-5 text-slate-700 transition-colors hover:text-[#0057FF]"
+                  className="flex items-start gap-2 text-sm leading-5 text-slate-700 transition-colors hover:text-primary-600"
                 >
-                  <Check size={16} className="mt-0.5 shrink-0 text-orange-600" strokeWidth={3} />
+                  <Check size={16} className="mt-0.5 shrink-0 text-accent-600" strokeWidth={3} />
                   <span>{item.label}</span>
                 </Link>
               ))}
@@ -475,13 +475,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
 
           <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-[#4F64E8] px-4 py-3">
+            <div className="bg-primary-500 px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Mua hàng nhanh chóng, tiện lợi</h2>
             </div>
             <div className="space-y-2 px-4 py-4">
               {quickBuyItems.map((item) => (
                 <div key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-600" />
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />
                   <span>{item}</span>
                 </div>
               ))}
@@ -489,7 +489,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
 
           <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-[#4F64E8] px-4 py-3">
+            <div className="bg-primary-500 px-4 py-3">
               <h2 className="text-sm font-bold uppercase text-white">Tư vấn khách hàng</h2>
             </div>
             <div className="space-y-4 px-4 py-4">
@@ -510,13 +510,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     <p className="font-semibold text-slate-900">{consultant.name}</p>
                     <p>
                       <strong>Hotline/Zalo:</strong>{" "}
-                      <a href={phoneHref(consultant.phone)} className="hover:text-[#0057FF]">
+                      <a href={phoneHref(consultant.phone)} className="hover:text-primary-600">
                         {consultant.phone}
                       </a>
                     </p>
                     <p>
                       <strong>Email:</strong>{" "}
-                      <a href={`mailto:${consultant.email}`} className="break-all hover:text-[#0057FF]">
+                      <a href={`mailto:${consultant.email}`} className="break-all hover:text-primary-600">
                         {consultant.email}
                       </a>
                     </p>
@@ -539,7 +539,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="mt-8">
         <Link
           href="/san-pham"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-[#0057FF]"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-primary-600"
         >
           <ArrowLeft size={15} />
           Quay lại danh sách sản phẩm

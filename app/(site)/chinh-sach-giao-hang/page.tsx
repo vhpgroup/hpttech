@@ -102,7 +102,7 @@ export default function DeliveryPolicyPage() {
                 ]}
               />
 
-              <div className="mt-5 border border-blue-200 bg-blue-50 p-5">
+              <div className="mt-5 border border-primary-200 bg-primary-50 p-5">
                 <h3 className="font-bold text-slate-900">Ví dụ cách tính</h3>
                 <ul className="mt-3 space-y-2">
                   <li>
@@ -192,7 +192,7 @@ export default function DeliveryPolicyPage() {
                 được xem là lỗi giao nhận. Việc đổi hoặc trả hàng được xử lý theo{" "}
                 <Link
                   href="/chinh-sach-bao-hanh-doi-tra"
-                  className="font-semibold text-blue-700 hover:underline"
+                  className="font-semibold text-primary-700 hover:underline"
                 >
                   Chính sách bảo hành đổi trả
                 </Link>
@@ -237,8 +237,8 @@ function PolicySection({
   return (
     <section className="mt-10">
       <div className="flex items-center gap-3">
-        <Icon className="shrink-0 text-[#315eff]" size={24} />
-        <h2 className="text-xl font-black uppercase leading-8 text-[#315eff]">{title}</h2>
+        <Icon className="shrink-0 text-primary-600" size={24} />
+        <h2 className="text-xl font-black uppercase leading-8 text-primary-600">{title}</h2>
       </div>
       <div className="mt-5 space-y-4">{children}</div>
     </section>
@@ -250,7 +250,7 @@ function BulletList({ items }: { items: string[] }) {
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={item} className="flex gap-2">
-          <CheckCircle2 className="mt-1 shrink-0 text-blue-600" size={18} />
+          <CheckCircle2 className="mt-1 shrink-0 text-primary-600" size={18} />
           <span>{item}</span>
         </li>
       ))}
@@ -271,7 +271,7 @@ function ContactItem({
 }) {
   const content = (
     <>
-      <Icon className="mt-1 shrink-0 text-[#315eff]" size={19} />
+      <Icon className="mt-1 shrink-0 text-primary-600" size={19} />
       <div>
         <span className="font-bold text-slate-900">{label}: </span>
         <span>{value}</span>
@@ -280,7 +280,7 @@ function ContactItem({
   );
 
   return href ? (
-    <a href={href} className="flex gap-3 transition hover:text-blue-700">
+    <a href={href} className="flex gap-3 transition hover:text-primary-700">
       {content}
     </a>
   ) : (

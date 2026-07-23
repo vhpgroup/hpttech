@@ -68,7 +68,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
 
   if (!activeImage) {
     return (
-      <div className="flex aspect-square flex-col items-center justify-center rounded-[20px] bg-gradient-to-br from-slate-50 to-blue-50 text-slate-400 ring-1 ring-slate-100">
+      <div className="flex aspect-square flex-col items-center justify-center rounded-[20px] bg-gradient-to-br from-slate-50 to-primary-50 text-slate-400 ring-1 ring-slate-100">
         <ImageIcon size={64} strokeWidth={1.2} />
         <span className="mt-3 text-sm font-semibold uppercase tracking-[0.16em]">Chưa có ảnh</span>
       </div>
@@ -88,7 +88,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               className={cn(
                 "relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-50 transition-all duration-200 lg:h-[84px] lg:w-[84px]",
                 activeIndex === idx
-                  ? "ring-2 ring-[#0057FF] shadow-[0_12px_28px_-18px_rgba(0,87,255,0.55)]"
+                  ? "ring-2 ring-primary-600 shadow-[0_12px_28px_-18px_rgba(37,99,235,0.55)]"
                   : "ring-1 ring-slate-200/70 hover:ring-slate-300",
               )}
             >

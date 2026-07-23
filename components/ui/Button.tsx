@@ -8,14 +8,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        // primary = xanh thương hiệu (token primary-*). Trước đây variant "primary"
+        // render màu cam accent (đặt tên đảo) — đã chuẩn hóa lại theo design system.
         primary:
+          "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500",
+        // accent = cam nhấn (tên mới của variant "primary" cũ).
+        accent:
           "bg-accent-500 text-white hover:bg-accent-600 focus-visible:ring-accent-500",
+        // DEPRECATED: "secondary" là alias của primary (giữ tương thích ngược,
+        // sẽ gỡ sau khi xác nhận không còn call-site nào dùng).
         secondary:
           "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500",
         outline:
-          "border border-slate-300 bg-white text-slate-700 hover:border-primary-600 hover:text-primary-600 focus-visible:ring-primary-500",
+          "border border-border bg-white text-ink/80 hover:border-primary-600 hover:text-primary-600 focus-visible:ring-primary-500",
         ghost:
-          "bg-transparent text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-400"
+          "bg-transparent text-ink/80 hover:bg-surface focus-visible:ring-primary-500",
+        danger:
+          "bg-danger text-white hover:bg-danger/90 focus-visible:ring-danger"
       },
       size: {
         sm: "h-9 px-3 text-sm",

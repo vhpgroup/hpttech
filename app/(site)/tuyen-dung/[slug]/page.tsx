@@ -52,9 +52,9 @@ export default async function RecruitmentDetailPage({ params }: RecruitmentDetai
   return (
     <main className="subpage-main bg-slate-50/70 pb-20">
       <nav className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-slate-500" aria-label="Breadcrumb">
-        <Link href="/" className="transition hover:text-[#0A4BFF]">Trang chủ</Link>
+        <Link href="/" className="transition hover:text-primary-600">Trang chủ</Link>
         <ChevronRight size={13} className="text-slate-300" />
-        <Link href="/tuyen-dung" className="transition hover:text-[#0A4BFF]">Tuyển dụng</Link>
+        <Link href="/tuyen-dung" className="transition hover:text-primary-600">Tuyển dụng</Link>
         <ChevronRight size={13} className="text-slate-300" />
         <span className="line-clamp-1">{job.title}</span>
       </nav>
@@ -86,16 +86,16 @@ export default async function RecruitmentDetailPage({ params }: RecruitmentDetai
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-          <Link href="/tuyen-dung" className="inline-flex items-center gap-2 text-sm font-bold text-[#0A4BFF]">
+          <Link href="/tuyen-dung" className="inline-flex items-center gap-2 text-sm font-bold text-primary-600">
             <ArrowLeft size={16} />
             Tất cả vị trí
           </Link>
 
           {job.content ? (
-            <PayloadRichText data={job.content} className="mt-7 [&_h1]:text-[#102b62] [&_h2]:text-[#102b62] [&_h3]:text-[#102b62]" />
+            <PayloadRichText data={job.content} className="mt-7 [&_h1]:text-primary-900 [&_h2]:text-primary-900 [&_h3]:text-primary-900" />
           ) : job.summary ? (
             <section className="mt-7">
-              <h2 className="text-xl font-black uppercase text-[#102b62]">Thông tin vị trí</h2>
+              <h2 className="text-xl font-black uppercase text-primary-900">Thông tin vị trí</h2>
               <p className="mt-4 text-base leading-8 text-slate-700">{job.summary}</p>
             </section>
           ) : null}
@@ -109,16 +109,16 @@ export default async function RecruitmentDetailPage({ params }: RecruitmentDetai
       {relatedJobs.length ? (
         <section className="mt-10">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-black uppercase text-[#102b62]">Việc làm liên quan</h2>
-            <Link href="/tuyen-dung" className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0A4BFF]">
+            <h2 className="text-xl font-black uppercase text-primary-900">Việc làm liên quan</h2>
+            <Link href="/tuyen-dung" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-600">
               Xem tất cả <ArrowRight size={15} />
             </Link>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {relatedJobs.map((item) => (
-              <Link key={item.slug} href={`/tuyen-dung/${item.slug}`} className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
-                <span className="grid size-10 place-items-center rounded-full bg-blue-50 text-[#0A4BFF]"><BriefcaseBusiness size={19} /></span>
-                <h3 className="mt-4 line-clamp-2 text-sm font-bold leading-6 text-slate-900 group-hover:text-[#0A4BFF]">{item.title}</h3>
+              <Link key={item.slug} href={`/tuyen-dung/${item.slug}`} className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary-200 hover:shadow-md">
+                <span className="grid size-10 place-items-center rounded-full bg-primary-50 text-primary-600"><BriefcaseBusiness size={19} /></span>
+                <h3 className="mt-4 line-clamp-2 text-sm font-bold leading-6 text-slate-900 group-hover:text-primary-600">{item.title}</h3>
               </Link>
             ))}
           </div>

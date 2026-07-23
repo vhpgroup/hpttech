@@ -119,7 +119,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             onError={() => setImage(undefined)}
           />
         ) : (
-          <div className="flex h-28 w-full flex-col items-center justify-center rounded-[10px] bg-gradient-to-br from-slate-50 to-blue-50 text-slate-400 ring-1 ring-slate-100">
+          <div className="flex h-28 w-full flex-col items-center justify-center rounded-[10px] bg-gradient-to-br from-slate-50 to-primary-50 text-slate-400 ring-1 ring-slate-100">
             <ImageIcon size={34} strokeWidth={1.4} />
             <span className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Chưa có ảnh</span>
           </div>
@@ -128,7 +128,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
 
       <div className="mt-3 flex flex-1 flex-col">
         <h3 className="line-clamp-2 min-h-[46px] text-[15px] font-bold leading-[22px] text-slate-950">
-          <Link href={href} className="hover:text-blue-700">
+          <Link href={href} className="hover:text-primary-700">
             {product.title}
           </Link>
         </h3>
@@ -163,7 +163,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
               onClick={toggleCompare}
               className={cn(
                 "inline-flex items-center gap-1 font-medium transition",
-                selected ? "text-blue-700" : "text-blue-600 hover:text-blue-700",
+                selected ? "text-primary-700" : "text-primary-600 hover:text-primary-700",
               )}
             >
               <Plus size={14} />
@@ -179,7 +179,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             product={product}
             label=""
             ariaLabel={`Thêm ${product.title} vào giỏ`}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0A4BFF] text-white transition hover:bg-blue-700"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-600 text-white transition hover:bg-primary-700"
           />
         </div>
       </div>

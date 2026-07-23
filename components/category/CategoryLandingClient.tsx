@@ -53,7 +53,7 @@ function FilterPill({
         onClick={() => onOpen(open ? null : id)}
         className={`inline-flex h-10 items-center gap-1.5 rounded-lg border px-3.5 text-sm font-bold transition ${
           active || open
-            ? "border-[#0A4BFF] bg-blue-50 text-[#0A4BFF]"
+            ? "border-primary-600 bg-primary-50 text-primary-600"
             : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
         }`}
       >
@@ -86,7 +86,7 @@ function CheckRow({
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="h-4 w-4 rounded border-slate-300 text-[#0A4BFF] focus:ring-[#0A4BFF]"
+        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-600"
       />
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {typeof count === "number" ? <span className="text-xs font-semibold text-slate-400">{count}</span> : null}
@@ -214,7 +214,7 @@ export default function CategoryLandingClient({
                       setOpenFilter(null);
                       startTransition(() => router.push(`/${encodeURIComponent(option.value)}`));
                     }}
-                    className="flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-[#0A4BFF]"
+                    className="flex items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-primary-50 hover:text-primary-600"
                   >
                     <span className="min-w-0 truncate">{option.label}</span>
                     {typeof option.count === "number" ? (
@@ -321,7 +321,7 @@ export default function CategoryLandingClient({
                 key={chip.key}
                 type="button"
                 onClick={chip.onRemove}
-                className="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-3 py-1.5 font-bold text-[#0A4BFF]"
+                className="inline-flex items-center gap-1 rounded-lg bg-primary-50 px-3 py-1.5 font-bold text-primary-600"
               >
                 {chip.label} <X size={14} />
               </button>
@@ -329,7 +329,7 @@ export default function CategoryLandingClient({
             <button
               type="button"
               onClick={clearAll}
-              className="ml-auto text-xs font-bold text-slate-500 hover:text-[#0A4BFF]"
+              className="ml-auto text-xs font-bold text-slate-500 hover:text-primary-600"
             >
               Xóa tất cả {activeCount ? `(${activeCount})` : ""}
             </button>
@@ -398,7 +398,7 @@ function PriceForm({
           value={min}
           onChange={(event) => setMin(event.target.value.replace(/[^\d]/g, ""))}
           placeholder="0"
-          className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-[#0A4BFF]"
+          className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-primary-600"
         />
       </label>
       <label className="space-y-1">
@@ -409,13 +409,13 @@ function PriceForm({
           value={max}
           onChange={(event) => setMax(event.target.value.replace(/[^\d]/g, ""))}
           placeholder="50000000"
-          className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-[#0A4BFF]"
+          className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-primary-600"
         />
       </label>
       <button
         type="button"
         onClick={() => onApply(min, max)}
-        className="col-span-2 h-9 rounded-lg bg-[#0A4BFF] text-sm font-bold text-white hover:bg-blue-700"
+        className="col-span-2 h-9 rounded-lg bg-primary-600 text-sm font-bold text-white hover:bg-primary-700"
       >
         Áp dụng
       </button>

@@ -127,7 +127,7 @@ function QuoteDocument({
       data-line-count={lines.length}
       data-print-density={lines.length > 1 ? "compact" : "normal"}
     >
-      <header className="quote-intro grid gap-5 border-b-4 border-[#0A4BFF] pb-5 md:grid-cols-[190px_1fr]">
+      <header className="quote-intro grid gap-5 border-b-4 border-primary-600 pb-5 md:grid-cols-[190px_1fr]">
         <div className="flex items-center">
           <Image
             src="/assets/logo/hptlogo.png"
@@ -140,9 +140,9 @@ function QuoteDocument({
         </div>
         <div className="min-w-0 space-y-3 text-sm leading-6">
           <h2 className="whitespace-nowrap text-[15px] font-extrabold uppercase leading-5 tracking-[-0.01em] lg:text-[16px]">{HPT_INFO.company}</h2>
-          <p className="flex gap-2"><MapPin size={18} className="mt-0.5 text-[#0A4BFF]" /> {HPT_INFO.address}</p>
+          <p className="flex gap-2"><MapPin size={18} className="mt-0.5 text-primary-600" /> {HPT_INFO.address}</p>
           <div className="flex flex-wrap gap-x-8 gap-y-2">
-            <span className="flex items-center gap-2"><Phone size={16} className="text-[#0A4BFF]" /> {HPT_INFO.phone}</span>
+            <span className="flex items-center gap-2"><Phone size={16} className="text-primary-600" /> {HPT_INFO.phone}</span>
             <span>{HPT_INFO.website}</span>
             <span>MST: {HPT_INFO.taxCode}</span>
           </div>
@@ -151,8 +151,8 @@ function QuoteDocument({
 
       <section className="quote-heading grid gap-6 py-6 md:grid-cols-[1fr_240px]">
         <div className="text-center md:col-start-1 md:col-end-2 md:row-start-1">
-          <h1 className="text-3xl font-black uppercase tracking-wide text-[#0A4BFF] lg:text-4xl">Báo giá sản phẩm</h1>
-          <div className="mx-auto mt-3 h-1 w-44 rounded-full bg-[#0A4BFF]/35" />
+          <h1 className="text-3xl font-black uppercase tracking-wide text-primary-600 lg:text-4xl">Báo giá sản phẩm</h1>
+          <div className="mx-auto mt-3 h-1 w-44 rounded-full bg-primary-600/35" />
         </div>
         <div className="space-y-3 text-sm md:col-start-2 md:row-start-1">
           <p>Mã báo giá: <strong>{quoteId}</strong></p>
@@ -161,7 +161,7 @@ function QuoteDocument({
         </div>
       </section>
 
-      <section className="quote-customer grid gap-5 rounded-xl border border-blue-200 p-5 text-sm md:grid-cols-2">
+      <section className="quote-customer grid gap-5 rounded-xl border border-primary-200 p-5 text-sm md:grid-cols-2">
         <div className="space-y-4">
           <p><strong>Kính gửi:</strong> <span className="ml-4">{customer.company || "Quý khách hàng"}</span></p>
           <p><strong>Địa chỉ:</strong> <span className="ml-7">{customer.address || "Đang cập nhật"}</span></p>
@@ -173,7 +173,7 @@ function QuoteDocument({
         </div>
       </section>
 
-      <section className="mt-6 overflow-hidden rounded-lg border border-blue-300">
+      <section className="mt-6 overflow-hidden rounded-lg border border-primary-300">
         <table className="w-full table-fixed border-collapse text-[13px] leading-5">
           <colgroup>
             <col className="w-[46px]" />
@@ -184,21 +184,21 @@ function QuoteDocument({
             <col className="w-[132px]" />
           </colgroup>
           <thead>
-            <tr className="bg-[#0A4BFF] text-center text-xs font-extrabold uppercase text-white">
-              <th className="border border-[#0A4BFF] px-2 py-3">STT</th>
-              {hasImages ? <th className="border border-[#0A4BFF] px-2 py-3">Hình ảnh</th> : null}
-              <th className="border border-[#0A4BFF] px-3 py-3">Sản phẩm</th>
-              <th className="border border-[#0A4BFF] px-2 py-3">Số lượng</th>
-              <th className="border border-[#0A4BFF] px-2 py-3">Đơn giá</th>
-              <th className="border border-[#0A4BFF] px-2 py-3">Thành tiền</th>
+            <tr className="bg-primary-600 text-center text-xs font-extrabold uppercase text-white">
+              <th className="border border-primary-600 px-2 py-3">STT</th>
+              {hasImages ? <th className="border border-primary-600 px-2 py-3">Hình ảnh</th> : null}
+              <th className="border border-primary-600 px-3 py-3">Sản phẩm</th>
+              <th className="border border-primary-600 px-2 py-3">Số lượng</th>
+              <th className="border border-primary-600 px-2 py-3">Đơn giá</th>
+              <th className="border border-primary-600 px-2 py-3">Thành tiền</th>
             </tr>
           </thead>
           <tbody>
             {lineTotals.map((line, index) => (
               <tr key={line.key} className="quote-product-row align-middle">
-                <td className="border border-blue-200 px-2 py-3 text-center font-semibold">{index + 1}</td>
+                <td className="border border-primary-200 px-2 py-3 text-center font-semibold">{index + 1}</td>
                 {hasImages ? (
-                  <td className="border border-blue-200 px-2 py-3 text-center">
+                  <td className="border border-primary-200 px-2 py-3 text-center">
                     <div className="grid h-24 place-items-center bg-slate-50">
                       {line.image ? (
                         <Image
@@ -213,9 +213,9 @@ function QuoteDocument({
                     </div>
                   </td>
                 ) : null}
-                <td className="border border-blue-200 px-3 py-3">
+                <td className="border border-primary-200 px-3 py-3">
                   <h3 className="m-0 text-[14px] font-extrabold leading-5 text-slate-950">{line.product.title}</h3>
-                  {line.product.detail ? <p className="mt-1 text-[12px] font-semibold leading-4 text-[#0A4BFF]">{line.product.detail}</p> : null}
+                  {line.product.detail ? <p className="mt-1 text-[12px] font-semibold leading-4 text-primary-600">{line.product.detail}</p> : null}
                   <ul className="mt-1.5 list-disc space-y-0 pl-4 text-[12px] leading-4">
                     {line.specs.map((spec) => (
                       <li key={`${spec.label}-${spec.value}`}>
@@ -225,33 +225,33 @@ function QuoteDocument({
                     {line.product.warranty ? <li><strong>Bảo hành:</strong> {line.product.warranty}</li> : null}
                   </ul>
                 </td>
-                <td className="border border-blue-200 px-2 py-3 text-center font-semibold">{line.quantity}</td>
-                <td className="border border-blue-200 px-2 py-3 text-right font-extrabold text-red-600">{line.unitPrice ? moneyLabel(line.unitPrice) : "Liên hệ"}</td>
-                <td className="border border-blue-200 px-2 py-3 text-right font-extrabold text-red-600">{line.unitPrice ? moneyLabel(line.totals.total) : "Liên hệ"}</td>
+                <td className="border border-primary-200 px-2 py-3 text-center font-semibold">{line.quantity}</td>
+                <td className="border border-primary-200 px-2 py-3 text-right font-extrabold text-red-600">{line.unitPrice ? moneyLabel(line.unitPrice) : "Liên hệ"}</td>
+                <td className="border border-primary-200 px-2 py-3 text-right font-extrabold text-red-600">{line.unitPrice ? moneyLabel(line.totals.total) : "Liên hệ"}</td>
               </tr>
             ))}
           </tbody>
           <tfoot className="text-[13px]">
             <tr className="bg-slate-100">
-              <td colSpan={summaryColSpan} className="border border-blue-200 px-3 py-2 text-right font-bold">Tạm tính (chưa VAT):</td>
-              <td className="border border-blue-200 px-2 py-2 text-right font-extrabold">{totals.total ? moneyLabel(totals.subtotal) : "Liên hệ"}</td>
+              <td colSpan={summaryColSpan} className="border border-primary-200 px-3 py-2 text-right font-bold">Tạm tính (chưa VAT):</td>
+              <td className="border border-primary-200 px-2 py-2 text-right font-extrabold">{totals.total ? moneyLabel(totals.subtotal) : "Liên hệ"}</td>
             </tr>
             <tr className="bg-slate-100">
-              <td colSpan={summaryColSpan} className="border border-blue-200 px-3 py-2 text-right font-bold">Thuế VAT (10%):</td>
-              <td className="border border-blue-200 px-2 py-2 text-right font-extrabold">{totals.total ? moneyLabel(totals.vat) : "0 đ"}</td>
+              <td colSpan={summaryColSpan} className="border border-primary-200 px-3 py-2 text-right font-bold">Thuế VAT (10%):</td>
+              <td className="border border-primary-200 px-2 py-2 text-right font-extrabold">{totals.total ? moneyLabel(totals.vat) : "0 đ"}</td>
             </tr>
             <tr className="bg-slate-100 text-base">
-              <td colSpan={summaryColSpan} className="border border-blue-200 px-3 py-3 text-right font-black uppercase text-[#0A4BFF]">Tổng cộng:</td>
-              <td className="border border-blue-200 px-2 py-3 text-right font-black text-[#0A4BFF]">{totals.total ? moneyLabel(totals.total) : "Liên hệ"}</td>
+              <td colSpan={summaryColSpan} className="border border-primary-200 px-3 py-3 text-right font-black uppercase text-primary-600">Tổng cộng:</td>
+              <td className="border border-primary-200 px-2 py-3 text-right font-black text-primary-600">{totals.total ? moneyLabel(totals.total) : "Liên hệ"}</td>
             </tr>
           </tfoot>
         </table>
       </section>
 
       <div className="quote-final-block">
-        <section className="quote-commercial mt-6 grid gap-6 rounded-xl border border-blue-200 p-5 text-sm md:grid-cols-3">
+        <section className="quote-commercial mt-6 grid gap-6 rounded-xl border border-primary-200 p-5 text-sm md:grid-cols-3">
           <div>
-            <h3 className="mb-3 font-extrabold uppercase text-[#0A4BFF]">Điều khoản thương mại</h3>
+            <h3 className="mb-3 font-extrabold uppercase text-primary-600">Điều khoản thương mại</h3>
             <ul className="space-y-2">
               <li>✓ Giá trên đã gồm VAT</li>
               <li>✓ Hàng hóa chính hãng 100%</li>
@@ -260,21 +260,21 @@ function QuoteDocument({
             </ul>
           </div>
           <div>
-            <h3 className="mb-3 font-extrabold uppercase text-[#0A4BFF]">Thông tin thanh toán</h3>
+            <h3 className="mb-3 font-extrabold uppercase text-primary-600">Thông tin thanh toán</h3>
             <p><strong>Chủ tài khoản:</strong></p>
             <p>{HPT_INFO.bankOwner}</p>
             <p className="mt-2"><strong>Số tài khoản:</strong> {HPT_INFO.bankAccount}</p>
             <p><strong>Ngân hàng:</strong> {HPT_INFO.bankName}</p>
           </div>
           <div>
-            <h3 className="mb-3 font-extrabold uppercase text-[#0A4BFF]">Người phụ trách báo giá</h3>
+            <h3 className="mb-3 font-extrabold uppercase text-primary-600">Người phụ trách báo giá</h3>
             <p className="font-bold">{HPT_INFO.consultant}</p>
             <p className="mt-2">{HPT_INFO.phone}</p>
             <p>{HPT_INFO.consultantEmail}</p>
           </div>
         </section>
 
-        <p className="mt-8 text-center text-lg font-extrabold italic text-[#0A4BFF]">
+        <p className="mt-8 text-center text-lg font-extrabold italic text-primary-600">
           HPT Tech trân trọng cảm ơn Quý khách hàng!
         </p>
       </div>
@@ -593,7 +593,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
             <aside className="flex w-full max-w-[320px] flex-col border-l border-slate-200 bg-white print:hidden">
               <div className="flex items-center justify-between gap-3 border-b border-slate-100 p-4">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-[#0A4BFF]">Quote Builder</p>
+                  <p className="text-xs font-bold uppercase tracking-wide text-primary-600">Quote Builder</p>
                   <h2 className="text-lg font-extrabold text-slate-950">Báo giá sản phẩm</h2>
                 </div>
                 <button type="button" onClick={close} className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-600">
@@ -605,7 +605,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                 <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-xs font-extrabold uppercase tracking-wide text-slate-600">Sản phẩm báo giá</p>
-                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-bold text-[#0A4BFF]">{lines.length}</span>
+                    <span className="rounded-full bg-primary-100 px-2 py-0.5 text-xs font-bold text-primary-600">{lines.length}</span>
                   </div>
                   <div className="space-y-2">
                     {lines.map((line) => (
@@ -626,7 +626,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                           <input
                             type="number"
                             min={1}
-                            className="h-9 w-20 rounded-lg border border-slate-200 px-2 text-right outline-none focus:border-[#0A4BFF]"
+                            className="h-9 w-20 rounded-lg border border-slate-200 px-2 text-right outline-none focus:border-primary-600"
                             value={line.quantity}
                             onChange={(event) => updateQuantity(line.key, Number(event.target.value))}
                           />
@@ -638,36 +638,36 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
 
                 <label className="block text-sm font-semibold text-slate-700">
                   Công ty khách hàng
-                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.company} onChange={(event) => updateCustomer("company", event.target.value)} />
+                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-primary-600" value={customer.company} onChange={(event) => updateCustomer("company", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Mã số thuế (xuất VAT)
-                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.taxCode} onChange={(event) => updateCustomer("taxCode", event.target.value)} />
+                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-primary-600" value={customer.taxCode} onChange={(event) => updateCustomer("taxCode", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Địa chỉ
-                  <textarea className="mt-1 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-[#0A4BFF]" value={customer.address} onChange={(event) => updateCustomer("address", event.target.value)} />
+                  <textarea className="mt-1 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-primary-600" value={customer.address} onChange={(event) => updateCustomer("address", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Người liên hệ
-                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.contact} onChange={(event) => updateCustomer("contact", event.target.value)} />
+                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-primary-600" value={customer.contact} onChange={(event) => updateCustomer("contact", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Số điện thoại
-                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.phone} onChange={(event) => updateCustomer("phone", event.target.value)} />
+                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-primary-600" value={customer.phone} onChange={(event) => updateCustomer("phone", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Email
-                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={customer.email} onChange={(event) => updateCustomer("email", event.target.value)} />
+                  <input className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-primary-600" value={customer.email} onChange={(event) => updateCustomer("email", event.target.value)} />
                 </label>
                 <label className="block text-sm font-semibold text-slate-700">
                   Ghi chú yêu cầu
-                  <textarea className="mt-1 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-[#0A4BFF]" value={customer.note} onChange={(event) => updateCustomer("note", event.target.value)} />
+                  <textarea className="mt-1 min-h-20 w-full rounded-lg border border-slate-200 px-3 py-2 outline-none focus:border-primary-600" value={customer.note} onChange={(event) => updateCustomer("note", event.target.value)} />
                 </label>
                 <div className="grid grid-cols-1 gap-3 pt-2">
                   <label className="block text-sm font-semibold text-slate-700">
                     Hiệu lực
-                    <input type="number" min={1} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-[#0A4BFF]" value={validDays} onChange={(event) => setValidDays(Math.max(1, Number(event.target.value) || 1))} />
+                    <input type="number" min={1} className="mt-1 h-10 w-full rounded-lg border border-slate-200 px-3 outline-none focus:border-primary-600" value={validDays} onChange={(event) => setValidDays(Math.max(1, Number(event.target.value) || 1))} />
                   </label>
                 </div>
 
@@ -697,7 +697,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                       onClick={() => setPrintMode("color")}
                       aria-pressed={printMode === "color"}
                       className={`h-9 rounded-md text-sm font-bold transition ${
-                        printMode === "color" ? "bg-white text-[#0A4BFF] shadow-sm" : "text-slate-600"
+                        printMode === "color" ? "bg-white text-primary-600 shadow-sm" : "text-slate-600"
                       }`}
                     >
                       In màu
@@ -714,18 +714,18 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
                     </button>
                   </div>
                 </div>
-                <button type="button" onClick={printQuote} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#0A4BFF] text-sm font-extrabold text-white hover:bg-blue-700">
+                <button type="button" onClick={printQuote} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary-600 text-sm font-extrabold text-white hover:bg-primary-700">
                   <Printer size={17} />
                   In báo giá
                 </button>
                 <p className="text-center text-[11px] leading-4 text-slate-500">
                   Tắt “Đầu trang và chân trang” trong hộp thoại in để bỏ ngày, URL và số trang của trình duyệt.
                 </p>
-                <button type="button" onClick={downloadPdf} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-800 hover:border-blue-200 hover:text-[#0A4BFF]">
+                <button type="button" onClick={downloadPdf} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-800 hover:border-primary-200 hover:text-primary-600">
                   <Download size={17} />
                   Tải PDF
                 </button>
-                <button type="button" onClick={downloadWord} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-800 hover:border-blue-200 hover:text-[#0A4BFF]">
+                <button type="button" onClick={downloadWord} className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-bold text-slate-800 hover:border-primary-200 hover:text-primary-600">
                   <FileText size={17} />
                   Tải Word
                 </button>

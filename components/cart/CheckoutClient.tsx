@@ -77,7 +77,7 @@ export default function CheckoutClient() {
             Mã đơn <strong className="text-slate-950">{success.orderCode}</strong>. HPT Tech sẽ liên hệ xác nhận giá, vận chuyển và thời gian giao hàng.
           </p>
           <p className="mt-2 text-sm text-slate-500">Tổng hiển thị: {success.totalLabel}</p>
-          <Link className="mt-6 inline-flex rounded-md bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800" href="/san-pham">
+          <Link className="mt-6 inline-flex rounded-md bg-primary-700 px-5 py-3 text-sm font-semibold text-white hover:bg-primary-800" href="/san-pham">
             Tiếp tục xem sản phẩm
           </Link>
         </section>
@@ -95,7 +95,7 @@ export default function CheckoutClient() {
         ]}
       />
       <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-700">Checkout</p>
+        <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-primary-700">Checkout</p>
         <h1 className="text-3xl font-bold text-slate-950 sm:text-4xl">Thanh toán</h1>
         <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
           Đặt hàng COD hoặc gửi thông tin để HPT Tech liên hệ xác nhận. Phí vận chuyển/lắp đặt sẽ được báo sau.
@@ -109,27 +109,27 @@ export default function CheckoutClient() {
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <label className="block text-sm font-medium text-slate-700">
                 Họ tên *
-                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-blue-600" value={form.customerName} onChange={(event) => update("customerName", event.target.value)} required />
+                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-primary-600" value={form.customerName} onChange={(event) => update("customerName", event.target.value)} required />
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 Số điện thoại *
-                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-blue-600" value={form.customerPhone} onChange={(event) => update("customerPhone", event.target.value)} required />
+                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-primary-600" value={form.customerPhone} onChange={(event) => update("customerPhone", event.target.value)} required />
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 Email
-                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-blue-600" type="email" value={form.customerEmail} onChange={(event) => update("customerEmail", event.target.value)} />
+                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-primary-600" type="email" value={form.customerEmail} onChange={(event) => update("customerEmail", event.target.value)} />
               </label>
               <label className="block text-sm font-medium text-slate-700">
                 Tỉnh/thành hoặc khu vực
-                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-blue-600" value={form.customerArea} onChange={(event) => update("customerArea", event.target.value)} />
+                <input className="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 outline-none focus:border-primary-600" value={form.customerArea} onChange={(event) => update("customerArea", event.target.value)} />
               </label>
               <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
                 Địa chỉ giao hàng *
-                <textarea className="mt-2 min-h-24 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-blue-600" value={form.customerAddress} onChange={(event) => update("customerAddress", event.target.value)} required />
+                <textarea className="mt-2 min-h-24 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-primary-600" value={form.customerAddress} onChange={(event) => update("customerAddress", event.target.value)} required />
               </label>
               <label className="block text-sm font-medium text-slate-700 sm:col-span-2">
                 Ghi chú
-                <textarea className="mt-2 min-h-24 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-blue-600" value={form.customerNote} onChange={(event) => update("customerNote", event.target.value)} />
+                <textarea className="mt-2 min-h-24 w-full rounded-md border border-slate-200 px-3 py-2 outline-none focus:border-primary-600" value={form.customerNote} onChange={(event) => update("customerNote", event.target.value)} />
               </label>
             </div>
 
@@ -155,7 +155,7 @@ export default function CheckoutClient() {
 
             {error ? <p className="mt-4 rounded-md bg-red-50 p-3 text-sm font-medium text-red-700">{error}</p> : null}
 
-            <button className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60" type="submit" disabled={loading}>
+            <button className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-primary-700 px-5 text-sm font-semibold text-white hover:bg-primary-800 disabled:opacity-60" type="submit" disabled={loading}>
               {loading ? <Loader2 className="animate-spin" size={18} /> : null}
               Tạo đơn hàng
             </button>
@@ -172,7 +172,7 @@ export default function CheckoutClient() {
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-2 text-sm font-semibold text-slate-950">{item.title}</p>
                     <p className="mt-1 text-xs text-slate-500">SL: {item.quantity}</p>
-                    <p className="mt-1 text-sm font-semibold text-orange-600">{item.unitPrice ? formatVND(item.unitPrice * item.quantity) : "Cần xác nhận"}</p>
+                    <p className="mt-1 text-sm font-semibold text-accent-600">{item.unitPrice ? formatVND(item.unitPrice * item.quantity) : "Cần xác nhận"}</p>
                   </div>
                 </div>
               ))}
@@ -194,7 +194,7 @@ export default function CheckoutClient() {
         <section className="mt-6 rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
           <ShoppingCart className="mx-auto text-slate-300" size={44} />
           <h2 className="mt-4 text-xl font-semibold text-slate-950">Giỏ hàng đang trống</h2>
-          <Link className="mt-5 inline-flex rounded-md bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800" href="/san-pham">
+          <Link className="mt-5 inline-flex rounded-md bg-primary-700 px-5 py-3 text-sm font-semibold text-white hover:bg-primary-800" href="/san-pham">
             Xem sản phẩm
           </Link>
         </section>

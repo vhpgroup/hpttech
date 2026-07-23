@@ -165,7 +165,7 @@ function CartDrawer() {
                     <p className="mt-1 truncate text-xs text-slate-500">{[item.brand, item.category].filter(Boolean).join(" - ")}</p>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <div>
-                        <p className="text-sm font-semibold text-orange-600">{item.priceLabel || "Liên hệ"}</p>
+                        <p className="text-sm font-semibold text-accent-600">{item.priceLabel || "Liên hệ"}</p>
                         <p className="text-xs text-slate-400">
                           {item.unitPrice ? formatVND(item.unitPrice * item.quantity) : "Cần xác nhận"}
                         </p>
@@ -216,7 +216,7 @@ function CartDrawer() {
             </button>
             <Link
               href="/checkout"
-              className={`rounded-md px-3 py-3 text-center text-sm font-semibold text-white ${items.length ? "bg-blue-700 hover:bg-blue-800" : "pointer-events-none bg-slate-300"}`}
+              className={`rounded-md px-3 py-3 text-center text-sm font-semibold text-white ${items.length ? "bg-primary-700 hover:bg-primary-800" : "pointer-events-none bg-slate-300"}`}
               onClick={closeCart}
             >
               Thanh toán

@@ -120,7 +120,7 @@ export default function ProductPricingSection({
               {product.price || "Liên hệ"}
             </strong>
             {product.discountBadge ? (
-              <span className="rounded-full bg-gradient-to-r from-red-500 to-orange-500 px-2.5 py-1 text-xs font-black uppercase tracking-wide text-white shadow-sm">
+              <span className="rounded-full bg-gradient-to-r from-red-500 to-accent-500 px-2.5 py-1 text-xs font-black uppercase tracking-wide text-white shadow-sm">
                 {product.discountBadge}
               </span>
             ) : null}
@@ -144,21 +144,21 @@ export default function ProductPricingSection({
           <AddToCartButton
             product={product}
             label="Thêm vào giỏ"
-            className="product-action-button inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-orange-600 px-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-orange-700 hover:shadow-lg"
+            className="product-action-button inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-accent-700 hover:shadow-lg"
           />
           <div className="hidden">
             <a href={quoteHref}>Nhận báo giá</a>
           </div>
           <QuoteButton
             product={product}
-            className="product-action-button inline-flex h-12 items-center justify-center rounded-xl bg-[#0057FF] px-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#0049d8] hover:shadow-lg"
+            className="product-action-button inline-flex h-12 items-center justify-center rounded-xl bg-primary-600 px-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-700 hover:shadow-lg"
           />
           <Button
             asChild
             size="lg"
             variant="outline"
-            className="product-action-button rounded-xl border-slate-200 bg-white text-slate-800 transition-all hover:-translate-y-0.5 hover:border-[#2563EB]/45 hover:bg-[#2563EB]/5 hover:text-[#2563EB] hover:shadow-md"
-          >
+            className="product-action-button rounded-xl border-slate-200 bg-white text-slate-800 transition-all hover:-translate-y-0.5 hover:border-primary-600/45 hover:bg-primary-600/5 hover:text-primary-600 hover:shadow-md"
+           variant="accent">
             <a href={phoneHref}>Tư vấn ngay</a>
           </Button>
         </div>

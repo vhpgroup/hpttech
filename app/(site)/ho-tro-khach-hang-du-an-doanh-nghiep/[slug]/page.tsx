@@ -85,10 +85,10 @@ export default async function EnterpriseServiceDetailPage({ params }: PageProps)
 
           <article className="min-w-0 border border-slate-200 bg-white px-6 py-7 sm:px-8 lg:px-10 lg:py-9">
             <header className="border-b border-slate-200 pb-7">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary-700">
                 Giải pháp và dịch vụ
               </p>
-              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-[#102b62] sm:text-3xl">
+              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-primary-900 sm:text-3xl">
                 {service.title}
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">{service.summary}</p>
@@ -108,7 +108,7 @@ export default async function EnterpriseServiceDetailPage({ params }: PageProps)
             ) : null}
 
             {service.content ? (
-              <PayloadRichText data={service.content} className="mt-8 [&_h1]:text-[#102b62] [&_h2]:text-[#102b62] [&_h3]:text-[#102b62]" />
+              <PayloadRichText data={service.content} className="mt-8 [&_h1]:text-primary-900 [&_h2]:text-primary-900 [&_h3]:text-primary-900" />
             ) : (
               <div className="mt-8 space-y-4 leading-7 text-slate-700">
                 <p>{service.summary}</p>
@@ -119,19 +119,19 @@ export default async function EnterpriseServiceDetailPage({ params }: PageProps)
               </div>
             )}
 
-            <section className="mt-10 border border-blue-200 bg-blue-50 p-5 sm:p-6">
-              <h2 className="text-lg font-black uppercase text-[#102b62]">Liên hệ tư vấn</h2>
+            <section className="mt-10 border border-primary-200 bg-primary-50 p-5 sm:p-6">
+              <h2 className="text-lg font-black uppercase text-primary-900">Liên hệ tư vấn</h2>
               <div className="mt-4 flex flex-wrap gap-3">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#102b62] px-5 py-3 text-sm font-bold text-white"
+                  className="inline-flex items-center gap-2 bg-primary-900 px-5 py-3 text-sm font-bold text-white"
                 >
                   <Phone size={17} />
                   {hotline}
                 </a>
                 <a
                   href={`mailto:${email}`}
-                  className="inline-flex items-center gap-2 border border-blue-300 bg-white px-5 py-3 text-sm font-bold text-blue-800"
+                  className="inline-flex items-center gap-2 border border-primary-300 bg-white px-5 py-3 text-sm font-bold text-primary-800"
                 >
                   <Mail size={17} />
                   {email}
@@ -196,10 +196,10 @@ function DocumentDigitizationPage() {
 
           <article className="min-w-0 border border-slate-200 bg-white px-6 py-7 text-slate-800 sm:px-8 lg:px-10 lg:py-9">
             <header className="border-b border-slate-200 pb-7">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary-700">
                 Thiết bị và quy trình số hóa
               </p>
-              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-[#102b62] sm:text-3xl">
+              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-primary-900 sm:text-3xl">
                 Giải pháp số hóa tài liệu
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600">
@@ -214,11 +214,11 @@ function DocumentDigitizationPage() {
                 {benefits.map(({ icon: Icon, title, description }) => (
                   <div key={title} className="border border-slate-200 bg-slate-50 p-5">
                     <div className="flex items-start gap-4">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center bg-blue-100 text-blue-700">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center bg-primary-100 text-primary-700">
                         <Icon size={22} />
                       </span>
                       <div>
-                        <h3 className="font-bold leading-6 text-[#102b62]">{title}</h3>
+                        <h3 className="font-bold leading-6 text-primary-900">{title}</h3>
                         <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
                       </div>
                     </div>
@@ -268,11 +268,11 @@ function DocumentDigitizationPage() {
               <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {process.map(({ icon: Icon, title }, index) => (
                   <li key={title} className="flex items-center gap-4 border border-slate-200 p-4">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center bg-[#102b62] text-white">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center bg-primary-900 text-white">
                       <Icon size={19} />
                     </span>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
+                      <p className="text-xs font-bold uppercase tracking-wide text-primary-700">
                         Bước {index + 1}
                       </p>
                       <p className="mt-1 font-bold text-slate-900">{title}</p>
@@ -295,29 +295,29 @@ function DocumentDigitizationPage() {
                   "Thay mực và hỗ trợ máy in tại khu vực phục vụ.",
                 ].map((item) => (
                   <li key={item} className="flex gap-3 border border-slate-200 p-4">
-                    <CheckCircle2 className="mt-1 shrink-0 text-blue-700" size={18} />
+                    <CheckCircle2 className="mt-1 shrink-0 text-primary-700" size={18} />
                     <span className="text-sm leading-6">{item}</span>
                   </li>
                 ))}
               </ul>
             </ContentSection>
 
-            <section className="mt-10 border border-blue-200 bg-blue-50 p-5 sm:p-6">
+            <section className="mt-10 border border-primary-200 bg-primary-50 p-5 sm:p-6">
               <div className="flex items-center gap-3">
-                <Wrench className="text-blue-700" size={24} />
-                <h2 className="text-lg font-black uppercase text-[#102b62]">Liên hệ HPT Tech</h2>
+                <Wrench className="text-primary-700" size={24} />
+                <h2 className="text-lg font-black uppercase text-primary-900">Liên hệ HPT Tech</h2>
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#102b62] px-5 py-3 text-sm font-bold text-white"
+                  className="inline-flex items-center gap-2 bg-primary-900 px-5 py-3 text-sm font-bold text-white"
                 >
                   <Phone size={17} />
                   {hotline}
                 </a>
                 <a
                   href={`mailto:${email}`}
-                  className="inline-flex items-center gap-2 border border-blue-300 bg-white px-5 py-3 text-sm font-bold text-blue-800"
+                  className="inline-flex items-center gap-2 border border-primary-300 bg-white px-5 py-3 text-sm font-bold text-primary-800"
                 >
                   <Mail size={17} />
                   {email}
@@ -382,10 +382,10 @@ function OCRAutomationPage() {
 
           <article className="min-w-0 border border-slate-200 bg-white px-6 py-7 text-slate-800 sm:px-8 lg:px-10 lg:py-9">
             <header className="border-b border-slate-200 pb-7">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary-700">
                 Nhận dạng và xử lý tài liệu
               </p>
-              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-[#102b62] sm:text-3xl">
+              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-primary-900 sm:text-3xl">
                 Giải pháp OCR và tự động hóa
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600">
@@ -400,11 +400,11 @@ function OCRAutomationPage() {
                 {applications.map(({ icon: Icon, title, description }) => (
                   <div key={title} className="border border-slate-200 bg-slate-50 p-5">
                     <div className="flex items-start gap-4">
-                      <span className="grid h-11 w-11 shrink-0 place-items-center bg-blue-100 text-blue-700">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center bg-primary-100 text-primary-700">
                         <Icon size={22} />
                       </span>
                       <div>
-                        <h3 className="font-bold leading-6 text-[#102b62]">{title}</h3>
+                        <h3 className="font-bold leading-6 text-primary-900">{title}</h3>
                         <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
                       </div>
                     </div>
@@ -458,11 +458,11 @@ function OCRAutomationPage() {
               <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {process.map(({ icon: Icon, title }, index) => (
                   <li key={title} className="flex items-center gap-4 border border-slate-200 p-4">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center bg-[#102b62] text-white">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center bg-primary-900 text-white">
                       <Icon size={19} />
                     </span>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
+                      <p className="text-xs font-bold uppercase tracking-wide text-primary-700">
                         Bước {index + 1}
                       </p>
                       <p className="mt-1 font-bold text-slate-900">{title}</p>
@@ -485,29 +485,29 @@ function OCRAutomationPage() {
                   "Cấu hình phần mềm và mức độ kiểm tra dữ liệu đầu ra.",
                 ].map((item) => (
                   <li key={item} className="flex gap-3 border border-slate-200 p-4">
-                    <SlidersHorizontal className="mt-1 shrink-0 text-blue-700" size={18} />
+                    <SlidersHorizontal className="mt-1 shrink-0 text-primary-700" size={18} />
                     <span className="text-sm leading-6">{item}</span>
                   </li>
                 ))}
               </ul>
             </ContentSection>
 
-            <section className="mt-10 border border-blue-200 bg-blue-50 p-5 sm:p-6">
+            <section className="mt-10 border border-primary-200 bg-primary-50 p-5 sm:p-6">
               <div className="flex items-center gap-3">
-                <ScanText className="text-blue-700" size={24} />
-                <h2 className="text-lg font-black uppercase text-[#102b62]">Liên hệ HPT Tech</h2>
+                <ScanText className="text-primary-700" size={24} />
+                <h2 className="text-lg font-black uppercase text-primary-900">Liên hệ HPT Tech</h2>
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#102b62] px-5 py-3 text-sm font-bold text-white"
+                  className="inline-flex items-center gap-2 bg-primary-900 px-5 py-3 text-sm font-bold text-white"
                 >
                   <Phone size={17} />
                   {hotline}
                 </a>
                 <a
                   href={`mailto:${email}`}
-                  className="inline-flex items-center gap-2 border border-blue-300 bg-white px-5 py-3 text-sm font-bold text-blue-800"
+                  className="inline-flex items-center gap-2 border border-primary-300 bg-white px-5 py-3 text-sm font-bold text-primary-800"
                 >
                   <Mail size={17} />
                   {email}
@@ -558,10 +558,10 @@ function EnterpriseNetworkPage() {
 
           <article className="min-w-0 border border-slate-200 bg-white px-6 py-7 text-slate-800 sm:px-8 lg:px-10 lg:py-9">
             <header className="border-b border-slate-200 pb-7">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary-700">
                 Kết nối và vận hành hệ thống
               </p>
-              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-[#102b62] sm:text-3xl">
+              <h1 className="mt-3 text-2xl font-black uppercase leading-tight text-primary-900 sm:text-3xl">
                 Hạ tầng mạng doanh nghiệp
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600">
@@ -575,7 +575,7 @@ function EnterpriseNetworkPage() {
               <ul className="grid gap-3 md:grid-cols-2">
                 {needs.map((item) => (
                   <li key={item} className="flex gap-3 border border-slate-200 bg-slate-50 p-4">
-                    <CheckCircle2 className="mt-1 shrink-0 text-blue-700" size={18} />
+                    <CheckCircle2 className="mt-1 shrink-0 text-primary-700" size={18} />
                     <span className="text-sm leading-6">{item}</span>
                   </li>
                 ))}
@@ -627,11 +627,11 @@ function EnterpriseNetworkPage() {
               <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {process.map(({ icon: Icon, title }, index) => (
                   <li key={title} className="flex items-center gap-4 border border-slate-200 p-4">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center bg-[#102b62] text-white">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center bg-primary-900 text-white">
                       <Icon size={19} />
                     </span>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wide text-blue-700">
+                      <p className="text-xs font-bold uppercase tracking-wide text-primary-700">
                         Bước {index + 1}
                       </p>
                       <p className="mt-1 font-bold text-slate-900">{title}</p>
@@ -656,29 +656,29 @@ function EnterpriseNetworkPage() {
                   { icon: HardDrive, text: "Dung lượng lưu trữ và khả năng mở rộng." },
                 ].map(({ icon: Icon, text }) => (
                   <li key={text} className="flex gap-3 border border-slate-200 p-4">
-                    <Icon className="mt-1 shrink-0 text-blue-700" size={18} />
+                    <Icon className="mt-1 shrink-0 text-primary-700" size={18} />
                     <span className="text-sm leading-6">{text}</span>
                   </li>
                 ))}
               </ul>
             </ContentSection>
 
-            <section className="mt-10 border border-blue-200 bg-blue-50 p-5 sm:p-6">
+            <section className="mt-10 border border-primary-200 bg-primary-50 p-5 sm:p-6">
               <div className="flex items-center gap-3">
-                <Network className="text-blue-700" size={24} />
-                <h2 className="text-lg font-black uppercase text-[#102b62]">Liên hệ HPT Tech</h2>
+                <Network className="text-primary-700" size={24} />
+                <h2 className="text-lg font-black uppercase text-primary-900">Liên hệ HPT Tech</h2>
               </div>
               <div className="mt-4 flex flex-wrap gap-3">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#102b62] px-5 py-3 text-sm font-bold text-white"
+                  className="inline-flex items-center gap-2 bg-primary-900 px-5 py-3 text-sm font-bold text-white"
                 >
                   <Phone size={17} />
                   {hotline}
                 </a>
                 <a
                   href={`mailto:${email}`}
-                  className="inline-flex items-center gap-2 border border-blue-300 bg-white px-5 py-3 text-sm font-bold text-blue-800"
+                  className="inline-flex items-center gap-2 border border-primary-300 bg-white px-5 py-3 text-sm font-bold text-primary-800"
                 >
                   <Mail size={17} />
                   {email}
@@ -695,7 +695,7 @@ function EnterpriseNetworkPage() {
 function ContentSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-10">
-      <h2 className="text-xl font-black uppercase leading-8 text-[#315eff]">{title}</h2>
+      <h2 className="text-xl font-black uppercase leading-8 text-primary-600">{title}</h2>
       <div className="mt-5 space-y-5">{children}</div>
     </section>
   );
@@ -713,15 +713,15 @@ function InfoCard({
   return (
     <div className="border border-slate-200 p-5">
       <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center bg-blue-100 text-blue-700">
+        <span className="grid h-10 w-10 place-items-center bg-primary-100 text-primary-700">
           <Icon size={21} />
         </span>
-        <h3 className="font-bold text-[#102b62]">{title}</h3>
+        <h3 className="font-bold text-primary-900">{title}</h3>
       </div>
       <ul className="mt-4 space-y-2">
         {items.map((item) => (
           <li key={item} className="flex gap-2 text-sm leading-6 text-slate-600">
-            <CheckCircle2 className="mt-1 shrink-0 text-blue-600" size={16} />
+            <CheckCircle2 className="mt-1 shrink-0 text-primary-600" size={16} />
             <span>{item}</span>
           </li>
         ))}

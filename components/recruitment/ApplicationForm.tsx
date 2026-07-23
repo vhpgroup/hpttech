@@ -43,23 +43,23 @@ export function ApplicationForm({ jobTitle, jobCode }: { jobTitle: string; jobCo
 
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" noValidate>
-      <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#0A4BFF]">Ứng tuyển ngay</p>
-      <h2 className="mt-2 text-xl font-black text-[#102b62]">{jobTitle}</h2>
+      <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-primary-600">Ứng tuyển ngay</p>
+      <h2 className="mt-2 text-xl font-black text-primary-900">{jobTitle}</h2>
       <p className="mt-2 text-sm leading-6 text-slate-500">Điền thông tin và đính kèm CV để ứng tuyển vị trí này.</p>
 
       {jobCode ? <input type="hidden" name="jobCode" value={jobCode} /> : null}
       <div className="mt-5 grid gap-4">
         <label className="grid gap-1.5 text-sm font-bold text-slate-700">
           Họ và tên <span className="text-red-600">*</span>
-          <input required name="fullName" autoComplete="name" className="h-11 rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
+          <input required name="fullName" autoComplete="name" className="h-11 rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100" />
         </label>
         <label className="grid gap-1.5 text-sm font-bold text-slate-700">
           Số điện thoại <span className="text-red-600">*</span>
-          <input required name="phone" type="tel" autoComplete="tel" className="h-11 rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
+          <input required name="phone" type="tel" autoComplete="tel" className="h-11 rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100" />
         </label>
         <label className="grid gap-1.5 text-sm font-bold text-slate-700">
           Email <span className="text-red-600">*</span>
-          <input required name="email" type="email" autoComplete="email" className="h-11 rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
+          <input required name="email" type="email" autoComplete="email" className="h-11 rounded-lg border border-slate-200 px-3 font-normal outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100" />
         </label>
 
         <div>
@@ -72,15 +72,15 @@ export function ApplicationForm({ jobTitle, jobCode }: { jobTitle: string; jobCo
             onChange={(event) => handleFile(event.target.files?.[0])}
           />
           {file ? (
-            <div className="mt-2 flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
-              <FileText size={19} className="shrink-0 text-[#0A4BFF]" />
+            <div className="mt-2 flex items-center gap-3 rounded-lg border border-primary-200 bg-primary-50 p-3">
+              <FileText size={19} className="shrink-0 text-primary-600" />
               <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-700">{file.name}</span>
               <button type="button" aria-label="Xóa CV" onClick={() => { setFile(null); if (fileInput.current) fileInput.current.value = ""; }} className="text-slate-400 hover:text-red-600">
                 <Trash2 size={17} />
               </button>
             </div>
           ) : (
-            <button type="button" onClick={() => fileInput.current?.click()} className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-blue-300 bg-blue-50/60 px-4 py-5 text-sm font-bold text-[#0A4BFF] hover:bg-blue-50">
+            <button type="button" onClick={() => fileInput.current?.click()} className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-primary-300 bg-primary-50/60 px-4 py-5 text-sm font-bold text-primary-600 hover:bg-primary-50">
               <Upload size={18} />
               Chọn CV
             </button>
@@ -91,18 +91,18 @@ export function ApplicationForm({ jobTitle, jobCode }: { jobTitle: string; jobCo
 
         <label className="grid gap-1.5 text-sm font-bold text-slate-700">
           Tin nhắn
-          <textarea name="message" rows={4} className="rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-[#0A4BFF] focus:ring-4 focus:ring-blue-100" />
+          <textarea name="message" rows={4} className="rounded-lg border border-slate-200 p-3 font-normal outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100" />
         </label>
         <label className="flex items-start gap-2 text-xs leading-5 text-slate-600">
-          <input required type="checkbox" name="privacyConsent" className="mt-1 size-4 rounded border-slate-300 accent-[#0A4BFF]" />
+          <input required type="checkbox" name="privacyConsent" className="mt-1 size-4 rounded border-slate-300 accent-primary-600" />
           <span>
             Tôi đồng ý để HPT Tech xử lý thông tin ứng tuyển theo{" "}
-            <Link href="/chinh-sach-bao-mat" className="font-bold text-[#0A4BFF] hover:underline">chính sách bảo mật</Link>.
+            <Link href="/chinh-sach-bao-mat" className="font-bold text-primary-600 hover:underline">chính sách bảo mật</Link>.
           </span>
         </label>
       </div>
 
-      <button type="submit" className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#0A4BFF] text-sm font-bold text-white hover:bg-blue-700">
+      <button type="submit" className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary-600 text-sm font-bold text-white hover:bg-primary-700">
         Gửi hồ sơ ứng tuyển
         <Send size={16} />
       </button>

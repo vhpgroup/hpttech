@@ -203,7 +203,7 @@ export default async function ContentPage({ params, searchParams }: PageProps) {
         ]}
         cta={page.ctaHref ? (
           <Link
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-[#0A4BFF] px-5 text-sm font-bold text-white transition hover:bg-blue-700"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 text-sm font-bold text-white transition hover:bg-primary-700"
             href={page.ctaHref}
           >
             {page.ctaLabel}
@@ -277,14 +277,14 @@ function ProductCatalog() {
               ) : null}
             </a>
             <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{product.brand}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">{product.brand}</p>
               <h2 className="mt-2 line-clamp-2 min-h-12 text-base font-semibold text-slate-950">
                 {product.title}
               </h2>
               <p className="mt-2 line-clamp-2 min-h-10 text-sm text-slate-600">{product.detail}</p>
               <div className="mt-4 flex items-center justify-between gap-3">
-                <strong className="text-sm text-orange-600">{product.price}</strong>
-                <a className="text-sm font-semibold text-blue-700 hover:text-blue-900" href={product.href} target="_blank" rel="noreferrer">
+                <strong className="text-sm text-accent-600">{product.price}</strong>
+                <a className="text-sm font-semibold text-primary-700 hover:text-primary-900" href={product.href} target="_blank" rel="noreferrer">
                   Chi tiết
                 </a>
               </div>
@@ -356,7 +356,7 @@ async function ProjectList() {
     <section className="mt-8 grid gap-4 md:grid-cols-2">
       {projects.map((project) => (
         <article key={project.slug} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{project.industry}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">{project.industry}</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-950">{project.title}</h2>
           {project.client ? <p className="mt-1 text-sm font-medium text-slate-500">{project.client}</p> : null}
           {project.summary ? <p className="mt-3 text-sm leading-6 text-slate-600">{project.summary}</p> : null}
@@ -374,7 +374,7 @@ async function FAQList() {
     <section className="mt-8 grid gap-3">
       {faqs.map((faq) => (
         <article key={faq.question} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          {faq.category ? <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{faq.category}</p> : null}
+          {faq.category ? <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">{faq.category}</p> : null}
           <h2 className="mt-1 text-base font-semibold text-slate-950">{faq.question}</h2>
         </article>
       ))}
@@ -387,15 +387,15 @@ function ContactPanel({ settings }: { settings: ReturnType<typeof normalizeSiteS
 
   return (
     <section className="mt-8 grid gap-4 md:grid-cols-2">
-      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300" href={phoneHref(phone)}>
-        <PhoneCall className="text-blue-700" size={24} />
+      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300" href={phoneHref(phone)}>
+        <PhoneCall className="text-primary-700" size={24} />
         <div>
           <h2 className="font-semibold text-slate-950">Hotline</h2>
           <p className="text-sm text-slate-600">{phone}</p>
         </div>
       </a>
-      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300" href={`mailto:${settings.email}`}>
-        <Mail className="text-blue-700" size={24} />
+      <a className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-primary-300" href={`mailto:${settings.email}`}>
+        <Mail className="text-primary-700" size={24} />
         <div>
           <h2 className="font-semibold text-slate-950">Email báo giá</h2>
           <p className="text-sm text-slate-600">{settings.email}</p>

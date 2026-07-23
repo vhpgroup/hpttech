@@ -210,7 +210,7 @@ function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
       style={{ left, top }}
       aria-label={`Thông tin nhanh ${product.title}`}
     >
-      <header className="bg-gradient-to-r from-[#2457e8] to-[#637cf5] px-4 py-3.5 text-white">
+      <header className="bg-gradient-to-r from-primary-600 to-primary-400 px-4 py-3.5 text-white">
         <h3 className="text-[15px] font-extrabold leading-6">{product.title}</h3>
       </header>
 
@@ -235,7 +235,7 @@ function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
       <div className="space-y-2 px-4 py-3">
         {quickSpecs.map((spec) => (
           <div key={`${spec.label}-${spec.value}`} className="flex gap-2 text-[15px] leading-6 text-slate-700">
-            <Check size={16} className="mt-1 shrink-0 rounded-full bg-orange-500 p-[2px] text-white" strokeWidth={3} />
+            <Check size={16} className="mt-1 shrink-0 rounded-full bg-accent-500 p-[2px] text-white" strokeWidth={3} />
             <span>
               <strong>{spec.label}:</strong> {spec.value}
             </span>
@@ -258,7 +258,7 @@ function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
           </p>
 
           {product.discountBadge ? (
-            <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border-2 border-amber-300 bg-gradient-to-br from-amber-400 to-orange-500 px-2 text-sm font-black text-white shadow-sm">
+            <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border-2 border-amber-300 bg-gradient-to-br from-amber-400 to-accent-500 px-2 text-sm font-black text-white shadow-sm">
               {product.discountBadge}
             </span>
           ) : null}

@@ -50,16 +50,16 @@ export default function ContactForm({ icon, fallbackEmail }: { icon: React.React
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Họ tên
-          <input name="name" required className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-blue-600" placeholder="Nhập họ tên" />
+          <input name="name" required className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-primary-600" placeholder="Nhập họ tên" />
         </label>
         <label className="grid gap-2 text-sm font-semibold text-slate-700">
           Số điện thoại
-          <input name="phone" required className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-blue-600" placeholder="0876..." type="tel" />
+          <input name="phone" required className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-primary-600" placeholder="0876..." type="tel" />
         </label>
       </div>
       <label className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
         Nhu cầu
-        <select name="service" className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-blue-600">
+        <select name="service" className="h-11 rounded-md border border-slate-200 px-3 font-normal outline-none focus:border-primary-600">
           <option>Báo giá sản phẩm</option>
           <option>Tư vấn giải pháp</option>
           <option>Hỗ trợ kỹ thuật</option>
@@ -68,9 +68,9 @@ export default function ContactForm({ icon, fallbackEmail }: { icon: React.React
       </label>
       <label className="mt-4 grid gap-2 text-sm font-semibold text-slate-700">
         Nội dung
-        <textarea name="message" required className="min-h-32 rounded-md border border-slate-200 p-3 font-normal outline-none focus:border-blue-600" placeholder="Mô tả sản phẩm, số lượng, khu vực triển khai..." />
+        <textarea name="message" required className="min-h-32 rounded-md border border-slate-200 p-3 font-normal outline-none focus:border-primary-600" placeholder="Mô tả sản phẩm, số lượng, khu vực triển khai..." />
       </label>
-      <button className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-blue-700 px-5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60" type="submit" disabled={loading}>
+      <button className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary-700 px-5 text-sm font-semibold text-white hover:bg-primary-800 disabled:opacity-60" type="submit" disabled={loading}>
         {icon}
         {loading ? "Đang gửi..." : "Gửi yêu cầu"}
       </button>

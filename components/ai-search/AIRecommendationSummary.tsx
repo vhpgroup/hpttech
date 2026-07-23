@@ -12,9 +12,9 @@ export default function AIRecommendationSummary({ products }: AIRecommendationSu
     : 0;
 
   return (
-    <section className="rounded-lg border border-blue-100 bg-blue-50/70 p-5 shadow-sm">
+    <section className="rounded-lg border border-primary-100 bg-primary-50/70 p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white text-blue-700">
+        <span className="grid h-9 w-9 place-items-center rounded-lg bg-white text-primary-700">
           <Sparkles size={18} />
         </span>
         <div>
@@ -36,11 +36,11 @@ export default function AIRecommendationSummary({ products }: AIRecommendationSu
             <SummaryMetric icon={CircleDollarSign} label="Điểm trung bình" value={`${averageScore}%`} />
           </div>
 
-          <div className="rounded-lg border border-blue-100 bg-white p-4">
+          <div className="rounded-lg border border-primary-100 bg-white p-4">
             <p className="text-sm font-bold text-slate-900">Vì sao AI chọn nhóm này?</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {bestProduct.strengths.map((item) => (
-                <span key={item} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                <span key={item} className="rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                   {item}
                 </span>
               ))}
@@ -66,8 +66,8 @@ function SummaryMetric({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-blue-100 bg-white p-3">
-      <div className="flex items-center gap-2 text-blue-700">
+    <div className="rounded-lg border border-primary-100 bg-white p-3">
+      <div className="flex items-center gap-2 text-primary-700">
         <Icon size={16} />
         <span className="text-xs font-semibold uppercase tracking-[0.08em]">{label}</span>
       </div>

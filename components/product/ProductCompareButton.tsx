@@ -51,7 +51,7 @@ export default function ProductCompareButton({ product }: { product: CatalogProd
     <button
       type="button"
       onClick={handleClick}
-      className="group inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 hover:shadow-md"
+      className="group inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary-300 hover:bg-primary-100 hover:shadow-md"
     >
       {added ? <Check size={17} strokeWidth={3} /> : <Scale size={17} />}
       <span>{added ? "Xem danh sách so sánh" : "Thêm sản phẩm vào danh sách so sánh"}</span>
@@ -98,7 +98,7 @@ export function ProductCompareInlineButton({ product }: { product: CatalogProduc
     <button
       type="button"
       onClick={handleClick}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-100"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-primary-200 bg-primary-50 text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-100"
       aria-label={added ? "Xem danh sách so sánh" : "Thêm vào danh sách so sánh"}
       title={added ? "Xem danh sách so sánh" : "Thêm vào danh sách so sánh"}
     >
