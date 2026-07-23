@@ -258,7 +258,7 @@ function SocialLink({
     <a
       href={href}
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.14] text-white transition hover:-translate-y-0.5 hover:bg-[#0b74ff]"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.14] text-white transition hover:-translate-y-0.5 hover:bg-primary-500"
     >
       {logoSrc ? (
         <Image src={logoSrc} alt="" width={23} height={23} className="h-6 w-6 object-contain" aria-hidden="true" />

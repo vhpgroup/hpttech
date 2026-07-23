@@ -172,21 +172,21 @@ export default function WarrantyCenterPage() {
               <div className="mt-8 flex flex-wrap gap-3 border-t border-slate-200 pt-6">
                 <a
                   href={phoneHref(hotline)}
-                  className="inline-flex items-center gap-2 bg-[#536fe8] px-5 py-3 font-semibold text-white transition hover:bg-[#405cd2]"
+                  className="inline-flex items-center gap-2 bg-primary-500 px-5 py-3 font-semibold text-white transition hover:bg-primary-600"
                 >
                   <Phone size={18} />
                   Gọi {hotline}
                 </a>
                 <a
                   href={`mailto:${email}?subject=${encodeURIComponent("Yêu cầu bảo hành HPT Tech")}`}
-                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center gap-2 border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   <Mail size={18} />
                   Gửi email
                 </a>
                 <Link
                   href="/lien-he"
-                  className="inline-flex items-center border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-blue-400 hover:text-blue-700"
+                  className="inline-flex items-center border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-800 transition hover:border-primary-400 hover:text-primary-700"
                 >
                   Trang liên hệ
                 </Link>
@@ -201,7 +201,7 @@ export default function WarrantyCenterPage() {
 
 function DocumentTitle({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <h2 id={id} className="text-center text-xl font-black uppercase leading-8 text-[#315eff] sm:text-2xl">
+    <h2 id={id} className="text-center text-xl font-black uppercase leading-8 text-primary-600 sm:text-2xl">
       {children}
     </h2>
   );
@@ -218,7 +218,7 @@ function DocumentSection({
 }) {
   return (
     <section id={id} className="mt-10 scroll-mt-5">
-      <h3 className="text-xl font-black uppercase leading-8 text-[#315eff]">{title}</h3>
+      <h3 className="text-xl font-black uppercase leading-8 text-primary-600">{title}</h3>
       <div className="mt-5">{children}</div>
     </section>
   );
@@ -254,7 +254,7 @@ function ContactItem({
 }) {
   const content = (
     <>
-      <Icon className="mt-1 shrink-0 text-[#315eff]" size={19} />
+      <Icon className="mt-1 shrink-0 text-primary-600" size={19} />
       <div>
         <span className="font-bold text-slate-900">{label}: </span>
         <span>{value}</span>
@@ -263,7 +263,7 @@ function ContactItem({
   );
 
   return href ? (
-    <a href={href} className="flex gap-3 transition hover:text-blue-700">
+    <a href={href} className="flex gap-3 transition hover:text-primary-700">
       {content}
     </a>
   ) : (
