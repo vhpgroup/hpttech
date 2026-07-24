@@ -17,7 +17,23 @@ const DAYS = "Thứ 2 – Thứ 7";
 // Chỉ liệt kê địa chỉ THẬT đã công bố của HPT. `mapSrc` nhúng theo tọa độ
 // chính xác; `image` là ảnh thật (jpg) hoặc minh họa mặt tiền (png) khi chưa
 // có ảnh. Bố cục các section tự đảo trái/phải xen kẽ theo thứ tự mảng.
-const STORES = [
+type Store = {
+  id: string;
+  chip: string;
+  label: string;
+  heading: string;
+  address: string;
+  image: string;
+  imageW: number;
+  imageH: number;
+  imageAlt: string;
+  barTitle: string;
+  barSub: string;
+  mapSrc: string;
+  directions: string;
+};
+
+const STORES: Store[] = [
   {
     id: "hai-phong",
     chip: "Hải Phòng (Trụ sở)",
@@ -30,10 +46,10 @@ const STORES = [
     imageAlt: "Mặt tiền trụ sở & showroom HPT Tech tại SB04 Vinhomes Marina, Hải Phòng",
     barTitle: "SB04 VINHOMES MARINA",
     barSub: "Phường An Biên, TP. Hải Phòng",
+    // Pin doanh nghiệp "HPT Tech" trên Google Maps (embed do HPT cung cấp).
     mapSrc:
-      "https://www.google.com/maps?q=Vinhomes%20Marina%2C%20An%20Bi%C3%AAn%2C%20H%E1%BA%A3i%20Ph%C3%B2ng&hl=vi&output=embed",
-    directions:
-      "https://www.google.com/maps/search/?api=1&query=SB04%20Vinhomes%20Marina%2C%20An%20Bi%C3%AAn%2C%20H%E1%BA%A3i%20Ph%C3%B2ng",
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3729.256153855568!2d106.6875276859689!3d20.821360245318722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314a7155698f3c69%3A0x95aed3909eec7d29!2sHPT%20Tech!5e0!3m2!1sen!2s!4v1784883601930!5m2!1sen!2s",
+    directions: "https://www.google.com/maps/search/?api=1&query=20.8213602,106.6875277",
   },
   {
     id: "ho-chi-minh",
@@ -212,7 +228,8 @@ export default async function ShowroomPage() {
                   : "bg-white lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
               }`}
             >
-              <div className={alt ? "lg:order-2" : undefined}>
+              {/* flex-col + map flex-1: kéo cột info giãn cao bằng card ảnh bên cạnh */}
+              <div className={`flex flex-col ${alt ? "lg:order-2" : ""}`}>
                 <p className="text-[12.5px] font-extrabold uppercase tracking-[0.08em] text-[#da2127]">
                   {store.label}
                 </p>
@@ -282,11 +299,11 @@ export default async function ShowroomPage() {
                   </a>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-slate-200">
+                <div className="overflow-hidden rounded-xl border border-slate-200 lg:flex-1">
                   <iframe
                     title={`Bản đồ showroom ${store.chip}`}
                     src={store.mapSrc}
-                    className="block h-64 w-full border-0"
+                    className="block h-64 w-full border-0 lg:h-full lg:min-h-64"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     allowFullScreen
