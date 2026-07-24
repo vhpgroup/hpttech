@@ -150,10 +150,13 @@ export default function Header({
               <b>{phone}</b>
             </span>
           </a>
-          <a className="quote-btn" href={quoteMailHref(settings.email)}>
-            <BadgeCheck size={18} />
-            Báo giá nhanh
-          </a>
+          <Link className="header-hotline" href="/lien-he">
+            <Image src={`${R2_ICON}icon-header-showroom.png`} alt="" aria-hidden="true" width={32} height={32} />
+            <span>
+              <small>Hệ thống</small>
+              <b>Showroom</b>
+            </span>
+          </Link>
           <Link className="cart" href="/compare" aria-label="So sánh sản phẩm">
             <Image src={`${R2_ICON}icon-header-so-sanh.png`} alt="" aria-hidden="true" width={32} height={32} />
           </Link>
