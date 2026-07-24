@@ -114,8 +114,8 @@ export default function Header({
           <Image
             src={HPT_LOGO_SRC}
             alt={settings.companyName}
-            width={92}
-            height={54}
+            width={126}
+            height={44}
             priority
           />
         </Link>
@@ -131,7 +131,7 @@ export default function Header({
             id="searchInput"
             name="search"
             type="search"
-            placeholder="Tìm sản phẩm, giải pháp, thương hiệu..."
+            placeholder="Tìm sản phẩm, thương hiệu, mã SP..."
           />
           <select aria-label="Danh mục" name="category" defaultValue="">
             <option value="">Danh mục</option>
