@@ -1,27 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { CSSProperties } from "react";
-import {
-  BadgeCheck,
-  BatteryCharging,
-  Cable,
-  Copy,
-  Droplets,
-  Eye,
-  FolderOpen,
-  GraduationCap,
-  HardDrive,
-  Laptop,
-  List,
-  Monitor,
-  Network,
-  Printer,
-  Projector,
-  ScanLine,
-  Server,
-  Video,
-  Wrench,
-  Workflow,
-} from "lucide-react";
+import { List } from "lucide-react";
 import type { ProductCategoryNavItem } from "@/lib/catalog-payload";
 
 type MegaColumn = {
@@ -606,47 +586,73 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   return columns;
 }
 
-function getCategoryIcon(iconName: string, size = 20) {
-  switch (iconName) {
-    case "laptop":
-      return <Laptop size={size} />;
-    case "monitor":
-      return <Monitor size={size} />;
-    case "server":
-      return <Server size={size} />;
-    case "network":
-      return <Network size={size} />;
-    case "printer":
-      return <Printer size={size} />;
-    case "video":
-      return <Video size={size} />;
-    case "cctv":
-      return <Eye size={size} />;
-    case "graduation-cap":
-      return <GraduationCap size={size} />;
-    case "badge-check":
-      return <BadgeCheck size={size} />;
-    case "cable":
-      return <Cable size={size} />;
-    case "scan-line":
-      return <ScanLine size={size} />;
-    case "droplets":
-      return <Droplets size={size} />;
-    case "hard-drive":
-      return <HardDrive size={size} />;
-    case "wrench":
-      return <Wrench size={size} />;
-    case "workflow":
-      return <Workflow size={size} />;
-    case "copy":
-      return <Copy size={size} />;
-    case "projector":
-      return <Projector size={size} />;
-    case "battery-charging":
-      return <BatteryCharging size={size} />;
-    default:
-      return <FolderOpen size={size} />;
-  }
+// Icon 3D danh mục — bộ icon tùy chỉnh phong cách Fluent 3D (nền trong suốt),
+// tự host trên media R2 của site: /api/r2-media/icon-danh-muc-<slug>.png.
+// Match theo TÊN danh mục (chuẩn hóa thường) trước, fallback theo key `icon` cũ.
+const CATEGORY_ICON_BASE = "/api/r2-media/icon-danh-muc-";
+
+const CATEGORY_ICON_BY_NAME: Record<string, string> = {
+  "laptop gaming - đồ họa": "laptop-gaming",
+  "laptop văn phòng": "laptop-van-phong",
+  "máy tính đồng bộ - máy chủ": "pc-may-chu",
+  "máy tính đồng bộ & máy chủ": "pc-may-chu",
+  "thiết bị mạng": "thiet-bi-mang",
+  "thiết bị văn phòng": "thiet-bi-van-phong",
+  "thiết bị hội nghị": "hoi-nghi",
+  "camera & an ninh": "camera-an-ninh",
+  "thiết bị giáo dục": "giao-duc",
+  "phần mềm bản quyền": "phan-mem",
+  "linh kiện & phụ kiện": "linh-kien",
+  "máy in": "may-in",
+  "máy scan": "may-scan",
+  "mực in & phụ kiện": "muc-in",
+  "mực in & vật tư": "muc-in",
+  "lưu trữ & backup": "luu-tru",
+  "dịch vụ kỹ thuật": "dich-vu",
+  "giải pháp số hóa": "so-hoa",
+  "máy photocopy": "photocopy",
+  "máy chiếu": "may-chieu",
+};
+
+const CATEGORY_ICON_BY_KEY: Record<string, string> = {
+  laptop: "laptop-gaming",
+  monitor: "laptop-van-phong",
+  server: "pc-may-chu",
+  network: "thiet-bi-mang",
+  printer: "may-in",
+  video: "hoi-nghi",
+  cctv: "camera-an-ninh",
+  "graduation-cap": "giao-duc",
+  "badge-check": "phan-mem",
+  cable: "linh-kien",
+  "scan-line": "may-scan",
+  droplets: "muc-in",
+  "hard-drive": "luu-tru",
+  wrench: "dich-vu",
+  workflow: "so-hoa",
+  copy: "photocopy",
+  projector: "may-chieu",
+};
+
+// Danh mục chưa có icon riêng → dùng icon khối lập phương (trừu tượng, trung tính).
+const CATEGORY_ICON_FALLBACK = "so-hoa";
+
+function getCategoryIcon(category: { name: string; icon?: string }, size = 22) {
+  const nameKey = category.name.trim().toLowerCase();
+  const slug =
+    CATEGORY_ICON_BY_NAME[nameKey] ||
+    CATEGORY_ICON_BY_KEY[category.icon || ""] ||
+    CATEGORY_ICON_FALLBACK;
+  return (
+    <Image
+      src={`${CATEGORY_ICON_BASE}${slug}.png`}
+      alt=""
+      aria-hidden="true"
+      width={size}
+      height={size}
+      loading="lazy"
+    />
+  );
 }
 
 export default function CategoryPanel({ categories }: { categories: ProductCategoryNavItem[] }) {
@@ -662,7 +668,7 @@ export default function CategoryPanel({ categories }: { categories: ProductCateg
             style={{ ["--menu-index" as string]: index } as CSSProperties}
           >
             <Link href={categoryLandingHref(category)}>
-              {getCategoryIcon(category.icon || "")}
+              {getCategoryIcon(category)}
               <span>{category.name}</span>
             </Link>
             {megaColumns.length ? <CategoryMegaPanel columns={megaColumns} /> : null}

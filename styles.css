@@ -702,6 +702,20 @@ main {
   color: #285fbc;
 }
 
+/* Icon 3D Fluent Emoji ở sidebar danh mục — khớp cột 22px của grid. */
+.category-panel a img {
+  width: 22px;
+  height: 22px;
+  justify-self: center;
+  object-fit: contain;
+  transition: transform 200ms ease;
+}
+
+.category-item:hover > a img,
+.category-panel a:hover img {
+  transform: scale(1.12);
+}
+
 .category-panel a span {
   display: block;
   white-space: nowrap;
