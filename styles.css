@@ -1145,6 +1145,14 @@ main {
   padding: 6px;
 }
 
+/* Icon 3D Fluent ở dải cam kết — icon tự mang hình khối, không cần nền tròn. */
+.trust-item img {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  object-fit: contain;
+}
+
 .trust-item span {
   display: flex;
   align-items: center;

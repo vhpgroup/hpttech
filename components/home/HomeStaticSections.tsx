@@ -1,41 +1,36 @@
 import Image from "next/image";
-import { ArrowRight, CircleDollarSign, FileCheck2, ShieldCheck, Truck, Wrench } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
 import type { PublicSolution } from "@/lib/content-payload";
+
+// Icon 3D dải cam kết — cùng bộ phong cách Fluent 3D với icon sidebar danh mục,
+// tự host trên media R2 của site (/api/r2-media/icon-cam-ket-<slug>.png).
+const TRUST_ITEMS = [
+  { icon: "chinh-hang", label: "Chính hãng 100%" },
+  { icon: "gia-tot", label: "Giá tốt doanh nghiệp" },
+  { icon: "giao-hang", label: "Giao hàng toàn quốc" },
+  { icon: "ho-tro", label: "Hỗ trợ kỹ thuật" },
+  { icon: "xuat-vat", label: "Xuất VAT đầy đủ" },
+];
 
 export function TrustStrip() {
   return (
     <section className="trust-strip" aria-label="Cam kết dịch vụ HPT Tech">
-      <article className="trust-item">
-        <ShieldCheck size={22} />
-        <span>
-          <strong>Chính hãng 100%</strong>
-        </span>
-      </article>
-      <article className="trust-item">
-        <CircleDollarSign size={22} />
-        <span>
-          <strong>Giá tốt doanh nghiệp</strong>
-        </span>
-      </article>
-      <article className="trust-item">
-        <Truck size={22} />
-        <span>
-          <strong>Giao hàng toàn quốc</strong>
-        </span>
-      </article>
-      <article className="trust-item">
-        <Wrench size={22} />
-        <span>
-          <strong>Hỗ trợ kỹ thuật</strong>
-        </span>
-      </article>
-      <article className="trust-item">
-        <FileCheck2 size={22} />
-        <span>
-          <strong>Xuất VAT đầy đủ</strong>
-        </span>
-      </article>
+      {TRUST_ITEMS.map((item) => (
+        <article className="trust-item" key={item.icon}>
+          <Image
+            src={`/api/r2-media/icon-cam-ket-${item.icon}.png`}
+            alt=""
+            aria-hidden="true"
+            width={30}
+            height={30}
+            loading="lazy"
+          />
+          <span>
+            <strong>{item.label}</strong>
+          </span>
+        </article>
+      ))}
     </section>
   );
 }
