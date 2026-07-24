@@ -114,12 +114,20 @@ textarea {
   }
 }
 
-.utility-topbar,
-.main-header,
-.nav,
 .footer {
   width: var(--shell-width);
   margin: 0 auto;
+}
+
+/* Ba dải header (topbar đỏ / header trắng / nav navy) tràn màu full màn hình,
+   nội dung bên trong vẫn canh theo shell bằng padding hai bên. Dùng 100%
+   (không dùng 100vw) để không lệch vì bề rộng thanh cuộn. */
+.utility-topbar,
+.main-header,
+.nav {
+  --band-pad: calc((100% - var(--shell-width)) / 2);
+  width: 100%;
+  margin: 0;
 }
 
 main {
@@ -139,18 +147,19 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 0 20px;
-  background: #f8fafc;
-  color: #5b6b82;
+  padding: 0 calc(var(--band-pad) + 20px);
+  background: var(--hpt-red);
+  color: rgba(255, 255, 255, 0.95);
   font-size: 12px;
-  border-bottom: 1px solid #e8edf4;
 }
 
-/* Icon 3D Fluent ở topbar (mail / giờ làm việc / hỗ trợ). */
+/* Icon 3D Fluent ở topbar — nhuộm trắng (silhouette) cho rõ trên nền đỏ. */
 .utility-topbar img {
   width: 16px;
   height: 16px;
   object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
 }
 
 .utility-topbar p {
@@ -173,12 +182,14 @@ main {
 }
 
 .utility-topbar a:hover {
-  color: var(--blue);
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .main-header {
   height: 74px;
-  padding: 0 20px 0 0;
+  padding: 0 calc(var(--band-pad) + 20px) 0 var(--band-pad);
   display: flex;
   align-items: center;
   gap: 0;
@@ -576,7 +587,7 @@ main {
   height: 44px;
   display: flex;
   align-items: stretch;
-  padding: 0;
+  padding: 0 var(--band-pad);
   background: #0f2557;
   color: white;
   box-shadow: 0 8px 22px rgba(15, 37, 87, 0.16);
