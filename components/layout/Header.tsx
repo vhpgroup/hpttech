@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BadgeCheck,
   FileText,
@@ -24,10 +24,6 @@ const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 // icon sidebar danh mục + dải cam kết).
 const R2_ICON = "/api/r2-media/";
 
-// Danh mục cho dropdown ô tìm kiếm header. `slug` PHẢI là slug danh mục thật —
-// ô tìm kiếm submit ?category=<slug> và productSearchWhere khớp theo c/pc/ppc.slug.
-type HeaderCategoryOption = { name: string; slug: string };
-
 const navLinks = [
   { href: "/san-pham", label: "Sản phẩm" },
   { href: "/giai-phap", label: "Giải pháp" },
@@ -42,37 +38,47 @@ const navLinks = [
 
 export default function Header({
   settings,
-  categories = [],
+  categoryMenu,
 }: {
   settings: Required<PublicSiteSettings>;
-  categories?: HeaderCategoryOption[];
+  /** Panel danh mục (CategoryPanel render phía server) thả xuống khi bấm nút "Danh mục". */
+  categoryMenu?: ReactNode;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Panel danh mục kiểu GearVN: bấm nút → panel hiện đúng vị trí sidebar chuẩn
+  // (cột trái shell, ngay dưới nav), phần còn lại của trang phủ xám.
+  const [catMenuOpen, setCatMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const phone = settings.hotline || settings.phone;
 
-  // Điều hướng khi submit ô tìm kiếm header:
-  //  - CÓ chọn danh mục → landing rút gọn /<slug> (kiểu An Phát), kèm ?search=<kw> nếu có
-  //    từ khóa (landing đã hỗ trợ free-text search — xem parseLandingSearchParams).
-  //  - KHÔNG chọn danh mục + có từ khóa → /san-pham?search=<kw> (tìm toàn site).
-  //  - Không có gì → /san-pham.
+  // Đóng panel danh mục khi điều hướng sang trang khác.
+  useEffect(() => {
+    setCatMenuOpen(false);
+  }, [pathname]);
+
+  // Khi panel mở: khóa scroll nền + đóng bằng phím Esc.
+  useEffect(() => {
+    if (!catMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setCatMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [catMenuOpen]);
+
+  // Ô tìm kiếm header: tìm toàn site → /san-pham?search=<kw>.
+  // (Chọn theo danh mục đã chuyển sang nút "Danh mục" riêng bên cạnh.)
   // Vẫn giữ action/method GET làm fallback khi JS tắt.
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const search = String(data.get("search") ?? "").trim();
-    const category = String(data.get("category") ?? "").trim();
-    const query = new URLSearchParams();
-    if (search) query.set("search", search);
-    const qs = query.toString() ? `?${query.toString()}` : "";
-
-    // Chọn danh mục → landing của danh mục đó (giữ từ khóa nếu có).
-    if (category) {
-      router.push(`/${encodeURIComponent(category)}${qs}`);
-      return;
-    }
-
-    router.push(`/san-pham${qs}`);
+    router.push(search ? `/san-pham?search=${encodeURIComponent(search)}` : "/san-pham");
   }
 
   return (
@@ -116,6 +122,19 @@ export default function Header({
           />
         </Link>
 
+        <div className="header-cat desktop-only">
+          <button
+            type="button"
+            className={`header-cat-btn${catMenuOpen ? " open" : ""}`}
+            aria-expanded={catMenuOpen}
+            aria-controls="headerCategoryPanel"
+            onClick={() => setCatMenuOpen((open) => !open)}
+          >
+            <Menu size={17} strokeWidth={2.5} />
+            Danh mục
+          </button>
+        </div>
+
         <form
           className="search desktop-only"
           role="search"
@@ -123,14 +142,6 @@ export default function Header({
           method="get"
           onSubmit={handleSearchSubmit}
         >
-          <select aria-label="Danh mục" name="category" defaultValue="">
-            <option value="">Danh mục</option>
-            {categories.map((category) => (
-              <option key={category.slug} value={category.slug}>
-                {category.name}
-              </option>
-            ))}
-          </select>
           <input
             id="searchInput"
             name="search"
@@ -163,6 +174,22 @@ export default function Header({
           <HeaderCartButton />
         </div>
       </header>
+
+      {/* Panel danh mục kiểu GearVN: overlay xám + panel ở vị trí sidebar chuẩn.
+          Đặt ngoài .main-header để absolute không neo vào header (mobile sticky). */}
+      {catMenuOpen ? (
+        <>
+          <button
+            type="button"
+            className="header-cat-overlay"
+            aria-label="Đóng danh mục"
+            onClick={() => setCatMenuOpen(false)}
+          />
+          <div className="header-cat-panel" id="headerCategoryPanel">
+            {categoryMenu}
+          </div>
+        </>
+      ) : null}
 
       <button
         className={`mobile-menu-overlay ${mobileMenuOpen ? "open" : ""}`}
