@@ -150,7 +150,7 @@ export default function Header({
               <b>{phone}</b>
             </span>
           </a>
-          <Link className="header-hotline" href="/lien-he">
+          <Link className="header-hotline" href="/he-thong-showroom">
             <Image src={`${R2_ICON}icon-header-showroom.png`} alt="" aria-hidden="true" width={32} height={32} />
             <span>
               <small>Hệ thống</small>
