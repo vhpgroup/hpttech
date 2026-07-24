@@ -143,13 +143,15 @@ export default async function ShowroomPage() {
   };
 
   return (
-    <main className="mx-auto w-[var(--shell-width)] pb-14 pt-3">
+    <main className="pb-14 pt-3">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(storesSchema) }}
       />
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
+      {/* Căn giữa bằng div bọc: global CSS có `main { margin: 0 }` nên không
+          đặt mx-auto trực tiếp trên <main> (bị đè do thứ tự ưu tiên layer). */}
+      <div className="mx-auto w-[var(--shell-width)] overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
         {/* HERO — minh họa + tiêu đề (overlay trên desktop, xếp dọc trên mobile) */}
         <section className="relative bg-[#e7f0fd]">
           <div className="px-4 pb-5 pt-7 text-center lg:absolute lg:inset-x-0 lg:top-[6%] lg:z-10 lg:p-0">
