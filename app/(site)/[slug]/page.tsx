@@ -62,7 +62,10 @@ function parseLandingSearchParams(
   const sort = firstParam(params.sort);
   return {
     page: Number(firstParam(params.page) || 1),
-    search: "",
+    // Landing /<slug> nay HỖ TRỢ free-text search: đọc ?search= để lọc trong danh mục.
+    // getProductSearchPageFromPayload xử lý search (đã unaccent ở #47); facetScope vẫn
+    // "category" nên facet giữ phạm vi danh mục.
+    search: firstParam(params.search) || "",
     category: categorySlug,
     facetScope: "category",
     brand: firstParam(params.brand) || "",
