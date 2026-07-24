@@ -5,17 +5,13 @@ import Image from "next/image";
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Clock,
+  BadgeCheck,
   FileText,
-  Headset,
   Home,
-  Mail,
   Menu,
   Package,
-  Scale,
-  Search,
-  BadgeCheck,
   PhoneCall,
+  Search,
   X,
 } from "lucide-react";
 import HeaderCartButton from "@/components/cart/HeaderCartButton";
@@ -24,8 +20,12 @@ import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
 const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 
+// Icon 3D phong cách Fluent, tự host trên media R2 của site (cùng bộ với
+// icon sidebar danh mục + dải cam kết).
+const R2_ICON = "/api/r2-media/";
+
 // Danh mục cho dropdown ô tìm kiếm header. `slug` PHẢI là slug danh mục thật —
-// dùng để điều hướng tới landing /<slug> và để productSearchWhere khớp c/pc/ppc.slug.
+// ô tìm kiếm submit ?category=<slug> và productSearchWhere khớp theo c/pc/ppc.slug.
 type HeaderCategoryOption = { name: string; slug: string };
 
 const navLinks = [
@@ -81,19 +81,15 @@ export default function Header({
         <p>{settings.companyName} - Công ty TNHH đầu tư xây dựng và thiết bị công nghệ HPT</p>
         <div>
           <a href={`mailto:${settings.email}`}>
-            <Mail size={14} />
+            <Image src={`${R2_ICON}icon-topbar-mail.png`} alt="" aria-hidden="true" width={16} height={16} />
             {settings.email}
           </a>
           <span>
-            <Clock size={14} />
+            <Image src={`${R2_ICON}icon-topbar-gio-lam-viec.png`} alt="" aria-hidden="true" width={16} height={16} />
             8:00 - 17:30
           </span>
-          <a href={phoneHref(phone)}>
-            <PhoneCall size={14} />
-            {phone}
-          </a>
           <Link href="/lien-he">
-            <Headset size={14} />
+            <Image src={`${R2_ICON}icon-topbar-ho-tro-kt.png`} alt="" aria-hidden="true" width={16} height={16} />
             Hỗ trợ kỹ thuật
           </Link>
         </div>
@@ -114,8 +110,8 @@ export default function Header({
           <Image
             src={HPT_LOGO_SRC}
             alt={settings.companyName}
-            width={92}
-            height={54}
+            width={115}
+            height={40}
             priority
           />
         </Link>
@@ -127,12 +123,6 @@ export default function Header({
           method="get"
           onSubmit={handleSearchSubmit}
         >
-          <input
-            id="searchInput"
-            name="search"
-            type="search"
-            placeholder="Tìm sản phẩm, giải pháp, thương hiệu..."
-          />
           <select aria-label="Danh mục" name="category" defaultValue="">
             <option value="">Danh mục</option>
             {categories.map((category) => (
@@ -141,32 +131,34 @@ export default function Header({
               </option>
             ))}
           </select>
+          <input
+            id="searchInput"
+            name="search"
+            type="search"
+            placeholder="Tìm sản phẩm, thương hiệu, mã SP..."
+          />
           <button type="submit" aria-label="Tìm kiếm">
             <Search size={20} />
           </button>
         </form>
 
-        <div className="quick desktop-only">
-          <a href={quoteMailHref(settings.email)}>
-            <BadgeCheck size={20} />
-            <div>
-              <b>Báo giá nhanh</b>
-              <small>Phản hồi trong 15p</small>
-            </div>
+        <div className="header-actions">
+          <a className="header-hotline" href={phoneHref(phone)}>
+            <Image src={`${R2_ICON}icon-header-hotline.png`} alt="" aria-hidden="true" width={32} height={32} />
+            <span>
+              <small>Hotline 24/7</small>
+              <b>{phone}</b>
+            </span>
           </a>
-          <a href={phoneHref(phone)}>
-            <PhoneCall size={20} />
-            <div>
-              <b>Hotline</b>
-              <small>{phone}</small>
-            </div>
+          <a className="quote-btn" href={quoteMailHref(settings.email)}>
+            <BadgeCheck size={18} />
+            Báo giá nhanh
           </a>
+          <Link className="cart" href="/compare" aria-label="So sánh sản phẩm">
+            <Image src={`${R2_ICON}icon-header-so-sanh.png`} alt="" aria-hidden="true" width={32} height={32} />
+          </Link>
+          <HeaderCartButton />
         </div>
-
-        <Link className="cart" href="/compare" aria-label="So sánh sản phẩm">
-          <Scale size={22} />
-        </Link>
-        <HeaderCartButton />
       </header>
 
       <button

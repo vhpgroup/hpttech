@@ -6,6 +6,9 @@
   --muted: #6b7890;
   --blue: var(--color-primary-600);
   --blue-2: #22a7ff;
+  /* Đỏ thương hiệu lấy đúng từ file logo HPT (chữ TECHNOLOGY). */
+  --hpt-red: #da2127;
+  --hpt-red-dark: #c11d23;
   --bg: #f4f7fb;
   --card: #ffffff;
   --radius: 8px;
@@ -131,16 +134,23 @@ main {
 }
 
 .utility-topbar {
-  height: 32px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 0 18px;
+  padding: 0 20px;
   background: #f8fafc;
-  color: #475569;
-  font-size: 13px;
-  border-bottom: 1px solid #e2e8f0;
+  color: #5b6b82;
+  font-size: 12px;
+  border-bottom: 1px solid #e8edf4;
+}
+
+/* Icon 3D Fluent ở topbar (mail / giờ làm việc / hỗ trợ). */
+.utility-topbar img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .utility-topbar p {
@@ -167,39 +177,44 @@ main {
 }
 
 .main-header {
-  height: 74px;
-  padding: 0 18px;
+  height: 66px;
+  padding: 0 20px 0 0;
   display: flex;
   align-items: center;
-  gap: clamp(12px, 1.5vw, 22px);
+  gap: 0;
   background: #ffffff;
   color: #0f172a;
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
 }
 
+/* Slot logo rộng ĐÚNG bằng khối "Danh mục sản phẩm" ở nav dưới
+   → mép trái ô tìm kiếm thẳng hàng với ranh giới khối danh mục / Trang chủ. */
 .brand {
-  flex: 0 0 auto;
+  flex: 0 0 var(--catalog-width);
+  display: flex;
+  align-items: center;
+  padding-left: clamp(12px, 1.5vw, 24px);
 }
 
 .brand img {
-  width: 126px;
-  height: 52px;
+  width: 115px;
+  height: 40px;
   object-fit: contain;
 }
 
 .search {
   flex: 1;
-  max-width: 760px;
+  max-width: 730px;
   min-width: 0;
-  height: 48px;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  display: grid;
-  grid-template-columns: 1fr 160px 52px;
+  height: 44px;
+  margin-right: 20px;
+  border: 2px solid var(--blue);
+  border-radius: 10px;
+  display: flex;
+  align-items: stretch;
   overflow: hidden;
   background: #ffffff;
-  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.02);
 }
 
 .search input,
@@ -216,18 +231,36 @@ main {
 }
 
 .search input {
-  padding: 0 22px;
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 0 14px;
 }
 
+/* Dropdown danh mục nằm TRONG ô tìm kiếm, bên TRÁI (kiểu Amazon). */
 .search select {
-  border-left: 1px solid #d8e4f5;
-  padding: 0 18px;
+  flex: 0 0 128px;
+  width: 128px;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+  padding: 0 12px;
+  font-size: 13px;
   font-weight: 700;
+  color: #334155;
 }
 
 .search:focus-within {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.search button[type="submit"] {
+  width: 56px;
+  background: var(--blue);
+  color: #ffffff;
+  transition: background 0.18s ease;
+}
+
+.search button[type="submit"]:hover {
+  background: var(--color-primary-700);
 }
 
 .search button,
@@ -241,84 +274,106 @@ main {
   cursor: pointer;
 }
 
-.quick {
+/* Cụm hành động bên phải: hotline (icon 3D) + nút Báo giá đỏ + so sánh + giỏ. */
+.header-actions {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 22px;
   margin-left: auto;
   flex-shrink: 0;
 }
 
-.quick a {
-  display: grid;
-  min-width: 150px;
-  min-height: 48px;
-  grid-template-columns: 30px auto;
-  column-gap: 10px;
+.header-hotline {
+  display: flex;
   align-items: center;
-  padding: 0 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 8px 22px rgba(15, 54, 105, 0.06);
-  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  gap: 10px;
+  color: #0f172a;
 }
 
-.quick a:first-child {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-  color: var(--blue);
+.header-hotline img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
-.quick svg {
-  grid-row: span 2;
-  color: var(--blue);
-}
-
-.quick b {
+.header-hotline small {
   display: block;
-  font-size: 13px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.header-hotline b {
+  display: block;
+  font-size: 13.5px;
   line-height: 1.1;
 }
 
-.quick small {
-  display: block;
-  margin-top: 3px;
-  color: #5f789a;
-  font-size: 11px;
-  white-space: nowrap;
+/* CTA chính — đỏ thương hiệu HPT (lấy từ logo). */
+.quote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  background: var(--hpt-red);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 800;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(218, 33, 39, 0.28);
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.quick a:hover {
-  background: #eef6ff;
-  border-color: #86b8ff;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.12);
+.quote-btn svg {
+  width: 18px;
+  height: 18px;
+  color: #ffffff;
+}
+
+.quote-btn:hover {
+  background: var(--hpt-red-dark);
   transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(218, 33, 39, 0.34);
 }
 
 .cart {
   position: relative;
-  width: 48px;
-  height: 48px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  flex: 0 0 48px;
-  background: #ffffff;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 10px;
+  flex: 0 0 40px;
+  background: transparent;
   color: #0f172a;
-  box-shadow: 0 8px 22px rgba(15, 54, 105, 0.06);
+  box-shadow: none;
+  transition: transform 0.18s ease;
+}
+
+.cart:hover {
+  transform: translateY(-1px);
+}
+
+/* Icon 3D so sánh / giỏ hàng. */
+.cart img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .cart span {
   position: absolute;
-  right: -3px;
-  top: -3px;
-  width: 20px;
-  height: 20px;
+  right: -4px;
+  top: -4px;
+  width: 18px;
+  height: 18px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--blue);
-  font-size: 12px;
-  font-weight: 700;
+  background: var(--hpt-red);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 0 0 2px #ffffff;
 }
 
 #cartShell {
@@ -542,13 +597,13 @@ main {
 }
 
 .nav {
-  height: 44px;
+  height: 42px;
   display: flex;
   align-items: stretch;
   padding: 0;
-  background: var(--color-primary-800);
+  background: #0f2557;
   color: white;
-  box-shadow: 0 8px 22px rgba(30, 64, 175, 0.14);
+  box-shadow: 0 8px 22px rgba(15, 37, 87, 0.16);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -587,7 +642,7 @@ main {
   bottom: 0;
   height: 3px;
   border-radius: 999px 999px 0 0;
-  background: #22a7ff;
+  background: var(--hpt-red);
   opacity: 0;
   transform: scaleX(0.35);
   transform-origin: center;
@@ -2932,26 +2987,19 @@ svg {
 }
 
 @media (min-width: 761px) and (max-width: 1023px) {
-  .quick a {
-    min-width: 132px;
-    padding: 0 12px;
+  .header-hotline b {
+    font-size: 12.5px;
   }
 
-  .quick b {
-    font-size: 12px;
-  }
-
-  .quick small {
-    font-size: 10px;
-  }
-
-  .search {
-    grid-template-columns: 1fr 138px 48px;
+  .search select {
+    flex-basis: 112px;
+    width: 112px;
   }
 }
 
 @media (max-width: 1023px) {
-  .quick {
+  .header-hotline,
+  .quote-btn {
     display: none;
   }
 
@@ -3178,7 +3226,9 @@ svg {
   }
 
   .brand {
+    flex: 0 0 auto;
     margin: 0 auto;
+    padding-left: 0;
   }
 
   .brand img {
@@ -3191,6 +3241,11 @@ svg {
     height: 38px;
     border: 0;
     flex: 0 0 38px;
+  }
+
+  .cart img {
+    width: 28px;
+    height: 28px;
   }
 
   main {
