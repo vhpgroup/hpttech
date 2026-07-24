@@ -23,6 +23,11 @@ import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
 const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 
+// Danh mục cho dropdown ô tìm kiếm header. `slug` PHẢI là slug danh mục thật —
+// ô tìm kiếm submit ?category=<slug> và productSearchWhere khớp theo c/pc/ppc.slug.
+// (Trước đây hardcode 2 option dùng TÊN "Máy in"/"Máy scan" → không khớp slug → 0 kết quả.)
+type HeaderCategoryOption = { name: string; slug: string };
+
 const navLinks = [
   { href: "/san-pham", label: "Sản phẩm" },
   { href: "/giai-phap", label: "Giải pháp" },
@@ -35,7 +40,13 @@ const navLinks = [
   { href: "/lien-he", label: "Liên hệ" },
 ];
 
-export default function Header({ settings }: { settings: Required<PublicSiteSettings> }) {
+export default function Header({
+  settings,
+  categories = [],
+}: {
+  settings: Required<PublicSiteSettings>;
+  categories?: HeaderCategoryOption[];
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const phone = settings.hotline || settings.phone;
 
@@ -91,10 +102,13 @@ export default function Header({ settings }: { settings: Required<PublicSiteSett
             type="search"
             placeholder="Tìm sản phẩm, giải pháp, thương hiệu..."
           />
-          <select aria-label="Danh mục" name="category">
+          <select aria-label="Danh mục" name="category" defaultValue="">
             <option value="">Danh mục</option>
-            <option value="Máy in">Máy in</option>
-            <option value="Máy scan">Máy scan</option>
+            {categories.map((category) => (
+              <option key={category.slug} value={category.slug}>
+                {category.name}
+              </option>
+            ))}
           </select>
           <button type="submit" aria-label="Tìm kiếm">
             <Search size={20} />
