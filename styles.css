@@ -308,32 +308,8 @@ main {
   line-height: 1.1;
 }
 
-/* CTA chính — đỏ thương hiệu HPT (lấy từ logo). */
-.quote-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 48px;
-  padding: 0 18px;
-  background: var(--hpt-red);
-  color: #ffffff;
-  font-size: 13.5px;
-  font-weight: 800;
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(218, 33, 39, 0.28);
-  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
-}
-
-.quote-btn svg {
-  width: 18px;
-  height: 18px;
-  color: #ffffff;
-}
-
-.quote-btn:hover {
-  background: var(--hpt-red-dark);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(218, 33, 39, 0.34);
+.header-hotline:hover b {
+  color: var(--blue);
 }
 
 .cart {
@@ -2998,8 +2974,7 @@ svg {
 }
 
 @media (max-width: 1023px) {
-  .header-hotline,
-  .quote-btn {
+  .header-hotline {
     display: none;
   }
 
