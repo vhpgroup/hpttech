@@ -1466,6 +1466,42 @@ function productSearchOrder(sort?: ProductSearchParams["sort"]) {
   return "p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
 }
 
+// --- Tìm kiếm KHÔNG PHÂN BIỆT DẤU (accent-insensitive) ---------------------
+// Người dùng Việt thường gõ KHÔNG dấu ("may in") nhưng dữ liệu lưu CÓ dấu
+// ("máy in"). Phải bỏ dấu ở CẢ HAI phía khi so khớp:
+//  - phía SQL: translate() (KHÔNG phụ thuộc extension `unaccent` → an toàn trên
+//    mọi Postgres, không cần CREATE EXTENSION / quyền superuser);
+//  - phía JS: tra cùng bảng VN_ACCENT_* (đối xứng với translate ở SQL).
+// Hai bộ ký tự dựng từ cùng bảng nhóm nên LUÔN cùng độ dài (translate map 1-1).
+const VN_ACCENT_GROUPS: ReadonlyArray<readonly [string, string]> = [
+  ["a", "àáạảãâầấậẩẫăằắặẳẵ"],
+  ["e", "èéẹẻẽêềếệểễ"],
+  ["i", "ìíịỉĩ"],
+  ["o", "òóọỏõôồốộổỗơờớợởỡ"],
+  ["u", "ùúụủũưừứựửữ"],
+  ["y", "ỳýỵỷỹ"],
+  ["d", "đ"],
+];
+const VN_ACCENT_FROM = VN_ACCENT_GROUPS.map(([, chars]) => chars).join("");
+const VN_ACCENT_TO = VN_ACCENT_GROUPS.map(([base, chars]) => base.repeat(chars.length)).join("");
+
+// Bọc một biểu thức text SQL để so khớp không dấu (nên lower() trước khi bọc).
+// VN_ACCENT_FROM/TO là hằng số cố định (không nội suy input) → an toàn SQL.
+function unaccentSQL(expr: string) {
+  return `translate(${expr}, '${VN_ACCENT_FROM}', '${VN_ACCENT_TO}')`;
+}
+
+// Bỏ dấu tiếng Việt phía JS cho chuỗi truy vấn — DÙNG CHUNG bảng VN_ACCENT_*
+// với unaccentSQL để hai phía khớp tuyệt đối. Nên gọi sau khi lower().
+function unaccentVI(value: string) {
+  let out = "";
+  for (const ch of value) {
+    const idx = VN_ACCENT_FROM.indexOf(ch);
+    out += (idx >= 0 ? VN_ACCENT_TO[idx] : ch) ?? ch;
+  }
+  return out;
+}
+
 function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
   const where = ["p.status = 'published'", "p._status = 'published'"];
   const search = cleanCatalogParam(params.search);
@@ -1475,11 +1511,12 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
   const priceMax = Number(cleanCatalogParam(params.priceMax));
 
   if (search) {
-    values.push(`%${search.toLowerCase()}%`);
+    // Bỏ dấu + hạ chữ ở CẢ HAI phía để "may in" (không dấu) khớp "máy in".
+    values.push(`%${unaccentVI(search.toLowerCase())}%`);
     const idx = values.length;
     where.push(`(
-      lower(coalesce(p.name, '') || ' ' || coalesce(p.sku, '') || ' ' || coalesce(p.model, '')) like $${idx}
-      or lower(coalesce(c.name, '') || ' ' || coalesce(pc.name, '') || ' ' || coalesce(b.name, '')) like $${idx}
+      ${unaccentSQL("lower(coalesce(p.name, '') || ' ' || coalesce(p.sku, '') || ' ' || coalesce(p.model, ''))")} like $${idx}
+      or ${unaccentSQL("lower(coalesce(c.name, '') || ' ' || coalesce(pc.name, '') || ' ' || coalesce(b.name, ''))")} like $${idx}
     )`);
   }
 

@@ -12,6 +12,7 @@ import GlobalCompareDock from "@/components/GlobalCompareDock";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { QuoteProvider } from "@/components/quote/QuoteProvider";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
+import { getProductCategoryNavFromPayload } from "@/lib/catalog-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
 import { ProductInfoPopupLayer } from "@/components/home/HomeCategoryCarouselsClient";
@@ -52,8 +53,16 @@ export default async function SiteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSiteSettingsFromPayload().then(normalizeSiteSettings);
+  // Lấy settings + cây danh mục song song. Danh mục cấp gốc (có slug) đổ vào
+  // dropdown "Danh mục" của ô tìm kiếm header — thay cho 2 option hardcode cũ.
+  const [settings, categoryNav] = await Promise.all([
+    getSiteSettingsFromPayload().then(normalizeSiteSettings),
+    getProductCategoryNavFromPayload(),
+  ]);
   const googleAnalyticsId = settings.googleAnalyticsId.trim();
+  const headerCategories = categoryNav
+    .filter((category) => category.slug)
+    .map((category) => ({ name: category.name, slug: category.slug }));
 
   return (
     <html lang="vi" suppressHydrationWarning>
@@ -80,7 +89,7 @@ export default async function SiteLayout({
             <QuoteProvider>
               <ProductInfoPopupLayer>
                 <DesktopStage>
-                  <Header settings={settings} />
+                  <Header settings={settings} categories={headerCategories} />
                   <Navbar />
                   {children}
                   <Footer settings={settings} />
