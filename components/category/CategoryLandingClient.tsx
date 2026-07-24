@@ -119,6 +119,7 @@ export default function CategoryLandingClient({
   const rootSlug = trail[0]?.slug;
   const specGroups = filterGroupsForCategory(rootSlug);
 
+  const search = clean(searchParams?.get("search"));
   const brand = clean(searchParams?.get("brand"));
   const sort = (clean(searchParams?.get("sort")) || "best") as SortValue;
   const priceMin = clean(searchParams?.get("priceMin"));
@@ -133,7 +134,7 @@ export default function CategoryLandingClient({
   const childCategories = (facets?.categories ?? []).filter((option) => option.value !== leaf.slug);
   const brandOptions = facets?.brands ?? [];
   const activeCount =
-    (brand ? 1 : 0) + Object.keys(specValues).length + (priceMin ? 1 : 0) + (priceMax ? 1 : 0);
+    (search ? 1 : 0) + (brand ? 1 : 0) + Object.keys(specValues).length + (priceMin ? 1 : 0) + (priceMax ? 1 : 0);
 
   const navigate = (params: URLSearchParams) => {
     const href = params.toString() ? `${pathname}?${params.toString()}` : pathname;
@@ -162,6 +163,9 @@ export default function CategoryLandingClient({
   };
 
   const chips: Array<{ key: string; label: string; onRemove: () => void }> = [
+    ...(search
+      ? [{ key: "search", label: `Tìm: "${search}"`, onRemove: () => setParam("search", null) }]
+      : []),
     ...(brand ? [{ key: "brand", label: brand, onRemove: () => setParam("brand", null) }] : []),
     ...FILTER_CRUMB_ORDER.filter((key) => key !== "brand" && specValues[key]).map((key) => ({
       key,

@@ -52,10 +52,9 @@ export default function Header({
   const phone = settings.hotline || settings.phone;
 
   // Điều hướng khi submit ô tìm kiếm header:
-  //  - CHỌN danh mục + KHÔNG gõ từ khóa  → trang landing rút gọn /<slug> (kiểu An Phát).
-  //  - Có gõ từ khóa (kèm/không kèm danh mục) → /san-pham (trang tìm kiếm). Landing /<slug>
-  //    KHÔNG hỗ trợ free-text search (parseLandingSearchParams ép search="") nên phải giữ
-  //    từ khóa ở /san-pham để không mất.
+  //  - CÓ chọn danh mục → landing rút gọn /<slug> (kiểu An Phát), kèm ?search=<kw> nếu có
+  //    từ khóa (landing đã hỗ trợ free-text search — xem parseLandingSearchParams).
+  //  - KHÔNG chọn danh mục + có từ khóa → /san-pham?search=<kw> (tìm toàn site).
   //  - Không có gì → /san-pham.
   // Vẫn giữ action/method GET làm fallback khi JS tắt.
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
@@ -63,17 +62,17 @@ export default function Header({
     const data = new FormData(event.currentTarget);
     const search = String(data.get("search") ?? "").trim();
     const category = String(data.get("category") ?? "").trim();
+    const query = new URLSearchParams();
+    if (search) query.set("search", search);
+    const qs = query.toString() ? `?${query.toString()}` : "";
 
-    if (category && !search) {
-      router.push(`/${encodeURIComponent(category)}`);
+    // Chọn danh mục → landing của danh mục đó (giữ từ khóa nếu có).
+    if (category) {
+      router.push(`/${encodeURIComponent(category)}${qs}`);
       return;
     }
 
-    const query = new URLSearchParams();
-    if (search) query.set("search", search);
-    if (category) query.set("category", category);
-    const qs = query.toString();
-    router.push(`/san-pham${qs ? `?${qs}` : ""}`);
+    router.push(`/san-pham${qs}`);
   }
 
   return (
