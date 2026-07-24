@@ -31,8 +31,6 @@ type Store = {
   barSub: string;
   mapSrc: string;
   directions: string;
-  /** Trụ sở: lấy bản đồ + chỉ đường từ site-settings (đồng bộ trang liên hệ). */
-  useSettingsMap?: boolean;
 };
 
 const STORES: Store[] = [
@@ -48,14 +46,10 @@ const STORES: Store[] = [
     imageAlt: "Mặt tiền trụ sở & showroom HPT Tech tại SB04 Vinhomes Marina, Hải Phòng",
     barTitle: "SB04 VINHOMES MARINA",
     barSub: "Phường An Biên, TP. Hải Phòng",
-    // Fallback khi site-settings trống — thực tế dùng googleMapsEmbedUrl /
-    // googleMapsDirectionsUrl từ site-settings (pin doanh nghiệp "HPT Tech",
-    // trùng bản đồ trang /lien-he).
-    useSettingsMap: true,
+    // Pin doanh nghiệp "HPT Tech" trên Google Maps (embed do HPT cung cấp).
     mapSrc:
-      "https://www.google.com/maps?q=Vinhomes%20Marina%2C%20An%20Bi%C3%AAn%2C%20H%E1%BA%A3i%20Ph%C3%B2ng&hl=vi&output=embed",
-    directions:
-      "https://www.google.com/maps/search/?api=1&query=SB04%20Vinhomes%20Marina%2C%20An%20Bi%C3%AAn%2C%20H%E1%BA%A3i%20Ph%C3%B2ng",
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3729.256153855568!2d106.6875276859689!3d20.821360245318722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314a7155698f3c69%3A0x95aed3909eec7d29!2sHPT%20Tech!5e0!3m2!1sen!2s!4v1784883601930!5m2!1sen!2s",
+    directions: "https://www.google.com/maps/search/?api=1&query=20.8213602,106.6875277",
   },
   {
     id: "ho-chi-minh",
@@ -224,11 +218,6 @@ export default async function ShowroomPage() {
         {/* 6 SECTION SHOWROOM — đảo trái/phải xen kẽ, nền trắng/xanh nhạt luân phiên */}
         {STORES.map((store, index) => {
           const alt = index % 2 === 1;
-          // Trụ sở dùng bản đồ/chỉ đường từ site-settings để luôn khớp trang liên hệ.
-          const mapSrc = store.useSettingsMap ? settings.googleMapsEmbedUrl || store.mapSrc : store.mapSrc;
-          const directions = store.useSettingsMap
-            ? settings.googleMapsDirectionsUrl || store.directions
-            : store.directions;
           return (
             <section
               key={store.id}
@@ -294,7 +283,7 @@ export default async function ShowroomPage() {
                 <div className="mb-5 mt-4 flex flex-wrap gap-3">
                   <a
                     className="inline-flex h-11 items-center rounded-[10px] bg-primary-600 px-5 text-[13.5px] font-bold text-white transition hover:bg-primary-700"
-                    href={directions}
+                    href={store.directions}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -313,7 +302,7 @@ export default async function ShowroomPage() {
                 <div className="overflow-hidden rounded-xl border border-slate-200 lg:flex-1">
                   <iframe
                     title={`Bản đồ showroom ${store.chip}`}
-                    src={mapSrc}
+                    src={store.mapSrc}
                     className="block h-64 w-full border-0 lg:h-full lg:min-h-64"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
