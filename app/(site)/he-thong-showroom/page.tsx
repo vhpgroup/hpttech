@@ -17,7 +17,25 @@ const DAYS = "Thứ 2 – Thứ 7";
 // Chỉ liệt kê địa chỉ THẬT đã công bố của HPT. `mapSrc` nhúng theo tọa độ
 // chính xác; `image` là ảnh thật (jpg) hoặc minh họa mặt tiền (png) khi chưa
 // có ảnh. Bố cục các section tự đảo trái/phải xen kẽ theo thứ tự mảng.
-const STORES = [
+type Store = {
+  id: string;
+  chip: string;
+  label: string;
+  heading: string;
+  address: string;
+  image: string;
+  imageW: number;
+  imageH: number;
+  imageAlt: string;
+  barTitle: string;
+  barSub: string;
+  mapSrc: string;
+  directions: string;
+  /** Trụ sở: lấy bản đồ + chỉ đường từ site-settings (đồng bộ trang liên hệ). */
+  useSettingsMap?: boolean;
+};
+
+const STORES: Store[] = [
   {
     id: "hai-phong",
     chip: "Hải Phòng (Trụ sở)",
@@ -30,6 +48,10 @@ const STORES = [
     imageAlt: "Mặt tiền trụ sở & showroom HPT Tech tại SB04 Vinhomes Marina, Hải Phòng",
     barTitle: "SB04 VINHOMES MARINA",
     barSub: "Phường An Biên, TP. Hải Phòng",
+    // Fallback khi site-settings trống — thực tế dùng googleMapsEmbedUrl /
+    // googleMapsDirectionsUrl từ site-settings (pin doanh nghiệp "HPT Tech",
+    // trùng bản đồ trang /lien-he).
+    useSettingsMap: true,
     mapSrc:
       "https://www.google.com/maps?q=Vinhomes%20Marina%2C%20An%20Bi%C3%AAn%2C%20H%E1%BA%A3i%20Ph%C3%B2ng&hl=vi&output=embed",
     directions:
@@ -202,6 +224,11 @@ export default async function ShowroomPage() {
         {/* 6 SECTION SHOWROOM — đảo trái/phải xen kẽ, nền trắng/xanh nhạt luân phiên */}
         {STORES.map((store, index) => {
           const alt = index % 2 === 1;
+          // Trụ sở dùng bản đồ/chỉ đường từ site-settings để luôn khớp trang liên hệ.
+          const mapSrc = store.useSettingsMap ? settings.googleMapsEmbedUrl || store.mapSrc : store.mapSrc;
+          const directions = store.useSettingsMap
+            ? settings.googleMapsDirectionsUrl || store.directions
+            : store.directions;
           return (
             <section
               key={store.id}
@@ -212,7 +239,8 @@ export default async function ShowroomPage() {
                   : "bg-white lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
               }`}
             >
-              <div className={alt ? "lg:order-2" : undefined}>
+              {/* flex-col + map flex-1: kéo cột info giãn cao bằng card ảnh bên cạnh */}
+              <div className={`flex flex-col ${alt ? "lg:order-2" : ""}`}>
                 <p className="text-[12.5px] font-extrabold uppercase tracking-[0.08em] text-[#da2127]">
                   {store.label}
                 </p>
@@ -266,7 +294,7 @@ export default async function ShowroomPage() {
                 <div className="mb-5 mt-4 flex flex-wrap gap-3">
                   <a
                     className="inline-flex h-11 items-center rounded-[10px] bg-primary-600 px-5 text-[13.5px] font-bold text-white transition hover:bg-primary-700"
-                    href={store.directions}
+                    href={directions}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -282,11 +310,11 @@ export default async function ShowroomPage() {
                   </a>
                 </div>
 
-                <div className="overflow-hidden rounded-xl border border-slate-200">
+                <div className="overflow-hidden rounded-xl border border-slate-200 lg:flex-1">
                   <iframe
                     title={`Bản đồ showroom ${store.chip}`}
-                    src={store.mapSrc}
-                    className="block h-64 w-full border-0"
+                    src={mapSrc}
+                    className="block h-64 w-full border-0 lg:h-full lg:min-h-64"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     allowFullScreen
