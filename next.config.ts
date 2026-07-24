@@ -38,6 +38,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.anphatpc.com.vn",
       },
+      {
+        // Icon 3D Microsoft Fluent Emoji cho sidebar danh mục (CategoryPanel).
+        protocol: "https",
+        hostname: "cdn.jsdelivr.net",
+      },
     ],
   },
 };

@@ -1,27 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { CSSProperties } from "react";
-import {
-  BadgeCheck,
-  BatteryCharging,
-  Cable,
-  Copy,
-  Droplets,
-  Eye,
-  FolderOpen,
-  GraduationCap,
-  HardDrive,
-  Laptop,
-  List,
-  Monitor,
-  Network,
-  Printer,
-  Projector,
-  ScanLine,
-  Server,
-  Video,
-  Wrench,
-  Workflow,
-} from "lucide-react";
+import { List } from "lucide-react";
 import type { ProductCategoryNavItem } from "@/lib/catalog-payload";
 
 type MegaColumn = {
@@ -606,47 +586,51 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   return columns;
 }
 
-function getCategoryIcon(iconName: string, size = 20) {
-  switch (iconName) {
-    case "laptop":
-      return <Laptop size={size} />;
-    case "monitor":
-      return <Monitor size={size} />;
-    case "server":
-      return <Server size={size} />;
-    case "network":
-      return <Network size={size} />;
-    case "printer":
-      return <Printer size={size} />;
-    case "video":
-      return <Video size={size} />;
-    case "cctv":
-      return <Eye size={size} />;
-    case "graduation-cap":
-      return <GraduationCap size={size} />;
-    case "badge-check":
-      return <BadgeCheck size={size} />;
-    case "cable":
-      return <Cable size={size} />;
-    case "scan-line":
-      return <ScanLine size={size} />;
-    case "droplets":
-      return <Droplets size={size} />;
-    case "hard-drive":
-      return <HardDrive size={size} />;
-    case "wrench":
-      return <Wrench size={size} />;
-    case "workflow":
-      return <Workflow size={size} />;
-    case "copy":
-      return <Copy size={size} />;
-    case "projector":
-      return <Projector size={size} />;
-    case "battery-charging":
-      return <BatteryCharging size={size} />;
-    default:
-      return <FolderOpen size={size} />;
-  }
+// Icon 3D — Microsoft Fluent Emoji (MIT, github.com/microsoft/fluentui-emoji),
+// pin theo commit SHA để URL bất biến (không trôi theo main của repo icon).
+// Key = giá trị field `icon` của danh mục (giữ nguyên bộ key cũ từ CMS/HPT_DATA).
+const FLUENT_EMOJI_BASE =
+  "https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@62ecdc0d7ca5c6df32148c169556bc8d3782fca4/assets";
+
+const FLUENT_CATEGORY_ICONS: Record<string, string> = {
+  laptop: "Laptop/3D/laptop_3d.png",
+  monitor: "Desktop computer/3D/desktop_computer_3d.png",
+  server: "File cabinet/3D/file_cabinet_3d.png",
+  network: "Globe with meridians/3D/globe_with_meridians_3d.png",
+  printer: "Printer/3D/printer_3d.png",
+  video: "Video camera/3D/video_camera_3d.png",
+  cctv: "Camera/3D/camera_3d.png",
+  "graduation-cap": "Graduation cap/3D/graduation_cap_3d.png",
+  "badge-check": "Optical disk/3D/optical_disk_3d.png",
+  cable: "Electric plug/3D/electric_plug_3d.png",
+  "scan-line": "Fax machine/3D/fax_machine_3d.png",
+  droplets: "Droplet/3D/droplet_3d.png",
+  "hard-drive": "Floppy disk/3D/floppy_disk_3d.png",
+  wrench: "Wrench/3D/wrench_3d.png",
+  workflow: "Gear/3D/gear_3d.png",
+  copy: "Bookmark tabs/3D/bookmark_tabs_3d.png",
+  projector: "Film projector/3D/film_projector_3d.png",
+  "battery-charging": "Battery/3D/battery_3d.png",
+};
+
+const FLUENT_DEFAULT_ICON = "Open file folder/3D/open_file_folder_3d.png";
+
+function fluentIconUrl(assetPath: string) {
+  return `${FLUENT_EMOJI_BASE}/${assetPath.split("/").map(encodeURIComponent).join("/")}`;
+}
+
+function getCategoryIcon(iconName: string, size = 22) {
+  const asset = FLUENT_CATEGORY_ICONS[iconName] || FLUENT_DEFAULT_ICON;
+  return (
+    <Image
+      src={fluentIconUrl(asset)}
+      alt=""
+      aria-hidden="true"
+      width={size}
+      height={size}
+      loading="lazy"
+    />
+  );
 }
 
 export default function CategoryPanel({ categories }: { categories: ProductCategoryNavItem[] }) {
