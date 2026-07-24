@@ -586,44 +586,66 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   return columns;
 }
 
-// Icon 3D — Microsoft Fluent Emoji (MIT, github.com/microsoft/fluentui-emoji),
-// pin theo commit SHA để URL bất biến (không trôi theo main của repo icon).
-// Key = giá trị field `icon` của danh mục (giữ nguyên bộ key cũ từ CMS/HPT_DATA).
-const FLUENT_EMOJI_BASE =
-  "https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@62ecdc0d7ca5c6df32148c169556bc8d3782fca4/assets";
+// Icon 3D danh mục — bộ icon tùy chỉnh phong cách Fluent 3D (nền trong suốt),
+// tự host trên media R2 của site: /api/r2-media/icon-danh-muc-<slug>.png.
+// Match theo TÊN danh mục (chuẩn hóa thường) trước, fallback theo key `icon` cũ.
+const CATEGORY_ICON_BASE = "/api/r2-media/icon-danh-muc-";
 
-const FLUENT_CATEGORY_ICONS: Record<string, string> = {
-  laptop: "Laptop/3D/laptop_3d.png",
-  monitor: "Desktop computer/3D/desktop_computer_3d.png",
-  server: "File cabinet/3D/file_cabinet_3d.png",
-  network: "Globe with meridians/3D/globe_with_meridians_3d.png",
-  printer: "Printer/3D/printer_3d.png",
-  video: "Video camera/3D/video_camera_3d.png",
-  cctv: "Camera/3D/camera_3d.png",
-  "graduation-cap": "Graduation cap/3D/graduation_cap_3d.png",
-  "badge-check": "Optical disk/3D/optical_disk_3d.png",
-  cable: "Electric plug/3D/electric_plug_3d.png",
-  "scan-line": "Fax machine/3D/fax_machine_3d.png",
-  droplets: "Droplet/3D/droplet_3d.png",
-  "hard-drive": "Floppy disk/3D/floppy_disk_3d.png",
-  wrench: "Wrench/3D/wrench_3d.png",
-  workflow: "Gear/3D/gear_3d.png",
-  copy: "Bookmark tabs/3D/bookmark_tabs_3d.png",
-  projector: "Film projector/3D/film_projector_3d.png",
-  "battery-charging": "Battery/3D/battery_3d.png",
+const CATEGORY_ICON_BY_NAME: Record<string, string> = {
+  "laptop gaming - đồ họa": "laptop-gaming",
+  "laptop văn phòng": "laptop-van-phong",
+  "máy tính đồng bộ - máy chủ": "pc-may-chu",
+  "máy tính đồng bộ & máy chủ": "pc-may-chu",
+  "thiết bị mạng": "thiet-bi-mang",
+  "thiết bị văn phòng": "thiet-bi-van-phong",
+  "thiết bị hội nghị": "hoi-nghi",
+  "camera & an ninh": "camera-an-ninh",
+  "thiết bị giáo dục": "giao-duc",
+  "phần mềm bản quyền": "phan-mem",
+  "linh kiện & phụ kiện": "linh-kien",
+  "máy in": "may-in",
+  "máy scan": "may-scan",
+  "mực in & phụ kiện": "muc-in",
+  "mực in & vật tư": "muc-in",
+  "lưu trữ & backup": "luu-tru",
+  "dịch vụ kỹ thuật": "dich-vu",
+  "giải pháp số hóa": "so-hoa",
+  "máy photocopy": "photocopy",
+  "máy chiếu": "may-chieu",
 };
 
-const FLUENT_DEFAULT_ICON = "Open file folder/3D/open_file_folder_3d.png";
+const CATEGORY_ICON_BY_KEY: Record<string, string> = {
+  laptop: "laptop-gaming",
+  monitor: "laptop-van-phong",
+  server: "pc-may-chu",
+  network: "thiet-bi-mang",
+  printer: "may-in",
+  video: "hoi-nghi",
+  cctv: "camera-an-ninh",
+  "graduation-cap": "giao-duc",
+  "badge-check": "phan-mem",
+  cable: "linh-kien",
+  "scan-line": "may-scan",
+  droplets: "muc-in",
+  "hard-drive": "luu-tru",
+  wrench: "dich-vu",
+  workflow: "so-hoa",
+  copy: "photocopy",
+  projector: "may-chieu",
+};
 
-function fluentIconUrl(assetPath: string) {
-  return `${FLUENT_EMOJI_BASE}/${assetPath.split("/").map(encodeURIComponent).join("/")}`;
-}
+// Danh mục chưa có icon riêng → dùng icon khối lập phương (trừu tượng, trung tính).
+const CATEGORY_ICON_FALLBACK = "so-hoa";
 
-function getCategoryIcon(iconName: string, size = 22) {
-  const asset = FLUENT_CATEGORY_ICONS[iconName] || FLUENT_DEFAULT_ICON;
+function getCategoryIcon(category: { name: string; icon?: string }, size = 22) {
+  const nameKey = category.name.trim().toLowerCase();
+  const slug =
+    CATEGORY_ICON_BY_NAME[nameKey] ||
+    CATEGORY_ICON_BY_KEY[category.icon || ""] ||
+    CATEGORY_ICON_FALLBACK;
   return (
     <Image
-      src={fluentIconUrl(asset)}
+      src={`${CATEGORY_ICON_BASE}${slug}.png`}
       alt=""
       aria-hidden="true"
       width={size}
@@ -646,7 +668,7 @@ export default function CategoryPanel({ categories }: { categories: ProductCateg
             style={{ ["--menu-index" as string]: index } as CSSProperties}
           >
             <Link href={categoryLandingHref(category)}>
-              {getCategoryIcon(category.icon || "")}
+              {getCategoryIcon(category)}
               <span>{category.name}</span>
             </Link>
             {megaColumns.length ? <CategoryMegaPanel columns={megaColumns} /> : null}
