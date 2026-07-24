@@ -655,9 +655,16 @@ function getCategoryIcon(category: { name: string; icon?: string }, size = 22) {
   );
 }
 
-export default function CategoryPanel({ categories }: { categories: ProductCategoryNavItem[] }) {
+export default function CategoryPanel({
+  categories,
+  panelId = "categoryPanel",
+}: {
+  categories: ProductCategoryNavItem[];
+  /** Id của aside — truyền id khác khi render instance thứ hai (vd panel thả từ header) để tránh trùng id. */
+  panelId?: string;
+}) {
   return (
-    <aside className="category-panel desktop-only" id="categoryPanel">
+    <aside className="category-panel desktop-only" id={panelId}>
       {categories.map((category, index) => {
         const megaColumns = buildMegaColumns(category);
 
