@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import {
   Clock,
   FileText,
@@ -24,8 +25,7 @@ import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 
 // Danh mục cho dropdown ô tìm kiếm header. `slug` PHẢI là slug danh mục thật —
-// ô tìm kiếm submit ?category=<slug> và productSearchWhere khớp theo c/pc/ppc.slug.
-// (Trước đây hardcode 2 option dùng TÊN "Máy in"/"Máy scan" → không khớp slug → 0 kết quả.)
+// dùng để điều hướng tới landing /<slug> và để productSearchWhere khớp c/pc/ppc.slug.
 type HeaderCategoryOption = { name: string; slug: string };
 
 const navLinks = [
@@ -48,7 +48,33 @@ export default function Header({
   categories?: HeaderCategoryOption[];
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
   const phone = settings.hotline || settings.phone;
+
+  // Điều hướng khi submit ô tìm kiếm header:
+  //  - CHỌN danh mục + KHÔNG gõ từ khóa  → trang landing rút gọn /<slug> (kiểu An Phát).
+  //  - Có gõ từ khóa (kèm/không kèm danh mục) → /san-pham (trang tìm kiếm). Landing /<slug>
+  //    KHÔNG hỗ trợ free-text search (parseLandingSearchParams ép search="") nên phải giữ
+  //    từ khóa ở /san-pham để không mất.
+  //  - Không có gì → /san-pham.
+  // Vẫn giữ action/method GET làm fallback khi JS tắt.
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const search = String(data.get("search") ?? "").trim();
+    const category = String(data.get("category") ?? "").trim();
+
+    if (category && !search) {
+      router.push(`/${encodeURIComponent(category)}`);
+      return;
+    }
+
+    const query = new URLSearchParams();
+    if (search) query.set("search", search);
+    if (category) query.set("category", category);
+    const qs = query.toString();
+    router.push(`/san-pham${qs ? `?${qs}` : ""}`);
+  }
 
   return (
     <>
@@ -95,7 +121,13 @@ export default function Header({
           />
         </Link>
 
-        <form className="search desktop-only" role="search" action="/san-pham" method="get">
+        <form
+          className="search desktop-only"
+          role="search"
+          action="/san-pham"
+          method="get"
+          onSubmit={handleSearchSubmit}
+        >
           <input
             id="searchInput"
             name="search"
