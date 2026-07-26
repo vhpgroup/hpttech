@@ -46,3 +46,41 @@ export const HOME_CATEGORY_SECTION_DEFS: HomeCategorySectionDef[] = [
   { id: "software", title: "Phần mềm bản quyền", categorySlug: "phan-mem-ban-quyen" },
   { id: "ink", title: "Mực in & Phụ kiện", categorySlug: "muc-in-phu-kien" },
 ];
+
+/**
+ * Rút gọn object sản phẩm cho trang chủ trước khi truyền xuống client component.
+ * Trang chủ nhúng ~300 sản phẩm vào payload hydrate — mỗi field thừa nhân ×300.
+ * Chỉ giữ đúng những field mà ProductCard + popup quick-info + giỏ hàng/so sánh
+ * thực sự dùng (đối chiếu 26/07: title/slug/sku/price/compareAtPrice/discountBadge/
+ * rating/reviewCount/promo*/stock*/image/specs/tag + productType (match khu
+ * scanner/printer/photocopier) + homeSection (match khu danh mục)).
+ * Bỏ: detail/model/warranty/origin/internalId/category/vatIncluded/viewCount…
+ * và cắt mảng images về 1 ảnh, specs về 4 dòng.
+ */
+export function toHomeCardProduct(product: CatalogProduct): CatalogProduct {
+  return {
+    id: product.id,
+    title: product.title,
+    slug: product.slug,
+    sku: product.sku,
+    productType: product.productType,
+    brand: product.brand,
+    price: product.price,
+    priceValue: product.priceValue,
+    compareAtPrice: product.compareAtPrice,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    discountBadge: product.discountBadge,
+    promoText: product.promoText,
+    promotions: product.promotions,
+    promotionCount: product.promotionCount,
+    stockStatus: product.stockStatus,
+    stockQuantity: product.stockQuantity,
+    image: product.image ?? product.images?.[0]?.url,
+    images: product.images?.length ? [product.images[0]] : [],
+    specs: product.specs?.slice(0, 4) ?? [],
+    href: product.href,
+    tag: product.tag,
+    homeSection: product.homeSection,
+  };
+}

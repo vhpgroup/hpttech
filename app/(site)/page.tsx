@@ -4,6 +4,7 @@ import {
   getHomeProductsFromPayload,
   getProductCategoryNavFromPayload,
 } from "@/lib/catalog-payload";
+import { toHomeCardProduct } from "@/lib/home-category-sections";
 import { getBannersFromPayload, getSiteSettingsFromPayload, getSolutionsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
@@ -34,8 +35,8 @@ export default async function HomePage() {
         Máy scan, máy in &amp; thiết bị văn phòng chính hãng cho doanh nghiệp - HPT Tech
       </h1>
       <HomePageClient
-        initialProducts={products}
-        categorySectionProducts={categorySectionProducts}
+        initialProducts={products.map(toHomeCardProduct)}
+        categorySectionProducts={categorySectionProducts.map(toHomeCardProduct)}
         categories={categories}
         initialBanners={banners}
         initialSolutions={solutions}
