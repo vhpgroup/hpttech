@@ -230,7 +230,7 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  background: var(--blue);
+  background: #da2028;
   color: #ffffff;
   border: 0;
   border-radius: 10px;
@@ -243,11 +243,11 @@ main {
 
 .header-cat-btn:hover,
 .header-cat-btn.open {
-  background: #1d4ed8;
+  background: #b81a22;
 }
 
 .header-cat-btn.open {
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 0 0 3px rgba(218, 32, 40, 0.25);
 }
 
 .header-cat-overlay {
@@ -1383,8 +1383,8 @@ main {
   padding: 8px 14px 8px 20px;
   gap: 12px;
   border-radius: 12px 12px 0 0;
-  background: linear-gradient(105deg, #073878 0%, #0a4b9f 58%, #0b5bc7 100%);
-  box-shadow: 0 10px 24px rgba(7, 56, 120, 0.16);
+  background: #da2028;
+  box-shadow: 0 10px 24px rgba(160, 20, 30, 0.18);
 }
 
 .home-featured-bar h2 {
@@ -1452,8 +1452,8 @@ main {
   align-items: center;
   gap: 18px;
   border-radius: 12px 12px 0 0;
-  background: linear-gradient(105deg, #073878 0%, #0a4b9f 58%, #0b5bc7 100%);
-  box-shadow: 0 10px 24px rgba(7, 56, 120, 0.16);
+  background: #da2028;
+  box-shadow: 0 10px 24px rgba(160, 20, 30, 0.18);
 }
 
 .home-category-bar h2 {
