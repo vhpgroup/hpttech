@@ -25,7 +25,8 @@
   --maxw:1200px;
 }
 .vehpt *{margin:0;padding:0;box-sizing:border-box}
-.vehpt{scroll-behavior:smooth}
+/* Anchor nội trang cuộn mượt trên viewport (trang cuộn bằng thanh cuộn trình duyệt) */
+html:has(.vehpt){scroll-behavior:smooth}
 .vehpt{
   font-family:'Be Vietnam Pro',system-ui,-apple-system,sans-serif;
   color:var(--ink);
@@ -33,7 +34,10 @@
   line-height:1.65;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
-  overflow-x:hidden;
+  /* clip (không phải hidden): vẫn cắt tràn ngang nhưng KHÔNG tạo scroll container,
+     tránh sinh thanh cuộn dọc thứ hai bên trong trang (overflow-x:hidden ép
+     overflow-y từ visible thành auto theo spec CSS). */
+  overflow-x:clip;
 }
 .vehpt a{color:inherit;text-decoration:none}
 .vehpt img{max-width:100%;height:auto;display:block}
