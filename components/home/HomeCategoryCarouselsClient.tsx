@@ -70,7 +70,7 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
   {
     id: "photocopier",
     title: "Máy photocopy",
-    categoryParam: "photocopy",
+    categoryParam: "may-photocopy",
     enabled: true,
     order: 3,
     tabMode: "none",
@@ -543,7 +543,9 @@ function HomeCategoryCarousel({
             ) : null}
           </div>
         ) : null}
-        <Link href={`/san-pham?category=${config.categoryParam}`} className="home-category-all">
+        {/* Landing page rút gọn /<slug> của danh mục (kiểu An Phát) — cùng đích với
+            menu Danh mục, thay cho trang lọc /san-pham?category=... trước đây. */}
+        <Link href={`/${encodeURIComponent(config.categoryParam)}`} className="home-category-all">
           Xem tất cả
           <ChevronRight size={17} />
         </Link>
