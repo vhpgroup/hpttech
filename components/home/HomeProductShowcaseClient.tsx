@@ -9,7 +9,7 @@ type HomeProductShowcaseClientProps = {
   quoteEmail: string;
 };
 
-const HOME_FEATURED_LIMIT = 5;
+const HOME_FEATURED_LIMIT = 10;
 
 export default function HomeProductShowcaseClient({ products }: HomeProductShowcaseClientProps) {
   // Khu "Sản phẩm nổi bật": ưu tiên sản phẩm có tag (Nổi bật / Mới / Bán chạy…),
