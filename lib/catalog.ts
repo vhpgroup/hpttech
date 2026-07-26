@@ -50,6 +50,12 @@ export type CatalogProduct = {
   image?: string;
   sellingPoints?: string[];
   tag?: string;
+  /**
+   * Optional tag marking which homepage category carousel this product belongs to
+   * (see HOME_CATEGORY_SECTION_DEFS / HomeCategoryCarouselsClient). Set server-side
+   * when products are fetched per top-level category for the homepage sections.
+   */
+  homeSection?: string;
 };
 
 export type CatalogPost = {

@@ -8,6 +8,7 @@ import HomeStaticSections, { TrustStrip } from "@/components/home/HomeStaticSect
 
 type HomePageClientProps = {
   initialProducts: CatalogProduct[];
+  categorySectionProducts?: CatalogProduct[];
   categories: ProductCategoryNavItem[];
   initialBanners: PublicBanner[];
   initialSolutions: PublicSolution[];
@@ -16,6 +17,7 @@ type HomePageClientProps = {
 
 export default function HomePageClient({
   initialProducts,
+  categorySectionProducts = [],
   categories,
   initialBanners,
   initialSolutions,
@@ -26,7 +28,10 @@ export default function HomePageClient({
       <HomeHeroClient banners={initialBanners} categories={categories} />
       <TrustStrip />
       <HomeProductShowcaseClient products={initialProducts} quoteEmail={quoteEmail} />
-      <HomeCategoryCarouselsClient products={initialProducts} />
+      <HomeCategoryCarouselsClient
+        products={initialProducts}
+        categorySectionProducts={categorySectionProducts}
+      />
       <HomeStaticSections solutions={initialSolutions} />
     </main>
   );
