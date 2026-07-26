@@ -19,7 +19,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import type { CatalogProduct } from "@/lib/catalog";
-import { isHomeDeviceType } from "@/lib/home-category-sections";
+import { HOME_CATEGORY_SECTION_DEFS, isHomeDeviceType } from "@/lib/home-category-sections";
 import { ProductCard } from "@/components/product/ProductCard";
 
 type TabMode = "brand" | "category" | "none";
@@ -77,6 +77,18 @@ const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
     autoplay: true,
     match: (product) => isHomeDeviceType(product, "photocopier"),
   },
+  // Khu danh mục bổ sung (laptop / PC-máy chủ / thiết bị mạng): lấy SP theo nhánh
+  // danh mục ở server và gắn cờ homeSection, nên chỉ cần lọc theo cờ đó.
+  ...HOME_CATEGORY_SECTION_DEFS.map((section, index) => ({
+    id: section.id,
+    title: section.title,
+    categoryParam: section.categorySlug,
+    enabled: true,
+    order: 4 + index,
+    tabMode: "brand" as TabMode,
+    autoplay: true,
+    match: (product: CatalogProduct) => product.homeSection === section.id,
+  })),
 ];
 
 const HOME_CATEGORY_PRODUCT_LIMIT = 15;
@@ -585,7 +597,21 @@ function HomeCategoryCarousel({
   );
 }
 
-export default function HomeCategoryCarouselsClient({ products }: { products: CatalogProduct[] }) {
+export default function HomeCategoryCarouselsClient({
+  products,
+  categorySectionProducts = [],
+}: {
+  products: CatalogProduct[];
+  /**
+   * Sản phẩm cho các khu danh mục bổ sung (laptop / PC-máy chủ / thiết bị mạng),
+   * đã được gắn cờ homeSection ở server. Gộp chung để các khu lọc theo cờ.
+   */
+  categorySectionProducts?: CatalogProduct[];
+}) {
+  const productPool = useMemo(
+    () => [...products, ...categorySectionProducts],
+    [products, categorySectionProducts],
+  );
   const sections = HOME_CATEGORY_SECTIONS.filter((section) => section.enabled).sort(
     (a, b) => a.order - b.order,
   );
@@ -593,7 +619,7 @@ export default function HomeCategoryCarouselsClient({ products }: { products: Ca
   return (
     <div className="home-category-sections">
       {sections.map((section) => (
-        <HomeCategoryCarousel key={section.id} config={section} products={products} />
+        <HomeCategoryCarousel key={section.id} config={section} products={productPool} />
       ))}
     </div>
   );

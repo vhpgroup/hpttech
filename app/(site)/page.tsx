@@ -1,5 +1,9 @@
 import HomePageClient from "@/components/home/HomePageClient";
-import { getHomeProductsFromPayload, getProductCategoryNavFromPayload } from "@/lib/catalog-payload";
+import {
+  getHomeCategorySectionProducts,
+  getHomeProductsFromPayload,
+  getProductCategoryNavFromPayload,
+} from "@/lib/catalog-payload";
 import { getBannersFromPayload, getSiteSettingsFromPayload, getSolutionsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
@@ -13,13 +17,15 @@ export const metadata = pageMetadata({
 });
 
 export default async function HomePage() {
-  const [products, categories, banners, solutions, rawSettings] = await Promise.all([
-    getHomeProductsFromPayload(),
-    getProductCategoryNavFromPayload(),
-    getBannersFromPayload(),
-    getSolutionsFromPayload(),
-    getSiteSettingsFromPayload(),
-  ]);
+  const [products, categorySectionProducts, categories, banners, solutions, rawSettings] =
+    await Promise.all([
+      getHomeProductsFromPayload(),
+      getHomeCategorySectionProducts(),
+      getProductCategoryNavFromPayload(),
+      getBannersFromPayload(),
+      getSolutionsFromPayload(),
+      getSiteSettingsFromPayload(),
+    ]);
   const settings = normalizeSiteSettings(rawSettings);
 
   return (
@@ -29,6 +35,7 @@ export default async function HomePage() {
       </h1>
       <HomePageClient
         initialProducts={products}
+        categorySectionProducts={categorySectionProducts}
         categories={categories}
         initialBanners={banners}
         initialSolutions={solutions}

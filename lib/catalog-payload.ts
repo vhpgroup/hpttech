@@ -13,7 +13,12 @@ import {
 } from "@/lib/catalog-projection";
 import { HPT_DATA } from "@/lib/data";
 import { canonicalizeCategoryName } from "@/lib/product-category";
-import { HOME_DEVICE_TYPES, homeDeviceTypeOf, isHomeDeviceType } from "@/lib/home-category-sections";
+import {
+  HOME_CATEGORY_SECTION_DEFS,
+  HOME_DEVICE_TYPES,
+  homeDeviceTypeOf,
+  isHomeDeviceType,
+} from "@/lib/home-category-sections";
 
 type PayloadProductDoc = Record<string, unknown>;
 type PayloadCategoryDoc = Record<string, unknown>;
@@ -969,6 +974,42 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
 export const getHomeProductsFromPayload = unstable_cache(
   loadHomeProductsFromPayload,
   ["home-products"],
+  { revalidate: 300, tags: ["products:list"] },
+);
+
+/**
+ * Số SP lấy cho MỖI khu danh mục bổ sung trang chủ (laptop / PC-máy chủ / mạng).
+ * Đủ cho carousel (hiển thị 15) + đa dạng tab hãng, có dư đệm sau khi lọc theo tab.
+ */
+const HOME_CATEGORY_SECTION_POOL = 40;
+
+/**
+ * Lấy sản phẩm cho các khu danh mục carousel bổ sung trang chủ (định nghĩa tại
+ * HOME_CATEGORY_SECTION_DEFS). Mỗi khu truy vấn THEO NHÁNH DANH MỤC (category slug —
+ * gồm cả danh mục con 2–3 tầng nhờ scope c/pc/ppc trong loadProductSearchPageFromPayload),
+ * rồi gắn cờ `homeSection` để client lọc đúng khu. Lỗi 1 khu không làm hỏng các khu còn lại.
+ */
+async function loadHomeCategorySectionProducts(): Promise<CatalogProduct[]> {
+  const groups = await Promise.all(
+    HOME_CATEGORY_SECTION_DEFS.map(async (section) => {
+      try {
+        const page = await loadProductSearchPageFromPayload({
+          category: section.categorySlug,
+          limit: HOME_CATEGORY_SECTION_POOL,
+        });
+        return page.products.map((product) => ({ ...product, homeSection: section.id }));
+      } catch (error) {
+        handlePayloadReadError(`home-category-section:${section.id}`, error);
+        return [] as CatalogProduct[];
+      }
+    }),
+  );
+  return groups.flat();
+}
+
+export const getHomeCategorySectionProducts = unstable_cache(
+  loadHomeCategorySectionProducts,
+  ["home-category-section-products"],
   { revalidate: 300, tags: ["products:list"] },
 );
 
