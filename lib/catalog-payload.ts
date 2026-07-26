@@ -978,10 +978,11 @@ export const getHomeProductsFromPayload = unstable_cache(
 );
 
 /**
- * Số SP lấy cho MỖI khu danh mục bổ sung trang chủ (laptop / PC-máy chủ / mạng).
- * Đủ cho carousel (hiển thị 15) + đa dạng tab hãng, có dư đệm sau khi lọc theo tab.
+ * Số SP lấy cho MỖI khu danh mục bổ sung trang chủ (laptop / PC-máy chủ / mạng...).
+ * Carousel hiển thị tối đa 15; đã bỏ tab lọc theo hãng nên chỉ cần dư 1 SP đệm.
+ * Mỗi SP thừa bị serialize vào payload hydrate ×6 khu — giữ pool sát mức dùng.
  */
-const HOME_CATEGORY_SECTION_POOL = 40;
+const HOME_CATEGORY_SECTION_POOL = 16;
 
 /**
  * Lấy sản phẩm cho các khu danh mục carousel bổ sung trang chủ (định nghĩa tại
