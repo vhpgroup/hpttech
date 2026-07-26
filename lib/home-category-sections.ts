@@ -43,4 +43,6 @@ export const HOME_CATEGORY_SECTION_DEFS: HomeCategorySectionDef[] = [
   { id: "laptop-office", title: "Laptop văn phòng", categorySlug: "laptop" },
   { id: "pc-server", title: "Máy tính đồng bộ - Máy chủ", categorySlug: "may-tinh-dong-bo-may-chu" },
   { id: "network", title: "Thiết bị mạng", categorySlug: "thiet-bi-mang" },
+  { id: "software", title: "Phần mềm bản quyền", categorySlug: "phan-mem-ban-quyen" },
+  { id: "ink", title: "Mực in & Phụ kiện", categorySlug: "muc-in-phu-kien" },
 ];
