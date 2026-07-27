@@ -116,8 +116,8 @@ export default function Header({
           <Image
             src={HPT_LOGO_SRC}
             alt={settings.companyName}
-            width={115}
-            height={40}
+            width={144}
+            height={50}
             priority
           />
         </Link>
