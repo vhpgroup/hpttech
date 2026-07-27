@@ -2410,8 +2410,8 @@ main {
 
 .news-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
   align-items: stretch;
 }
 
@@ -2450,6 +2450,10 @@ main {
   flex: 1;
   font-size: 16px;
   line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .footer {
