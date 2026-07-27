@@ -64,6 +64,7 @@ const revalidateLanding: CollectionAfterChangeHook = async ({ doc, collection })
     typeof doc?.pathname === "string" ? doc.pathname : undefined,
     "/giai-phap",
     "/giai-phap/may-scan",
+    "/giai-phap/may-photocopy",
     "/sitemap/landing",
     "/sitemap.xml",
   ].filter((path): path is string => Boolean(path));
@@ -75,6 +76,7 @@ const revalidateLandingDelete: CollectionAfterDeleteHook = async ({ doc, collect
     typeof doc?.pathname === "string" ? doc.pathname : undefined,
     "/giai-phap",
     "/giai-phap/may-scan",
+    "/giai-phap/may-photocopy",
     "/sitemap/landing",
     "/sitemap.xml",
   ].filter((path): path is string => Boolean(path));
