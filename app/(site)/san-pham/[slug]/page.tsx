@@ -498,18 +498,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <span className="truncate font-medium text-slate-900">{product.title}</span>
       </nav>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1.45fr)_minmax(280px,0.8fr)] xl:items-start">
-        <div className="rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-5">
-          <ProductImageGallery images={productImages} productName={product.title} />
-        </div>
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,340px)] xl:items-start">
+        <div className="min-w-0 space-y-5 md:space-y-6">
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-start">
+            <div className="rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-5">
+              <ProductImageGallery images={productImages} productName={product.title} />
+            </div>
 
-        <div className="space-y-5">
-          <ProductPricingSection
-            product={product}
-            quoteHref={quoteHref}
-            phoneHref={phoneHref(phone)}
-            schemaPrice={schemaPrice}
-          />
+            <div className="space-y-5">
+              <ProductPricingSection
+                product={product}
+                quoteHref={quoteHref}
+                phoneHref={phoneHref(phone)}
+                schemaPrice={schemaPrice}
+              />
+            </div>
+          </div>
+
+          <div id="product-hero-sentinel" />
+
+          <ProductDetailTabs sections={tabSections} />
         </div>
 
         <aside className="space-y-4 xl:sticky xl:top-24">
@@ -569,12 +577,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <ProductSupportContactBlock title="Hỗ trợ kỹ thuật" contacts={technicalSupportItems} />
         </aside>
       </section>
-
-      <div id="product-hero-sentinel" />
-
-      <div className="mt-6">
-        <ProductDetailTabs sections={tabSections} />
-      </div>
 
       <ProductRelationTabs sections={relationSections} />
 
