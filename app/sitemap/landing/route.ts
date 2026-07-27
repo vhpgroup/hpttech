@@ -25,6 +25,7 @@ export async function GET() {
   const entries = await getPublishedLandingSitemapEntries();
   const urls = [
     url(`${base}/giai-phap/may-scan`),
+    url(`${base}/giai-phap/may-photocopy`),
     ...entries.map((entry) => url(`${base}${entry.pathname}`, entry.updatedAt)),
   ];
 

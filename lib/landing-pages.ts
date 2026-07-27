@@ -5,7 +5,11 @@ import type { CatalogProduct } from "@/lib/catalog";
 import { isHomeDeviceType } from "@/lib/home-category-sections";
 import { getPayloadClient } from "@/lib/payload";
 import { handlePayloadReadError } from "@/lib/payload-read-policy";
-import { canonicalizeCategorySlug, SCANNER_CATEGORY_SLUG } from "@/lib/product-category";
+import {
+  canonicalizeCategorySlug,
+  PHOTOCOPIER_CATEGORY_SLUG,
+  SCANNER_CATEGORY_SLUG,
+} from "@/lib/product-category";
 import { pageMetadata } from "@/lib/seo";
 
 export const FACET_SEGMENT = {
@@ -98,6 +102,7 @@ type ProductDoc = {
   promoText?: string;
   rating?: number;
   reviewCount?: number;
+  photocopierSpecs?: PhotocopierSpecs;
   scannerSpecs?: ScannerSpecs;
   shortDescription?: string;
   sku?: string;
@@ -125,6 +130,16 @@ type ScannerSpecs = Record<string, unknown> & {
   scanSpeedSimplexPpm?: number;
 };
 
+type PhotocopierSpecs = Record<string, unknown> & {
+  autoDuplexPrint?: boolean;
+  colorPrint?: boolean;
+  connectivity?: string;
+  copySpeedCpm?: number;
+  functions?: string;
+  hasAdf?: boolean;
+  maxPaperSize?: string;
+};
+
 type LandingPageOptions = {
   facetType?: LandingFacetType;
   productGroup?: LandingProductGroup;
@@ -133,6 +148,8 @@ type LandingPageOptions = {
 type ScannerQueryOptions = {
   limit?: number;
   recommendedProducts?: LandingPageDoc["recommendedProducts"];
+  /** Nhóm sản phẩm của landing — quyết định bộ matcher spec (mặc định may-scan). */
+  group?: LandingProductGroup;
 };
 
 export type LandingHubItem = {
@@ -146,6 +163,7 @@ export type LandingHubItem = {
 
 export type LandingHubData = {
   scan: Record<LandingFacetType, LandingHubItem[]>;
+  photocopy: Record<LandingFacetType, LandingHubItem[]>;
 };
 
 const PRODUCT_SELECT = {
@@ -167,6 +185,7 @@ const PRODUCT_SELECT = {
   stockStatus: true,
   images: true,
   scannerSpecs: true,
+  photocopierSpecs: true,
   specProfile: true,
   shortDescription: true,
   summaryHTML: true,
@@ -296,6 +315,15 @@ function isScannerProduct(product: ProductDoc) {
   return canonicalizeCategorySlug(categorySlug, categoryName) === SCANNER_CATEGORY_SLUG;
 }
 
+function isPhotocopierProduct(product: ProductDoc) {
+  const productTypeCode = relationField(product.productType, "code") || relationSlug(product.productType);
+  if (isHomeDeviceType({ productType: productTypeCode }, "photocopier")) return true;
+
+  const categorySlug = relationSlug(product.category);
+  const categoryName = relationName(product.category);
+  return canonicalizeCategorySlug(categorySlug, categoryName) === PHOTOCOPIER_CATEGORY_SLUG;
+}
+
 export function relationMatches(value: unknown, candidates: string[]) {
   if (!candidates.length) return true;
   const haystack = [
@@ -314,6 +342,38 @@ export function relationMatches(value: unknown, candidates: string[]) {
 
     return haystack.some((item) => item === normalized || (normalized.length >= 3 && item.includes(normalized)));
   });
+}
+
+function matchesBrandQuery(product: ProductDoc, query: LandingProductQuery = {}) {
+  const brandCandidates = [
+    query.brand,
+    ...(query.brands || []).flatMap((brand) => [
+      relationID(brand),
+      relationField(brand, "slug"),
+      relationField(brand, "name"),
+    ]),
+  ].filter((value): value is string => Boolean(value));
+  return !brandCandidates.length || relationMatches(product.brand, brandCandidates);
+}
+
+// Matcher cho nhóm MÁY PHOTOCOPY — map các cờ productQuery hiện có sang bộ cột
+// photocopierSpecs (đã chuẩn hóa bởi startup migration 20260727):
+// needsDuplex → autoDuplexPrint, needsNetwork → connectivity+functions,
+// needsA3/maxPaperSize → maxPaperSize, minScanSpeedPpm → copySpeedCpm
+// (tái dụng làm "tốc độ copy tối thiểu, bản/phút" cho nhóm này).
+function productMatchesPhotocopierQuery(product: ProductDoc, query: LandingProductQuery = {}) {
+  if (!isPhotocopierProduct(product)) return false;
+  const specs = product.photocopierSpecs || {};
+  const connectivity = normalizeText(`${specs.connectivity || ""} ${specs.functions || ""}`);
+  const maxPaper = paperRank(specs.maxPaperSize);
+  const requiredPaper = requiredPaperRank(query);
+
+  if (requiredPaper && maxPaper < requiredPaper) return false;
+  if (query.needsDuplex && specs.autoDuplexPrint !== true) return false;
+  if (query.needsNetwork && !/(lan|ethernet|network|wifi|wi-fi|mang)/i.test(connectivity)) return false;
+  if (query.minScanSpeedPpm && (numberValue(specs.copySpeedCpm) || 0) < query.minScanSpeedPpm) return false;
+
+  return matchesBrandQuery(product, query);
 }
 
 function productMatchesQuery(product: ProductDoc, query: LandingProductQuery = {}) {
@@ -341,24 +401,34 @@ function productMatchesQuery(product: ProductDoc, query: LandingProductQuery = {
 
   if (query.bookScanner && !/(book|sach|overhead|czur)/i.test(scannerType)) return false;
 
-  const brandCandidates = [
-    query.brand,
-    ...(query.brands || []).flatMap((brand) => [
-      relationID(brand),
-      relationField(brand, "slug"),
-      relationField(brand, "name"),
-    ]),
-  ].filter((value): value is string => Boolean(value));
-  if (brandCandidates.length && !relationMatches(product.brand, brandCandidates)) return false;
-
-  return true;
+  return matchesBrandQuery(product, query);
 }
 
-function productScore(product: ProductDoc, query: LandingProductQuery = {}) {
-  const specs = product.scannerSpecs || {};
+function productMatchesGroupQuery(
+  product: ProductDoc,
+  query: LandingProductQuery = {},
+  group: LandingProductGroup = "may-scan",
+) {
+  if (group === "may-photocopy") return productMatchesPhotocopierQuery(product, query);
+  return productMatchesQuery(product, query);
+}
+
+function productScore(
+  product: ProductDoc,
+  query: LandingProductQuery = {},
+  group: LandingProductGroup = "may-scan",
+) {
   let score = 0;
-  if (query.prefersFlatbed && normalizeText(specs.scannerType).includes("flatbed")) score += 10;
   if (product.featured) score += 2;
+
+  if (group === "may-photocopy") {
+    const specs = product.photocopierSpecs || {};
+    score += Math.min(numberValue(specs.copySpeedCpm) || 0, 120) / 120;
+    return score;
+  }
+
+  const specs = product.scannerSpecs || {};
+  if (query.prefersFlatbed && normalizeText(specs.scannerType).includes("flatbed")) score += 10;
   score += Math.min(numberValue(specs.scanSpeedSimplexPpm) || 0, 120) / 120;
   return score;
 }
@@ -506,22 +576,32 @@ export async function getLandingPageByPath(pathname: string) {
   return getCachedLandingPage();
 }
 
-export async function getHubData(): Promise<LandingHubData> {
-  const pages = process.env.NODE_ENV === "production"
-    ? await getPublishedLandingPages({ productGroup: "may-scan" })
-    : await loadLandingHubPreviewPages();
-  const scan: LandingHubData["scan"] = { brand: [], industry: [], need: [] };
-
+function bucketHubItems(pages: LandingPageDoc[]): Record<LandingFacetType, LandingHubItem[]> {
+  const bucket: Record<LandingFacetType, LandingHubItem[]> = { brand: [], industry: [], need: [] };
   for (const page of pages) {
     if (!page.facetType) continue;
     const item = hubItem(page);
-    if (item) scan[page.facetType].push(item);
+    if (item) bucket[page.facetType].push(item);
   }
-
-  return { scan };
+  return bucket;
 }
 
-async function loadLandingHubPreviewPages() {
+export async function getHubData(): Promise<LandingHubData> {
+  const [scanPages, photocopyPages] =
+    process.env.NODE_ENV === "production"
+      ? await Promise.all([
+          getPublishedLandingPages({ productGroup: "may-scan" }),
+          getPublishedLandingPages({ productGroup: "may-photocopy" }),
+        ])
+      : await Promise.all([
+          loadLandingHubPreviewPages("may-scan"),
+          loadLandingHubPreviewPages("may-photocopy"),
+        ]);
+
+  return { scan: bucketHubItems(scanPages), photocopy: bucketHubItems(photocopyPages) };
+}
+
+async function loadLandingHubPreviewPages(group: LandingProductGroup) {
   try {
     const payload = await getPayloadClient();
     const res = await payload.find({
@@ -531,7 +611,7 @@ async function loadLandingHubPreviewPages() {
       limit: 500,
       overrideAccess: true,
       sort: "sortOrder",
-      where: { productGroup: { equals: "may-scan" } },
+      where: { productGroup: { equals: group } },
     });
     return res.docs as unknown as LandingPageDoc[];
   } catch (error) {
@@ -546,7 +626,7 @@ function recommendedProductDocs(value: LandingPageDoc["recommendedProducts"]) {
 
 export async function getScannersForQuery(
   productQuery: LandingProductQuery = {},
-  { limit = 12, recommendedProducts }: ScannerQueryOptions = {},
+  { limit = 12, recommendedProducts, group = "may-scan" }: ScannerQueryOptions = {},
 ) {
   // recommendedProducts = ghim tay (curated) → LUÔN hiện trước, KHÔNG lọc theo productMatchesQuery.
   const recommended = recommendedProductDocs(recommendedProducts).filter((product) => product.slug);
@@ -581,10 +661,10 @@ export async function getScannersForQuery(
     // 1) Ghim tay trước (bỏ qua bộ lọc query)
     for (const product of recommended) dedupePush(ordered, seen, product);
 
-    // 2) Máy auto-khớp lấp phần còn lại
+    // 2) Máy auto-khớp lấp phần còn lại (matcher theo nhóm sản phẩm của landing)
     const auto = ((res.docs as unknown as ProductDoc[]) || [])
-      .filter((product) => product.slug && productMatchesQuery(product, productQuery))
-      .sort((a, b) => productScore(b, productQuery) - productScore(a, productQuery));
+      .filter((product) => product.slug && productMatchesGroupQuery(product, productQuery, group))
+      .sort((a, b) => productScore(b, productQuery, group) - productScore(a, productQuery, group));
     for (const product of auto) {
       if (ordered.length >= max) break;
       dedupePush(ordered, seen, product);
@@ -651,6 +731,7 @@ export async function getPublishedLandingSitemapEntries() {
       const products = await getScannersForQuery(page.productQuery, {
         limit: 4,
         recommendedProducts: page.recommendedProducts,
+        group: page.productGroup,
       });
       return meetsQualityGate(page, products.length) && page.pathname
         ? { pathname: page.pathname, updatedAt: page.updatedAt }

@@ -54,15 +54,59 @@ function JsonLd({ value }: { value: object }) {
   );
 }
 
-function pageTitle(doc: LandingPageDoc) {
-  return doc.h1 || doc.title || "Giải pháp máy scan cho doanh nghiệp";
+// Nhãn/đường dẫn theo nhóm sản phẩm của landing — template dùng chung cho
+// mọi productGroup (may-scan / may-photocopy / may-in), tránh hardcode "máy scan".
+const GROUP_META = {
+  "may-scan": {
+    label: "Máy scan",
+    hubPath: "/giai-phap/may-scan",
+    catalogPath: "/may-scan",
+    heroEyebrow: "Giải pháp máy scan chính hãng",
+    fallbackTitle: "Giải pháp máy scan cho doanh nghiệp",
+    fallbackLead:
+      "HPT Tech tư vấn và cung cấp máy scan chính hãng, giải pháp số hóa phù hợp theo khối lượng và đặc thù đơn vị.",
+    productsTitle: "Máy scan phù hợp để tham khảo",
+    catalogLabel: "Xem tất cả máy scan",
+    catalogEmptyLabel: "Xem danh mục máy scan",
+  },
+  "may-in": {
+    label: "Máy in",
+    hubPath: "/giai-phap/may-in",
+    catalogPath: "/may-in",
+    heroEyebrow: "Giải pháp máy in chính hãng",
+    fallbackTitle: "Giải pháp máy in cho doanh nghiệp",
+    fallbackLead:
+      "HPT Tech tư vấn và cung cấp máy in chính hãng, cấu hình phù hợp theo khối lượng in và đặc thù đơn vị.",
+    productsTitle: "Máy in phù hợp để tham khảo",
+    catalogLabel: "Xem tất cả máy in",
+    catalogEmptyLabel: "Xem danh mục máy in",
+  },
+  "may-photocopy": {
+    label: "Máy photocopy",
+    hubPath: "/giai-phap/may-photocopy",
+    catalogPath: "/may-photocopy",
+    heroEyebrow: "Giải pháp máy photocopy chính hãng",
+    fallbackTitle: "Giải pháp máy photocopy cho doanh nghiệp",
+    fallbackLead:
+      "HPT Tech tư vấn và cung cấp máy photocopy chính hãng, cấu hình phù hợp theo khối lượng bản chụp và đặc thù đơn vị.",
+    productsTitle: "Máy photocopy phù hợp để tham khảo",
+    catalogLabel: "Xem tất cả máy photocopy",
+    catalogEmptyLabel: "Xem danh mục máy photocopy",
+  },
+} as const;
+
+type GroupMeta = (typeof GROUP_META)[keyof typeof GROUP_META];
+
+function groupMeta(doc: LandingPageDoc): GroupMeta {
+  return GROUP_META[(doc.productGroup || "may-scan") as keyof typeof GROUP_META] ?? GROUP_META["may-scan"];
 }
 
-function heroLead(doc: LandingPageDoc) {
-  return (
-    doc.seo?.description ||
-    "HPT Tech tư vấn và cung cấp máy scan chính hãng, giải pháp số hóa phù hợp theo khối lượng và đặc thù đơn vị."
-  );
+function pageTitle(doc: LandingPageDoc, meta: GroupMeta) {
+  return doc.h1 || doc.title || meta.fallbackTitle;
+}
+
+function heroLead(doc: LandingPageDoc, meta: GroupMeta) {
+  return doc.seo?.description || meta.fallbackLead;
 }
 
 function SectionTitle({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
@@ -90,9 +134,10 @@ function relatedPageHref(page: LandingPageDoc) {
 }
 
 export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
+  const meta = groupMeta(doc);
   const accentKey = landingAccentKey(doc);
-  const title = pageTitle(doc);
-  const lead = heroLead(doc);
+  const title = pageTitle(doc, meta);
+  const lead = heroLead(doc, meta);
   const heroProduct = products[0];
   const painPoints = doc.painPoints?.filter((item) => item.text) || [];
   const criteria = doc.criteria?.filter((item) => item.need || item.spec) || [];
@@ -104,8 +149,8 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
   const breadcrumbs = [
     { href: "/", name: "Trang chủ" },
     { href: "/giai-phap", name: "Giải pháp" },
-    { href: "/giai-phap/may-scan", name: "Máy scan" },
-    { href: doc.pathname || "/giai-phap/may-scan", name: title },
+    { href: meta.hubPath, name: meta.label },
+    { href: doc.pathname || meta.hubPath, name: title },
   ];
 
   return (
@@ -143,7 +188,7 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
                 className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.12em]"
                 style={{ color: ACCENT_DARK }}
               >
-                Giải pháp máy scan chính hãng
+                {meta.heroEyebrow}
               </span>
               <h1 className="mt-5 text-4xl font-extrabold leading-tight text-ink md:text-5xl">{title}</h1>
               <p className="mt-5 max-w-xl text-lg leading-8 text-slate-600">{lead}</p>
@@ -181,13 +226,13 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={heroProduct.image}
-                    alt={heroProduct.title || "Máy scan"}
+                    alt={heroProduct.title || meta.label}
                     className="mx-auto max-h-[300px] w-auto object-contain"
                   />
                 </div>
                 <div className="absolute -bottom-4 left-3 max-w-[220px] rounded-xl border border-border bg-white px-4 py-3 shadow-soft">
                   <p className="text-xs font-semibold" style={{ color: ACCENT_DARK }}>
-                    {heroProduct.brand || "Máy scan đề xuất"}
+                    {heroProduct.brand || `${meta.label} đề xuất`}
                   </p>
                   <p className="mt-0.5 line-clamp-2 text-sm font-bold text-ink">{heroProduct.title}</p>
                 </div>
@@ -278,7 +323,7 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             eyebrow="Model đề xuất"
-            title="Máy scan phù hợp để tham khảo"
+            title={meta.productsTitle}
             subtitle="Gợi ý theo tiêu chí thực tế của đơn vị — ưu tiên máy đã kiểm chứng, còn hàng, xuất VAT."
           />
           {products.length ? (
@@ -290,10 +335,10 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
               </div>
               <div className="mt-10 text-center">
                 <Link
-                  href="/san-pham?category=may-scan"
+                  href={meta.catalogPath}
                   className="inline-flex h-12 items-center gap-2 rounded-md bg-primary-700 px-6 text-sm font-bold text-white transition hover:bg-primary-800"
                 >
-                  Xem tất cả máy scan
+                  {meta.catalogLabel}
                   <ArrowRight size={17} />
                 </Link>
               </div>
@@ -303,8 +348,8 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
               <p className="text-base leading-7 text-slate-700">
                 Chưa có model đủ khớp bộ lọc. HPT Tech sẽ tư vấn model thay thế hoặc cấu hình dự án theo nhu cầu thực tế.
               </p>
-              <Link className="mt-4 inline-flex font-bold text-primary-700" href="/san-pham?category=may-scan">
-                Xem danh mục máy scan
+              <Link className="mt-4 inline-flex font-bold text-primary-700" href={meta.catalogPath}>
+                {meta.catalogEmptyLabel}
               </Link>
             </div>
           )}
@@ -394,7 +439,7 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
       {/* ===== RELATED ===== */}
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionTitle eyebrow="Liên kết nội bộ" title="Giải pháp máy scan liên quan" />
+          <SectionTitle eyebrow="Liên kết nội bộ" title={`Giải pháp ${meta.label.toLowerCase()} liên quan`} />
           <div className="flex flex-wrap justify-center gap-3">
             {relatedPages.map((page) => (
               <Link
@@ -402,14 +447,14 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
                 href={relatedPageHref(page)}
                 className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-primary-300 hover:text-primary-700"
               >
-                {page.title || page.facetSlug || "Giải pháp máy scan"}
+                {page.title || page.facetSlug || `Giải pháp ${meta.label.toLowerCase()}`}
               </Link>
             ))}
             <Link
-              href="/giai-phap/may-scan"
+              href={meta.hubPath}
               className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-primary-300 hover:text-primary-700"
             >
-              Tất cả giải pháp máy scan
+              Tất cả giải pháp {meta.label.toLowerCase()}
             </Link>
           </div>
         </div>
