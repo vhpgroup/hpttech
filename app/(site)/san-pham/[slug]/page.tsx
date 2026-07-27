@@ -77,21 +77,21 @@ const technicalSupportItems = [
     phone: "0778 335 225",
     initials: "TGM",
     avatarClassName: "bg-accent-600",
-    imageSrc: "/assets/consultants/tran-gia-minh.jpg",
+    imageSrc: "/api/r2-media/tran-gia-minh.jpg",
   },
   {
     name: "Nguyễn Thành Danh",
     phone: "0973 798 939",
     initials: "ND",
     avatarClassName: "bg-accent-600",
-    imageSrc: "/assets/consultants/nguyen-thanh-danh.jpg",
+    imageSrc: "/api/r2-media/nguyen-thanh-danh.jpg",
   },
   {
     name: "Đào Thanh Tùng",
     phone: "0931 311 686",
     initials: "DTT",
     avatarClassName: "bg-accent-600",
-    imageSrc: "/assets/consultants/dao-thanh-tung.jpg",
+    imageSrc: "/api/r2-media/dao-thanh-tung.jpg",
   },
 ];
 
