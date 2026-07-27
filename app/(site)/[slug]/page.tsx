@@ -95,6 +95,9 @@ function parseLandingSearchParams(
     gpu: firstParam(params.gpu) || "",
     sc: firstParam(params.sc) || "",
     line: firstParam(params.line) || "",
+    ccolor: firstParam(params.ccolor) || "",
+    cspeed: firstParam(params.cspeed) || "",
+    cfeat: firstParam(params.cfeat) || "",
   };
 }
 

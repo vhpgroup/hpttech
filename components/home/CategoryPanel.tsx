@@ -39,6 +39,9 @@ function buildProductFilterHref(options: {
   gpu?: string;
   sc?: string;
   line?: string;
+  ccolor?: string;
+  cspeed?: string;
+  cfeat?: string;
 }) {
   const params = new URLSearchParams();
   if (options.brand) params.set("brand", options.brand);
@@ -58,6 +61,9 @@ function buildProductFilterHref(options: {
   if (options.gpu) params.set("gpu", options.gpu);
   if (options.sc) params.set("sc", options.sc);
   if (options.line) params.set("line", options.line);
+  if (options.ccolor) params.set("ccolor", options.ccolor);
+  if (options.cspeed) params.set("cspeed", options.cspeed);
+  if (options.cfeat) params.set("cfeat", options.cfeat);
   const query = params.toString();
 
   // Có danh mục → trỏ về LANDING PAGE rút gọn /<slug> của danh mục (kiểu An Phát);
@@ -122,6 +128,52 @@ const printerMegaColumns: MegaColumn[] = [
       { label: "In màu", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pfeat: "color" }) },
       { label: "In 2 mặt tự động", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pfeat: "duplex" }) },
       { label: "Kết nối mạng / WiFi", href: buildProductFilterHref({ category: PRINTER_PARENT_SLUG, pfeat: "network" }) },
+    ],
+  },
+];
+
+// Slug danh mục cha nhóm máy photocopy (khớp categories.slug trong CMS).
+const PHOTOCOPIER_PARENT_SLUG = "may-photocopy";
+
+const photocopierMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — BỘ LỌC theo loại in (cột chuẩn hóa photocopier_specs_color_print).
+    title: "Theo loại",
+    links: [
+      { label: "Photocopy màu", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, ccolor: "mau" }) },
+      { label: "Photocopy đen trắng", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, ccolor: "den" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo hãng (field brand; theo dữ liệu hiện có trong catalog).
+    title: "Theo hãng",
+    links: [
+      { label: "Fujifilm", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "Fujifilm" }) },
+      { label: "Fuji Xerox", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "Fuji Xerox" }) },
+      { label: "Canon", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "Canon" }) },
+      { label: "HP", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "HP" }) },
+      { label: "Sharp", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "Sharp" }) },
+      { label: "Ricoh", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "Ricoh" }) },
+      { label: "Konica Minolta", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, brand: "Konica Minolta" }) },
+    ],
+  },
+  {
+    // Trục 3 — BỘ LỌC theo bậc tốc độ copy (cột chuẩn hóa photocopier_specs_copy_speed_cpm).
+    title: "Theo tốc độ copy",
+    links: [
+      { label: "Văn phòng nhỏ (≤25 bản/phút)", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cspeed: "c1" }) },
+      { label: "Văn phòng (26–40 bản/phút)", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cspeed: "c2" }) },
+      { label: "Tốc độ cao (>40 bản/phút)", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cspeed: "c3" }) },
+    ],
+  },
+  {
+    // Trục 4 — BỘ LỌC theo tính năng (cột boolean chuẩn hóa + regex chức năng/kết nối).
+    title: "Theo tính năng",
+    links: [
+      { label: "In 2 mặt tự động (Duplex)", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cfeat: "duplex" }) },
+      { label: "Nạp bản gốc tự động (ADF)", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cfeat: "adf" }) },
+      { label: "Có Fax", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cfeat: "fax" }) },
+      { label: "Kết nối mạng / WiFi", href: buildProductFilterHref({ category: PHOTOCOPIER_PARENT_SLUG, cfeat: "network" }) },
     ],
   },
 ];
@@ -544,6 +596,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "máy in") {
     return printerMegaColumns;
+  }
+  if (nameKey === "máy photocopy") {
+    return photocopierMegaColumns;
   }
   if (nameKey === "phần mềm bản quyền") {
     return softwareMegaColumns;

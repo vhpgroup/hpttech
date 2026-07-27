@@ -87,6 +87,9 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
     gpu: firstParam(params.gpu) || "",
     sc: firstParam(params.sc) || "",
     line: firstParam(params.line) || "",
+    ccolor: firstParam(params.ccolor) || "",
+    cspeed: firstParam(params.cspeed) || "",
+    cfeat: firstParam(params.cfeat) || "",
   };
 }
 
