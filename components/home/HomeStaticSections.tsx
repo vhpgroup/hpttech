@@ -1,7 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
-import type { PublicSolution } from "@/lib/content-payload";
+import type { PublicPost, PublicSolution } from "@/lib/content-payload";
+
+const NEWS_FALLBACK_IMAGE = "/assets/commercial-blocks/solution.jpg";
 
 // Icon 3D dải cam kết — cùng bộ phong cách Fluent 3D với icon sidebar danh mục,
 // tự host trên media R2 của site (/api/r2-media/icon-cam-ket-<slug>.png).
@@ -35,7 +39,48 @@ export function TrustStrip() {
   );
 }
 
-export default function HomeStaticSections({ solutions }: { solutions: PublicSolution[] }) {
+function PostLink({
+  href,
+  className,
+  ariaLabel,
+  children,
+}: {
+  href: string;
+  className?: string;
+  ariaLabel?: string;
+  children: ReactNode;
+}) {
+  if (href.startsWith("http")) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className} aria-label={ariaLabel}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className} aria-label={ariaLabel}>
+      {children}
+    </Link>
+  );
+}
+
+export default function HomeStaticSections({
+  solutions,
+  posts,
+}: {
+  solutions: PublicSolution[];
+  posts?: PublicPost[];
+}) {
+  const newsCards =
+    posts && posts.length > 0
+      ? posts.map((post) => ({
+          title: post.title,
+          href: post.href || `/tin-tuc/${post.slug}`,
+          image: post.image || NEWS_FALLBACK_IMAGE,
+          date: post.date || "",
+        }))
+      : HPT_DATA.posts;
+
   return (
     <>
       <section className="brand-strip" id="brands">
@@ -79,23 +124,28 @@ export default function HomeStaticSections({ solutions }: { solutions: PublicSol
       <section className="news" id="news">
         <div className="section-head">
           <h2>Tin tức & tiêu điểm</h2>
-          <a href="https://hpttech.vn/blog/" target="_blank" rel="noreferrer">
+          <Link href="/tin-tuc">
             Xem tất cả <ArrowRight size={16} />
-          </a>
+          </Link>
         </div>
 
         <div className="news-grid" id="newsGrid">
-          {HPT_DATA.posts.map((post) => (
-            <article key={post.title} className="post-card">
-              <a href={post.href} target="_blank" rel="noreferrer">
-                <Image src={post.image} alt={post.title} width={360} height={200} sizes="(max-width: 767px) 100vw, 360px" />
-              </a>
+          {newsCards.map((post) => (
+            <article key={post.href} className="post-card">
+              <PostLink href={post.href} ariaLabel={post.title}>
+                <Image
+                  src={post.image}
+                  alt={post.title}
+                  width={360}
+                  height={200}
+                  sizes="(max-width: 767px) 100vw, 360px"
+                  unoptimized={post.image.startsWith("/api/")}
+                />
+              </PostLink>
               <div className="post-info">
-                <span className="post-date">{post.date}</span>
+                <time className="post-date">{post.date}</time>
                 <h3>
-                  <a href={post.href} target="_blank" rel="noreferrer">
-                    {post.title}
-                  </a>
+                  <PostLink href={post.href}>{post.title}</PostLink>
                 </h3>
               </div>
             </article>
