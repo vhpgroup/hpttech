@@ -1,7 +1,6 @@
 import { getPublishedLandingSitemapEntries } from "@/lib/landing-pages";
 
 export const revalidate = 86400;
-export const dynamic = "force-dynamic";
 
 function siteURL() {
   const raw = process.env.NEXT_PUBLIC_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL || "https://hpttech.vn";
