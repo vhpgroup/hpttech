@@ -5,6 +5,7 @@ const productTypesMigrationName = "20260630_120000_add_networking_camera_product
 const quoteRequestsMigrationName = "20260630_180000_add_quote_requests";
 const pseoLandingPagesMigrationName = "20260701_082156_pseo_landing_pages";
 const desktopServerCatalogMigrationName = "20260707_101500_add_desktop_server_catalog";
+const photocopierSpecsMigrationName = "20260727_100000_normalize_photocopier_specs";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -991,6 +992,110 @@ async function applyDesktopServerCatalogMigration(client) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 20260727 — Chuẩn hóa dữ liệu MÁY PHOTOCOPY để phục vụ trục lọc mega-menu.
+// Idempotent + bảo thủ: chỉ sửa giá trị NULL / rác / mâu thuẫn rõ ràng với text;
+// chạy lại nhiều lần vô hại (lần sau 0 rows). Áp cho cả bảng products lẫn bảng
+// version (_products_v) để admin mở bản nháp lưu lại không ghi đè ngược dữ liệu cũ.
+// Quy tắc:
+// - copy_speed_cpm: xóa giá trị ngoài 8..150 (rác parse như 1, 2625, 6855),
+//   backfill từ text "25 trang/phút" / "26/31/35 bản/phút" (lấy số đầu 2-3 chữ số).
+// - color_print: tên có "màu/color" (và không có "đen trắng") -> true;
+//   tên "đen trắng" mà đang true và text không xác nhận "Có" -> false.
+// - auto_duplex_print: text bắt đầu "Không" -> false; text/chức năng có
+//   duplex / tự động / tích hợp / có sẵn -> true.
+// - has_adf: text ADF bắt đầu "Không" -> false; text có ADF/DADF/RADF/số tờ -> true.
+function photocopierNormalizeStatements(prefix, table) {
+  const c = (name) => `"${table}"."${prefix}photocopier_specs_${name}"`;
+  const set = (name) => `"${prefix}photocopier_specs_${name}"`;
+  const nameCol = `"${table}"."${prefix}name"`;
+  const scope = `(
+    "${table}"."${prefix}category_id" IN (SELECT "id" FROM "categories" WHERE "slug" = 'may-photocopy')
+    OR "${table}"."${prefix}spec_profile" = 'photocopier'
+  )`;
+
+  return [
+    // 1) copy_speed_cpm: dọn giá trị rác ngoài khoảng hợp lý
+    `UPDATE "${table}" SET ${set("copy_speed_cpm")} = NULL
+     WHERE ${scope} AND ${c("copy_speed_cpm")} IS NOT NULL
+       AND (${c("copy_speed_cpm")} < 8 OR ${c("copy_speed_cpm")} > 150);`,
+
+    // 2) copy_speed_cpm: backfill từ text tốc độ copy (fallback tốc độ in)
+    `UPDATE "${table}" SET ${set("copy_speed_cpm")} = sub.v
+     FROM (
+       SELECT "id", (regexp_match(
+         coalesce(${c("copy_speed")}, ${c("print_speed")}), '(\\d{2,3})'
+       ))[1]::numeric AS v
+       FROM "${table}"
+       WHERE ${scope}
+     ) sub
+     WHERE "${table}"."id" = sub."id"
+       AND ${c("copy_speed_cpm")} IS NULL
+       AND sub.v BETWEEN 8 AND 150;`,
+
+    // 3) color_print: tên nói "màu" (không kèm "đen trắng") -> true
+    `UPDATE "${table}" SET ${set("color_print")} = true
+     WHERE ${scope} AND ${c("color_print")} IS NOT TRUE
+       AND ${nameCol} ~* '(màu|colou?r)'
+       AND ${nameCol} !~* '(đen trắng|trắng đen)';`,
+
+    // 4) color_print: tên nói "đen trắng" mà flag true và text không xác nhận -> false
+    `UPDATE "${table}" SET ${set("color_print")} = false
+     WHERE ${scope} AND ${c("color_print")} IS TRUE
+       AND ${nameCol} ~* '(đen trắng|trắng đen)'
+       AND coalesce(${c("color_print_text")}, '') !~* '^\\s*có';`,
+
+    // 5) auto_duplex_print: text phủ định rõ -> false
+    `UPDATE "${table}" SET ${set("auto_duplex_print")} = false
+     WHERE ${scope}
+       AND coalesce(${c("auto_duplex_print_text")}, '') ~* '^\\s*không';`,
+
+    // 6) auto_duplex_print: tín hiệu khẳng định trong text/chức năng -> true
+    `UPDATE "${table}" SET ${set("auto_duplex_print")} = true
+     WHERE ${scope} AND ${c("auto_duplex_print")} IS NOT TRUE
+       AND (
+         coalesce(${c("auto_duplex_print_text")}, '') ~* '(duplex|tự động|tích hợp|có sẵn|^\\s*có)'
+         OR coalesce(${c("functions")}, '') ~* 'duplex'
+       );`,
+
+    // 7) has_adf: text phủ định rõ -> false
+    `UPDATE "${table}" SET ${set("has_adf")} = false
+     WHERE ${scope}
+       AND coalesce(${c("adf_text")}, '') ~* '^\\s*không';`,
+
+    // 8) has_adf: tín hiệu khẳng định -> true
+    `UPDATE "${table}" SET ${set("has_adf")} = true
+     WHERE ${scope} AND ${c("has_adf")} IS NOT TRUE
+       AND (
+         (
+           coalesce(${c("adf_text")}, '') <> ''
+           AND ${c("adf_text")} !~* '^\\s*không'
+           AND ${c("adf_text")} ~* '(adf|dadf|radf|tờ|sheets|sẵn|tự động|^\\s*có)'
+         )
+         OR coalesce(${c("functions")}, '') ~* '(dadf|radf)'
+       );`,
+  ];
+}
+
+async function applyPhotocopierSpecsNormalization(client) {
+  const statements = [
+    ...photocopierNormalizeStatements("", "products"),
+    ...photocopierNormalizeStatements("version_", "_products_v"),
+  ];
+
+  await client.query("BEGIN");
+  try {
+    for (const sql of statements) {
+      await client.query(sql);
+    }
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${photocopierSpecsMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function main() {
   const client = new Client({ connectionString });
 
@@ -1001,6 +1106,7 @@ async function main() {
     await applyQuoteRequestsMigration(client);
     await applyPseoLandingPagesMigration(client);
     await applyDesktopServerCatalogMigration(client);
+    await applyPhotocopierSpecsNormalization(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;

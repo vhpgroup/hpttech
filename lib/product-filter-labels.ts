@@ -73,6 +73,18 @@ export const FILTER_CRUMB_LABELS: Record<string, Record<string, string>> = {
     bo: "Bộ nhiều màu",
   },
   orig: { chinhhang: "Mực chính hãng", tuongthich: "Mực tương thích" },
+  ccolor: { mau: "Photocopy màu", den: "Photocopy đen trắng" },
+  cspeed: {
+    c1: "≤25 bản/phút",
+    c2: "26–40 bản/phút",
+    c3: ">40 bản/phút",
+  },
+  cfeat: {
+    duplex: "In 2 mặt tự động",
+    adf: "Nạp bản gốc ADF",
+    fax: "Có Fax",
+    network: "Kết nối mạng / WiFi",
+  },
 };
 
 // Thứ tự hiển thị các mắt lọc trong breadcrumb (sau chuỗi danh mục).
@@ -94,6 +106,9 @@ export const FILTER_CRUMB_ORDER = [
   "fb",
   "mau",
   "orig",
+  "ccolor",
+  "cspeed",
+  "cfeat",
 ] as const;
 
 // Trả nhãn cho một cặp (key, value). brand: giá trị chính là nhãn (ASUS, HP...).
@@ -131,6 +146,7 @@ function group(param: string, title: string): FilterGroupDef {
 export const CATEGORY_FILTER_GROUPS: Record<string, FilterGroupDef[]> = {
   "may-scan": [group("size", "Khổ giấy"), group("speed", "Tốc độ quét"), group("feature", "Tính năng")],
   "may-in": [group("func", "Loại máy in"), group("pspeed", "Tốc độ in"), group("pfeat", "Tính năng in")],
+  "may-photocopy": [group("ccolor", "Loại photocopy"), group("cspeed", "Tốc độ copy"), group("cfeat", "Tính năng")],
   "muc-in-phu-kien": [group("fb", "Dùng cho máy"), group("mau", "Màu mực"), group("orig", "Loại mực")],
   "may-tinh-dong-bo-may-chu": [group("cpu", "CPU"), group("ram", "RAM")],
   "laptop-gaming-do-hoa": [group("cpu", "CPU"), group("gpu", "Card đồ họa"), group("sc", "Màn hình"), group("line", "Dòng máy")],

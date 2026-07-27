@@ -143,6 +143,12 @@ export type ProductSearchParams = {
   sc?: string;
   /** Lọc laptop theo dòng máy: thinkpad | vivobook | zenbook | yoga | swift | ideapad | xps | prestige */
   line?: string;
+  /** Lọc photocopy theo loại in: mau | den (đen trắng) */
+  ccolor?: string;
+  /** Lọc photocopy theo bậc tốc độ copy (bản/phút): c1 (≤25) | c2 (26–40) | c3 (>40) */
+  cspeed?: string;
+  /** Lọc photocopy theo tính năng: duplex | adf | fax | network */
+  cfeat?: string;
 };
 
 /** Khổ giấy hợp lệ cho bộ lọc scanner (khớp scannerSpecs.maxPaperSize). */
@@ -192,6 +198,30 @@ const PRINTER_FEATURE_SQL: Record<string, string> = {
   color: "p.printer_specs_color_print = true",
   duplex: "p.printer_specs_auto_duplex_print = true",
   network: `(coalesce(p.name,'') || ' ' || coalesce(p.printer_specs_connectivity,'')) ~* '${PRINTER_NETWORK_REGEX}'`,
+};
+
+/** Loại photocopy (màu / đen trắng) → cột boolean photocopier_specs_color_print. Whitelist. */
+const PHOTOCOPIER_COLOR_SQL: Record<string, string> = {
+  mau: "p.photocopier_specs_color_print = true",
+  den: "p.photocopier_specs_color_print = false",
+};
+
+/**
+ * Bậc tốc độ copy (bản/phút) → điều kiện trên cột photocopier_specs_copy_speed_cpm.
+ * Cột này được chuẩn hóa bởi startup migration 20260727 (dọn giá trị rác + backfill từ text).
+ */
+const PHOTOCOPIER_SPEED_SQL: Record<string, string> = {
+  c1: "p.photocopier_specs_copy_speed_cpm <= 25",
+  c2: "p.photocopier_specs_copy_speed_cpm between 26 and 40",
+  c3: "p.photocopier_specs_copy_speed_cpm > 40",
+};
+
+/** Tính năng photocopy → điều kiện SQL. Whitelist. */
+const PHOTOCOPIER_FEATURE_SQL: Record<string, string> = {
+  duplex: "p.photocopier_specs_auto_duplex_print = true",
+  adf: "p.photocopier_specs_has_adf = true",
+  fax: `(coalesce(p.name,'') || ' ' || coalesce(p.photocopier_specs_functions,'')) ~* 'fax'`,
+  network: `(coalesce(p.photocopier_specs_connectivity,'') || ' ' || coalesce(p.photocopier_specs_functions,'')) ~* '${PRINTER_NETWORK_REGEX}'`,
 };
 
 // Regex nhận diện phần mềm theo tên SP (Postgres ~*). Nội dung cố định, không nội suy input.
@@ -1618,6 +1648,22 @@ function productSearchWhere(params: ProductSearchParams, values: unknown[]) {
     where.push(pfeatSql);
   }
 
+  // --- Bộ lọc chuyên biệt máy photocopy (nhóm photocopierSpecs đã chuẩn hóa) ---
+  const ccolorSql = PHOTOCOPIER_COLOR_SQL[cleanCatalogParam(params.ccolor).toLowerCase()];
+  if (ccolorSql) {
+    where.push(ccolorSql);
+  }
+
+  const cspeedSql = PHOTOCOPIER_SPEED_SQL[cleanCatalogParam(params.cspeed).toLowerCase()];
+  if (cspeedSql) {
+    where.push(cspeedSql);
+  }
+
+  const cfeatSql = PHOTOCOPIER_FEATURE_SQL[cleanCatalogParam(params.cfeat).toLowerCase()];
+  if (cfeatSql) {
+    where.push(cfeatSql);
+  }
+
   // --- Bộ lọc chuyên biệt phần mềm bản quyền (regex trên tên SP) ---
   const licSql = SOFTWARE_LICENSE_SQL[cleanCatalogParam(params.lic).toLowerCase()];
   if (licSql) {
@@ -1891,6 +1937,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
     gpu?: string,
     sc?: string,
     line?: string,
+    ccolor?: string,
+    cspeed?: string,
+    cfeat?: string,
     // ⚠️ CACHE-KEY 3 TẦNG: param mới PHẢI có mặt ở arg-list này (khóa cache),
     // ở getProductSearchPageFromPayload VÀ ở object truyền xuống — thiếu 1 tầng
     // là param "không ăn" âm thầm (bài học facetScope 23/07 + PR #5).
@@ -1921,6 +1970,9 @@ const getCachedProductSearchPageFromPayload = unstable_cache(
       gpu,
       sc,
       line,
+      ccolor,
+      cspeed,
+      cfeat,
       facetScope,
     }),
   ["product-search-page"],
@@ -1962,6 +2014,9 @@ export async function getProductSearchPageFromPayload({
   gpu = "",
   sc = "",
   line = "",
+  ccolor = "",
+  cspeed = "",
+  cfeat = "",
   facetScope,
 }: ProductSearchParams = {}): Promise<ProductListPageResult> {
   return getCachedProductSearchPageFromPayload(
@@ -1989,6 +2044,9 @@ export async function getProductSearchPageFromPayload({
     gpu,
     sc,
     line,
+    ccolor,
+    cspeed,
+    cfeat,
     facetScope,
   );
 }
