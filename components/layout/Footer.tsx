@@ -18,7 +18,7 @@ const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 const HPT_BCT_BADGE_SRC = "/assets/logo/bctn.png";
 const HPT_LEGAL_NAME = "Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT";
 const HPT_TAX_CODE = "0202253444";
-const HPT_PUBLIC_PHONE = "0967286889";
+const HPT_PUBLIC_PHONE = "+84 967 286 889";
 
 type FooterLink = {
   label: string;
@@ -103,7 +103,7 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
       value: "VP Quảng Ngãi: 199 Đoàn Thị Điểm, phường Kon Tum, tỉnh Quảng Ngãi.",
       icon: MapPin,
     },
-    { label: "Hotline", value: phone, href: phoneHref(phone), icon: Phone },
+    { label: "Điện thoại", value: phone, href: phoneHref(phone), icon: Phone },
     { label: "Email", value: settings.email, href: `mailto:${settings.email}`, icon: Mail },
     { label: "Website", value: "hpttech.vn", href: "https://hpttech.vn", icon: Globe2 },
   ];
