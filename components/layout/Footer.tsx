@@ -18,7 +18,7 @@ const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 const HPT_BCT_BADGE_SRC = "/assets/logo/bctn.png";
 const HPT_LEGAL_NAME = "Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT";
 const HPT_TAX_CODE = "0202253444";
-const HPT_PUBLIC_PHONE = "0967286889";
+const HPT_PUBLIC_PHONE = "+84 967 286 889";
 
 type FooterLink = {
   label: string;
@@ -331,7 +331,7 @@ function OfficeCard({ office, index }: { office: OfficeLocation; index: number }
           <div className="flex gap-4">
             <FluentPhone aria-hidden="true" />
             <a href={phoneHref(HPT_PUBLIC_PHONE)} className="transition hover:text-danger">
-              <span className="font-semibold text-slate-700">Hotline: </span>
+              <span className="font-semibold text-slate-700">Điện thoại: </span>
               <span className="font-black">{formatPhoneForDisplay(HPT_PUBLIC_PHONE)}</span>
             </a>
           </div>

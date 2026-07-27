@@ -24,6 +24,7 @@ import { ProductStickyBar } from "@/components/product/ProductStickyBar";
 import { ProductRelationTabs, type ProductRelationSection } from "@/components/product/ProductRelationTabs";
 import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 import type { CatalogProduct } from "@/lib/catalog";
+import { cn } from "@/lib/cn";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -48,29 +49,58 @@ const quickBuyItems = [
 const consultantItems = [
   {
     name: "Đào Duy Vỹ",
-    phone: "0876645432",
-    email: "kinhdoanh@hpttech.vn",
+    phone: "0876 645 432",
     initials: "DVY",
-    color: "#16A34A",
+    avatarClassName: "bg-success",
     imageSrc: "/assets/consultants/dao-duy-vy.jpg",
   },
   {
     name: "Nguyễn Viết Tân",
     phone: "0559 309 904",
-    email: "kinhdoanh@hpttech.vn",
     initials: "NT",
-    color: "#7C3AED",
+    avatarClassName: "bg-primary-700",
     imageSrc: "/assets/consultants/nguyen-viet-tan.jpg",
   },
   {
     name: "Nguyễn Đức Thắng",
     phone: "0372 767 995",
-    email: "kinhdoanh@hpttech.vn",
     initials: "NT",
-    color: "#2563EB",
+    avatarClassName: "bg-primary-600",
     imageSrc: "/assets/consultants/nguyen-duc-thang.jpg",
   },
 ];
+
+const technicalSupportItems = [
+  {
+    name: "Trần Gia Minh",
+    phone: "0778 335 225",
+    initials: "TGM",
+    avatarClassName: "bg-accent-600",
+    imageSrc: "/assets/consultants/tran-gia-minh.jpg",
+  },
+  {
+    name: "Nguyễn Thành Danh",
+    phone: "0973 798 939",
+    initials: "AD",
+    avatarClassName: "bg-accent-600",
+    imageSrc: "/assets/consultants/nguyen-thanh-danh.jpg",
+  },
+  {
+    name: "Đào Thanh Tùng",
+    phone: "0931 311 686",
+    initials: "DTT",
+    avatarClassName: "bg-accent-600",
+    imageSrc: "/assets/consultants/dao-thanh-tung.jpg",
+  },
+];
+
+type SupportContact = {
+  name: string;
+  phone: string;
+  initials: string;
+  avatarClassName: string;
+  imageSrc?: string;
+};
 
 function parseVNDPrice(value?: string) {
   if (!value) return undefined;
@@ -141,6 +171,52 @@ function EmptyProductSection({ message }: { message: string }) {
   return (
     <div className="rounded-[18px] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-6 text-slate-500">
       {message}
+    </div>
+  );
+}
+
+function ProductSupportContactBlock({
+  title,
+  contacts,
+}: {
+  title: string;
+  contacts: SupportContact[];
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+      <div className="bg-primary-600 px-4 py-3">
+        <h2 className="text-sm font-bold uppercase text-white">{title}</h2>
+      </div>
+      <div className="space-y-4 px-4 py-4">
+        {contacts.map((contact) => (
+          <div key={`${contact.name}-${contact.phone}`} className="flex items-center gap-3">
+            <div
+              className={cn(
+                "relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white ring-1 ring-slate-200",
+                contact.avatarClassName,
+              )}
+            >
+              {contact.initials}
+              {contact.imageSrc ? (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${contact.imageSrc})` }}
+                />
+              ) : null}
+            </div>
+            <div className="min-w-0 text-sm leading-5 text-slate-700">
+              <p className="font-semibold text-slate-900">{contact.name}</p>
+              <p>
+                <strong>Hotline:</strong>{" "}
+                <a href={phoneHref(contact.phone)} className="hover:text-primary-600">
+                  {contact.phone}
+                </a>
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -481,43 +557,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-[#4F64E8] px-4 py-3">
-              <h2 className="text-sm font-bold uppercase text-white">Tư vấn khách hàng</h2>
-            </div>
-            <div className="space-y-4 px-4 py-4">
-              {consultantItems.map((consultant) => (
-                <div key={`${consultant.name}-${consultant.phone}`} className="flex items-center gap-3">
-                  <div
-                    className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white ring-1 ring-slate-200"
-                    style={{ backgroundColor: consultant.color }}
-                  >
-                    {consultant.initials}
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${consultant.imageSrc})` }}
-                    />
-                  </div>
-                  <div className="min-w-0 text-sm leading-5 text-slate-700">
-                    <p className="font-semibold text-slate-900">{consultant.name}</p>
-                    <p>
-                      <strong>Hotline/Zalo:</strong>{" "}
-                      <a href={phoneHref(consultant.phone)} className="hover:text-[#0057FF]">
-                        {consultant.phone}
-                      </a>
-                    </p>
-                    <p>
-                      <strong>Email:</strong>{" "}
-                      <a href={`mailto:${consultant.email}`} className="break-all hover:text-[#0057FF]">
-                        {consultant.email}
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <ProductSupportContactBlock title="Tư vấn khách hàng" contacts={consultantItems} />
+
+          <ProductSupportContactBlock title="Hỗ trợ kỹ thuật" contacts={technicalSupportItems} />
         </aside>
       </section>
 
