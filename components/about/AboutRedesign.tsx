@@ -425,6 +425,51 @@ export default function AboutRedesign() {
       <div className="partner"><img src="/ve-hpt/fujitsu.png" alt="Fujitsu" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/synology.png" alt="Synology" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/qnap.png" alt="QNAP" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/hp.png" alt="HP" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/asus.png" alt="ASUS" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/acer.png" alt="Acer" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/msi.png" alt="MSI" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/apple.png" alt="Apple" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/intel.png" alt="Intel" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/amd.png" alt="AMD" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/brother.png" alt="Brother" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/epson.png" alt="Epson" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/ricoh.png" alt="Ricoh" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/fujifilm-business-innovation.png" alt="Fujifilm Business Innovation" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/kyocera.png" alt="Kyocera" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/konica-minolta.png" alt="Konica Minolta" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/lexmark.png" alt="Lexmark" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/pantum.png" alt="Pantum" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/avision.png" alt="Avision" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/microtek.png" alt="Microtek" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/plustek.png" alt="Plustek" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/visioneer.png" alt="Visioneer" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/kodak-alaris.png" alt="Kodak Alaris" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/czur.png" alt="CZUR" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/ruijie.png" alt="Ruijie Networks" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/tp-link.png" alt="TP-Link" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/ubiquiti.png" alt="Ubiquiti" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/sophos.png" alt="Sophos" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/sangfor.png" alt="Sangfor" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/juniper.png" alt="Juniper Networks" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/huawei.png" alt="Huawei" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/netapp.png" alt="NetApp" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/ibm.png" alt="IBM" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/western-digital.png" alt="Western Digital" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/seagate.png" alt="Seagate" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/logitech.png" alt="Logitech" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/poly.png" alt="Poly" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/yealink.png" alt="Yealink" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/jabra.png" alt="Jabra" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/tenveo.png" alt="Tenveo" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/sony.png" alt="Sony" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/samsung.png" alt="Samsung" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/lg.png" alt="LG" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/panasonic.png" alt="Panasonic" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/nvidia.png" alt="NVIDIA" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/kingston.png" alt="Kingston" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/crucial.png" alt="Crucial" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/gigabyte.png" alt="Gigabyte" decoding="async" /></div>
     </div>
         <div className="eco reveal">
       <span>Máy chủ</span><span>Thiết bị lưu trữ</span><span>Máy tính</span><span>Máy in · Máy quét</span><span>Thiết bị mạng</span><span>Thiết bị bảo mật</span><span>Camera giám sát</span><span>Thiết bị hội nghị</span><span>Thiết bị trình chiếu</span><span>Nguồn dự phòng</span><span>Phần mềm bản quyền</span><span>Nền tảng CĐS</span>
