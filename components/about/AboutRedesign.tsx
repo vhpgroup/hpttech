@@ -524,7 +524,7 @@ export default function AboutRedesign() {
               <option>Nhu cầu khác</option>
             </select>
           </div>
-          <div className="cf-field"><label htmlFor="cfMsg">Nội dung chi tiết</label><textarea id="cfMsg" rows="3" placeholder="Mô tả ngắn nhu cầu, quy mô, thời gian dự kiến..."></textarea></div>
+          <div className="cf-field"><label htmlFor="cfMsg">Nội dung chi tiết</label><textarea id="cfMsg" rows={3} placeholder="Mô tả ngắn nhu cầu, quy mô, thời gian dự kiến..."></textarea></div>
           <button type="submit" className="btn btn-primary cf-submit">Gửi yêu cầu tư vấn
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           <p className="cf-note" id="cfNote" role="status"></p>

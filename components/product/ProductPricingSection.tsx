@@ -158,7 +158,7 @@ export default function ProductPricingSection({
             size="lg"
             variant="outline"
             className="product-action-button rounded-xl border-slate-200 bg-white text-slate-800 transition-all hover:-translate-y-0.5 hover:border-primary-600/45 hover:bg-primary-600/5 hover:text-primary-600 hover:shadow-md"
-           variant="accent">
+           >
             <a href={phoneHref}>Tư vấn ngay</a>
           </Button>
         </div>
