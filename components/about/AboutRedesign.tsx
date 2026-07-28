@@ -465,6 +465,7 @@ export default function AboutRedesign() {
       <div className="partner"><img src="/ve-hpt/sony.png" alt="Sony" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/samsung.png" alt="Samsung" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/lg.png" alt="LG" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/panasonic.png" alt="Panasonic" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/nvidia.png" alt="NVIDIA" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/kingston.png" alt="Kingston" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/crucial.png" alt="Crucial" decoding="async" /></div>
