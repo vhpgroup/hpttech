@@ -123,19 +123,19 @@ export default function AboutRedesign() {
         <div className="cred-card">
           <div className="cc-h"><span className="dot"></span> Hồ sơ năng lực</div>
           <div className="cc-row">
-            <div className="ic"><img src="/ve-hpt/icon-0.png" alt="" className="i3m" decoding="async" /></div>
+            <div className="ic"><Image src="/ve-hpt/icon-0.png" alt="" className="i3m" width={80} height={80} /></div>
             <div className="tx"><small>Tên pháp lý</small><b>Công ty TNHH Đầu tư Xây dựng & Thiết bị Công nghệ HPT</b></div>
           </div>
           <div className="cc-row">
-            <div className="ic"><img src="/ve-hpt/icon-1.png" alt="" className="i3m" decoding="async" /></div>
+            <div className="ic"><Image src="/ve-hpt/icon-1.png" alt="" className="i3m" width={37} height={64} /></div>
             <div className="tx"><small>Trụ sở chính</small><b>SB04 Vinhomes Marina, P. An Biên, TP. Hải Phòng</b></div>
           </div>
           <div className="cc-row">
-            <div className="ic"><img src="/ve-hpt/icon-2.png" alt="" className="i3m" decoding="async" /></div>
+            <div className="ic"><Image src="/ve-hpt/icon-2.png" alt="" className="i3m" width={66} height={80} /></div>
             <div className="tx"><small>Mã số thuế</small><b>0202253444</b></div>
           </div>
           <div className="cc-row">
-            <div className="ic"><img src="/ve-hpt/icon-3.png" alt="" className="i3m" decoding="async" /></div>
+            <div className="ic"><Image src="/ve-hpt/icon-3.png" alt="" className="i3m" width={80} height={80} /></div>
             <div className="tx"><small>Phạm vi triển khai</small><b>Toàn quốc · Hải Phòng · Hà Nội · TP.HCM · Cần Thơ</b></div>
           </div>
         </div>
@@ -197,16 +197,16 @@ export default function AboutRedesign() {
       <p className="lead" style={{marginTop:'14px'}}>HPT TECH tập trung phục vụ các dự án đầu tư công, chuyển đổi số và hiện đại hóa hạ tầng CNTT cho khối cơ quan nhà nước, tổ chức và doanh nghiệp.</p>
     </div>
     <div className="sector-grid reveal">
-      <div className="sector"><div className="si"><img src="/ve-hpt/huy-hieu-dang-cong-san-viet-nam.png" alt="Huy hiệu Đảng Cộng sản Việt Nam" decoding="async" /></div><b>Cơ quan Đảng</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/quoc-huy-nuoc-chxhcn-viet-nam.png" alt="Quốc huy nước CHXHCN Việt Nam" decoding="async" /></div><b>Cơ quan hành chính nhà nước</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/logo-bo-khoa-hoc-va-cong-nghe.png" alt="Logo Bộ Khoa học và Công nghệ" decoding="async" /></div><b>Bộ, ban, ngành & đơn vị trực thuộc</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/cong-an-hieu.png" alt="Công an hiệu" decoding="async" /></div><b>Công an & lực lượng vũ trang</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/logo-bo-y-te.png" alt="Logo Bộ Y tế" decoding="async" /></div><b>Bệnh viện & cơ sở y tế</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/logo-bo-giao-duc-va-dao-tao.png" alt="Logo Bộ Giáo dục và Đào tạo" decoding="async" /></div><b>Trường đại học, cao đẳng & giáo dục</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/logo-tap-doan-dien-luc-viet-nam-evn.png" alt="Logo Tập đoàn Điện lực Việt Nam EVN" decoding="async" /></div><b>Điện lực & doanh nghiệp nhà nước</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/logo-tong-cong-ty-cang-hang-khong-viet-nam-acv.png" alt="Logo Tổng công ty Cảng hàng không Việt Nam ACV" decoding="async" /></div><b>Cảng biển, logistics & giao thông</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/huy-hieu-bo-tai-chinh.png" alt="Huy hiệu Bộ Tài chính" decoding="async" /></div><b>Ngân hàng & tổ chức tài chính</b></div>
-      <div className="sector"><div className="si"><img src="/ve-hpt/logo-lien-doan-thuong-mai-va-cong-nghiep-viet-na.png" alt="Logo Liên đoàn Thương mại và Công nghiệp Việt Nam VCCI" decoding="async" /></div><b>Doanh nghiệp SX, thương mại & dịch vụ</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/huy-hieu-dang-cong-san-viet-nam.png" alt="Huy hiệu Đảng Cộng sản Việt Nam" width={200} height={179} /></div><b>Cơ quan Đảng</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/quoc-huy-nuoc-chxhcn-viet-nam.png" alt="Quốc huy nước CHXHCN Việt Nam" width={196} height={200} /></div><b>Cơ quan hành chính nhà nước</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/logo-bo-khoa-hoc-va-cong-nghe.png" alt="Logo Bộ Khoa học và Công nghệ" width={196} height={200} /></div><b>Bộ, ban, ngành & đơn vị trực thuộc</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/cong-an-hieu.png" alt="Công an hiệu" width={200} height={161} /></div><b>Công an & lực lượng vũ trang</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/logo-bo-y-te.png" alt="Logo Bộ Y tế" width={200} height={200} /></div><b>Bệnh viện & cơ sở y tế</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/logo-bo-giao-duc-va-dao-tao.png" alt="Logo Bộ Giáo dục và Đào tạo" width={198} height={200} /></div><b>Trường đại học, cao đẳng & giáo dục</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/logo-tap-doan-dien-luc-viet-nam-evn.png" alt="Logo Tập đoàn Điện lực Việt Nam EVN" width={138} height={200} /></div><b>Điện lực & doanh nghiệp nhà nước</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/logo-tong-cong-ty-cang-hang-khong-viet-nam-acv.png" alt="Logo Tổng công ty Cảng hàng không Việt Nam ACV" width={175} height={62} /></div><b>Cảng biển, logistics & giao thông</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/huy-hieu-bo-tai-chinh.png" alt="Huy hiệu Bộ Tài chính" width={200} height={199} /></div><b>Ngân hàng & tổ chức tài chính</b></div>
+      <div className="sector"><div className="si"><Image src="/ve-hpt/logo-lien-doan-thuong-mai-va-cong-nghiep-viet-na.png" alt="Logo Liên đoàn Thương mại và Công nghiệp Việt Nam VCCI" width={175} height={118} /></div><b>Doanh nghiệp SX, thương mại & dịch vụ</b></div>
     </div>
   </div>
 </section>
@@ -219,7 +219,7 @@ export default function AboutRedesign() {
         <div className="ring"></div><div className="ring2"></div>
         <h3>Năng lực triển khai dự án Chính phủ</h3>
         <p>HPT TECH có khả năng tham gia xuyên suốt vòng đời của một dự án công nghệ thông tin — bảo đảm tính đồng bộ, khả năng mở rộng, hiệu quả đầu tư và sự phù hợp với quy trình vận hành thực tế của từng cơ quan, đơn vị.</p>
-        <span className="tag"><img src="/ve-hpt/icon-15.png" alt="" style={{width:'16px',height:'16px'}} decoding="async" /> Triển khai tổng thể — trọn vòng đời dự án</span>
+        <span className="tag"><Image src="/ve-hpt/icon-15.png" alt="" style={{width:'16px',height:'16px'}} width={48} height={48} /> Triển khai tổng thể — trọn vòng đời dự án</span>
       </div>
       <div className="reveal">
         <div className="life-list">
@@ -249,32 +249,32 @@ export default function AboutRedesign() {
     </div>
     <div className="domain-grid reveal">
       <div className="domain">
-        <div className="dh"><div className="di"><img src="/ve-hpt/icon-may-tinh-ha-tang-cntt.png" alt="Icon máy tính — hạ tầng CNTT" decoding="async" /></div>
+        <div className="dh"><div className="di"><Image src="/ve-hpt/icon-may-tinh-ha-tang-cntt.png" alt="Icon máy tính — hạ tầng CNTT" width={112} height={112} /></div>
           <div><div className="dn">01</div><h3>Hạ tầng công nghệ thông tin</h3><div className="dt">Hiệu năng cao · Ổn định · Dễ mở rộng</div></div></div>
         <div className="chiplist"><span>Máy chủ</span><span>Trung tâm dữ liệu</span><span>Lưu trữ SAN/NAS</span><span>Sao lưu & khôi phục</span><span>Máy tính để bàn</span><span>Laptop</span><span>All-in-One</span><span>Mini PC</span><span>Máy trạm</span><span>Thiết bị ngoại vi</span><span>UPS</span><span>Tủ rack & phụ kiện</span></div>
       </div>
       <div className="domain">
-        <div className="dh"><div className="di"><img src="/ve-hpt/icon-anten-ve-tinh-ha-tang-mang-vien-thong.png" alt="Icon anten vệ tinh — hạ tầng mạng viễn thông" decoding="async" /></div>
+        <div className="dh"><div className="di"><Image src="/ve-hpt/icon-anten-ve-tinh-ha-tang-mang-vien-thong.png" alt="Icon anten vệ tinh — hạ tầng mạng viễn thông" width={95} height={112} /></div>
           <div><div className="dn">02</div><h3>Hạ tầng mạng & viễn thông</h3><div className="dt">Kết nối thông suốt · Quản trị tập trung</div></div></div>
         <div className="chiplist"><span>Core Switch</span><span>Distribution Switch</span><span>Access Switch</span><span>Router</span><span>Wi-Fi doanh nghiệp</span><span>Wi-Fi tập trung</span><span>LAN/WAN</span><span>VPN</span><span>Cáp mạng</span><span>Cáp quang</span><span>Tủ mạng</span><span>Giám sát hạ tầng</span></div>
       </div>
       <div className="domain accent-r">
-        <div className="dh"><div className="di"><img src="/ve-hpt/icon-la-chan-an-toan-thong-tin.png" alt="Icon lá chắn — an toàn thông tin" decoding="async" /></div>
+        <div className="dh"><div className="di"><Image src="/ve-hpt/icon-la-chan-an-toan-thong-tin.png" alt="Icon lá chắn — an toàn thông tin" width={90} height={112} /></div>
           <div><div className="dn">03</div><h3>An toàn thông tin</h3><div className="dt">Bảo vệ nhiều lớp · An toàn theo cấp độ</div></div></div>
         <div className="chiplist"><span>Tường lửa thế hệ mới</span><span>Endpoint Security</span><span>EDR/XDR</span><span>VPN</span><span>Network Access Control</span><span>Bảo vệ email</span><span>Chống mã độc</span><span>Quản lý nhật ký</span><span>Giám sát ATTT</span><span>Sao lưu & phục hồi</span><span>ATTT theo cấp độ</span></div>
       </div>
       <div className="domain">
-        <div className="dh"><div className="di"><img src="/ve-hpt/icon-may-in-in-an-va-so-hoa.png" alt="Icon máy in — in ấn và số hóa" decoding="async" /></div>
+        <div className="dh"><div className="di"><Image src="/ve-hpt/icon-may-in-in-an-va-so-hoa.png" alt="Icon máy in — in ấn và số hóa" width={112} height={112} /></div>
           <div><div className="dn">04</div><h3>Máy in, máy quét & số hóa</h3><div className="dt">Hiệu suất cao · Số hóa nhanh</div></div></div>
         <div className="chiplist"><span>Máy in văn phòng</span><span>Máy in tốc độ cao</span><span>Máy in khổ lớn</span><span>Máy quét chuyên dụng</span><span>Scan tốc độ cao</span><span>Scan A3</span><span>Scan sách</span><span>Scan hộ chiếu</span><span>Số hóa hồ sơ</span><span>OCR</span><span>Lưu trữ điện tử</span><span>Quản lý tài liệu</span></div>
       </div>
       <div className="domain accent-g">
-        <div className="dh"><div className="di"><img src="/ve-hpt/icon-camera-giam-sat-thong-minh.png" alt="Icon camera — giám sát thông minh" decoding="async" /></div>
+        <div className="dh"><div className="di"><Image src="/ve-hpt/icon-camera-giam-sat-thong-minh.png" alt="Icon camera — giám sát thông minh" width={112} height={88} /></div>
           <div><div className="dn">05</div><h3>Camera AI & đô thị thông minh</h3><div className="dt">Giám sát thông minh · Phân tích AI</div></div></div>
         <div className="chiplist"><span>Camera AI an ninh</span><span>Nhận diện biển số</span><span>Phân tích giao thông</span><span>Phát hiện ùn tắc</span><span>Phát hiện tụ tập</span><span>Phát hiện xâm nhập</span><span>Phát hiện khói/cháy</span><span>Giám sát công cộng</span><span>Trường học & bệnh viện</span><span>Trung tâm điều hành</span></div>
       </div>
       <div className="domain">
-        <div className="dh"><div className="di"><img src="/ve-hpt/icon-man-hinh-hoi-nghi-truyen-hinh.png" alt="Icon màn hình — hội nghị truyền hình" decoding="async" /></div>
+        <div className="dh"><div className="di"><Image src="/ve-hpt/icon-man-hinh-hoi-nghi-truyen-hinh.png" alt="Icon màn hình — hội nghị truyền hình" width={104} height={112} /></div>
           <div><div className="dn">06</div><h3>Hội nghị truyền hình & phòng họp</h3><div className="dt">Kết nối mọi khoảng cách</div></div></div>
         <div className="chiplist"><span>Hội nghị truyền hình</span><span>Camera PTZ</span><span>Micro hội nghị</span><span>Loa hội nghị</span><span>Màn hình hiển thị</span><span>Trình chiếu không dây</span><span>Phòng họp thông minh</span><span>Điều khiển tập trung</span><span>Teams · Zoom · Meet · Webex</span><span>Ghi âm/ghi hình</span><span>Đa điểm cầu</span></div>
       </div>
@@ -292,7 +292,7 @@ export default function AboutRedesign() {
     </div>
     <div className="soft-grid reveal">
       <div className="soft">
-        <div className="sh"><div className="sic"><img src="/ve-hpt/icon-22.png" alt="" className="i3s" decoding="async" /></div><h3>Website & cổng thông tin điện tử</h3></div>
+        <div className="sh"><div className="sic"><Image src="/ve-hpt/icon-22.png" alt="" className="i3s" width={96} height={96} /></div><h3>Website & cổng thông tin điện tử</h3></div>
         <p>Chuẩn UI/UX · Tối ưu SEO · Responsive · Bảo mật · Quản trị nội dung linh hoạt.</p>
         <div className="mini">
           <div className="m"><span className="i3c" aria-hidden="true"></span>Website doanh nghiệp, tổ chức, thương mại điện tử</div>
@@ -301,7 +301,7 @@ export default function AboutRedesign() {
         </div>
       </div>
       <div className="soft">
-        <div className="sh"><div className="sic"><img src="/ve-hpt/icon-23.png" alt="" className="i3s" decoding="async" /></div><h3>Phát triển ứng dụng công nghệ</h3></div>
+        <div className="sh"><div className="sic"><Image src="/ve-hpt/icon-23.png" alt="" className="i3s" width={69} height={96} /></div><h3>Phát triển ứng dụng công nghệ</h3></div>
         <p>Web · Mobile · AI · Tích hợp · Linh hoạt theo nghiệp vụ thực tế.</p>
         <div className="mini">
           <div className="m"><span className="i3c" aria-hidden="true"></span>Ứng dụng Web & Mobile (Android/iOS)</div>
@@ -312,7 +312,7 @@ export default function AboutRedesign() {
       <div className="soft feature">
         <div className="inner">
           <div>
-            <div className="sh"><div className="sic" style={{background:'rgba(0,162,74,.22)',borderColor:'rgba(57,217,138,.4)',color:'#39d98a'}}><img src="/ve-hpt/icon-24.png" alt="" className="i3s" decoding="async" /></div><h3>Phần mềm phòng họp không giấy</h3></div>
+            <div className="sh"><div className="sic" style={{background:'rgba(0,162,74,.22)',borderColor:'rgba(57,217,138,.4)',color:'#39d98a'}}><Image src="/ve-hpt/icon-24.png" alt="" className="i3s" width={75} height={96} /></div><h3>Phần mềm phòng họp không giấy</h3></div>
             <p>Số hóa toàn bộ quy trình tổ chức cuộc họp — giảm chi phí in ấn, tiết kiệm thời gian, tăng bảo mật và nâng cao hiệu quả điều hành.</p>
           </div>
           <div className="cols">
@@ -326,7 +326,7 @@ export default function AboutRedesign() {
         </div>
       </div>
       <div className="soft wide">
-        <div className="sh"><div className="sic"><img src="/ve-hpt/icon-25.png" alt="" className="i3s" decoding="async" /></div><h3>Phần mềm quản lý theo nghiệp vụ</h3></div>
+        <div className="sh"><div className="sic"><Image src="/ve-hpt/icon-25.png" alt="" className="i3s" width={96} height={93} /></div><h3>Phần mềm quản lý theo nghiệp vụ</h3></div>
         <p>Xây dựng mới, cải tiến, tích hợp và nâng cấp hệ thống theo quy trình của từng đơn vị.</p>
         <div className="chiplist" style={{marginTop:'4px'}}>
           <span style={{background:'rgba(255,255,255,.06)',borderColor:'rgba(255,255,255,.12)',color:'#c8d5ee'}}>Quản lý văn bản & điều hành</span>
@@ -390,13 +390,13 @@ export default function AboutRedesign() {
       <h2 className="h2">7 bước triển khai chuẩn hóa</h2>
     </div>
     <div className="proc reveal">
-      <div className="pstep"><div className="pn"><span className="pnum">1</span><img src="/ve-hpt/icon-26.png" alt="" className="i3p2" decoding="async" /></div><b>Khảo sát</b><small>Thu thập yêu cầu & hiện trạng</small></div>
-      <div className="pstep"><div className="pn"><span className="pnum">2</span><img src="/ve-hpt/icon-27.png" alt="" className="i3p2" decoding="async" /></div><b>Tư vấn giải pháp</b><small>Phân tích & lựa chọn công nghệ</small></div>
-      <div className="pstep"><div className="pn"><span className="pnum">3</span><img src="/ve-hpt/icon-28.png" alt="" className="i3p2" decoding="async" /></div><b>Thiết kế & kế hoạch</b><small>Thiết kế kỹ thuật, tiến độ</small></div>
-      <div className="pstep"><div className="pn"><span className="pnum">4</span><img src="/ve-hpt/icon-29.png" alt="" className="i3p2" decoding="async" /></div><b>Cung cấp & triển khai</b><small>Lắp đặt, cấu hình, tích hợp</small></div>
-      <div className="pstep"><div className="pn"><span className="pnum">5</span><img src="/ve-hpt/icon-30.png" alt="" className="i3p2" decoding="async" /></div><b>Kiểm thử & nghiệm thu</b><small>Chạy thử, đánh giá, bàn giao</small></div>
-      <div className="pstep"><div className="pn"><span className="pnum">6</span><img src="/ve-hpt/icon-31.png" alt="" className="i3p2" decoding="async" /></div><b>Đào tạo & chuyển giao</b><small>Hướng dẫn vận hành, tài liệu</small></div>
-      <div className="pstep"><div className="pn"><span className="pnum">7</span><img src="/ve-hpt/icon-32.png" alt="" className="i3p2" decoding="async" /></div><b>Bảo hành & hỗ trợ</b><small>Bảo trì suốt vòng đời hệ thống</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">1</span><Image src="/ve-hpt/icon-26.png" alt="" className="i3p2" width={96} height={96} /></div><b>Khảo sát</b><small>Thu thập yêu cầu & hiện trạng</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">2</span><Image src="/ve-hpt/icon-27.png" alt="" className="i3p2" width={59} height={96} /></div><b>Tư vấn giải pháp</b><small>Phân tích & lựa chọn công nghệ</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">3</span><Image src="/ve-hpt/icon-28.png" alt="" className="i3p2" width={96} height={96} /></div><b>Thiết kế & kế hoạch</b><small>Thiết kế kỹ thuật, tiến độ</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">4</span><Image src="/ve-hpt/icon-29.png" alt="" className="i3p2" width={96} height={79} /></div><b>Cung cấp & triển khai</b><small>Lắp đặt, cấu hình, tích hợp</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">5</span><Image src="/ve-hpt/icon-30.png" alt="" className="i3p2" width={48} height={48} /></div><b>Kiểm thử & nghiệm thu</b><small>Chạy thử, đánh giá, bàn giao</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">6</span><Image src="/ve-hpt/icon-31.png" alt="" className="i3p2" width={96} height={86} /></div><b>Đào tạo & chuyển giao</b><small>Hướng dẫn vận hành, tài liệu</small></div>
+      <div className="pstep"><div className="pn"><span className="pnum">7</span><Image src="/ve-hpt/icon-32.png" alt="" className="i3p2" width={89} height={96} /></div><b>Bảo hành & hỗ trợ</b><small>Bảo trì suốt vòng đời hệ thống</small></div>
     </div>
   </div>
 </section>
@@ -410,21 +410,21 @@ export default function AboutRedesign() {
       <p className="lead center" style={{marginTop:'14px'}}>Quan hệ hợp tác đa dạng giúp HPT đề xuất giải pháp phù hợp với từng yêu cầu kỹ thuật, quy mô đầu tư và ngân sách.</p>
     </div>
     <div className="partner-grid reveal">
-      <div className="partner"><img src="/ve-hpt/dell-technologies.png" alt="Dell Technologies" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/hewlett-packard-enterprise.png" alt="Hewlett Packard Enterprise" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/lenovo.png" alt="Lenovo" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/hikvision.png" alt="Hikvision" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/dahua-technology.png" alt="Dahua Technology" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/fortinet.png" alt="Fortinet" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/cisco.png" alt="Cisco" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/aruba-a-hpe-company.png" alt="Aruba — a HPE company" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/microsoft.png" alt="Microsoft" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/vmware.png" alt="VMware" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/veeam.png" alt="Veeam" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/canon.png" alt="Canon" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/fujitsu.png" alt="Fujitsu" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/synology.png" alt="Synology" decoding="async" /></div>
-      <div className="partner"><img src="/ve-hpt/qnap.png" alt="QNAP" decoding="async" /></div>
+      <div className="partner"><Image src="/ve-hpt/dell-technologies.png" alt="Dell Technologies" width={420} height={420} /></div>
+      <div className="partner"><Image src="/ve-hpt/hewlett-packard-enterprise.png" alt="Hewlett Packard Enterprise" width={420} height={175} /></div>
+      <div className="partner"><Image src="/ve-hpt/lenovo.png" alt="Lenovo" width={420} height={87} /></div>
+      <div className="partner"><Image src="/ve-hpt/hikvision.png" alt="Hikvision" width={420} height={53} /></div>
+      <div className="partner"><Image src="/ve-hpt/dahua-technology.png" alt="Dahua Technology" width={420} height={125} /></div>
+      <div className="partner"><Image src="/ve-hpt/fortinet.png" alt="Fortinet" width={420} height={48} /></div>
+      <div className="partner"><Image src="/ve-hpt/cisco.png" alt="Cisco" width={420} height={221} /></div>
+      <div className="partner"><Image src="/ve-hpt/aruba-a-hpe-company.png" alt="Aruba — a HPE company" width={420} height={204} /></div>
+      <div className="partner"><Image src="/ve-hpt/microsoft.png" alt="Microsoft" width={420} height={89} /></div>
+      <div className="partner"><Image src="/ve-hpt/vmware.png" alt="VMware" width={420} height={64} /></div>
+      <div className="partner"><Image src="/ve-hpt/veeam.png" alt="Veeam" width={420} height={221} /></div>
+      <div className="partner"><Image src="/ve-hpt/canon.png" alt="Canon" width={420} height={88} /></div>
+      <div className="partner"><Image src="/ve-hpt/fujitsu.png" alt="Fujitsu" width={420} height={204} /></div>
+      <div className="partner"><Image src="/ve-hpt/synology.png" alt="Synology" width={420} height={108} /></div>
+      <div className="partner"><Image src="/ve-hpt/qnap.png" alt="QNAP" width={420} height={79} /></div>
     </div>
         <div className="eco reveal">
       <span>Máy chủ</span><span>Thiết bị lưu trữ</span><span>Máy tính</span><span>Máy in · Máy quét</span><span>Thiết bị mạng</span><span>Thiết bị bảo mật</span><span>Camera giám sát</span><span>Thiết bị hội nghị</span><span>Thiết bị trình chiếu</span><span>Nguồn dự phòng</span><span>Phần mềm bản quyền</span><span>Nền tảng CĐS</span>
@@ -452,7 +452,7 @@ export default function AboutRedesign() {
       <div className="commit"><span className="ck"><span className="i3c" aria-hidden="true"></span></span><span>Đào tạo & chuyển giao đầy đủ</span></div>
       <div className="commit"><span className="ck"><span className="i3c" aria-hidden="true"></span></span><span>Hỗ trợ kỹ thuật sau triển khai</span></div>
       <div className="commit"><span className="ck"><span className="i3c" aria-hidden="true"></span></span><span>Đồng hành lâu dài trong vận hành</span></div>
-      <div className="commit" style={{background:'linear-gradient(135deg,var(--navy-2),var(--navy-deep))',border:'0'}}><span className="ck" style={{background:'rgba(255,255,255,.15)'}}><img src="/ve-hpt/icon-48.png" alt="" style={{width:'20px',height:'20px'}} decoding="async" /></span><span style={{color:'#fff'}}>11 cam kết cho mỗi dự án</span></div>
+      <div className="commit" style={{background:'linear-gradient(135deg,var(--navy-2),var(--navy-deep))',border:'0'}}><span className="ck" style={{background:'rgba(255,255,255,.15)'}}><Image src="/ve-hpt/icon-48.png" alt="" style={{width:'20px',height:'20px'}} width={38} height={48} /></span><span style={{color:'#fff'}}>11 cam kết cho mỗi dự án</span></div>
     </div>
   </div>
 </section>
@@ -466,7 +466,7 @@ export default function AboutRedesign() {
     </div>
     <div className="vm-grid reveal">
       <div className="vm vision">
-        <div className="vmi"><img src="/ve-hpt/icon-49.png" alt="" className="i3v" decoding="async" /></div>
+        <div className="vmi"><Image src="/ve-hpt/icon-49.png" alt="" className="i3v" width={96} height={96} /></div>
         <h3>Tầm nhìn</h3>
         <p>Trở thành doanh nghiệp uy tín trong lĩnh vực tích hợp hệ thống, phát triển phần mềm và triển khai chuyển đổi số tại Việt Nam.</p>
         <div className="focus-tags">
@@ -474,7 +474,7 @@ export default function AboutRedesign() {
         </div>
       </div>
       <div className="vm mission">
-        <div className="vmi"><img src="/ve-hpt/icon-50.png" alt="" className="i3v" decoding="async" /></div>
+        <div className="vmi"><Image src="/ve-hpt/icon-50.png" alt="" className="i3v" width={96} height={96} /></div>
         <h3>Sứ mệnh</h3>
         <p>HPT TECH không chỉ cung cấp thiết bị công nghệ mà còn đồng hành cùng khách hàng trong việc xây dựng hệ thống, cải tiến quy trình và thực hiện chuyển đổi số.</p>
         <p>Với nền tảng hơn 20 năm kinh nghiệm của người sáng lập cùng đội ngũ chuyên môn và tinh thần trách nhiệm, HPT mang đến các giải pháp hiện đại, đồng bộ, an toàn và hiệu quả — hướng đến khả năng vận hành ổn định, mở rộng lâu dài và tạo ra giá trị thiết thực.</p>
@@ -495,9 +495,9 @@ export default function AboutRedesign() {
         <h2>Đăng ký nhận tư vấn giải&nbsp;pháp</h2>
         <p>HPT TECH sẵn sàng khảo sát nhu cầu và đề xuất phương án triển khai phù hợp cho cơ quan, tổ chức và doanh nghiệp của bạn — hoàn toàn miễn phí.</p>
         <div className="cta-contacts">
-          <a className="cc-item" href="tel:0967286889"><img src="/ve-hpt/icon-51.png" alt="" /><span><small>Hotline tư vấn</small><b>0967 286 889</b></span></a>
-          <a className="cc-item" href="mailto:info@hpttech.vn"><img src="/ve-hpt/icon-52.png" alt="" /><span><small>Email</small><b>info@hpttech.vn</b></span></a>
-          <div className="cc-item"><img src="/ve-hpt/icon-53.png" alt="" /><span><small>Giờ làm việc</small><b>8:00 – 17:30 (T2–T7)</b></span></div>
+          <a className="cc-item" href="tel:0967286889"><Image src="/ve-hpt/icon-51.png" alt="" width={48} height={48} /><span><small>Hotline tư vấn</small><b>0967 286 889</b></span></a>
+          <a className="cc-item" href="mailto:info@hpttech.vn"><Image src="/ve-hpt/icon-52.png" alt="" width={48} height={35} /><span><small>Email</small><b>info@hpttech.vn</b></span></a>
+          <div className="cc-item"><Image src="/ve-hpt/icon-53.png" alt="" width={42} height={48} /><span><small>Giờ làm việc</small><b>8:00 – 17:30 (T2–T7)</b></span></div>
         </div>
       </div>
       <div className="cta-form">
