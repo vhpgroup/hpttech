@@ -44,14 +44,14 @@ export const HPT_DATA = {
     { name: "Camera & An ninh", icon: "cctv" },
     { name: "Thiết bị giáo dục", icon: "graduation-cap" },
     { name: "Phần mềm bản quyền", icon: "badge-check" },
-    { name: "Linh kiện & Phụ kiện", icon: "cable" },
+    { name: "Thiết bị hình ảnh", icon: "image", slug: "thiet-bi-hinh-anh" },
     { name: "Mực in & Phụ kiện", icon: "droplets" },
     { name: "Lưu trữ & Backup", icon: "hard-drive" },
     { name: "Dịch vụ kỹ thuật", icon: "wrench" },
     { name: "Giải pháp số hóa", icon: "workflow" },
     { name: "Máy chiếu", icon: "projector" },
     { name: "UPS & Nguồn điện", icon: "battery-charging" },
-  ],
+  ] as { name: string; icon: string; slug?: string }[],
   productTabs: ["Nổi bật", "Máy scan", "Máy in", "Thiết bị văn phòng", "HP", "Brother"],
   products: [
     {

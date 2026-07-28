@@ -1244,7 +1244,7 @@ export async function getProductsBySlugsFromPayload(slugs: string[], limit = 8):
 async function loadProductCategoryNavFromPayload(): Promise<ProductCategoryNavItem[]> {
   const localFallback: ProductCategoryNavItem[] = HPT_DATA.categories.map((category, index) => ({
     name: category.name,
-    slug: "",
+    slug: category.slug ?? "",
     icon: category.icon,
     sortOrder: index,
     children: [],
@@ -1305,7 +1305,7 @@ async function loadProductCategoryNavFromPayload(): Promise<ProductCategoryNavIt
       if (!match) {
         return {
           name: category.name,
-          slug: "",
+          slug: category.slug ?? "",
           icon: category.icon,
           sortOrder: index,
           children: [],
