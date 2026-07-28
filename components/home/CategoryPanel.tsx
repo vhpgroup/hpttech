@@ -262,31 +262,34 @@ const SOFTWARE_PARENT_SLUG = "phan-mem-ban-quyen";
 const softwareMegaColumns: MegaColumn[] = [
   {
     // Trục 1 — DANH MỤC THẬT (category): nhóm phần mềm.
+    // 2026-07: tách "Diệt virus & bảo mật" thành 2 lá (DN & máy chủ / cá nhân & gia đình);
+    // lá cá nhân giữ slug cũ phan-mem-diet-virus-bao-mat (đổi tên tại chỗ — an toàn SEO).
     title: "Theo nhóm phần mềm",
     links: [
       { label: "Hệ điều hành", href: buildProductFilterHref({ category: "phan-mem-he-dieu-hanh" }) },
       { label: "Office & ứng dụng văn phòng", href: buildProductFilterHref({ category: "phan-mem-office-van-phong" }) },
       { label: "Microsoft 365 & dịch vụ đám mây", href: buildProductFilterHref({ category: "microsoft-365-dich-vu-dam-may" }) },
       { label: "Windows Server & SQL", href: buildProductFilterHref({ category: "windows-server-sql" }) },
-      { label: "Diệt virus & bảo mật", href: buildProductFilterHref({ category: "phan-mem-diet-virus-bao-mat" }) },
+      { label: "Bảo mật doanh nghiệp & máy chủ", href: buildProductFilterHref({ category: "bao-mat-doanh-nghiep-may-chu" }) },
+      { label: "Bảo mật cá nhân & gia đình", href: buildProductFilterHref({ category: "phan-mem-diet-virus-bao-mat" }) },
       { label: "Thiết kế & sáng tạo", href: buildProductFilterHref({ category: "phan-mem-thiet-ke-sang-tao" }) },
       { label: "CAD & kỹ thuật", href: buildProductFilterHref({ category: "phan-mem-cad-ky-thuat" }) },
       { label: "Tiện ích & AI", href: buildProductFilterHref({ category: "phan-mem-tien-ich-ai" }) },
     ],
   },
   {
-    // Trục 2 — BỘ LỌC theo hãng (field brand).
+    // Trục 2 — BỘ LỌC theo hãng (field brand). Chỉ liệt kê hãng ≥5 SP (theo khảo sát 2026-07).
     title: "Theo hãng",
     links: [
       { label: "Microsoft", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Microsoft" }) },
-      { label: "Adobe", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Adobe" }) },
       { label: "Kaspersky", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Kaspersky" }) },
-      { label: "Autodesk", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Autodesk" }) },
-      { label: "Canva", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Canva" }) },
+      { label: "Adobe", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Adobe" }) },
       { label: "Bkav", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Bkav" }) },
-      { label: "OpenAI", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "OpenAI" }) },
-      { label: "CapCut", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "CapCut" }) },
-      { label: "TeamViewer", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "TeamViewer" }) },
+      { label: "Autodesk", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Autodesk" }) },
+      { label: "Sophos", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Sophos" }) },
+      { label: "ESET", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "ESET" }) },
+      { label: "Trend Micro", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Trend Micro" }) },
+      { label: "Bitdefender", href: buildProductFilterHref({ category: SOFTWARE_PARENT_SLUG, brand: "Bitdefender" }) },
     ],
   },
   {
