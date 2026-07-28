@@ -225,14 +225,17 @@ const PHOTOCOPIER_FEATURE_SQL: Record<string, string> = {
 };
 
 // Regex nhận diện phần mềm theo tên SP (Postgres ~*). Nội dung cố định, không nội suy input.
-// Thuê bao: có dấu hiệu subscription/kỳ hạn. Vĩnh viễn: key/box perpetual VÀ không có dấu hiệu thuê bao.
+// Thuê bao: có dấu hiệu subscription/kỳ hạn HOẶC dòng SP chỉ bán thuê bao (M365/Defender/EDR-XDR,
+// endpoint security, Autodesk, Zoom Workplace, Bkav Pro...). Vĩnh viễn: key/box/perpetual VÀ không có dấu hiệu thuê bao.
+// Mở rộng 2026-07 theo lô 117 SP mới: CAL/Core/Edition/LTSC/Plan N/"tải online"... (phủ lic 55%→~83%, aud 51%→~85%).
 const SOFTWARE_SUBSCRIPTION_REGEX =
-  "subscri|annual|năm|tháng|1 ?(yr|year)| 1y |dịch vụ trực tuyến|dịch vụ truy cập";
+  "subscri|annual|năm|tháng|1 ?(yr|year)| 1y |dịch vụ trực tuyến|dịch vụ truy cập|endpoint|plan [0-9]| 365|copilot|intune|dynamics|hybrid cloud|security for |mobile security|maximum security|small office|embedded systems|utm|intercept x|ztna|gravityzone|worry-free|apex one|deep security|sophos (central|mdr|email|cloud|mobile)|\\m(mdr|edr|xdr)\\M|defender|power bi|mobility|autodesk|revit|3ds max|zoom workplace|bkav pro|safe kids";
 const SOFTWARE_PERPETUAL_REGEX =
-  "fpp|oem|oei|medialess|perpetual|retail|esd|ggwa|license pack| core| cal|dsp|- box";
-const SOFTWARE_AUDIENCE_PERSONAL_REGEX = "personal|family|home|cá nhân|gia đình";
+  "fpp|oem|oei|medialess|perpetual|retail|esd|ggwa|license pack| core| cal|dsp|- box|ltsc|edition|tải online|dwnld|lifetime|vĩnh viễn|(standard|professional|std) 20[0-9][0-9]|exchange server";
+const SOFTWARE_AUDIENCE_PERSONAL_REGEX =
+  "personal|family|home|cá nhân|gia đình|internet security|total security|antivirus|anti-virus|mobile security|maximum security|titanium|safe kids|nod32|smart security|bkav pro|premium security|kaspersky (standard|plus|premium)|capcut pro|canva pro";
 const SOFTWARE_AUDIENCE_BUSINESS_REGEX =
-  "business|enterprise|teams|commercial|small office|copilot|server| cal| e[357] |volume|doanh nghiệp";
+  "business|enterprise|teams|commercial|small office|copilot|server| cal|\\me[1357]\\M|volume|doanh nghiệp|endpoint|datacenter|plan [0-9]|professional|proplus|defender|exchange|sharepoint|intune|dynamics|power bi|utm|firewall|ztna|intercept|security for |embedded|hybrid cloud|backup exec|gravityzone|worry-free|apex one|deep security|ltsc|workplace|sophos|kaspersky next|\\m(mdr|edr|xdr)\\M|visio|project|ggwa";
 const SOFTWARE_AUDIENCE_EDUCATION_REGEX = "education|academic|giáo dục";
 
 /** Hình thức bản quyền phần mềm → điều kiện SQL (whitelist). Thuê bao thắng khi tên chứa cả hai loại dấu hiệu. */
