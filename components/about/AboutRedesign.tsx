@@ -8,6 +8,7 @@
  */
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import SalesSupportServices from "./SalesSupportServices";
 import "./about-redesign.css";
 
 export default function AboutRedesign() {
@@ -381,6 +382,9 @@ export default function AboutRedesign() {
     </div>
   </div>
 </section>
+
+
+<SalesSupportServices />
 
 
 <section className="sec tint" id="du-an">

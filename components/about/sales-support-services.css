@@ -1,0 +1,60 @@
+/* ============================================================
+   Sơ đồ "Các dịch vụ hỗ trợ bán hàng" — trang Về HPT (.vehpt)
+   - Scoped toàn bộ dưới .vehpt .dvbh-* để không đụng style site.
+   - Màu sắc dùng token sẵn có của about-redesign.css
+     (--red, --green, --ink, --muted, --line, --bg, --blue).
+   - Desktop: cột trái sticky (sơ đồ), cột phải cuộn qua 7 dịch vụ;
+     icon chuyển từ xám sang màu theo tiến trình cuộn.
+   ============================================================ */
+
+.vehpt .dvbh-stage{display:grid;grid-template-columns:1.3fr 1fr;gap:44px;align-items:start}
+.vehpt .dvbh-left{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.vehpt .dvbh-left svg{width:100%;height:auto;max-height:90vh;display:block}
+.vehpt .dvbh-right{padding:14vh 0 26vh}
+
+/* Khối mô tả bên phải */
+.vehpt .dvbh-blk{padding:8vh 0;border-top:1px solid var(--line)}
+.vehpt .dvbh-blk:first-child{border-top:0;padding-top:2vh}
+.vehpt .dvbh-blk .dvbh-ico{width:46px;height:46px;display:block;filter:grayscale(1);opacity:.45;transition:filter .5s ease,opacity .5s ease}
+.vehpt .dvbh-blk h3{font-size:clamp(1.1rem,1.7vw,1.4rem);margin:14px 0 10px;color:var(--muted);opacity:.55;transition:color .45s ease,opacity .45s ease;text-transform:uppercase;letter-spacing:.01em}
+.vehpt .dvbh-blk p{color:var(--muted);opacity:.5;transition:opacity .45s ease;max-width:56ch;line-height:1.75}
+.vehpt .dvbh-blk.on .dvbh-ico{filter:none;opacity:1}
+.vehpt .dvbh-blk.on h3{color:var(--ink);opacity:1}
+.vehpt .dvbh-blk.on p{opacity:1}
+
+/* Node icon trên sơ đồ */
+.vehpt .dvbh-ic{filter:grayscale(1);opacity:.5;transition:filter .55s ease,opacity .55s ease,transform .4s cubic-bezier(.2,.8,.25,1);transform-box:fill-box;transform-origin:center}
+.vehpt .dvbh-ic.svc{cursor:pointer}
+.vehpt .dvbh-ic.on{filter:none;opacity:1}
+.vehpt .dvbh-ic.act{transform:scale(1.1)}
+.vehpt g.dvbh-node:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:8px}
+
+/* Nhãn */
+.vehpt .dvbh-lbl{font-weight:700;font-size:14px;letter-spacing:.04em;text-anchor:middle;text-transform:uppercase;fill:var(--muted);opacity:.75;transition:fill .45s ease,opacity .45s ease}
+.vehpt .dvbh-lbl.svc.on{fill:var(--green);opacity:1}
+.vehpt .dvbh-lbl.ctx{opacity:.6}
+.vehpt .dvbh-lbl.ctx.on{opacity:.85}
+
+/* Nền, khung, đường nối */
+.vehpt .dvbh-tile{fill:var(--bg)}
+.vehpt .dvbh-obox{fill:none;stroke:var(--line);stroke-width:1.5}
+.vehpt .dvbh-rail{fill:none;stroke:var(--line);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.vehpt .dvbh-stem{stroke:var(--red);stroke-width:2}
+.vehpt .dvbh-dot{fill:var(--red)}
+.vehpt .dvbh-flow{fill:none;stroke:var(--red);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:1 15;opacity:.4;animation:dvbhMarch 1.7s linear infinite}
+@keyframes dvbhMarch{to{stroke-dashoffset:-32}}
+
+/* Huy hiệu logo HPT treo trên đường nối */
+.vehpt .dvbh-pin{stroke:var(--line);stroke-width:1.6}
+.vehpt .dvbh-pindot{fill:var(--line)}
+.vehpt .dvbh-badge{fill:#fff;stroke:var(--line);stroke-width:1.5}
+
+/* Responsive: xếp dọc, sơ đồ lên trên */
+@media(max-width:920px){
+  .vehpt .dvbh-stage{grid-template-columns:1fr;gap:8px}
+  .vehpt .dvbh-left{position:relative;top:auto;height:auto;padding:6px 0}
+  .vehpt .dvbh-left svg{max-height:none}
+  .vehpt .dvbh-right{padding:2vh 0 4vh}
+  .vehpt .dvbh-blk{padding:5vh 0}
+  .vehpt .dvbh-blk:first-child{padding-top:1vh}
+}
