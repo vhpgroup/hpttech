@@ -584,6 +584,120 @@ const networkMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Mega-menu "Thiết bị hình ảnh" — 8 cột theo cây danh mục thật 3 tầng (root id 133).
+// Mỗi cột: "Tất cả …" trỏ danh mục cấp 2 (filter đọc 3 tầng gom cả nhóm) + các danh mục lá cấp 3.
+// Cột "Phụ kiện máy ảnh" có 20 lá — rút gọn 9 lá đầu theo sortOrder để cân chiều cao panel;
+// khách xem đủ 20 loại qua "Tất cả Phụ kiện máy ảnh" (facet Phân loại trên trang landing).
+const imagingMegaColumns: MegaColumn[] = [
+  {
+    title: "Máy ảnh",
+    links: [
+      { label: "Tất cả Máy ảnh", href: buildProductFilterHref({ category: "may-anh-camera" }) },
+      { label: "Máy ảnh Canon", href: buildProductFilterHref({ category: "may-anh-canon" }) },
+      { label: "Máy ảnh Sony", href: buildProductFilterHref({ category: "may-anh-sony" }) },
+      { label: "Máy ảnh Fujifilm", href: buildProductFilterHref({ category: "may-anh-fujifilm" }) },
+      { label: "Máy ảnh Nikon", href: buildProductFilterHref({ category: "may-anh-nikon" }) },
+      { label: "Máy ảnh Panasonic", href: buildProductFilterHref({ category: "may-anh-panasonic" }) },
+      { label: "Máy ảnh Ricoh", href: buildProductFilterHref({ category: "may-anh-ricoh" }) },
+      { label: "Máy ảnh OM System", href: buildProductFilterHref({ category: "may-anh-om-system" }) },
+      { label: "Máy ảnh Sigma", href: buildProductFilterHref({ category: "may-anh-sigma" }) },
+      { label: "Máy ảnh Kodak", href: buildProductFilterHref({ category: "may-anh-kodak" }) },
+    ],
+  },
+  {
+    title: "Ống kính",
+    links: [
+      { label: "Tất cả Ống kính", href: buildProductFilterHref({ category: "ong-kinh" }) },
+      { label: "Ống kính Sony", href: buildProductFilterHref({ category: "ong-kinh-sony" }) },
+      { label: "Ống kính Canon", href: buildProductFilterHref({ category: "ong-kinh-canon" }) },
+      { label: "Ống kính Sigma", href: buildProductFilterHref({ category: "ong-kinh-sigma" }) },
+      { label: "Ống kính Fujifilm", href: buildProductFilterHref({ category: "ong-kinh-fujifilm" }) },
+      { label: "Ống kính Nikon", href: buildProductFilterHref({ category: "ong-kinh-nikon" }) },
+      { label: "Ống kính OM System", href: buildProductFilterHref({ category: "ong-kinh-om-system" }) },
+      { label: "Ống kính Tamron", href: buildProductFilterHref({ category: "ong-kinh-tamron" }) },
+      { label: "Ống kính Panasonic", href: buildProductFilterHref({ category: "ong-kinh-panasonic" }) },
+    ],
+  },
+  {
+    title: "Máy quay phim",
+    links: [
+      { label: "Tất cả Máy quay phim", href: buildProductFilterHref({ category: "may-quay-phim" }) },
+      { label: "Máy quay Sony", href: buildProductFilterHref({ category: "may-quay-sony" }) },
+      { label: "Máy quay Canon", href: buildProductFilterHref({ category: "may-quay-canon" }) },
+      { label: "Máy quay Insta360", href: buildProductFilterHref({ category: "may-quay-insta360" }) },
+      { label: "Máy quay Blackmagic", href: buildProductFilterHref({ category: "may-quay-blackmagic" }) },
+      { label: "Máy quay Gopro", href: buildProductFilterHref({ category: "may-quay-gopro" }) },
+      { label: "Máy quay DJI", href: buildProductFilterHref({ category: "may-quay-dji" }) },
+      { label: "Camera meeting Kandao", href: buildProductFilterHref({ category: "camera-meeting-kandao" }) },
+      { label: "Máy quay Hollyland", href: buildProductFilterHref({ category: "may-quay-hollyland" }) },
+      { label: "Máy quay Nikon", href: buildProductFilterHref({ category: "may-quay-nikon" }) },
+    ],
+  },
+  {
+    title: "Thiết bị Studio",
+    links: [
+      { label: "Tất cả Thiết bị Studio", href: buildProductFilterHref({ category: "thiet-bi-studio" }) },
+      { label: "Đèn chụp ảnh", href: buildProductFilterHref({ category: "den-chup-anh" }) },
+      { label: "Dụng cụ tản sáng", href: buildProductFilterHref({ category: "dung-cu-tan-sang" }) },
+      { label: "Phông - Giá treo phông", href: buildProductFilterHref({ category: "phong-gia-treo-phong" }) },
+      { label: "Phụ kiện studio khác", href: buildProductFilterHref({ category: "phu-kien-studio-khac" }) },
+      { label: "Chân đèn", href: buildProductFilterHref({ category: "chan-den" }) },
+      { label: "Màn hình hỗ trợ quay", href: buildProductFilterHref({ category: "man-hinh-ho-tro-quay" }) },
+      { label: "Tấm hắt sáng", href: buildProductFilterHref({ category: "tam-hat-sang" }) },
+      { label: "Trigger - Kích đèn", href: buildProductFilterHref({ category: "trigger-kich-den" }) },
+      { label: "Máy nhắc chữ", href: buildProductFilterHref({ category: "may-nhac-chu" }) },
+      // (còn 1 lá sortOrder 10+ — truy cập qua "Tất cả Thiết bị Studio")
+    ],
+  },
+  {
+    title: "Âm thanh & Livestream",
+    links: [
+      { label: "Tất cả Âm thanh & Livestream", href: buildProductFilterHref({ category: "am-thanh-livestream" }) },
+      { label: "Micro thu âm", href: buildProductFilterHref({ category: "micro-thu-am" }) },
+      { label: "Thiết bị livestream", href: buildProductFilterHref({ category: "thiet-bi-livestream" }) },
+      { label: "Dây cáp kết nối", href: buildProductFilterHref({ category: "day-cap-ket-noi" }) },
+      { label: "Bàn trộn Mixer", href: buildProductFilterHref({ category: "ban-tron-mixer" }) },
+      { label: "Máy ghi âm", href: buildProductFilterHref({ category: "may-ghi-am" }) },
+      { label: "Tai nghe liên lạc nội bộ", href: buildProductFilterHref({ category: "tai-nghe-lien-lac-noi-bo" }) },
+      { label: "Sound Card âm thanh", href: buildProductFilterHref({ category: "sound-card-am-thanh" }) },
+      { label: "Bộ truyền tín hiệu", href: buildProductFilterHref({ category: "bo-truyen-tin-hieu" }) },
+      { label: "Phụ kiện âm thanh", href: buildProductFilterHref({ category: "phu-kien-am-thanh" }) },
+      // (còn 2 lá sortOrder 10+ — truy cập qua "Tất cả Âm thanh & Livestream")
+    ],
+  },
+  {
+    title: "Gimbal & Chống rung",
+    links: [
+      { label: "Tất cả Gimbal & Chống rung", href: buildProductFilterHref({ category: "gimbal-chong-rung" }) },
+      { label: "Gimbal DJI", href: buildProductFilterHref({ category: "gimbal-dji" }) },
+    ],
+  },
+  {
+    title: "Phụ kiện máy ảnh",
+    links: [
+      { label: "Tất cả Phụ kiện máy ảnh", href: buildProductFilterHref({ category: "phu-kien-may-anh" }) },
+      { label: "Pin máy ảnh", href: buildProductFilterHref({ category: "pin-may-anh" }) },
+      { label: "Kính lọc", href: buildProductFilterHref({ category: "kinh-loc" }) },
+      { label: "Sạc pin máy ảnh", href: buildProductFilterHref({ category: "sac-pin-may-anh" }) },
+      { label: "Khung gắn cho máy ảnh", href: buildProductFilterHref({ category: "khung-gan-cho-may-anh" }) },
+      { label: "Chân máy ảnh", href: buildProductFilterHref({ category: "chan-may-anh" }) },
+      { label: "Túi đựng máy ảnh", href: buildProductFilterHref({ category: "tui-dung-may-anh" }) },
+      { label: "Đèn flash", href: buildProductFilterHref({ category: "den-flash" }) },
+      { label: "Tủ chống ẩm", href: buildProductFilterHref({ category: "tu-chong-am" }) },
+      { label: "Giấy - Mực in ảnh", href: buildProductFilterHref({ category: "giay-muc-in-anh" }) },
+      // (còn 11 lá sortOrder 10+ — truy cập qua "Tất cả Phụ kiện máy ảnh")
+    ],
+  },
+  {
+    title: "Thẻ nhớ & Lưu trữ",
+    links: [
+      { label: "Tất cả Thẻ nhớ & Lưu trữ", href: buildProductFilterHref({ category: "the-nho-luu-tru" }) },
+      { label: "Thẻ nhớ", href: buildProductFilterHref({ category: "the-nho" }) },
+      { label: "Ổ cứng", href: buildProductFilterHref({ category: "o-cung" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   // Landing page rút gọn /<slug> của danh mục (kiểu An Phát).
   // Mục nav CHƯA có category trong CMS (không slug — vd Máy chiếu, UPS, Lưu trữ...)
@@ -620,6 +734,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "thiết bị mạng") {
     return networkMegaColumns;
+  }
+  if (nameKey === "thiết bị hình ảnh") {
+    return imagingMegaColumns;
   }
 
   if (!category.children.length) {
