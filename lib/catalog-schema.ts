@@ -11,6 +11,7 @@ export const PRODUCT_TYPE_OPTIONS = [
   { label: "Mực in & phụ kiện", value: "ink" },
   { label: "Thiết bị mạng", value: "networking" },
   { label: "Camera & Giám sát", value: "camera" },
+  { label: "Thiết bị hình ảnh", value: "imaging" },
   { label: "PC đồng bộ", value: "desktop-pc" },
   { label: "PC All-in-One", value: "all-in-one" },
   { label: "Mini PC - NUC", value: "mini-pc" },

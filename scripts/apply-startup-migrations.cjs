@@ -6,6 +6,7 @@ const quoteRequestsMigrationName = "20260630_180000_add_quote_requests";
 const pseoLandingPagesMigrationName = "20260701_082156_pseo_landing_pages";
 const desktopServerCatalogMigrationName = "20260707_101500_add_desktop_server_catalog";
 const photocopierSpecsMigrationName = "20260727_100000_normalize_photocopier_specs";
+const imagingProductTypeMigrationName = "20260729_100000_add_imaging_product_type";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -1096,6 +1097,38 @@ async function applyPhotocopierSpecsNormalization(client) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 20260729 — Thêm mã loại sản phẩm "imaging" (Thiết bị hình ảnh).
+// PHẠM VI CỐ Ý HẸP:
+//  - CHỈ mở rộng enum "enum_product_types_code" để API tạo được bản ghi
+//    product-type mới với code = 'imaging'. Không mở rộng enum specProfile
+//    ("enum_products_spec_profile" / "enum__products_v_version_spec_profile"):
+//    sản phẩm imaging dùng specProfile "other" đã có sẵn.
+//  - KHÔNG seed row product_types ở đây — bản ghi
+//    { code: imaging, name: Thiết bị hình ảnh, status: active, schemaVersion: 1 }
+//    do phía nội dung tự tạo qua REST API sau khi deploy.
+// ALTER TYPE ... ADD VALUE phải chạy NGOÀI transaction (giống block
+// networking/camera). IF NOT EXISTS -> idempotent, chạy lại an toàn.
+async function applyImagingProductType(client) {
+  await client.query(`alter type "enum_product_types_code" add value if not exists 'imaging'`);
+
+  await client.query("BEGIN");
+  try {
+    await client.query(`
+      INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+      SELECT '${imagingProductTypeMigrationName}', 0, now(), now()
+      WHERE NOT EXISTS (
+        SELECT 1 FROM "payload_migrations" WHERE "name" = '${imagingProductTypeMigrationName}'
+      );
+    `);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${imagingProductTypeMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function main() {
   const client = new Client({ connectionString });
 
@@ -1107,6 +1140,7 @@ async function main() {
     await applyPseoLandingPagesMigration(client);
     await applyDesktopServerCatalogMigration(client);
     await applyPhotocopierSpecsNormalization(client);
+    await applyImagingProductType(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;
