@@ -141,7 +141,7 @@ export default function SalesSupportServices() {
   }, []);
 
   return (
-    <section className="sec" id="dich-vu-ho-tro-ban-hang">
+    <section className="sec dvbh-sec" id="dich-vu-ho-tro-ban-hang">
       <div className="wrap">
         <div className="sec-head center reveal">
           <div className="kicker" style={{ justifyContent: "center" }}>
@@ -153,10 +153,6 @@ export default function SalesSupportServices() {
             Các dịch vụ hỗ trợ bán hàng
           </div>
           <h2 className="h2">Đồng hành từ thị trường đến bảo hành</h2>
-          <p className="lead center" style={{ marginTop: "14px", marginInline: "auto" }}>
-            Bảy dịch vụ hỗ trợ xuyên suốt hành trình cung ứng — cuộn để xem từng mắt xích
-            sáng lên, hoặc bấm vào icon trên sơ đồ để tới mục tương ứng.
-          </p>
         </div>
 
         <div className="dvbh-stage">

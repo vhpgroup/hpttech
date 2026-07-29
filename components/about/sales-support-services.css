@@ -19,10 +19,16 @@
 html:has(.vehpt){overflow-x:clip}
 html:has(.vehpt) body{overflow-x:clip}
 
+/* Padding section gọn hơn mặc định .sec (92px) + đầu section sát hơn */
+.vehpt .dvbh-sec{padding:56px 0 40px}
+.vehpt .dvbh-sec .sec-head{margin-bottom:28px}
+
 .vehpt .dvbh-stage{display:grid;grid-template-columns:1.3fr 1fr;gap:44px;align-items:start}
-.vehpt .dvbh-left{position:sticky;top:0;height:100vh;display:flex;align-items:center}
-.vehpt .dvbh-left svg{width:100%;height:auto;max-height:90vh;display:block}
-.vehpt .dvbh-right{padding:14vh 0 26vh}
+/* Ghim sơ đồ sát mép trên khi cuộn (không căn giữa 100vh để tránh hở khoảng
+   trắng lớn lúc vào section) */
+.vehpt .dvbh-left{position:sticky;top:5vh}
+.vehpt .dvbh-left svg{width:100%;height:auto;max-height:88vh;display:block}
+.vehpt .dvbh-right{padding:3vh 0 10vh}
 
 /* Khối mô tả bên phải */
 .vehpt .dvbh-blk{padding:8vh 0;border-top:1px solid var(--line)}
@@ -63,10 +69,11 @@ html:has(.vehpt) body{overflow-x:clip}
 
 /* Responsive: xếp dọc, sơ đồ lên trên */
 @media(max-width:920px){
+  .vehpt .dvbh-sec{padding:44px 0 32px}
   .vehpt .dvbh-stage{grid-template-columns:1fr;gap:8px}
-  .vehpt .dvbh-left{position:relative;top:auto;height:auto;padding:6px 0}
+  .vehpt .dvbh-left{position:relative;top:auto;padding:6px 0}
   .vehpt .dvbh-left svg{max-height:none}
-  .vehpt .dvbh-right{padding:2vh 0 4vh}
+  .vehpt .dvbh-right{padding:1vh 0 3vh}
   .vehpt .dvbh-blk{padding:5vh 0}
   .vehpt .dvbh-blk:first-child{padding-top:1vh}
 }
