@@ -7,6 +7,18 @@
      icon chuyển từ xám sang màu theo tiến trình cuộn.
    ============================================================ */
 
+/* Fix position:sticky trong phạm vi trang Về HPT:
+   styles.css toàn site đặt overflow-x:hidden trên cả html và body → theo spec,
+   body bị ép overflow-y:auto và trở thành scroll container, nhưng body không
+   bao giờ tự cuộn (viewport cuộn) → mọi position:sticky bên trong bị vô hiệu
+   (mobile .main-header sticky hiện cũng bị ảnh hưởng tương tự trên toàn site).
+   Đổi sang overflow-x:clip — vẫn cắt tràn ngang nhưng KHÔNG tạo scroll
+   container (cùng cách .vehpt đã dùng, xem comment trong about-redesign.css).
+   Scope bằng :has(.vehpt) để chỉ tác động trang này; fix toàn site nên làm
+   ở PR riêng. */
+html:has(.vehpt){overflow-x:clip}
+html:has(.vehpt) body{overflow-x:clip}
+
 .vehpt .dvbh-stage{display:grid;grid-template-columns:1.3fr 1fr;gap:44px;align-items:start}
 .vehpt .dvbh-left{position:sticky;top:0;height:100vh;display:flex;align-items:center}
 .vehpt .dvbh-left svg{width:100%;height:auto;max-height:90vh;display:block}
