@@ -36,9 +36,13 @@ export async function GET() {
     "/thuong-hieu",
     "/du-an",
     "/dich-vu",
+    "/thiet-bi-hinh-anh",
     "/tin-tuc",
     "/ve-hpt",
+    "/he-thong-showroom",
+    "/tuyen-dung",
     "/lien-he",
+    "/dieu-khoan-su-dung",
     ...helpLinks.map((link) => link.href),
   ];
   const urls = [
