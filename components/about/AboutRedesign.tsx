@@ -457,6 +457,22 @@ export default function AboutRedesign() {
       <div className="partner"><img src="/ve-hpt/sangfor.png" alt="Sangfor" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/juniper.png" alt="Juniper Networks" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/huawei.png" alt="Huawei" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/trend-micro.png" alt="Trend Micro" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/solarwinds.png" alt="SolarWinds" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/logrhythm.png" alt="LogRhythm" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/vectra.png" alt="Vectra AI" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/skyhigh.png" alt="Skyhigh Security" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/riverbed.png" alt="Riverbed" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/netscout.png" alt="NETSCOUT" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/keysight.png" alt="Keysight" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/efficientip.png" alt="EfficientIP" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/saviynt.png" alt="Saviynt" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/guardsquare.png" alt="Guardsquare" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/eclypsium.png" alt="Eclypsium" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/d3-security.png" alt="D3 Security" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/ekahau.png" alt="Ekahau" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/energy-logserver.png" alt="Energy Logserver" decoding="async" /></div>
+      <div className="partner"><img src="/ve-hpt/mastersam.png" alt="masterSAM" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/netapp.png" alt="NetApp" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/ibm.png" alt="IBM" decoding="async" /></div>
       <div className="partner"><img src="/ve-hpt/western-digital.png" alt="Western Digital" decoding="async" /></div>
