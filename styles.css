@@ -190,6 +190,202 @@ main {
   text-underline-offset: 3px;
 }
 
+/* ===== Popover "Hỗ trợ kỹ thuật" ở topbar =====
+   Bấm nút → thẻ thông tin kênh hỗ trợ (hotline / email / Zalo / Messenger)
+   thả ngay dưới nút, kèm lối vào /lien-he. Các rule bên trong đều prefix
+   .topbar-support-pop để thắng các rule chung a/span/img/div của .utility-topbar. */
+
+/* Topbar và main-header cùng z-index 31, header đứng sau trong DOM nên vẽ đè lên.
+   Chỉ khi popover mở mới nâng topbar lên 33 để popover nổi trên header + nav. */
+.utility-topbar:has(.topbar-support.open) {
+  z-index: 33;
+}
+
+.topbar-support {
+  position: relative;
+  align-items: center;
+}
+
+.topbar-support.open .topbar-support-btn {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.topbar-support-btn {
+  cursor: pointer;
+}
+
+.topbar-support-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -10px;
+  width: 300px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #16233c;
+  font-size: 13px;
+  box-shadow: 0 24px 60px rgba(2, 10, 28, 0.35);
+  animation: topbar-support-in 0.16s ease;
+  cursor: default;
+}
+
+/* Mũi tên chỉ lên nút — cùng màu dải đỏ của head nên liền khối. */
+.topbar-support-pop::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 30px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--hpt-red);
+  transform: rotate(45deg);
+}
+
+@keyframes topbar-support-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.topbar-support-pop .topbar-support-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(120deg, var(--hpt-red), var(--hpt-red-dark));
+  color: #ffffff;
+}
+
+.topbar-support-pop .topbar-support-head-icon {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.topbar-support-pop .topbar-support-head-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.topbar-support-pop .topbar-support-head-copy strong {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.topbar-support-pop .topbar-support-head-copy small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.35;
+  opacity: 0.88;
+  white-space: normal;
+}
+
+.topbar-support-pop .topbar-support-body {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+}
+
+.topbar-support-pop .topbar-support-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 9px;
+  border-radius: 10px;
+  white-space: normal;
+  transition: background 0.12s ease;
+}
+
+.topbar-support-pop .topbar-support-item:hover {
+  background: #f1f5f9;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Ảnh chân dung kỹ thuật viên: initials làm nền dự phòng, ảnh phủ lên trên
+   bằng background-cover (cùng kỹ thuật với ProductSupportContactBlock). */
+.topbar-support-pop .topbar-support-avatar {
+  position: relative;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--blue);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.topbar-support-pop .topbar-support-avatar-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.topbar-support-pop .topbar-support-copy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.topbar-support-pop .topbar-support-copy strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: #10203b;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.topbar-support-pop .topbar-support-copy small {
+  font-size: 12px;
+  color: #52607a;
+  white-space: normal;
+}
+
+/* Số hotline nổi màu brand để rõ affordance "bấm để gọi". */
+.topbar-support-pop .topbar-support-copy small b {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.topbar-support-pop .topbar-support-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 2px 8px 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--hpt-red);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.topbar-support-pop .topbar-support-cta:hover {
+  background: var(--hpt-red-dark);
+  color: #ffffff;
+  text-decoration: none;
+}
+
 .main-header {
   height: 74px;
   padding: 0 calc(var(--band-pad) + 20px) 0 var(--band-pad);

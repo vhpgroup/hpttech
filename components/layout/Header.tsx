@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import HeaderCartButton from "@/components/cart/HeaderCartButton";
+import TechSupportPopover from "@/components/layout/TechSupportPopover";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref, quoteMailHref } from "@/lib/site-settings";
 
@@ -94,10 +95,7 @@ export default function Header({
             <Image src={`${R2_ICON}icon-topbar-gio-lam-viec.png`} alt="" aria-hidden="true" width={16} height={16} />
             8:00 - 17:30
           </span>
-          <Link href="/lien-he">
-            <Image src={`${R2_ICON}icon-topbar-ho-tro-kt.png`} alt="" aria-hidden="true" width={16} height={16} />
-            Hỗ trợ kỹ thuật
-          </Link>
+          <TechSupportPopover />
         </div>
       </div>
 
