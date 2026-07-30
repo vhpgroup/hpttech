@@ -72,6 +72,56 @@ function todayLabel() {
   }).format(new Date());
 }
 
+/**
+ * Origin công khai của site (sau reverse proxy). new URL(request.url).origin có thể
+ * trỏ về địa chỉ nội bộ khiến puppeteer không tải được logo/ảnh sản phẩm → PDF trắng ảnh.
+ */
+function publicOrigin(request: Request) {
+  const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+  if (!host) return "";
+  const proto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
+  return `${proto}://${host}`;
+}
+
+/**
+ * Nhúng ảnh thành data URI trước khi render để puppeteer không phải tải ảnh qua mạng
+ * (tránh lỗi hairpin/proxy). Thử lần lượt các origin; thất bại thì trả "" để giữ
+ * hành vi cũ (absoluteImageUrl).
+ */
+async function inlineImageAsDataUri(image: string | undefined, origins: string[]) {
+  if (!image) return "";
+  if (image.startsWith("data:")) return image;
+
+  const candidates: string[] = [];
+  for (const origin of origins) {
+    if (!origin) continue;
+    try {
+      candidates.push(new URL(image, origin).toString());
+    } catch {
+      // origin không hợp lệ — bỏ qua
+    }
+  }
+
+  for (const url of Array.from(new Set(candidates))) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 7000);
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!response.ok) continue;
+      const type = response.headers.get("content-type") || "image/jpeg";
+      if (!type.startsWith("image/")) continue;
+      const buffer = Buffer.from(await response.arrayBuffer());
+      if (!buffer.length) continue;
+      return `data:${type};base64,${buffer.toString("base64")}`;
+    } catch {
+      // thử origin tiếp theo
+    }
+  }
+
+  return "";
+}
+
 function absoluteImageUrl(image: string | undefined, origin: string) {
   if (!image) return "";
   try {
@@ -81,7 +131,7 @@ function absoluteImageUrl(image: string | undefined, origin: string) {
   }
 }
 
-function quoteHTML(data: QuoteRequest, origin: string) {
+function quoteHTML(data: QuoteRequest, origin: string, logoSrc?: string) {
   const customer = data.customer || {};
   const includeVat = data.includeVat !== false;
   const validDays = Math.max(1, Math.floor(Number(data.validDays) || 10));
@@ -111,7 +161,7 @@ function quoteHTML(data: QuoteRequest, origin: string) {
     }),
     { subtotal: 0, vat: 0, total: 0 },
   );
-  const logo = new URL("/assets/logo/hptlogo.png", origin).toString();
+  const logo = logoSrc || new URL("/assets/logo/hptlogo.png", origin).toString();
   const summaryColSpan = hasImages ? 5 : 4;
   const productRows = products
     .map(
@@ -329,7 +379,21 @@ async function chromiumExecutablePath() {
 
 export async function POST(request: Request) {
   const data = (await request.json().catch(() => ({}))) as QuoteRequest;
-  const origin = new URL(request.url).origin;
+  const internalOrigin = new URL(request.url).origin;
+  const origin = publicOrigin(request) || internalOrigin;
+  const imageOrigins = [origin, internalOrigin, `http://127.0.0.1:${process.env.PORT || 3000}`];
+
+  // Nhúng logo + ảnh sản phẩm thành data URI để PDF luôn có ảnh (không phụ thuộc
+  // việc puppeteer tải được ảnh qua mạng/proxy hay không).
+  const logoDataUri = await inlineImageAsDataUri("/assets/logo/hptlogo.png", imageOrigins);
+  const productLines = data.products?.length ? data.products : data.product ? [{ product: data.product }] : [];
+  await Promise.all(
+    productLines.map(async (line) => {
+      if (!line.product?.image) return;
+      const inlined = await inlineImageAsDataUri(line.product.image, imageOrigins);
+      if (inlined) line.product.image = inlined;
+    }),
+  );
 
   let browser: Awaited<ReturnType<typeof puppeteer.launch>> | undefined;
 
@@ -341,7 +405,7 @@ export async function POST(request: Request) {
     });
 
     const page = await browser.newPage();
-    await page.setContent(quoteHTML(data, origin), { waitUntil: "load" });
+    await page.setContent(quoteHTML(data, origin, logoDataUri || undefined), { waitUntil: "load" });
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
