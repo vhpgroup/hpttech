@@ -1,18 +1,28 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import CategoryLandingClient from "@/components/category/CategoryLandingClient";
+import { SubpageBreadcrumb } from "@/components/layout/SubpageHeader";
 import {
   getCategoryBreadcrumbTrail,
   getProductSearchPageFromPayload,
   type ProductSearchParams,
 } from "@/lib/catalog-payload";
-import ProductListClient from "@/components/ProductListClient";
-import { pageMetadata } from "@/lib/seo";
+import { absoluteURL, pageMetadata } from "@/lib/seo";
 
 export const revalidate = 300;
 
-// Metadata ĐỘNG: view danh mục trên /san-pham canonical về LANDING PAGE rút gọn
-// /<slug> (trang chính thức để Google index — kiểu An Phát). Tìm kiếm / không danh mục
-// → canonical /san-pham như cũ.
+type ProductsPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+// ---------------------------------------------------------------------------
+// Metadata
+// ---------------------------------------------------------------------------
+
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const resolved = searchParams ? await searchParams : {};
   const category = firstParam(resolved.category) || "";
@@ -39,27 +49,30 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
   }
 
   return pageMetadata({
-    title: "Sản phẩm",
-    description: "Danh mục máy in, máy scan và thiết bị văn phòng chính hãng do HPT Tech tư vấn và triển khai.",
+    title: "Sản phẩm chính hãng cho doanh nghiệp",
+    description:
+      "Máy scan, máy in, máy photocopy, mực in, laptop, PC – máy chủ, thiết bị mạng và phần mềm bản quyền chính hãng tại HPT Tech. Tư vấn cấu hình, báo giá nhanh, xuất hóa đơn VAT, giao toàn quốc.",
     path: "/san-pham",
   });
 }
 
-type ProductsPageProps = {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-};
+// ---------------------------------------------------------------------------
+// Parse search params (giữ nguyên bộ param filter hiện hành — đích link mega-menu)
+// ---------------------------------------------------------------------------
 
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function parseProductsSearchParams(params: Record<string, string | string[] | undefined>): ProductSearchParams {
+function parseProductsSearchParams(
+  params: Record<string, string | string[] | undefined>,
+): ProductSearchParams {
   const sort = firstParam(params.sort);
+  const category = firstParam(params.category) || "";
 
   return {
     page: Number(firstParam(params.page) || 1),
     search: firstParam(params.search) || "",
-    category: firstParam(params.category) || "",
+    category,
+    // Có danh mục → facet (Phân loại/Hãng) scope theo nhánh, đồng nhất trải nghiệm
+    // với landing /<slug>; không có → facet toàn catalog (hành vi /san-pham gốc).
+    facetScope: category ? "category" : "global",
     brand: firstParam(params.brand) || "",
     sort:
       sort === "price-asc" ||
@@ -93,32 +106,80 @@ function parseProductsSearchParams(params: Record<string, string | string[] | un
   };
 }
 
+// ---------------------------------------------------------------------------
+// Page — layout landing (thanh bộ lọc ngang + lưới full-width, kiểu An Phát)
+// dùng chung CategoryLandingClient với các landing /<slug>. KHÔNG còn sidebar dọc.
+// ---------------------------------------------------------------------------
+
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const parsed = parseProductsSearchParams(resolvedSearchParams);
+
   const [result, categoryTrail] = await Promise.all([
     getProductSearchPageFromPayload(parsed),
     parsed.category ? getCategoryBreadcrumbTrail(parsed.category) : Promise.resolve([]),
   ]);
+
+  const catLeaf = categoryTrail.length ? categoryTrail[categoryTrail.length - 1] : null;
+  // leaf/trail cho CategoryLandingClient: có ?category → ngữ cảnh nhánh đó
+  // (spec pills theo nhóm, facet đã scope); không có → ngữ cảnh "Tất cả sản phẩm".
+  const leaf = catLeaf ?? { name: "Tất cả sản phẩm", slug: "san-pham" };
+
   const heading = parsed.search
     ? `Kết quả tìm kiếm: "${parsed.search}"`
-    : parsed.category
-      ? parsed.category
+    : catLeaf
+      ? catLeaf.name
       : "Tất cả sản phẩm";
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Trang chủ", item: absoluteURL("/") },
+      { "@type": "ListItem", position: 2, name: "Sản phẩm", item: absoluteURL("/san-pham") },
+      ...categoryTrail.map((item, index) => ({
+        "@type": "ListItem",
+        position: 3 + index,
+        name: item.name,
+        item: absoluteURL(`/${encodeURIComponent(item.slug)}`),
+      })),
+    ],
+  };
+
   return (
-    <Suspense fallback={null}>
+    <main className="subpage-main bg-slate-50/70 pb-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      <SubpageBreadcrumb
+        items={[
+          { label: "Trang chủ", href: "/" },
+          { label: "Sản phẩm", href: "/san-pham" },
+          ...categoryTrail.map((item) => ({
+            label: item.name,
+            href: `/${encodeURIComponent(item.slug)}`,
+          })),
+        ]}
+      />
+
       <h1 className="sr-only">
         {heading} - Máy scan, máy in &amp; thiết bị văn phòng | HPT Tech
       </h1>
-      <ProductListClient
-        products={result.products}
-        facets={result.facets}
-        page={result.page}
-        totalPages={result.totalPages}
-        totalProducts={result.totalProducts}
-        categoryTrail={categoryTrail}
-      />
-    </Suspense>
+
+      {/* CategoryLandingClient dùng useSearchParams → PHẢI bọc Suspense. */}
+      <Suspense fallback={null}>
+        <CategoryLandingClient
+          leaf={leaf}
+          trail={categoryTrail}
+          products={result.products}
+          facets={result.facets}
+          page={result.page}
+          totalPages={result.totalPages}
+          totalProducts={result.totalProducts}
+        />
+      </Suspense>
+    </main>
   );
 }
