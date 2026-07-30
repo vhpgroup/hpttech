@@ -216,11 +216,15 @@ main {
   cursor: pointer;
 }
 
-.topbar-support-pop {
+/* Selector 2 lớp + display:block để THẮNG rule chung ".utility-topbar div"
+   (display:flex, gap 18px) — thiếu là chính vỏ popover bị flex-hóa, head/danh
+   sách/CTA dàn HÀNG NGANG (lỗi bắt trên production 30/07). */
+.topbar-support .topbar-support-pop {
   position: absolute;
   top: calc(100% + 8px);
   right: -10px;
   width: 300px;
+  display: block;
   border-radius: 12px;
   background: #ffffff;
   color: #16233c;
