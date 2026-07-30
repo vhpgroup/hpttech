@@ -15,8 +15,7 @@ import { useEffect, useRef } from "react";
  *   nền primary nhạt + dòng "Đang tải bản đồ…". CDN lỗi → giữ nền tĩnh, không
  *   vỡ trang (nguyên tắc suy giảm mượt của AGENTS.md).
  * - Component này chỉ là LỚP NỀN absolute: section cha (server component) đặt
- *   chiều cao + text overlay. Khối overlay đánh dấu `data-shm-overlay` để bản
- *   đồ chừa khoảng trời phía trên khi fitBounds.
+ *   chiều cao. Bản đồ hiển thị rõ nét toàn khung — không scrim/chữ đè lên.
  * - Màu lấy theo biến sẵn có của trang (--shm-navy/--shm-red khai báo dưới,
  *   trùng #0b2a63/#da2127 đang dùng trong page.tsx; nền map dùng token
  *   --color-primary-100). Font kế thừa --font-body, không import font riêng.
@@ -157,21 +156,9 @@ const SHM_CSS = `
 .shm-root{--shm-navy:#0b2a63;--shm-red:#da2127;--shm-sub:#3d5878;--shm-line:#c9dbf8}
 .shm-root .leaflet-container{font-family:var(--font-body,ui-sans-serif,system-ui,sans-serif)}
 
-/* scrim: dải trời mờ phía trên cho khối tiêu đề + veil xanh rất nhẹ đồng bộ brand */
-.shm-scrim{position:absolute;inset:0;z-index:800;pointer-events:none;background:
-  linear-gradient(180deg,rgba(231,240,253,.97) 0%,rgba(231,240,253,.9) 20%,rgba(231,240,253,.52) 36%,rgba(231,240,253,0) 54%),
-  linear-gradient(0deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 10%),
-  rgba(222,237,255,.14)}
-
 /* attribution tối giản: giữ © OSM/CARTO theo giấy phép nhưng kín đáo */
 .shm-root .leaflet-control-attribution{background:rgba(255,255,255,.6);font-size:9px;line-height:1.6;color:#8195b8;padding:0 6px;border-radius:6px 0 0 0}
 .shm-root .leaflet-control-attribution a{color:#8195b8;text-decoration:none}
-
-/* mây trôi trang trí */
-.shm-cloud{position:absolute;z-index:860;pointer-events:none;opacity:.95;animation:shm-drift 12s ease-in-out infinite alternate}
-.shm-c1{top:50px;left:7%}
-.shm-c2{top:74px;right:8%;animation-delay:-5s}
-@keyframes shm-drift{from{translate:0 0}to{translate:24px -6px}}
 
 /* pin + pulse */
 .shm-pin{position:relative;color:var(--shm-navy);filter:drop-shadow(0 5px 6px rgba(11,42,99,.35))}
@@ -215,7 +202,7 @@ const SHM_CSS = `
   .shm-legend{font-size:11.5px;padding:7px 10px;gap:9px}
 }
 @media (prefers-reduced-motion:reduce){
-  .shm-cloud,.shm-pulse{animation:none}
+  .shm-pulse{animation:none}
 }
 `;
 
@@ -283,15 +270,12 @@ export default function ShowroomHeroMap({ stores, phone, email, hours, days }: P
         const bounds = L.latLngBounds(stores.map((s) => [s.lat, s.lng] as LatLngTuple));
         const fit = () => {
           currentMap.invalidateSize();
-          // Chừa khoảng trời phía trên đúng bằng khối tiêu đề (server render ở page.tsx).
-          const overlay = el.closest("section")?.querySelector<HTMLElement>("[data-shm-overlay]");
-          const topPad = (overlay?.offsetHeight ?? 180) + 16;
           currentMap.closePopup();
-          currentMap.fitBounds(bounds, { paddingTopLeft: [44, topPad], paddingBottomRight: [44, 46] });
+          currentMap.fitBounds(bounds, { paddingTopLeft: [44, 42], paddingBottomRight: [44, 46] });
         };
         resetRef.current = fit;
         fit();
-        // Font tải xong làm khối tiêu đề đổi chiều cao → đo lại một nhịp.
+        // Layout ổn định xong (font/kích thước khung) → đo lại một nhịp.
         const refitTimer = window.setTimeout(fit, 400);
 
         let resizeTimer = 0;
@@ -328,23 +312,6 @@ export default function ShowroomHeroMap({ stores, phone, email, hours, days }: P
         role="application"
         aria-label="Bản đồ hệ thống showroom HPT Tech trên toàn quốc"
       />
-
-      <div className="shm-scrim" aria-hidden="true" />
-
-      <span className="shm-cloud shm-c1" aria-hidden="true">
-        <svg width="92" height="32" viewBox="0 0 96 34" fill="#fff">
-          <ellipse cx="26" cy="24" rx="26" ry="10" />
-          <ellipse cx="52" cy="16" rx="22" ry="13" />
-          <ellipse cx="74" cy="24" rx="22" ry="10" />
-        </svg>
-      </span>
-      <span className="shm-cloud shm-c2" aria-hidden="true">
-        <svg width="116" height="38" viewBox="0 0 120 40" fill="#fff">
-          <ellipse cx="30" cy="29" rx="30" ry="11" />
-          <ellipse cx="63" cy="18" rx="27" ry="15" />
-          <ellipse cx="92" cy="29" rx="27" ry="11" />
-        </svg>
-      </span>
 
       <div className="shm-ui">
         <div className="shm-legend">

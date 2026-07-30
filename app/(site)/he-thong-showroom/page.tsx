@@ -186,11 +186,13 @@ export default async function ShowroomPage() {
 
       {/* HERO — full-bleed tràn màn hình, sát menu (nằm ngoài shell bo góc,
           đồng bộ với 3 dải header full-bleed trong styles.css): bản đồ tổng
-          tương tác thay minh họa tĩnh — trụ sở chính Hải Phòng (pin đỏ ★,
-          pulse) + 5 chi nhánh (pin xanh, nhãn tên tỉnh). Tiêu đề + CTA giữ
-          nguyên, server-render cho SEO; bản đồ là lớp nền client
-          (components/showroom/ShowroomHeroMap). */}
+          tương tác rõ nét, KHÔNG chữ/nút/scrim đè lên — trụ sở chính Hải Phòng
+          (pin đỏ ★, pulse) + 5 chi nhánh (pin xanh, nhãn tên tỉnh). h1 giữ
+          dạng sr-only để trang không mất tiêu đề SEO/a11y. */}
       <section className="relative h-[620px] overflow-hidden bg-[#e7f0fd] lg:h-[640px]">
+        <h1 className="sr-only">
+          Hệ thống showroom HPT Tech — 6 showroom trên toàn quốc
+        </h1>
         <ShowroomHeroMap
           stores={STORES.map((store) => ({
             id: store.id,
@@ -206,28 +208,6 @@ export default async function ShowroomPage() {
           hours={HOURS}
           days={DAYS}
         />
-        {/* data-shm-overlay: bản đồ đo chiều cao khối này để chừa khoảng trời khi fitBounds. */}
-        <div
-          data-shm-overlay
-          className="pointer-events-none relative z-20 px-4 pt-9 text-center lg:pt-11"
-        >
-          <h1 className="text-2xl font-black tracking-tight text-[#0b2a63] sm:text-3xl lg:text-[38px]">
-            HỆ THỐNG SHOWROOM HPT TECH
-          </h1>
-          <p className="mt-1.5 text-sm font-semibold text-[#3d5878] lg:text-[15.5px]">
-            6 showroom trên toàn quốc — trải nghiệm thiết bị văn phòng &amp; giải pháp số hóa cho
-            doanh nghiệp
-          </p>
-          <a
-            href="#hai-phong"
-            className="pointer-events-auto mt-3.5 inline-flex h-11 items-center rounded-lg bg-[#da2127] px-6 text-sm font-extrabold tracking-wider text-white shadow-[0_10px_24px_rgba(218,33,39,0.32)] transition hover:bg-[#c11d23]"
-          >
-            XEM NGAY
-          </a>
-          <p className="mt-3 text-xs font-semibold text-[#3d5878]">
-            Nhấp vào ghim trên bản đồ để xem địa chỉ, giờ làm việc &amp; chỉ đường từng showroom
-          </p>
-        </div>
       </section>
 
       {/* Căn giữa bằng div bọc: global CSS có `main { margin: 0 }` nên không
