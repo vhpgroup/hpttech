@@ -435,7 +435,23 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
   const downloadWord = () => {
     const html = quoteRef.current?.innerHTML;
     if (!html) return;
-    const blob = new Blob([`<html><head><meta charset="utf-8"></head><body>${html}</body></html>`], {
+    // Word không tải được ảnh đường dẫn tương đối, không render SVG inline và không
+    // hiểu class Tailwind → tuyệt đối hóa src, bỏ svg/srcset và nhúng style tối giản.
+    const exportHtml = html
+      .replace(/<svg[\s\S]*?<\/svg>/g, "")
+      .replace(/\s(?:srcset|sizes)="[^"]*"/g, "")
+      .replace(/src="\/(?!\/)/g, `src="${window.location.origin}/`);
+    const wordStyles = `<style>
+      body { font-family: "Segoe UI", Arial, sans-serif; color: #0f172a; font-size: 13px; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #9db8e8; padding: 6px 8px; vertical-align: top; font-size: 13px; }
+      thead th { background: #2563eb; color: #ffffff; text-transform: uppercase; font-size: 12px; }
+      h1 { color: #2563eb; text-transform: uppercase; }
+      h2, h3 { margin: 6px 0; }
+      ul { margin: 4px 0; padding-left: 18px; }
+      img { max-width: 130px; }
+    </style>`;
+    const blob = new Blob([`<html><head><meta charset="utf-8">${wordStyles}</head><body>${exportHtml}</body></html>`], {
       type: "application/msword;charset=utf-8",
     });
     const url = URL.createObjectURL(blob);
@@ -447,8 +463,14 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
   };
 
   const downloadPdf = async () => {
-    const blob = await fetchQuotePdf();
-    if (!blob) return;
+    resetSubmitStatus();
+    const blob = await fetchQuotePdf().catch(() => null);
+    if (!blob) {
+      // Trước đây thất bại là im lặng — người dùng bấm mà không thấy gì.
+      setSubmitState("error");
+      setSubmitError("Không tải được file PDF. Vui lòng thử lại hoặc dùng nút In báo giá.");
+      return;
+    }
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
