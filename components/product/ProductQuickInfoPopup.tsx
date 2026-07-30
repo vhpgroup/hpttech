@@ -58,6 +58,15 @@ function productKey(product: CatalogProduct) {
   return String(product.id || product.slug || product.sku || product.title);
 }
 
+const POPUP_SPEC_LIMIT = 4;
+
+/**
+ * Chọn tối đa 4 thông số cho popup: dòng khớp từ khóa ưu tiên xếp trước,
+ * sau đó BÙ các thông số còn lại theo thứ tự gốc cho đủ số dòng — trước đây
+ * chỉ cần 1 dòng khớp ưu tiên là mọi dòng khác bị loại, khiến sản phẩm dữ
+ * liệu mỏng chỉ hiện đúng 1 thông số. Dòng "Thương hiệu / Hãng sản xuất"
+ * được ẩn khi header đã có chip thương hiệu (tránh lặp thông tin).
+ */
 function popupSpecs(product: CatalogProduct) {
   const specs = product.specs ?? [];
   const preferred = [
@@ -72,22 +81,31 @@ function popupSpecs(product: CatalogProduct) {
     "độ phân giải",
   ];
 
-  const selected = preferred
-    .map((keyword) =>
-      specs.find((spec) => normalizeText(spec.label).includes(normalizeText(keyword))),
-    )
-    .filter((item): item is { label: string; value: string } => Boolean(item));
-
-  const seen = new Set<string>();
-  const unique = selected.filter((item) => {
-    const key = normalizeText(item.label);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
+  const hasBrandChip = Boolean(product.brand);
+  const usable = specs.filter((spec) => {
+    if (!hasBrandChip) return true;
+    const label = normalizeText(spec.label);
+    return !label.includes("thuong hieu") && !label.includes("hang san xuat");
   });
 
-  if (unique.length) return unique.slice(0, 4);
-  return specs.slice(0, 4);
+  const seen = new Set<string>();
+  const result: Array<{ label: string; value: string }> = [];
+  const push = (spec?: { label: string; value: string }) => {
+    if (!spec || result.length >= POPUP_SPEC_LIMIT) return;
+    const key = normalizeText(spec.label);
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push(spec);
+  };
+
+  for (const keyword of preferred) {
+    push(usable.find((spec) => normalizeText(spec.label).includes(normalizeText(keyword))));
+  }
+  for (const spec of usable) {
+    push(spec);
+  }
+
+  return result;
 }
 
 /** Rút số tiền (VND) từ chuỗi giá dạng "8.990.000đ"; null nếu không phải giá. */
@@ -300,23 +318,36 @@ function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
               </ul>
             ) : null}
 
-            <div className="flex items-center justify-between gap-3 rounded-[13px] border border-dashed border-red-300 bg-red-50/60 px-4 py-3">
-              <div className="min-w-0">
-                {product.compareAtPrice ? (
-                  <span className="block text-xs text-slate-400 line-through">
-                    {product.compareAtPrice}
+            {priceValue ? (
+              <div className="flex items-center justify-between gap-3 rounded-[13px] border border-dashed border-red-300 bg-red-50/60 px-4 py-3">
+                <div className="min-w-0">
+                  {product.compareAtPrice ? (
+                    <span className="block text-xs text-slate-400 line-through">
+                      {product.compareAtPrice}
+                    </span>
+                  ) : null}
+                  <span className="block truncate text-[23px] font-extrabold leading-tight tracking-tight text-red-600">
+                    {product.price || "Liên hệ"}
+                  </span>
+                </div>
+                {savings ? (
+                  <span className="shrink-0 rounded-full bg-amber-400 px-3 py-1.5 text-[11px] font-extrabold uppercase leading-none text-amber-900">
+                    Tiết kiệm {formatVnd(savings)}
                   </span>
                 ) : null}
-                <span className="block truncate text-[23px] font-extrabold leading-tight tracking-tight text-red-600">
-                  {product.price || "Liên hệ"}
+              </div>
+            ) : (
+              /* Sản phẩm chưa công bố giá — khối liên hệ trung tính,
+                 không dùng khung flash-sale viền đứt gây hiểu nhầm giảm giá. */
+              <div className="rounded-[13px] border border-slate-200 bg-slate-50 px-4 py-3">
+                <span className="block text-[15px] font-extrabold leading-snug text-red-600">
+                  Liên hệ để có giá tốt nhất
+                </span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">
+                  Bấm &quot;Nhận báo giá nhanh&quot; trên sản phẩm để được tư vấn ngay
                 </span>
               </div>
-              {savings ? (
-                <span className="shrink-0 rounded-full bg-amber-400 px-3 py-1.5 text-[11px] font-extrabold uppercase leading-none text-amber-900">
-                  Tiết kiệm {formatVnd(savings)}
-                </span>
-              ) : null}
-            </div>
+            )}
 
             {featuredPromotion ? (
               <section className="mt-2.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-red-700">
