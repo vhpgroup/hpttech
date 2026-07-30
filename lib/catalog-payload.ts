@@ -35,7 +35,8 @@ const DEFAULT_HOME_PRODUCTS_LIMIT = 96;
  * Đủ cho carousel (15) + đa dạng tab hãng + khu showcase (24), có dư đệm sau dedupe.
  */
 const HOME_POOL_PER_DEVICE_TYPE = 32;
-const DEFAULT_PRODUCT_LIST_LIMIT = 24;
+// 25 SP/trang = 5 hàng x 5 cột đầy đủ trên desktop 2xl (grid-cols-5) — user chốt 30/07.
+const DEFAULT_PRODUCT_LIST_LIMIT = 25;
 const PRODUCT_LIST_SELECT = {
   id: true,
   internalId: true,
