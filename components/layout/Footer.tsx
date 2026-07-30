@@ -1,17 +1,40 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  ArrowRight,
+  Award,
   BadgeCheck,
+  Briefcase,
   Building2,
+  Cctv,
   ChevronUp,
+  ClipboardList,
+  Copy,
+  CreditCard,
   FileText,
-  Globe2,
+  Headphones,
+  Landmark,
+  Laptop,
+  Layers,
+  Lock,
   Mail,
   MapPin,
+  MessageCircle,
+  Network,
+  Newspaper,
   Phone,
+  Printer,
+  ScanLine,
+  Server,
+  Shield,
+  ShieldCheck,
+  ShoppingCart,
+  Trophy,
+  Truck,
+  Users,
+  Zap,
 } from "lucide-react";
 import type { PublicSiteSettings } from "@/lib/content-payload";
-import { helpLinks } from "@/lib/help-links";
 import { phoneHref } from "@/lib/site-settings";
 
 const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
@@ -19,10 +42,15 @@ const HPT_BCT_BADGE_SRC = "/assets/logo/bctn.png";
 const HPT_LEGAL_NAME = "Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT";
 const HPT_TAX_CODE = "0202253444";
 const HPT_PUBLIC_PHONE = "+84 967 286 889";
+const HPT_HEADQUARTERS = "Trụ sở: SB04 Vinhomes Marina, phường An Biên, TP. Hải Phòng";
+const HPT_OFFICE_CITIES = "Hải Phòng · Hà Nội · TP. Hồ Chí Minh · Cần Thơ · Thanh Hóa · Quảng Ngãi";
+
+type FooterIcon = React.ComponentType<{ className?: string; size?: number }>;
 
 type FooterLink = {
   label: string;
   href: string;
+  icon: FooterIcon;
 };
 
 type FooterColumn = {
@@ -30,83 +58,79 @@ type FooterColumn = {
   links: FooterLink[];
 };
 
-type ContactItem = {
-  label: string;
-  value: string;
-  href?: string;
-  icon: React.ComponentType<{ className?: string; size?: number }>;
-};
-
+// Mọi href dưới đây đều là trang thật đã verify HTTP 200 trên production (30/07/2026).
 const footerColumns: FooterColumn[] = [
   {
     title: "Sản phẩm",
     links: [
-      { label: "Laptop", href: "/san-pham" },
-      { label: "Máy scan", href: "/san-pham" },
-      { label: "Máy in", href: "/san-pham" },
-      { label: "NAS / Server", href: "/san-pham" },
-      { label: "Camera giám sát", href: "/san-pham" },
-      { label: "Thiết bị mạng", href: "/san-pham" },
-      { label: "Máy chiếu", href: "/san-pham" },
-      { label: "Phụ kiện CNTT", href: "/san-pham" },
+      { label: "Máy tính & Laptop", href: "/laptop-may-tinh-xach-tay", icon: Laptop },
+      { label: "Máy scan & Số hóa", href: "/may-scan", icon: ScanLine },
+      { label: "Máy in & Vật tư", href: "/may-in", icon: Printer },
+      { label: "Server & Storage", href: "/may-chu-server", icon: Server },
+      { label: "Thiết bị mạng", href: "/thiet-bi-mang", icon: Network },
+      { label: "Firewall & Bảo mật", href: "/thiet-bi-firewall", icon: ShieldCheck },
+      { label: "Camera giám sát", href: "/camera-giam-sat", icon: Cctv },
+      { label: "Máy photocopy", href: "/may-photocopy", icon: Copy },
     ],
   },
   {
-    title: "Công ty",
+    title: "Giải pháp",
     links: [
-      { label: "Về HPT Tech", href: "/ve-hpt" },
-      { label: "Dự án tiêu biểu", href: "/du-an" },
-      { label: "Hồ sơ năng lực", href: "/ve-hpt" },
-      { label: "Tin tức", href: "/tin-tuc" },
-      { label: "Tuyển dụng", href: "/tuyen-dung" },
-      { label: "Liên hệ", href: "/lien-he" },
+      { label: "Giải pháp số hóa tài liệu", href: "/giai-phap", icon: FileText },
+      { label: "Giải pháp hạ tầng CNTT", href: "/dich-vu", icon: Layers },
+      { label: "Giải pháp an ninh mạng", href: "/thiet-bi-firewall", icon: Shield },
+      { label: "Giải pháp cho cơ quan nhà nước", href: "/du-an", icon: Landmark },
+      {
+        label: "Giải pháp cho doanh nghiệp",
+        href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
+        icon: Briefcase,
+      },
     ],
   },
   {
-    title: "Chính sách và hỗ trợ",
-    links: helpLinks.map((link) => ({ ...link })),
+    title: "Về HPT",
+    links: [
+      { label: "Về HPT Tech", href: "/ve-hpt", icon: Building2 },
+      { label: "Dự án tiêu biểu", href: "/du-an", icon: Trophy },
+      { label: "Hồ sơ năng lực", href: "/ve-hpt#linh-vuc", icon: ClipboardList },
+      { label: "Đối tác & Thương hiệu", href: "/thuong-hieu", icon: Award },
+      { label: "Tin tức", href: "/tin-tuc", icon: Newspaper },
+      { label: "Tuyển dụng", href: "/tuyen-dung", icon: Users },
+      { label: "Liên hệ", href: "/lien-he", icon: MessageCircle },
+    ],
   },
+  {
+    title: "Hỗ trợ",
+    links: [
+      { label: "Hướng dẫn mua hàng", href: "/huong-dan-mua-hang", icon: ShoppingCart },
+      { label: "Hướng dẫn đặt hàng Flash Sale", href: "/huong-dan-dat-hang-flash-sale", icon: Zap },
+      { label: "Chính sách bảo hành đổi trả", href: "/chinh-sach-bao-hanh-doi-tra", icon: BadgeCheck },
+      { label: "Chính sách giao hàng", href: "/chinh-sach-giao-hang", icon: Truck },
+      { label: "Chính sách bảo mật", href: "/chinh-sach-bao-mat", icon: Lock },
+      { label: "Chính sách mua trả góp", href: "/chinh-sach-mua-tra-gop", icon: CreditCard },
+      {
+        label: "Hỗ trợ khách hàng dự án",
+        href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
+        icon: Headphones,
+      },
+    ],
+  },
+];
+
+const stats = [
+  { value: "10+", label: "Năm kinh nghiệm", icon: BadgeCheck },
+  { value: "500+", label: "Dự án & đơn hàng", icon: Trophy },
+  { value: "100%", label: "Hàng chính hãng", icon: ShieldCheck },
+  { value: "Hỗ trợ", label: "Tư vấn & kỹ thuật 24/7", icon: Headphones },
 ];
 
 export default function Footer({ settings }: { settings: Required<PublicSiteSettings> }) {
   const phone = HPT_PUBLIC_PHONE;
-  const contactItems: ContactItem[] = [
-    { label: "Công ty", value: HPT_LEGAL_NAME, icon: Building2 },
-    { label: "Mã số thuế", value: HPT_TAX_CODE, icon: FileText },
-    {
-      label: "Trụ sở chính",
-      value: "Trụ sở chính: SB04 Vinhomes Marina, phường An Biên, thành phố Hải Phòng.",
-      icon: MapPin,
-    },
-    {
-      label: "Văn phòng Hồ Chí Minh",
-      value: "VP Hồ Chí Minh: 285 Trần Bình Trọng, Phường 4, Quận 5, TP. Hồ Chí Minh.",
-      icon: MapPin,
-    },
-    {
-      label: "Văn phòng Hà Nội",
-      value: "VP Hà Nội: Số 3, Ngõ 198, Đường Lê Trọng Tấn, Phường Phương Liệt, TP. Hà Nội.",
-      icon: MapPin,
-    },
-    {
-      label: "Văn phòng Cần Thơ",
-      value: "VP Cần Thơ: 69 Nguyễn Trãi, Phường Ninh Kiều, TP. Cần Thơ.",
-      icon: MapPin,
-    },
-    {
-      label: "Văn phòng Thanh Hóa",
-      value: "VP Thanh Hóa: Lô 32 Nơ 18 Nguyễn Thị Anh, P. Hạc Thành, TP. Thanh Hoá.",
-      icon: MapPin,
-    },
-    {
-      label: "Văn phòng Quảng Ngãi",
-      value: "VP Quảng Ngãi: 199 Đoàn Thị Điểm, phường Kon Tum, tỉnh Quảng Ngãi.",
-      icon: MapPin,
-    },
-    { label: "Điện thoại", value: phone, href: phoneHref(phone), icon: Phone },
-    { label: "Email", value: settings.email, href: `mailto:${settings.email}`, icon: Mail },
-    { label: "Website", value: "hpttech.vn", href: "https://hpttech.vn", icon: Globe2 },
-  ];
+  const socialLinks = [
+    { href: settings.facebook, label: "Facebook", logoSrc: "/assets/icons/facebook.svg" },
+    { href: settings.youtube, label: "YouTube", logoSrc: "/assets/icons/youtube.svg" },
+    { href: settings.zalo, label: "Zalo", logoSrc: "/assets/icons/zalo.png" },
+  ].filter((item) => Boolean(item.href) && item.href.startsWith("http"));
 
   return (
     <footer
@@ -117,62 +141,82 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
         Footer HPT Tech
       </h2>
 
-      <div className="mx-auto grid max-w-[1500px] gap-9 px-8 py-14 md:grid-cols-2 lg:grid-cols-[1.2fr_0.72fr_0.72fr_1fr_1.05fr] lg:justify-between lg:px-10">
-        <section className="lg:max-w-[360px]" aria-labelledby="footer-about-heading">
+      <div className="mx-auto grid max-w-[1500px] gap-10 px-8 py-14 md:grid-cols-2 lg:grid-cols-[1.25fr_1fr_1.05fr_0.95fr_1.05fr] lg:gap-8 lg:px-10">
+        <section className="lg:max-w-[340px]" aria-labelledby="footer-about-heading">
           <Link href="/" className="inline-flex rounded-xl bg-white px-4 py-3" aria-label="HPT Tech trang chủ">
             <Image
               src={HPT_LOGO_SRC}
               alt={settings.companyName}
-              width={150}
-              height={88}
-              className="h-auto w-[150px] object-contain"
+              width={132}
+              height={78}
+              className="h-auto w-[132px] object-contain"
             />
           </Link>
-          <p className="mt-8 text-base leading-8 text-slate-100/85">
-            HPT Tech cung cấp thiết bị CNTT, thiết bị văn phòng, máy scan, máy in, NAS, camera, thiết bị mạng và giải pháp hạ tầng công nghệ cho doanh nghiệp, tổ chức và cơ quan nhà nước.
+          <p className="mt-6 text-[15px] leading-7 text-slate-100/85">
+            HPT Tech – Nhà cung cấp thiết bị và giải pháp công nghệ thông tin cho doanh nghiệp, tổ
+            chức và cơ quan nhà nước.
           </p>
 
-          <div className="mt-10 grid grid-cols-3 gap-4">
-            <Stat value="10+" label="Năm kinh nghiệm" />
-            <Stat value="1000+" label="Khách hàng tin tưởng" />
-            <Stat value="100%" label="Hàng chính hãng" />
+          <div className="mt-7 grid grid-cols-4 gap-3">
+            {stats.map(({ value, label, icon: Icon }) => (
+              <div key={label}>
+                <Icon className="text-sky-300" size={26} strokeWidth={1.8} />
+                <strong className="mt-2 block text-lg font-bold leading-6 text-white">{value}</strong>
+                <span className="mt-0.5 block text-[11px] leading-4 text-slate-100/70">{label}</span>
+              </div>
+            ))}
           </div>
+
+          <h3 className="footer-heading mt-8">Trụ sở &amp; Văn phòng</h3>
+          <ul className="mt-4 space-y-2.5 text-sm leading-6 text-slate-100/85">
+            <li className="flex gap-3">
+              <MapPin className="mt-1 shrink-0 text-sky-300" size={16} aria-hidden="true" />
+              <span>{HPT_HEADQUARTERS}</span>
+            </li>
+            <li className="flex gap-3">
+              <Phone className="mt-1 shrink-0 text-sky-300" size={16} aria-hidden="true" />
+              <a href={phoneHref(phone)} className="footer-link">
+                0967 286 889
+              </a>
+            </li>
+            <li className="flex gap-3">
+              <Mail className="mt-1 shrink-0 text-sky-300" size={16} aria-hidden="true" />
+              <a href={`mailto:${settings.email}`} className="footer-link">
+                {settings.email}
+              </a>
+            </li>
+          </ul>
+
+          <h3 className="footer-heading mt-6">Hệ thống văn phòng</h3>
+          <p className="mt-3 text-sm leading-6 text-slate-100/80">{HPT_OFFICE_CITIES}</p>
+          <Link
+            href="/lien-he"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-sky-300/60 px-4 py-2 text-sm font-medium text-sky-100 transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-white/10"
+          >
+            Xem chi tiết hệ thống văn phòng
+            <ArrowRight size={15} aria-hidden="true" />
+          </Link>
         </section>
 
         {footerColumns.map((column) => (
           <FooterColumnBlock key={column.title} column={column} />
         ))}
-
-        <section aria-labelledby="footer-contact-heading">
-          <h3 id="footer-contact-heading" className="footer-heading">
-            Liên hệ
-          </h3>
-          <ul className="mt-7 space-y-5">
-            {contactItems.map(({ label, value, href, icon: Icon }) => (
-              <li key={label} className="flex gap-4 text-sm leading-6 text-slate-100/80">
-                <Icon className="mt-0.5 shrink-0 text-sky-300" size={18} aria-hidden="true" />
-                <div>
-                  <span className="sr-only">{label}: </span>
-                  {href ? (
-                    <a href={href} className="footer-link">
-                      {value}
-                    </a>
-                  ) : (
-                    <span>{value}</span>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
 
-      <div className="mx-auto max-w-[1500px] border-t border-white/15 px-8 py-8 lg:px-10">
+      <div className="mx-auto max-w-[1500px] border-t border-white/15 px-8 py-7 lg:px-10">
         <div className="flex flex-col gap-6 text-sm text-slate-100/70 lg:flex-row lg:items-center lg:justify-between">
-          <p>© 2026 HPT Tech. All rights reserved.</p>
+          <div>
+            <p>© 2026 HPT Tech. All rights reserved.</p>
+            <p className="mt-1 text-xs text-slate-100/55">
+              {HPT_LEGAL_NAME} · MST: {HPT_TAX_CODE}
+            </p>
+          </div>
           <nav className="flex flex-wrap gap-6" aria-label="Liên kết pháp lý">
             <Link className="footer-link" href="/dieu-khoan-su-dung">
               Điều khoản sử dụng
+            </Link>
+            <Link className="footer-link" href="/chinh-sach-bao-mat">
+              Chính sách bảo mật
             </Link>
             <Link className="footer-link" href="/sitemap.xml">
               Sitemap
@@ -194,10 +238,9 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
             />
           </a>
           <div className="flex items-center gap-3">
-            <SocialLink href={settings.facebook} label="Facebook" logoSrc="/assets/icons/facebook.svg" />
-            <SocialLink href={settings.youtube || "/tin-tuc"} label="YouTube" logoSrc="/assets/icons/youtube.svg" />
-            <SocialLink href="/lien-he" label="LinkedIn" logoSrc="/assets/icons/linkedin.svg" />
-            <SocialLink href={settings.zalo} label="Zalo" logoSrc="/assets/icons/zalo.png" />
+            {socialLinks.map((item) => (
+              <SocialLink key={item.label} {...item} />
+            ))}
             <a
               href="#top"
               aria-label="Lên đầu trang"
@@ -212,61 +255,41 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <BadgeCheck className="text-sky-300" size={34} strokeWidth={1.8} />
-      <strong className="mt-4 block text-2xl font-bold text-white">{value}</strong>
-      <span className="mt-1 block text-sm leading-5 text-slate-100/75">{label}</span>
-    </div>
-  );
-}
-
 function FooterColumnBlock({ column }: { column: FooterColumn }) {
   return (
     <nav aria-labelledby={`footer-${column.title}`} className="min-w-0">
       <h3 id={`footer-${column.title}`} className="footer-heading">
         {column.title}
       </h3>
-      <ul className="mt-7 space-y-4">
-        {column.links.map((link) => (
-          <li key={link.label}>
-            <Link className="footer-link" href={link.href}>
-              {link.label}
-            </Link>
-          </li>
-        ))}
+      <ul className="mt-6 space-y-3.5">
+        {column.links.map((link) => {
+          const Icon = link.icon;
+          return (
+            <li key={link.label}>
+              <Link className="footer-link group flex items-center gap-3" href={link.href}>
+                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.08] text-sky-200 transition group-hover:bg-sky-400/25 group-hover:text-white">
+                  <Icon size={16} aria-hidden="true" />
+                </span>
+                <span className="leading-5">{link.label}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );
 }
 
-function SocialLink({
-  href,
-  label,
-  icon: Icon,
-  logoSrc,
-  text,
-}: {
-  href: string;
-  label: string;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
-  logoSrc?: string;
-  text?: string;
-}) {
+function SocialLink({ href, label, logoSrc }: { href: string; label: string; logoSrc: string }) {
   return (
     <a
       href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.14] text-white transition hover:-translate-y-0.5 hover:bg-primary-500"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-12px_rgba(255,255,255,0.7)]"
     >
-      {logoSrc ? (
-        <Image src={logoSrc} alt="" width={23} height={23} className="h-6 w-6 object-contain" aria-hidden="true" />
-      ) : Icon ? (
-        <Icon size={19} aria-hidden="true" />
-      ) : (
-        <span className="text-sm font-black">{text}</span>
-      )}
+      <Image src={logoSrc} alt="" width={23} height={23} className="h-6 w-6 object-contain" aria-hidden="true" />
     </a>
   );
 }
