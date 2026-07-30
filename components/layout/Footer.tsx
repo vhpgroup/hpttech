@@ -79,7 +79,6 @@ const footerColumns: FooterColumn[] = [
     title: "Hỗ trợ",
     links: [
       { label: "Hướng dẫn mua hàng", href: "/huong-dan-mua-hang", iconSrc: `${R2}/icon-footer-mua-hang.png` },
-      { label: "Hướng dẫn đặt hàng Flash Sale", href: "/huong-dan-dat-hang-flash-sale", iconSrc: `${R2}/icon-footer-flash-sale.png` },
       { label: "Chính sách bảo hành đổi trả", href: "/chinh-sach-bao-hanh-doi-tra", iconSrc: `${R2}/icon-footer-bao-hanh.png` },
       { label: "Chính sách giao hàng", href: "/chinh-sach-giao-hang", iconSrc: `${R2}/icon-cam-ket-giao-hang.png` },
       { label: "Chính sách bảo mật", href: "/chinh-sach-bao-mat", iconSrc: `${R2}/icon-footer-khoa-bao-mat.png` },
