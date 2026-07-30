@@ -154,7 +154,7 @@ export default function Header({
         </form>
 
         <div className="header-actions">
-          <a className="header-hotline" href={phoneHref(phone)}>
+          <a className="header-hotline header-hotline--ring" href={phoneHref(phone)}>
             <Image src={`${R2_ICON}icon-header-hotline.png`} alt="" aria-hidden="true" width={32} height={32} />
             <span>
               <small>Hotline 24/7</small>
