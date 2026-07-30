@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import type { CatalogProduct } from "@/lib/catalog";
-import { QuickInfoProductCard } from "@/components/home/HomeCategoryCarouselsClient";
+import { QuickInfoProductCard } from "@/components/product/ProductQuickInfoPopup";
 
 type HomeProductShowcaseClientProps = {
   products: CatalogProduct[];

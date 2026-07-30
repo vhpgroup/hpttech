@@ -22,7 +22,7 @@ import {
 import { getCategoryBreadcrumbTrail } from "@/lib/catalog-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
-import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
+import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
 
 // Route gộp: trang tĩnh CMS (ưu tiên) + LANDING DANH MỤC rút gọn /<slug> (kiểu An Phát).
 // Landing đọc searchParams (bộ lọc) = dynamic API → PHẢI force-dynamic, KHÔNG

@@ -16,7 +16,7 @@ import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { getProductCategoryNavFromPayload } from "@/lib/catalog-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
-import { ProductInfoPopupLayer } from "@/components/home/HomeCategoryCarouselsClient";
+import { ProductInfoPopupLayer } from "@/components/product/ProductQuickInfoPopup";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
