@@ -55,7 +55,7 @@ function ToggleSwitch({
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
       />
-      <span className="relative h-5 w-9 shrink-0 rounded-full bg-slate-300 transition peer-checked:bg-primary-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:transition peer-checked:after:translate-x-4" />
+      <span className="relative h-5 w-9 shrink-0 rounded-full bg-slate-300 transition peer-checked:bg-red-600 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:transition peer-checked:after:translate-x-4" />
       <span>{children}</span>
     </label>
   );
@@ -135,7 +135,7 @@ export default function CompareTableClient({ items, groups }: CompareTableClient
 
               <Link
                 href={item.href}
-                className="line-clamp-2 min-h-[36px] text-[13px] font-semibold leading-[18px] text-slate-900 hover:text-primary-700"
+                className="line-clamp-2 min-h-[36px] text-[13px] font-semibold leading-[18px] text-slate-900 hover:text-red-600"
               >
                 {item.title}
               </Link>
@@ -152,12 +152,12 @@ export default function CompareTableClient({ items, groups }: CompareTableClient
                   product={item.cart}
                   label="Thêm vào giỏ"
                   ariaLabel={`Thêm ${item.title} vào giỏ`}
-                  className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-primary-600 text-xs font-semibold text-white transition hover:bg-primary-700"
+                  className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-red-600 text-xs font-semibold text-white transition hover:bg-red-700"
                 />
               ) : (
                 <Link
                   href={item.href}
-                  className="flex h-9 w-full items-center justify-center rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 transition hover:border-primary-600 hover:text-primary-700"
+                  className="flex h-9 w-full items-center justify-center rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 transition hover:border-red-600 hover:text-red-600"
                 >
                   Nhận báo giá nhanh
                 </Link>
@@ -165,7 +165,7 @@ export default function CompareTableClient({ items, groups }: CompareTableClient
 
               <Link
                 href={item.href}
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-primary-600 hover:underline"
+                className="inline-flex items-center gap-1 text-[11px] font-medium text-red-600 hover:underline"
               >
                 Xem chi tiết <ExternalLink size={11} />
               </Link>
@@ -219,7 +219,7 @@ export default function CompareTableClient({ items, groups }: CompareTableClient
             <button
               type="button"
               onClick={() => setShowSparse(true)}
-              className="font-semibold text-primary-600 underline underline-offset-2 hover:text-primary-700"
+              className="font-semibold text-red-600 underline underline-offset-2 hover:text-red-700"
             >
               Hiện các hàng này
             </button>

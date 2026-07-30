@@ -1404,7 +1404,7 @@ main {
   height: 22px;
   flex: 0 0 auto;
   border-radius: 999px;
-  background: #2563eb;
+  background: #da2028;
 }
 
 .home-featured-bar .tabs {
@@ -1437,7 +1437,7 @@ main {
 }
 
 .home-featured-bar > a {
-  color: #2563eb;
+  color: #da2028;
 }
 
 .home-featured-grid {
@@ -1550,7 +1550,7 @@ main {
   align-items: center;
   gap: 4px;
   flex: 0 0 auto;
-  color: #2563eb;
+  color: #da2028;
   font-size: 13px;
   font-weight: 800;
   white-space: nowrap;

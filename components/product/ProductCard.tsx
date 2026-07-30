@@ -132,7 +132,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
 
       <div className="mt-3 flex flex-1 flex-col">
         <h3 className="line-clamp-2 min-h-[40px] text-sm font-medium leading-5 text-slate-900">
-          <Link href={href} className="hover:text-primary-700">
+          <Link href={href} className="hover:text-red-600">
             {product.title}
           </Link>
         </h3>
@@ -172,12 +172,12 @@ export function ProductCard({ product, className, isComparing = false, onCompare
               product={product}
               label="Thêm vào giỏ"
               ariaLabel={`Thêm ${product.title} vào giỏ`}
-              className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary-600 text-[13px] font-semibold text-white transition hover:bg-primary-700"
+              className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-600 text-[13px] font-semibold text-white transition hover:bg-red-700"
             />
           ) : (
             <Link
               href={href}
-              className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-slate-300 text-[13px] font-semibold text-slate-800 transition hover:border-primary-600 hover:text-primary-700"
+              className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-slate-300 text-[13px] font-semibold text-slate-800 transition hover:border-red-600 hover:text-red-600"
             >
               Nhận báo giá nhanh
             </Link>
@@ -192,8 +192,8 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             className={cn(
               "grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition",
               selected
-                ? "border-primary-600 bg-primary-600 text-white"
-                : "border-slate-300 text-slate-500 hover:border-primary-600 hover:text-primary-700",
+                ? "border-red-600 bg-red-600 text-white"
+                : "border-slate-300 text-slate-500 hover:border-red-600 hover:text-red-600",
             )}
           >
             <Scale size={16} />
