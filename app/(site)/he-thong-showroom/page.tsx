@@ -1,4 +1,5 @@
 import Image from "next/image";
+import ShowroomHeroMap from "@/components/showroom/ShowroomHeroMap";
 import { getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { absoluteURL, pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
@@ -31,6 +32,11 @@ type Store = {
   barSub: string;
   mapSrc: string;
   directions: string;
+  // Tọa độ pin trên bản đồ tổng của hero (khớp tọa độ trong `directions`).
+  lat: number;
+  lng: number;
+  // Trụ sở chính → pin đỏ ★ nổi bật trên bản đồ tổng.
+  hq?: boolean;
 };
 
 const STORES: Store[] = [
@@ -50,6 +56,9 @@ const STORES: Store[] = [
     mapSrc:
       "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3729.256153855568!2d106.6875276859689!3d20.821360245318722!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314a7155698f3c69%3A0x95aed3909eec7d29!2sHPT%20Tech!5e0!3m2!1sen!2s!4v1784883601930!5m2!1sen!2s",
     directions: "https://www.google.com/maps/search/?api=1&query=20.8213602,106.6875277",
+    lat: 20.8213602,
+    lng: 106.6875277,
+    hq: true,
   },
   {
     id: "ho-chi-minh",
@@ -65,6 +74,8 @@ const STORES: Store[] = [
     barSub: "Phường 4, Quận 5, TP. Hồ Chí Minh",
     mapSrc: "https://maps.google.com/maps?q=10.7613673,106.6793788&hl=vi&z=17&output=embed",
     directions: "https://www.google.com/maps/search/?api=1&query=10.7613673,106.6793788",
+    lat: 10.7613673,
+    lng: 106.6793788,
   },
   {
     id: "ha-noi",
@@ -80,6 +91,8 @@ const STORES: Store[] = [
     barSub: "Phường Phương Liệt, TP. Hà Nội",
     mapSrc: "https://maps.google.com/maps?q=20.9936017,105.8307945&hl=vi&z=18&output=embed",
     directions: "https://www.google.com/maps/search/?api=1&query=20.9936017,105.8307945",
+    lat: 20.9936017,
+    lng: 105.8307945,
   },
   {
     id: "can-tho",
@@ -95,6 +108,8 @@ const STORES: Store[] = [
     barSub: "Phường Ninh Kiều, TP. Cần Thơ",
     mapSrc: "https://maps.google.com/maps?q=10.0399637,105.7852092&hl=vi&z=17&output=embed",
     directions: "https://www.google.com/maps/search/?api=1&query=10.0399637,105.7852092",
+    lat: 10.0399637,
+    lng: 105.7852092,
   },
   {
     id: "thanh-hoa",
@@ -110,6 +125,8 @@ const STORES: Store[] = [
     barSub: "Lô 32 Nơ 18, Phường Hạc Thành, Thanh Hóa",
     mapSrc: "https://maps.google.com/maps?q=19.7758149,105.7775896&hl=vi&z=18&output=embed",
     directions: "https://www.google.com/maps/search/?api=1&query=19.7758149,105.7775896",
+    lat: 19.7758149,
+    lng: 105.7775896,
   },
   {
     id: "quang-ngai",
@@ -125,6 +142,8 @@ const STORES: Store[] = [
     barSub: "Phường Kon Tum, Quảng Ngãi",
     mapSrc: "https://maps.google.com/maps?q=14.3499089,108.0018309&hl=vi&z=17&output=embed",
     directions: "https://www.google.com/maps/search/?api=1&query=14.3499089,108.0018309",
+    lat: 14.3499089,
+    lng: 108.0018309,
   },
 ];
 
@@ -168,9 +187,31 @@ export default async function ShowroomPage() {
       {/* Căn giữa bằng div bọc: global CSS có `main { margin: 0 }` nên không
           đặt mx-auto trực tiếp trên <main> (bị đè do thứ tự ưu tiên layer). */}
       <div className="mx-auto w-[var(--shell-width)] overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-        {/* HERO — minh họa + tiêu đề (overlay trên desktop, xếp dọc trên mobile) */}
-        <section className="relative bg-[#e7f0fd]">
-          <div className="px-4 pb-5 pt-7 text-center lg:absolute lg:inset-x-0 lg:top-[6%] lg:z-10 lg:p-0">
+        {/* HERO — bản đồ tổng tương tác full-width thay minh họa tĩnh: trụ sở
+            chính Hải Phòng (pin đỏ ★, pulse) + 5 chi nhánh (pin xanh, nhãn tên
+            tỉnh). Tiêu đề + CTA giữ nguyên, server-render cho SEO; bản đồ là
+            lớp nền client (components/showroom/ShowroomHeroMap). */}
+        <section className="relative h-[620px] overflow-hidden bg-[#e7f0fd] lg:h-[640px]">
+          <ShowroomHeroMap
+            stores={STORES.map((store) => ({
+              id: store.id,
+              chip: store.chip,
+              label: store.label,
+              address: store.address,
+              lat: store.lat,
+              lng: store.lng,
+              hq: Boolean(store.hq),
+            }))}
+            phone={phone}
+            email={settings.email}
+            hours={HOURS}
+            days={DAYS}
+          />
+          {/* data-shm-overlay: bản đồ đo chiều cao khối này để chừa khoảng trời khi fitBounds. */}
+          <div
+            data-shm-overlay
+            className="pointer-events-none relative z-20 px-4 pt-9 text-center lg:pt-11"
+          >
             <h1 className="text-2xl font-black tracking-tight text-[#0b2a63] sm:text-3xl lg:text-[38px]">
               HỆ THỐNG SHOWROOM HPT TECH
             </h1>
@@ -180,19 +221,14 @@ export default async function ShowroomPage() {
             </p>
             <a
               href="#hai-phong"
-              className="mt-3.5 inline-flex h-11 items-center rounded-lg bg-[#da2127] px-6 text-sm font-extrabold tracking-wider text-white shadow-[0_10px_24px_rgba(218,33,39,0.32)] transition hover:bg-[#c11d23]"
+              className="pointer-events-auto mt-3.5 inline-flex h-11 items-center rounded-lg bg-[#da2127] px-6 text-sm font-extrabold tracking-wider text-white shadow-[0_10px_24px_rgba(218,33,39,0.32)] transition hover:bg-[#c11d23]"
             >
               XEM NGAY
             </a>
+            <p className="mt-3 text-xs font-semibold text-[#3d5878]">
+              Nhấp vào ghim trên bản đồ để xem địa chỉ, giờ làm việc &amp; chỉ đường từng showroom
+            </p>
           </div>
-          <Image
-            src={`${R2}showroom-hero.png`}
-            alt="Minh họa hệ thống showroom HPT Tech"
-            width={1920}
-            height={815}
-            priority
-            className="block h-auto w-full"
-          />
         </section>
 
         {/* CHIP ĐIỀU HƯỚNG 6 THÀNH PHỐ */}
