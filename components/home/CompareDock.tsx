@@ -82,12 +82,10 @@ export default function CompareDock({
 
   const dock = (
     <div id="compareShell">
-      {/* Ẩn nút nổi khi chưa chọn sản phẩm nào — tránh chiếm góc màn hình với "(0)" */}
-      {items.length > 0 ? (
-        <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => onOpenChange(true)}>
-          So sánh ({items.length})
-        </button>
-      ) : null}
+      {/* Nút So sánh luôn hiển thị bên trái (kể cả khi chưa chọn sản phẩm) — theo yêu cầu 30/07 */}
+      <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => onOpenChange(true)}>
+        So sánh ({items.length})
+      </button>
       <button
         className={`compare-overlay ${open ? "open" : ""}`}
         type="button"
