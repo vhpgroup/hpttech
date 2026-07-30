@@ -3,22 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ChevronRight, Headset, Mail, PhoneCall } from "lucide-react";
-import type { PublicSiteSettings } from "@/lib/content-payload";
-import { formatPhoneDisplay, phoneHref, quoteMailHref } from "@/lib/site-settings";
+import { ChevronRight, Headset } from "lucide-react";
+import { technicalSupportItems } from "@/lib/support-contacts";
+import { phoneHref } from "@/lib/site-settings";
 
 // Cùng bộ icon 3D Fluent tự host trên media R2 với Header.
 const R2_ICON = "/api/r2-media/";
 
 /**
- * Nút "Hỗ trợ kỹ thuật" ở utility-topbar: bấm → popover thông tin kênh hỗ trợ
- * (hotline, email, Zalo, Messenger — cùng nguồn settings với FloatingContactDock)
- * kèm lối vào trang /lien-he. Khi JS chưa tải/tắt, nút vẫn là link /lien-he như cũ.
+ * Nút "Hỗ trợ kỹ thuật" ở utility-topbar: bấm → popover danh sách kỹ thuật viên
+ * (ảnh + tên + hotline bấm gọi trực tiếp — cùng nguồn technicalSupportItems với
+ * sidebar trang chi tiết sản phẩm) kèm lối vào trang /lien-he.
+ * Khi JS chưa tải/tắt, nút vẫn là link /lien-he như cũ.
  */
-export default function TechSupportPopover({ settings }: { settings: Required<PublicSiteSettings> }) {
+export default function TechSupportPopover() {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const phone = settings.hotline || settings.phone;
 
   // Đóng popover khi bấm ra ngoài hoặc nhấn Esc.
   useEffect(() => {
@@ -65,50 +65,34 @@ export default function TechSupportPopover({ settings }: { settings: Required<Pu
             </span>
             <div className="topbar-support-head-copy">
               <strong>Hỗ trợ kỹ thuật</strong>
-              <small>Đội ngũ kỹ thuật HPT Tech sẵn sàng hỗ trợ quý khách</small>
+              <small>Gọi trực tiếp đội kỹ thuật HPT Tech</small>
             </div>
           </div>
 
           <div className="topbar-support-body">
-            <a className="topbar-support-item" href={phoneHref(phone)}>
-              <span className="topbar-support-icon phone">
-                <PhoneCall size={16} />
-              </span>
-              <span className="topbar-support-copy">
-                <strong>{formatPhoneDisplay(phone)}</strong>
-                <small>Hotline 24/7 — bấm để gọi ngay</small>
-              </span>
-            </a>
-
-            <a className="topbar-support-item" href={quoteMailHref(settings.email, "Yêu cầu hỗ trợ kỹ thuật HPT Tech")}>
-              <span className="topbar-support-icon">
-                <Mail size={16} />
-              </span>
-              <span className="topbar-support-copy">
-                <strong>{settings.email}</strong>
-                <small>Gửi yêu cầu qua email</small>
-              </span>
-            </a>
-
-            <a className="topbar-support-item" href={settings.zalo} target="_blank" rel="noreferrer">
-              <span className="topbar-support-icon">
-                <Image src="/assets/icons/zalo.png" alt="Zalo" width={30} height={30} />
-              </span>
-              <span className="topbar-support-copy">
-                <strong>Chat Zalo</strong>
-                <small>8:30 - 17:30</small>
-              </span>
-            </a>
-
-            <a className="topbar-support-item" href={settings.facebook} target="_blank" rel="noreferrer">
-              <span className="topbar-support-icon">
-                <Image src="/assets/icons/messenger.png" alt="Messenger" width={30} height={30} />
-              </span>
-              <span className="topbar-support-copy">
-                <strong>Facebook Messenger</strong>
-                <small>8:30 - 17:30</small>
-              </span>
-            </a>
+            {technicalSupportItems.map((contact) => (
+              <a
+                key={`${contact.name}-${contact.phone}`}
+                className="topbar-support-item"
+                href={phoneHref(contact.phone)}
+              >
+                <span className="topbar-support-avatar" aria-hidden="true">
+                  {contact.initials}
+                  {contact.imageSrc ? (
+                    <span
+                      className="topbar-support-avatar-img"
+                      style={{ backgroundImage: `url(${contact.imageSrc})` }}
+                    />
+                  ) : null}
+                </span>
+                <span className="topbar-support-copy">
+                  <strong>{contact.name}</strong>
+                  <small>
+                    Hotline: <b>{contact.phone}</b>
+                  </small>
+                </span>
+              </a>
+            ))}
           </div>
 
           <Link className="topbar-support-cta" href="/lien-he" onClick={() => setOpen(false)}>

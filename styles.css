@@ -315,30 +315,28 @@ main {
   text-decoration: none;
 }
 
-.topbar-support-pop .topbar-support-icon {
+/* Ảnh chân dung kỹ thuật viên: initials làm nền dự phòng, ảnh phủ lên trên
+   bằng background-cover (cùng kỹ thuật với ProductSupportContactBlock). */
+.topbar-support-pop .topbar-support-avatar {
+  position: relative;
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #eef2f7;
-  color: var(--blue);
   overflow: hidden;
+  background: var(--blue);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.topbar-support-pop .topbar-support-icon.phone {
-  background: #fdeaea;
-  color: var(--hpt-red);
-}
-
-/* Icon Zalo/Messenger là ảnh màu — bỏ filter nhuộm trắng của .utility-topbar img. */
-.topbar-support-pop img {
-  filter: none;
-  opacity: 1;
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
+.topbar-support-pop .topbar-support-avatar-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
 }
 
 .topbar-support-pop .topbar-support-copy {
@@ -356,9 +354,15 @@ main {
 }
 
 .topbar-support-pop .topbar-support-copy small {
-  font-size: 11px;
-  color: #64748b;
+  font-size: 12px;
+  color: #52607a;
   white-space: normal;
+}
+
+/* Số hotline nổi màu brand để rõ affordance "bấm để gọi". */
+.topbar-support-pop .topbar-support-copy small b {
+  color: var(--blue);
+  font-weight: 800;
 }
 
 .topbar-support-pop .topbar-support-cta {

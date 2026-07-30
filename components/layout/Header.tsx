@@ -95,7 +95,7 @@ export default function Header({
             <Image src={`${R2_ICON}icon-topbar-gio-lam-viec.png`} alt="" aria-hidden="true" width={16} height={16} />
             8:00 - 17:30
           </span>
-          <TechSupportPopover settings={settings} />
+          <TechSupportPopover />
         </div>
       </div>
 

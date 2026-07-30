@@ -26,6 +26,7 @@ import { ProductRelationTabs, type ProductRelationSection } from "@/components/p
 import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 import type { CatalogProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
+import { consultantItems, technicalSupportItems, type SupportContact } from "@/lib/support-contacts";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -46,62 +47,6 @@ const quickBuyItems = [
   "Ship hàng toàn quốc",
   "Nhận hàng và thanh toán tại nhà",
 ];
-
-const consultantItems = [
-  {
-    name: "Đào Duy Vỹ",
-    phone: "0876 645 432",
-    initials: "DVY",
-    avatarClassName: "bg-success",
-    imageSrc: "/assets/consultants/dao-duy-vy.jpg",
-  },
-  {
-    name: "Nguyễn Viết Tân",
-    phone: "0559 309 904",
-    initials: "NT",
-    avatarClassName: "bg-primary-700",
-    imageSrc: "/assets/consultants/nguyen-viet-tan.jpg",
-  },
-  {
-    name: "Nguyễn Đức Thắng",
-    phone: "0372 767 995",
-    initials: "NT",
-    avatarClassName: "bg-primary-600",
-    imageSrc: "/assets/consultants/nguyen-duc-thang.jpg",
-  },
-];
-
-const technicalSupportItems = [
-  {
-    name: "Trần Gia Minh",
-    phone: "0778 335 225",
-    initials: "TGM",
-    avatarClassName: "bg-accent-600",
-    imageSrc: "/api/r2-media/tran-gia-minh.jpg",
-  },
-  {
-    name: "Nguyễn Thành Danh",
-    phone: "0973 798 939",
-    initials: "ND",
-    avatarClassName: "bg-accent-600",
-    imageSrc: "/api/r2-media/nguyen-thanh-danh.jpg",
-  },
-  {
-    name: "Đào Thanh Tùng",
-    phone: "0931 311 686",
-    initials: "DTT",
-    avatarClassName: "bg-accent-600",
-    imageSrc: "/api/r2-media/dao-thanh-tung.jpg",
-  },
-];
-
-type SupportContact = {
-  name: string;
-  phone: string;
-  initials: string;
-  avatarClassName: string;
-  imageSrc?: string;
-};
 
 function parseVNDPrice(value?: string) {
   if (!value) return undefined;
