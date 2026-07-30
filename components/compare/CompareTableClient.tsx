@@ -5,7 +5,9 @@ import Link from "next/link";
 import { ChevronDown, ExternalLink, X } from "lucide-react";
 import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import { useQuote } from "@/components/quote/QuoteProvider";
 import type { CartProductInput } from "@/lib/cart";
+import type { CatalogProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
 
 export type CompareRow = {
@@ -31,6 +33,8 @@ export type CompareItem = {
   price: string;
   compareAtPrice: string;
   cart: CartProductInput | null;
+  /** Sản phẩm chưa có giá — payload mở Quote Builder (popup báo giá nhanh có sẵn của site). */
+  quote: CatalogProduct | null;
 };
 
 type CompareTableClientProps = {
@@ -62,6 +66,7 @@ function ToggleSwitch({
 }
 
 export default function CompareTableClient({ items, groups }: CompareTableClientProps) {
+  const { openQuote } = useQuote();
   const [diffOnly, setDiffOnly] = useState(false);
   const [showSparse, setShowSparse] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -155,12 +160,13 @@ export default function CompareTableClient({ items, groups }: CompareTableClient
                   className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-red-600 text-xs font-semibold text-white transition hover:bg-red-700"
                 />
               ) : (
-                <Link
-                  href={item.href}
+                <button
+                  type="button"
+                  onClick={() => (item.quote ? openQuote(item.quote) : undefined)}
                   className="flex h-9 w-full items-center justify-center rounded-lg border border-slate-300 text-xs font-semibold text-slate-800 transition hover:border-red-600 hover:text-red-600"
                 >
                   Nhận báo giá nhanh
-                </Link>
+                </button>
               )}
 
               <Link

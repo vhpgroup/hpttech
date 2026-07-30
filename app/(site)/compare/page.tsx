@@ -144,6 +144,19 @@ function buildCompareItems(items: CatalogProduct[]): CompareItem[] {
             price: item.price,
           }
         : null,
+      // Payload tối thiểu cho Quote Builder (popup báo giá) — đủ trường mà QuoteDocument dùng.
+      quote: item.price
+        ? null
+        : {
+            title: item.title || "Sản phẩm",
+            slug: item.slug || "",
+            sku: item.sku,
+            detail: item.detail,
+            image,
+            price: item.price,
+            warranty: item.warranty,
+            specs: item.specs,
+          },
     };
   });
 }

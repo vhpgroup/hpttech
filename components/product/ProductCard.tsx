@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ImageIcon, Scale, Star } from "lucide-react";
 import { useEffect, useState, type MouseEvent } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
+import { useQuote } from "@/components/quote/QuoteProvider";
 import type { CatalogProduct } from "@/lib/catalog";
 import { cn } from "@/lib/cn";
 
@@ -55,6 +56,7 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
 
 export function ProductCard({ product, className, isComparing = false, onCompare }: ProductCardProps) {
   const router = useRouter();
+  const { openQuote } = useQuote();
   const [globalComparing, setGlobalComparing] = useState(isComparing);
   const href = productHref(product);
   const initialImage = product.images?.[0]?.url || product.image;
@@ -175,12 +177,13 @@ export function ProductCard({ product, className, isComparing = false, onCompare
               className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-600 text-[13px] font-semibold text-white transition hover:bg-red-700"
             />
           ) : (
-            <Link
-              href={href}
+            <button
+              type="button"
+              onClick={() => openQuote(product)}
               className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-slate-300 text-[13px] font-semibold text-slate-800 transition hover:border-red-600 hover:text-red-600"
             >
               Nhận báo giá nhanh
-            </Link>
+            </button>
           )}
 
           <button
