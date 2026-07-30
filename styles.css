@@ -1382,15 +1382,29 @@ main {
   margin-bottom: 0;
   padding: 8px 14px 8px 20px;
   gap: 12px;
+  border: 1px solid #dbe3f0;
+  border-bottom: 0;
   border-radius: 12px 12px 0 0;
-  background: #da2028;
-  box-shadow: 0 10px 24px rgba(160, 20, 30, 0.18);
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 45, 83, 0.06);
 }
 
 .home-featured-bar h2 {
-  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #0f172a;
   font-size: 20px;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.16);
+}
+
+.home-featured-bar h2::before,
+.home-category-bar h2::before {
+  content: "";
+  width: 4px;
+  height: 22px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #2563eb;
 }
 
 .home-featured-bar .tabs {
@@ -1400,12 +1414,13 @@ main {
 .home-featured-bar .tabs button {
   height: 34px;
   padding: 0 14px;
-  border: 1px solid rgba(255, 255, 255, 0.44);
+  border: 1px solid #dbe3f0;
   border-radius: 8px;
+  background: #f8fafc;
   color: #29415f;
   font-size: 13px;
   font-weight: 800;
-  box-shadow: 0 2px 7px rgba(2, 24, 57, 0.12);
+  box-shadow: none;
 }
 
 .home-featured-bar .tabs button.active {
@@ -1422,7 +1437,7 @@ main {
 }
 
 .home-featured-bar > a {
-  color: #fff;
+  color: #2563eb;
 }
 
 .home-featured-grid {
@@ -1451,19 +1466,23 @@ main {
   display: flex;
   align-items: center;
   gap: 18px;
+  border: 1px solid #dbe3f0;
+  border-bottom: 0;
   border-radius: 12px 12px 0 0;
-  background: #da2028;
-  box-shadow: 0 10px 24px rgba(160, 20, 30, 0.18);
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 45, 83, 0.06);
 }
 
 .home-category-bar h2 {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex: 0 0 auto;
-  color: #fff;
+  color: #0f172a;
   font-size: 20px;
   font-weight: 900;
   letter-spacing: -0.02em;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.16);
 }
 
 .home-category-tabs {
@@ -1485,14 +1504,14 @@ main {
   height: 34px;
   padding: 0 13px;
   flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.44);
+  border: 1px solid #dbe3f0;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
+  background: #f8fafc;
   color: #29415f;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 2px 7px rgba(2, 24, 57, 0.12);
+  box-shadow: none;
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
@@ -1518,8 +1537,8 @@ main {
 
 .home-category-tabs .home-category-tabs-more {
   border-color: transparent;
-  background: rgba(255, 255, 255, 0.13);
-  color: #fff;
+  background: #eef2f7;
+  color: #475569;
   font-weight: 700;
   box-shadow: none;
 }
@@ -1531,7 +1550,7 @@ main {
   align-items: center;
   gap: 4px;
   flex: 0 0 auto;
-  color: #fff;
+  color: #2563eb;
   font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
@@ -3888,7 +3907,7 @@ body:has(.about-page) #supportWidgetShell {
     width: 100%;
     gap: 7px;
     padding-top: 8px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid #e2e8f0;
   }
 
   .home-category-tabs button {

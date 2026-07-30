@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, ImageIcon, Plus, Star } from "lucide-react";
+import { ImageIcon, Scale, Star } from "lucide-react";
 import { useEffect, useState, type MouseEvent } from "react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import type { CatalogProduct } from "@/lib/catalog";
@@ -17,9 +17,13 @@ type ProductCardProps = {
 };
 
 function stockLabel(stockStatus?: string) {
-  if (stockStatus === "out_of_stock") return { label: "Hết hàng", className: "text-red-600" };
-  if (stockStatus === "preorder") return { label: "Đặt trước", className: "text-amber-600" };
-  return { label: "Còn hàng", className: "text-green-600" };
+  if (stockStatus === "out_of_stock") {
+    return { label: "Hết hàng", className: "text-red-600", dotClassName: "bg-red-600" };
+  }
+  if (stockStatus === "preorder") {
+    return { label: "Đặt trước", className: "text-amber-600", dotClassName: "bg-amber-500" };
+  }
+  return { label: "Còn hàng", className: "text-green-600", dotClassName: "bg-green-600" };
 }
 
 function productHref(product: CatalogProduct) {
@@ -30,21 +34,21 @@ function ProductRating({ rating = 0, reviewCount = 0 }: { rating?: number; revie
   const score = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 0;
 
   return (
-    <div className="mt-1 flex items-center gap-1">
+    <div className="flex items-center gap-1">
       <div className="flex items-center gap-0.5" aria-label={`${score} trên 5 sao`}>
         {Array.from({ length: 5 }, (_, index) => {
           const active = index + 1 <= Math.round(score);
           return (
             <Star
               key={index}
-              size={16}
+              size={14}
               className={active ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"}
               strokeWidth={1.5}
             />
           );
         })}
       </div>
-      <span className="text-sm text-slate-500">({reviewCount || 0})</span>
+      <span className="text-xs text-slate-500">({reviewCount || 0})</span>
     </div>
   );
 }
@@ -103,7 +107,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
     <article
       onClick={openProduct}
       className={cn(
-        "group relative flex min-h-[355px] min-w-0 cursor-pointer flex-col overflow-hidden rounded-[14px] border border-slate-200 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md",
+        "group relative flex min-h-[355px] min-w-0 cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 transition duration-200 hover:-translate-y-1 hover:border-transparent hover:shadow-xl",
         className,
       )}
     >
@@ -114,7 +118,7 @@ export function ProductCard({ product, className, isComparing = false, onCompare
             alt={product.title}
             width={250}
             height={170}
-            className="max-h-[148px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
+            className="max-h-[148px] w-auto object-contain transition-transform duration-300 group-hover:scale-[1.04]"
             sizes="(max-width: 640px) 45vw, (max-width: 1280px) 20vw, 220px"
             onError={() => setImage(undefined)}
           />
@@ -127,60 +131,73 @@ export function ProductCard({ product, className, isComparing = false, onCompare
       </Link>
 
       <div className="mt-3 flex flex-1 flex-col">
-        <h3 className="line-clamp-2 min-h-[46px] text-[15px] font-bold leading-[22px] text-slate-950">
+        <h3 className="line-clamp-2 min-h-[40px] text-sm font-medium leading-5 text-slate-900">
           <Link href={href} className="hover:text-primary-700">
             {product.title}
           </Link>
         </h3>
 
-        <ProductRating rating={product.rating} reviewCount={product.reviewCount} />
+        {/* Đánh giá luôn hiển thị (kể cả 0 sao) + tình trạng kho gọn về một dòng meta */}
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <ProductRating rating={product.rating} reviewCount={product.reviewCount} />
+          <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", stock.className)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", stock.dotClassName)} aria-hidden />
+            {stock.label}
+          </span>
+        </div>
 
-        {product.sku ? <p className="mt-1 text-sm text-slate-700">Mã SP: {product.sku}</p> : null}
-
-        <div className="mt-2 min-h-[72px]">
+        <div className="mt-2 min-h-[64px]">
           {product.compareAtPrice ? (
-            <p className="text-sm font-medium text-slate-400 line-through">{product.compareAtPrice}</p>
+            <p className="text-xs font-medium text-slate-400 line-through">{product.compareAtPrice}</p>
           ) : (
-            <div className="h-5" />
+            <div className="h-4" />
           )}
 
           <div className="mt-0.5 flex items-end justify-between gap-2">
-            <strong className="text-[22px] font-extrabold leading-7 text-red-600">{product.price || "Liên hệ"}</strong>
+            <strong className="text-[19px] font-extrabold leading-6 text-red-600">{product.price || "Liên hệ"}</strong>
             {product.discountBadge ? (
-              <span className="inline-flex h-7 items-center rounded-md bg-red-600 px-2 text-sm font-extrabold text-white">
+              <span className="inline-flex h-6 items-center rounded-md bg-red-600 px-1.5 text-xs font-extrabold text-white">
                 {product.discountBadge}
               </span>
             ) : null}
           </div>
 
-          {promotionCount > 0 ? <p className="mt-1 text-sm text-slate-700">{promotionCount} khuyến mại</p> : null}
+          {promotionCount > 0 ? <p className="mt-1 text-xs text-slate-600">{promotionCount} khuyến mại</p> : null}
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2 pt-3 text-sm">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-            <button
-              type="button"
-              onClick={toggleCompare}
-              className={cn(
-                "inline-flex items-center gap-1 font-medium transition",
-                selected ? "text-primary-700" : "text-primary-600 hover:text-primary-700",
-              )}
+        {/* Một CTA chính + nút so sánh dạng icon — thay cho cụm 3 hành động cũ */}
+        <div className="mt-auto flex items-center gap-2 pt-3">
+          {product.price ? (
+            <AddToCartButton
+              product={product}
+              label="Thêm vào giỏ"
+              ariaLabel={`Thêm ${product.title} vào giỏ`}
+              className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary-600 text-[13px] font-semibold text-white transition hover:bg-primary-700"
+            />
+          ) : (
+            <Link
+              href={href}
+              className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-slate-300 text-[13px] font-semibold text-slate-800 transition hover:border-primary-600 hover:text-primary-700"
             >
-              <Plus size={14} />
-              So sánh
-            </button>
-            <span className={cn("inline-flex items-center gap-1 font-medium", stock.className)}>
-              <Check size={14} strokeWidth={3} />
-              {stock.label}
-            </span>
-          </div>
+              Nhận báo giá nhanh
+            </Link>
+          )}
 
-          <AddToCartButton
-            product={product}
-            label=""
-            ariaLabel={`Thêm ${product.title} vào giỏ`}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-600 text-white transition hover:bg-primary-700"
-          />
+          <button
+            type="button"
+            onClick={toggleCompare}
+            aria-pressed={selected}
+            aria-label={selected ? `Bỏ ${product.title} khỏi so sánh` : `Thêm ${product.title} vào so sánh`}
+            title={selected ? "Bỏ khỏi so sánh" : "So sánh"}
+            className={cn(
+              "grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition",
+              selected
+                ? "border-primary-600 bg-primary-600 text-white"
+                : "border-slate-300 text-slate-500 hover:border-primary-600 hover:text-primary-700",
+            )}
+          >
+            <Scale size={16} />
+          </button>
         </div>
       </div>
     </article>

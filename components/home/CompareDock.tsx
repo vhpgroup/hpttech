@@ -15,6 +15,8 @@ function productKey(product: CatalogProduct) {
 
 type CompareDockProps = {
   items: CatalogProduct[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onAdd: (product: CatalogProduct) => void;
   onRemove: (product: CatalogProduct) => void;
   onClear: () => void;
@@ -22,12 +24,13 @@ type CompareDockProps = {
 
 export default function CompareDock({
   items,
+  open,
+  onOpenChange,
   onAdd,
   onRemove,
   onClear,
 }: CompareDockProps) {
   const [mounted, setMounted] = useState(false);
-  const [open, setOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerQuery, setPickerQuery] = useState("");
   const [products, setProducts] = useState<CatalogProduct[]>([]);
@@ -79,22 +82,25 @@ export default function CompareDock({
 
   const dock = (
     <div id="compareShell">
-      <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => setOpen(true)}>
-        So sánh ({items.length})
-      </button>
+      {/* Ẩn nút nổi khi chưa chọn sản phẩm nào — tránh chiếm góc màn hình với "(0)" */}
+      {items.length > 0 ? (
+        <button className="compare-fab visible" type="button" aria-label="Mở so sánh sản phẩm" onClick={() => onOpenChange(true)}>
+          So sánh ({items.length})
+        </button>
+      ) : null}
       <button
         className={`compare-overlay ${open ? "open" : ""}`}
         type="button"
         aria-label="Đóng so sánh"
         onClick={() => {
-          setOpen(false);
+          onOpenChange(false);
           setPickerOpen(false);
         }}
       />
       <aside className={`compare-drawer ${open ? "open" : ""}`} aria-hidden={open ? "false" : "true"}>
         <div className="compare-drawer-head">
           <h2>So sánh sản phẩm</h2>
-          <button className="compare-close" type="button" aria-label="Đóng so sánh" onClick={() => setOpen(false)}>
+          <button className="compare-close" type="button" aria-label="Đóng so sánh" onClick={() => onOpenChange(false)}>
             ×
           </button>
         </div>
@@ -116,7 +122,7 @@ export default function CompareDock({
                   type="button"
                   key={`empty-${index}`}
                   onClick={() => {
-                    setOpen(true);
+                    onOpenChange(true);
                     setPickerOpen(true);
                     setPickerQuery("");
                   }}
