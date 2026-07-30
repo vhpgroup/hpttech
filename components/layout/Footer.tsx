@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronUp, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowRight, ChevronUp } from "lucide-react";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref } from "@/lib/site-settings";
 
@@ -139,17 +139,17 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
           <h3 className="footer-heading mt-8">Trụ sở &amp; Văn phòng</h3>
           <ul className="mt-4 space-y-2.5 text-sm leading-6 text-slate-100/85">
             <li className="flex gap-3">
-              <MapPin className="mt-1 shrink-0 text-sky-300" size={16} aria-hidden="true" />
+              <Image src={`${R2}/icon-footer-dia-chi.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <span>{HPT_HEADQUARTERS}</span>
             </li>
             <li className="flex gap-3">
-              <Phone className="mt-1 shrink-0 text-sky-300" size={16} aria-hidden="true" />
+              <Image src={`${R2}/icon-footer-dien-thoai.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <a href={phoneHref(phone)} className="footer-link">
                 0967 286 889
               </a>
             </li>
             <li className="flex gap-3">
-              <Mail className="mt-1 shrink-0 text-sky-300" size={16} aria-hidden="true" />
+              <Image src={`${R2}/icon-footer-email.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <a href={`mailto:${settings.email}`} className="footer-link">
                 {settings.email}
               </a>
@@ -234,17 +234,15 @@ function FooterColumnBlock({ column }: { column: FooterColumn }) {
         {column.links.map((link) => (
           <li key={link.label}>
             <Link className="footer-link group flex items-center gap-3" href={link.href}>
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.1] transition group-hover:bg-white/[0.22]">
-                <Image
-                  src={link.iconSrc}
-                  alt=""
-                  aria-hidden="true"
-                  width={24}
-                  height={24}
-                  loading="lazy"
-                  className="h-6 w-6 object-contain transition group-hover:scale-110"
-                />
-              </span>
+              <Image
+                src={link.iconSrc}
+                alt=""
+                aria-hidden="true"
+                width={26}
+                height={26}
+                loading="lazy"
+                className="h-[26px] w-[26px] shrink-0 object-contain transition group-hover:scale-110"
+              />
               <span className="leading-5">{link.label}</span>
             </Link>
           </li>
