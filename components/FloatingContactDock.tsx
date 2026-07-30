@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Menu, SendHorizontal, X } from "lucide-react";
+import { Bot, Headset, Menu, Phone, SendHorizontal, X } from "lucide-react";
 import Image from "next/image";
 import { FormEvent, useMemo, useRef, useState } from "react";
 import { getProducts } from "@/lib/catalog";
@@ -26,6 +26,11 @@ const defaultLeadForm = (): LeadForm => ({
   phone: "",
   service: "",
 });
+
+function formatHotline(hotline: string) {
+  const digits = hotline.replace(/\D/g, "");
+  return /^\d{10}$/.test(digits) ? `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}` : hotline;
+}
 
 function getRelevantProducts(message: string) {
   const keywords = message
@@ -61,6 +66,7 @@ function getFriendlyChatError(message: unknown, hotline: string) {
 }
 
 export function FloatingContactDock({ settings }: { settings: Required<PublicSiteSettings> }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [leadFormOpen, setLeadFormOpen] = useState(false);
@@ -159,49 +165,82 @@ export function FloatingContactDock({ settings }: { settings: Required<PublicSit
     }
   };
 
+  const hotlineDigits = settings.hotline.replace(/\D/g, "");
+
+  const openChatbot = () => {
+    setMenuOpen(false);
+    setChatbotOpen(true);
+  };
+
   return (
     <div id="supportWidgetShell">
       <div className="support-widget">
-        <div className="support-stack open">
-          <a className="support-card zalo" href={settings.zalo} target="_blank" rel="noreferrer">
-            <span className="support-card-icon zalo">
-              <Image className="support-card-icon-zalo-image" src="/assets/icons/zalo.png" alt="Zalo" width={36} height={36} />
+        <div className={`support-menu ${menuOpen ? "open" : ""}`} aria-hidden={!menuOpen}>
+          <button className="support-menu-item" type="button" onClick={openChatbot} tabIndex={menuOpen ? 0 : -1}>
+            <span className="support-menu-icon ai">
+              <Bot size={20} />
             </span>
-            <span className="support-card-copy">
-              <strong>Tư vấn Zalo</strong>
-              <small>(8:30 - 17:30)</small>
-            </span>
-          </a>
-
-          <a className="support-card facebook" href={settings.facebook} target="_blank" rel="noreferrer">
-            <span className="support-card-icon facebook">
-              <Image className="support-card-icon-messenger-image" src="/assets/icons/messenger.png" alt="Messenger" width={36} height={36} />
-            </span>
-            <span className="support-card-copy">
-              <strong>Chat Facebook</strong>
-              <small>(8:30 - 17:30)</small>
-            </span>
-          </a>
-
-          <button className="support-card chatbot" type="button" onClick={() => setChatbotOpen(true)}>
-            <Image
-              className="support-card-chatbot-banner"
-              src="/assets/icons/bot.png"
-              alt="Hỗ trợ Online"
-              width={66}
-              height={66}
-              onError={(event) => {
-                event.currentTarget.style.display = "none";
-                const fallback = event.currentTarget.nextElementSibling;
-                if (fallback instanceof HTMLElement) fallback.style.display = "flex";
-              }}
-            />
-            <span className="support-card-chatbot-fallback" style={{ display: "none" }}>
-              <Bot />
-              <strong>Hỗ trợ Online</strong>
+            <span className="support-menu-copy">
+              <strong>Chat với AI HPT</strong>
+              <small>Phản hồi ngay 24/7</small>
             </span>
           </button>
+
+          <a
+            className="support-menu-item"
+            href={settings.zalo}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMenuOpen(false)}
+            tabIndex={menuOpen ? 0 : -1}
+          >
+            <span className="support-menu-icon">
+              <Image src="/assets/icons/zalo.png" alt="Zalo" width={38} height={38} />
+            </span>
+            <span className="support-menu-copy">
+              <strong>Tư vấn qua Zalo</strong>
+              <small>8:30 - 17:30</small>
+            </span>
+          </a>
+
+          <a
+            className="support-menu-item"
+            href={settings.facebook}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMenuOpen(false)}
+            tabIndex={menuOpen ? 0 : -1}
+          >
+            <span className="support-menu-icon">
+              <Image src="/assets/icons/messenger.png" alt="Messenger" width={38} height={38} />
+            </span>
+            <span className="support-menu-copy">
+              <strong>Facebook Messenger</strong>
+              <small>8:30 - 17:30</small>
+            </span>
+          </a>
+
+          <a className="support-menu-item" href={`tel:${hotlineDigits}`} onClick={() => setMenuOpen(false)} tabIndex={menuOpen ? 0 : -1}>
+            <span className="support-menu-icon phone">
+              <Phone size={19} />
+            </span>
+            <span className="support-menu-copy">
+              <strong>Gọi {formatHotline(settings.hotline)}</strong>
+              <small>Hotline hỗ trợ</small>
+            </span>
+          </a>
         </div>
+
+        <button
+          type="button"
+          className={`support-launcher ${menuOpen ? "open" : ""}`}
+          aria-expanded={menuOpen}
+          aria-label={menuOpen ? "Đóng menu tư vấn" : "Mở menu tư vấn"}
+          onClick={() => setMenuOpen((prev) => !prev)}
+        >
+          {menuOpen ? <X size={19} /> : <Headset size={19} />}
+          <span>Tư vấn HPT</span>
+        </button>
       </div>
 
       <div className={`support-chatbot ${chatbotOpen ? "open" : ""}`}>
