@@ -18,6 +18,7 @@ import {
 import { toHomeCardProduct } from "@/lib/home-category-sections";
 import { getProductSearchPageFromPayload } from "@/lib/catalog-payload";
 import { getPublishedLandingPages, type LandingPageDoc } from "@/lib/landing-pages";
+import type { Payload } from "payload";
 
 // ---------------------------------------------------------------------------
 // Types (hợp đồng — KHÔNG đổi tên, Frontend import chính xác những tên này)
@@ -357,23 +358,129 @@ async function fetchGroupByProductType(
 }
 
 // ---------------------------------------------------------------------------
-// Query: nhóm theo category slug (Cách A — tái dùng getProductSearchPageFromPayload)
+// Helper BFS: thu thập toàn bộ id danh mục hậu duệ (dùng cho cây 3+ tầng)
 // ---------------------------------------------------------------------------
 
+/**
+ * BFS lấy id của danh mục gốc (theo slug) và TẤT CẢ hậu duệ của nó.
+ *
+ * Lý do cần BFS thay vì filter 1–2 tầng:
+ * - thiet-bi-mang (id 19) và thiet-bi-hinh-anh (id 133) có cây SÂU 3 TẦNG:
+ *   root → con cấp 1 (0 SP trực tiếp) → cháu (chứa toàn bộ 679/1.831 SP).
+ * - getProductSearchPageFromPayload dùng SQL join tối đa ppc.slug (3 join),
+ *   nhưng với cháu ở tầng 4 (root+3 cấp) vẫn bỏ sót; BFS an toàn cho mọi độ sâu.
+ * - Mỗi vòng lặp chỉ gọi 1 query categories (limit 200, depth 0, select id),
+ *   dừng khi không còn con — tối đa 4 vòng để tránh vòng lặp vô hạn.
+ *
+ * @param payload - Payload client đã khởi tạo
+ * @param rootSlug - Slug danh mục gốc cần quét hậu duệ
+ * @returns Mảng id số nguyên gồm root + mọi hậu duệ; rỗng nếu không tìm thấy root
+ */
+async function fetchAllDescendantCategoryIds(
+  payload: Payload,
+  rootSlug: string,
+): Promise<(string | number)[]> {
+  // Bước 1: tìm id danh mục gốc theo slug
+  const rootRes = await payload.find({
+    collection: "categories",
+    depth: 0,
+    limit: 1,
+    select: { id: true },
+    where: { slug: { equals: rootSlug } },
+  });
+
+  const rootDoc = rootRes.docs[0] as { id?: string | number } | undefined;
+  if (!rootDoc?.id) return [];
+
+  const rootId = rootDoc.id;
+  const allIds: (string | number)[] = [rootId];
+  let frontier: (string | number)[] = [rootId];
+
+  // Bước 2: BFS tối đa 4 cấp để tránh vòng lặp vô hạn (cây thực tế ≤ 4 tầng)
+  const MAX_BFS_DEPTH = 4;
+  for (let depth = 0; depth < MAX_BFS_DEPTH && frontier.length > 0; depth++) {
+    const childRes = await payload.find({
+      collection: "categories",
+      depth: 0,
+      limit: 200,
+      select: { id: true },
+      where: { parent: { in: frontier } },
+    });
+
+    const childDocs = childRes.docs as { id?: string | number }[];
+    const childIds = childDocs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+
+    if (!childIds.length) break;
+    allIds.push(...childIds);
+    frontier = childIds;
+  }
+
+  return allIds;
+}
+
+// ---------------------------------------------------------------------------
+// Query: nhóm theo category slug — quét đủ mọi tầng qua BFS hậu duệ
+// ---------------------------------------------------------------------------
+
+/**
+ * Lấy sản phẩm cho 1 nhóm hub theo danh mục gốc (slug), quét đủ cây 3+ tầng.
+ *
+ * Thay thế cách cũ dùng getProductSearchPageFromPayload({category}) vì cách đó
+ * chỉ lọc tối đa 3 join SQL (c/pc/ppc); các cây sâu như thiet-bi-mang (679 SP ở
+ * tầng cháu) và thiet-bi-hinh-anh (1.831 SP) bị trả về rỗng và mất khỏi hub.
+ *
+ * Giải pháp: BFS qua fetchAllDescendantCategoryIds → query products 1 lần với
+ * "category in [root + toàn bộ hậu duệ]".
+ */
 async function fetchGroupByCategory(
   groupId: string,
   categorySlug: string,
 ): Promise<{ products: CatalogProduct[]; totalCount: number }> {
   try {
-    const result = await getProductSearchPageFromPayload({
-      category: categorySlug,
+    const payload = await getPayloadClient();
+
+    // BFS: lấy id gốc + mọi danh mục con/cháu ở bất kỳ độ sâu nào
+    const allCategoryIds = await fetchAllDescendantCategoryIds(payload, categorySlug);
+    if (!allCategoryIds.length) return { products: [], totalCount: 0 };
+
+    // Query sản phẩm 1 lần với toàn bộ id danh mục hậu duệ
+    const res = await payload.find({
+      collection: "products",
+      depth: 1,
       limit: HUB_LIMIT_PER_GROUP,
-      sort: "newest",
+      select: HUB_PRODUCT_SELECT,
+      sort: "-createdAt",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+          { category: { in: allCategoryIds } },
+        ],
+      },
     });
-    const products = result.products
+
+    const docs = res.docs as unknown as PayloadDoc[];
+    const totalCount = res.totalDocs ?? 0;
+    if (!docs.length) return { products: [], totalCount };
+
+    const ids = docs
+      .map((doc) => doc.id)
+      .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
+    const projections = await loadCanonicalCommercialProjections(payload, ids);
+
+    const products = docs
+      .map((doc) =>
+        toHubCardProduct(
+          doc,
+          doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
+        ),
+      )
       .filter((product) => product.title && product.slug)
       .map(toHomeCardProduct);
-    return { products, totalCount: result.totalProducts };
+
+    return { products, totalCount };
   } catch (error) {
     handlePayloadReadError(`san-pham-hub:${groupId}`, error);
     return { products: [], totalCount: 0 };
