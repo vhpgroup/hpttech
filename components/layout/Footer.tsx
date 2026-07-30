@@ -19,7 +19,8 @@ const R2 = "/api/r2-media";
 type FooterLink = {
   label: string;
   href: string;
-  iconSrc: string;
+  // Optional: cột "Sản phẩm" cố tình không dùng icon (user chốt 30/07) → link chữ trơn.
+  iconSrc?: string;
 };
 
 type FooterColumn = {
@@ -31,22 +32,24 @@ type FooterColumn = {
 const footerColumns: FooterColumn[] = [
   {
     // Mirror menu trục sidebar (HPT_DATA/CategoryPanel): chỉ các mục có slug category
-    // thật ("link chuẩn") — cùng tên, cùng icon, cùng đích với sidebar. Các mục mồ côi
+    // thật ("link chuẩn") — cùng tên, cùng đích với sidebar. Các mục mồ côi
     // (slug rỗng: hội nghị, camera & an ninh, giáo dục, lưu trữ, dịch vụ, số hóa,
     // máy chiếu, UPS) KHÔNG đưa vào footer cho tới khi có category thật.
+    // 30/07: bỏ icon 3D ở cột này theo yêu cầu user → link chữ trơn (không set iconSrc).
+    // Bộ icon-danh-muc-* vẫn được sidebar/mega-menu dùng, không xoá khỏi R2.
     title: "Sản phẩm",
     links: [
-      { label: "Máy scan", href: "/may-scan", iconSrc: `${R2}/icon-danh-muc-may-scan.png` },
-      { label: "Máy in", href: "/may-in", iconSrc: `${R2}/icon-danh-muc-may-in.png` },
-      { label: "Máy Photocopy", href: "/may-photocopy", iconSrc: `${R2}/icon-danh-muc-photocopy.png` },
-      { label: "Laptop Gaming - Đồ Họa", href: "/laptop-gaming-do-hoa", iconSrc: `${R2}/icon-danh-muc-laptop-gaming.png` },
-      { label: "Laptop văn phòng", href: "/laptop", iconSrc: `${R2}/icon-danh-muc-laptop-van-phong.png` },
-      { label: "Máy tính đồng bộ - Máy chủ", href: "/may-tinh-dong-bo-may-chu", iconSrc: `${R2}/icon-danh-muc-pc-may-chu.png` },
-      { label: "Thiết bị mạng", href: "/thiet-bi-mang", iconSrc: `${R2}/icon-danh-muc-thiet-bi-mang.png` },
-      { label: "Thiết bị văn phòng", href: "/thiet-bi-van-phong", iconSrc: `${R2}/icon-danh-muc-thiet-bi-van-phong.png` },
-      { label: "Phần mềm bản quyền", href: "/phan-mem-ban-quyen", iconSrc: `${R2}/icon-danh-muc-phan-mem.png` },
-      { label: "Thiết bị hình ảnh", href: "/thiet-bi-hinh-anh", iconSrc: `${R2}/icon-danh-muc-so-hoa.png` },
-      { label: "Mực in & Phụ kiện", href: "/muc-in-phu-kien", iconSrc: `${R2}/icon-danh-muc-muc-in.png` },
+      { label: "Máy scan", href: "/may-scan" },
+      { label: "Máy in", href: "/may-in" },
+      { label: "Máy Photocopy", href: "/may-photocopy" },
+      { label: "Laptop Gaming - Đồ Họa", href: "/laptop-gaming-do-hoa" },
+      { label: "Laptop văn phòng", href: "/laptop" },
+      { label: "Máy tính đồng bộ - Máy chủ", href: "/may-tinh-dong-bo-may-chu" },
+      { label: "Thiết bị mạng", href: "/thiet-bi-mang" },
+      { label: "Thiết bị văn phòng", href: "/thiet-bi-van-phong" },
+      { label: "Phần mềm bản quyền", href: "/phan-mem-ban-quyen" },
+      { label: "Thiết bị hình ảnh", href: "/thiet-bi-hinh-anh" },
+      { label: "Mực in & Phụ kiện", href: "/muc-in-phu-kien" },
     ],
   },
   {
@@ -239,15 +242,17 @@ function FooterColumnBlock({ column }: { column: FooterColumn }) {
         {column.links.map((link) => (
           <li key={link.label}>
             <Link className="footer-link group flex items-center gap-3" href={link.href}>
-              <Image
-                src={link.iconSrc}
-                alt=""
-                aria-hidden="true"
-                width={26}
-                height={26}
-                loading="lazy"
-                className="h-[26px] w-[26px] shrink-0 object-contain transition group-hover:scale-110"
-              />
+              {link.iconSrc ? (
+                <Image
+                  src={link.iconSrc}
+                  alt=""
+                  aria-hidden="true"
+                  width={26}
+                  height={26}
+                  loading="lazy"
+                  className="h-[26px] w-[26px] shrink-0 object-contain transition group-hover:scale-110"
+                />
+              ) : null}
               <span className="leading-5">{link.label}</span>
             </Link>
           </li>
