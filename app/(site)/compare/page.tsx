@@ -1,10 +1,14 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Scale } from "lucide-react";
+import { ArrowLeft, Scale } from "lucide-react";
 import { getProductsBySlugsFromPayload } from "@/lib/catalog-payload";
 import type { CatalogProduct } from "@/lib/catalog";
 import { pageMetadata } from "@/lib/seo";
 import { SubpageHeader } from "@/components/layout/SubpageHeader";
+import CompareTableClient, {
+  type CompareGroup,
+  type CompareItem,
+  type CompareRow,
+} from "@/components/compare/CompareTableClient";
 
 export const revalidate = 300;
 
@@ -39,7 +43,7 @@ type ComparePageProps = {
 function normalizedLabel(value: string) {
   return value
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/đ/gi, "d")
     .replace(/\s+/g, " ")
     .trim()
@@ -58,7 +62,18 @@ function specsObject(item: CatalogProduct) {
   return specs;
 }
 
-function getCompareRows(items: CatalogProduct[]) {
+function rowOf(label: string, values: string[]): CompareRow {
+  const present = values.filter((value) => value.trim().length > 0).length;
+  const same = present === values.length && new Set(values).size === 1;
+  return { label, values, same, sparse: present < 2 };
+}
+
+/**
+ * Gom thuộc tính thành nhóm: Thông tin chung → Thông số chính (theo thứ tự ưu tiên)
+ * → Thông số khác (alphabet). Giá không còn là một hàng — nó nằm ở header ghim
+ * cùng CTA. Giá trị thiếu để trống, client hiển thị "—" thay vì "Đang cập nhật".
+ */
+function buildCompareGroups(items: CatalogProduct[]): CompareGroup[] {
   const itemSpecs = items.map(specsObject);
   const labels = new Map<string, string>();
   itemSpecs.forEach((specs) => {
@@ -68,33 +83,82 @@ function getCompareRows(items: CatalogProduct[]) {
   });
 
   const preferredKeys = SPEC_FALLBACK_ORDER.map(normalizedLabel);
-  const orderedKeys = [
-    ...preferredKeys.filter((key) => labels.has(key)),
-    ...Array.from(labels.keys())
-      .filter((key) => !preferredKeys.includes(key))
-      .sort((a, b) =>
-        (labels.get(a) || a).localeCompare(labels.get(b) || b, "vi"),
-      ),
+  const mainKeys = preferredKeys.filter((key) => labels.has(key));
+  const otherKeys = Array.from(labels.keys())
+    .filter((key) => !preferredKeys.includes(key))
+    .sort((a, b) => (labels.get(a) || a).localeCompare(labels.get(b) || b, "vi"));
+
+  const specRow = (key: string) =>
+    rowOf(labels.get(key) || key, itemSpecs.map((specs) => specs.get(key)?.value || ""));
+
+  const groups: CompareGroup[] = [
+    {
+      name: "Thông tin chung",
+      rows: [
+        rowOf("Thương hiệu", items.map((item) => item.brand || "")),
+        rowOf("Danh mục", items.map((item) => item.category || "")),
+      ],
+    },
   ];
 
-  const rows: [string, string[]][] = [
-    ["Thương hiệu", items.map((item) => item.brand || "Đang cập nhật")],
-    ["Danh mục", items.map((item) => item.category || "Đang cập nhật")],
-  ];
-
-  if (orderedKeys.length) {
-    orderedKeys.forEach((key) => {
-      rows.push([
-        labels.get(key) || key,
-        itemSpecs.map((specs) => specs.get(key)?.value || "Đang cập nhật"),
-      ]);
+  if (mainKeys.length) {
+    groups.push({ name: "Thông số chính", rows: mainKeys.map(specRow) });
+  }
+  if (otherKeys.length) {
+    groups.push({ name: "Thông số khác", rows: otherKeys.map(specRow) });
+  }
+  if (!mainKeys.length && !otherKeys.length) {
+    groups.push({
+      name: "Mô tả",
+      rows: [rowOf("Mô tả", items.map((item) => item.detail || ""))],
     });
-  } else {
-    rows.push(["Mô tả", items.map((item) => item.detail || "Đang cập nhật")]);
   }
 
-  rows.push(["Giá", items.map((item) => item.price || "Liên hệ")]);
-  return rows;
+  return groups;
+}
+
+function buildCompareItems(items: CatalogProduct[]): CompareItem[] {
+  return items.map((item) => {
+    const image = item.images?.[0]?.url || item.image || "";
+    const href = item.href || (item.slug ? `/san-pham/${item.slug}` : "/san-pham");
+
+    return {
+      key: item.slug || item.title,
+      title: item.title || "Sản phẩm",
+      slug: item.slug || "",
+      href,
+      image,
+      price: item.price || "",
+      compareAtPrice: item.compareAtPrice || "",
+      // Sản phẩm chưa có giá (Liên hệ) → client hiển thị nút "Nhận báo giá nhanh" thay vì thêm giỏ.
+      cart: item.price
+        ? {
+            id: item.id,
+            slug: item.slug,
+            href,
+            title: item.title,
+            brand: item.brand,
+            category: item.category,
+            image,
+            images: item.images,
+            price: item.price,
+          }
+        : null,
+      // Payload tối thiểu cho Quote Builder (popup báo giá) — đủ trường mà QuoteDocument dùng.
+      quote: item.price
+        ? null
+        : {
+            title: item.title || "Sản phẩm",
+            slug: item.slug || "",
+            sku: item.sku,
+            detail: item.detail,
+            image,
+            price: item.price,
+            warranty: item.warranty,
+            specs: item.specs,
+          },
+    };
+  });
 }
 
 function EmptyCompare() {
@@ -118,7 +182,6 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
     ? params.products.split(",").map((key) => key.trim()).filter(Boolean)
     : [];
   const items = requestedKeys.length ? await getProductsBySlugsFromPayload(requestedKeys, 8) : [];
-  const rows = getCompareRows(items);
 
   return (
     <main className="compare-page-main">
@@ -149,45 +212,7 @@ export default async function ComparePage({ searchParams }: ComparePageProps) {
         <EmptyCompare />
       ) : (
         <div className="compare-page-content">
-          <div className="compare-page-table-wrap">
-            <table className="compare-page-table">
-              <thead>
-                <tr>
-                  <th>Thuộc tính</th>
-                  {items.map((item) => {
-                    const image = item.images?.[0]?.url || item.image;
-
-                    return (
-                      <th key={item.slug || item.title}>
-                        {image ? <Image src={image} alt={item.title || "Sản phẩm"} width={120} height={90} sizes="120px" /> : null}
-                        <strong>{item.title || "Sản phẩm"}</strong>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(([label, values]) => (
-                  <tr key={label}>
-                    <td>{label}</td>
-                    {values.map((value, index) => (
-                      <td key={`${label}-${index}`}>{value}</td>
-                    ))}
-                  </tr>
-                ))}
-                <tr>
-                  <td>Liên kết</td>
-                  {items.map((item) => (
-                    <td key={item.slug || item.title}>
-                      <Link href={item.href || `/san-pham/${item.slug}`} className="compare-product-link">
-                        Xem sản phẩm <ExternalLink size={14} />
-                      </Link>
-                    </td>
-                  ))}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <CompareTableClient items={buildCompareItems(items)} groups={buildCompareGroups(items)} />
         </div>
       )}
     </main>

@@ -14,7 +14,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
@@ -348,34 +347,8 @@ export function ProductQuickInfoTrigger({
   );
 }
 
-function availableTabs(config: HomeCategorySectionConfig, products: CatalogProduct[]) {
-  if (config.tabMode === "none") return [];
-  const values = products
-    .map((product) => (config.tabMode === "brand" ? product.brand : product.category))
-    .filter((value): value is string => Boolean(value?.trim()));
-  const unique = Array.from(new Set(values));
-  if (!config.selectedTabs?.length) return unique;
-  return config.selectedTabs.filter((tab) => unique.includes(tab));
-}
-
-const BRAND_COLORS: Record<string, string> = {
-  Brother: "#0067b1",
-  Canon: "#cc0000",
-  Epson: "#003399",
-  Fujitsu: "#e60012",
-  HP: "#0096d6",
-  Kodak: "#d89a00",
-  Pantum: "#e53935",
-  Ricoh: "#d71920",
-  Sharp: "#e60012",
-  Toshiba: "#e31b23",
-  Xerox: "#d9222a",
-  "Konica Minolta": "#009fe3",
-};
-
-function brandButtonStyle(brand: string) {
-  return { "--brand-color": BRAND_COLORS[brand] || "#31527c" } as CSSProperties;
-}
+// Tabs lọc thương hiệu/danh mục trong thanh section đã gỡ theo redesign 30/07
+// (mọi section đều đặt tabMode: "none" nên trước đó đây là code chết không render).
 
 function HomeCategoryCarousel({
   config,
@@ -385,26 +358,17 @@ function HomeCategoryCarousel({
   products: CatalogProduct[];
 }) {
   const allProducts = useMemo(() => products.filter(config.match), [config, products]);
-  const tabs = useMemo(() => availableTabs(config, allProducts), [allProducts, config]);
-  const [activeTab, setActiveTab] = useState("all");
   const [paused, setPaused] = useState(false);
-  const [showAllTabs, setShowAllTabs] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [cardsPerView, setCardsPerView] = useState(HOME_CATEGORY_PAGE_SIZE);
   const railRef = useRef<HTMLDivElement>(null);
   const autoplayStartedRef = useRef(false);
   const autoplayIntervalRef = useRef<number | null>(null);
-  const visibleTabs = showAllTabs ? tabs : tabs.slice(0, 5);
 
-  const visibleProducts = useMemo(() => {
-    const matchedProducts =
-      activeTab === "all"
-        ? allProducts
-        : allProducts.filter((product) =>
-            config.tabMode === "brand" ? product.brand === activeTab : product.category === activeTab,
-          );
-    return matchedProducts.slice(0, HOME_CATEGORY_PRODUCT_LIMIT);
-  }, [activeTab, allProducts, config.tabMode]);
+  const visibleProducts = useMemo(
+    () => allProducts.slice(0, HOME_CATEGORY_PRODUCT_LIMIT),
+    [allProducts],
+  );
   const carouselProducts = useMemo(
     () => loopProductsForCarousel(visibleProducts, cardsPerView),
     [cardsPerView, visibleProducts],
@@ -493,7 +457,7 @@ function HomeCategoryCarousel({
 
   useEffect(() => {
     railRef.current?.scrollTo({ left: 0 });
-  }, [activeTab, carouselProducts.length]);
+  }, [carouselProducts.length]);
 
   useEffect(
     () => () => {
@@ -504,45 +468,10 @@ function HomeCategoryCarousel({
 
   if (!allProducts.length) return null;
 
-  const selectTab = (tab: string) => {
-    setActiveTab(tab);
-  };
-
   return (
     <section className="home-category-section" aria-labelledby={`home-category-${config.id}`}>
       <div className={`home-category-bar ${paused ? "is-paused" : ""}`}>
         <h2 id={`home-category-${config.id}`}>{config.title}</h2>
-        {tabs.length ? (
-          <div className="home-category-tabs" aria-label={`Lọc ${config.title}`}>
-            <button
-              type="button"
-              className={activeTab === "all" ? "active" : ""}
-              onClick={() => selectTab("all")}
-            >
-              Tất cả
-            </button>
-            {visibleTabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                className={`home-brand-tab ${activeTab === tab ? "active" : ""}`}
-                style={brandButtonStyle(tab)}
-                onClick={() => selectTab(tab)}
-              >
-                <span>{tab}</span>
-              </button>
-            ))}
-            {tabs.length > 5 ? (
-              <button
-                type="button"
-                className="home-category-tabs-more"
-                onClick={() => setShowAllTabs((current) => !current)}
-              >
-                {showAllTabs ? "Thu gọn" : "Xem thêm"}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
         {/* Landing page rút gọn /<slug> của danh mục (kiểu An Phát) — cùng đích với
             menu Danh mục, thay cho trang lọc /san-pham?category=... trước đây. */}
         <Link href={`/${encodeURIComponent(config.categoryParam)}`} className="home-category-all">
