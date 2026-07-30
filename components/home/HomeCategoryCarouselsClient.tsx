@@ -1,25 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {  Check,
-  ChevronLeft,
-  ChevronRight,
-  Gift} from "lucide-react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CatalogProduct } from "@/lib/catalog";
 import { HOME_CATEGORY_SECTION_DEFS, isHomeDeviceType } from "@/lib/home-category-sections";
-import { ProductCard } from "@/components/product/ProductCard";
+import { QuickInfoProductCard } from "@/components/product/ProductQuickInfoPopup";
 
 type TabMode = "brand" | "category" | "none";
 
@@ -34,16 +20,6 @@ type HomeCategorySectionConfig = {
   autoplay: boolean;
   match: (product: CatalogProduct) => boolean;
 };
-
-type ProductInfoPopup = {
-  product: CatalogProduct;
-  anchor: DOMRect;
-};
-
-const ProductPopupContext = createContext<{
-  showPopup: (product: CatalogProduct, anchor: DOMRect) => void;
-  hidePopup: (immediate?: boolean) => void;
-} | null>(null);
 
 const HOME_CATEGORY_SECTIONS: HomeCategorySectionConfig[] = [
   {
@@ -95,15 +71,6 @@ const HOME_CATEGORY_PAGE_SIZE = 5;
 const HOME_CATEGORY_CARD_GAP = 16;
 const HOME_CATEGORY_AUTOPLAY_MS = 2500;
 
-function normalizeText(value?: string) {
-  return (value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
-    .toLowerCase();
-}
-
 function productKey(product: CatalogProduct) {
   return String(product.id || product.slug || product.sku || product.title);
 }
@@ -113,238 +80,6 @@ function loopProductsForCarousel(products: CatalogProduct[], cardsPerView: numbe
 
   const targetCount = Math.max(cardsPerView + 1, products.length * 2);
   return Array.from({ length: targetCount }, (_, index) => products[index % products.length]);
-}
-
-function popupSpecs(product: CatalogProduct) {
-  const specs = product.specs ?? [];
-  const preferred = [
-    "cpu",
-    "vga",
-    "màn hình",
-    "ram",
-    "chức năng",
-    "adf",
-    "kết nối",
-    "tốc độ",
-    "độ phân giải",
-  ];
-
-  const selected = preferred
-    .map((keyword) =>
-      specs.find((spec) => normalizeText(spec.label).includes(normalizeText(keyword))),
-    )
-    .filter((item): item is { label: string; value: string } => Boolean(item));
-
-  const seen = new Set<string>();
-  const unique = selected.filter((item) => {
-    const key = normalizeText(item.label);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  if (unique.length) return unique.slice(0, 4);
-  return specs.slice(0, 4);
-}
-
-export function ProductInfoPopupLayer({ children }: { children: ReactNode }) {
-  const [popup, setPopup] = useState<ProductInfoPopup | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const showTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pathname = usePathname();
-
-  useEffect(() => setMounted(true), []);
-  useEffect(() => setPopup(null), [pathname]);
-  useEffect(
-    () => () => {
-      if (showTimerRef.current) clearTimeout(showTimerRef.current);
-      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-    },
-    [],
-  );
-
-  const value = useMemo(
-    () => ({
-      showPopup: (product: CatalogProduct, anchor: DOMRect) => {
-        if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-        if (showTimerRef.current) clearTimeout(showTimerRef.current);
-        showTimerRef.current = setTimeout(() => setPopup({ product, anchor }), 250);
-      },
-      hidePopup: (immediate = false) => {
-        if (showTimerRef.current) clearTimeout(showTimerRef.current);
-        if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
-        if (immediate) {
-          setPopup(null);
-          return;
-        }
-        hideTimerRef.current = setTimeout(() => setPopup(null), 120);
-      },
-    }),
-    [],
-  );
-
-  return (
-    <ProductPopupContext.Provider value={value}>
-      {children}
-      {mounted && popup
-        ? createPortal(
-            <ProductInfoPopupCard key={productKey(popup.product)} popup={popup} />,
-            document.body,
-          )
-        : null}
-    </ProductPopupContext.Provider>
-  );
-}
-
-function ProductInfoPopupCard({ popup }: { popup: ProductInfoPopup }) {
-  const { product, anchor } = popup;
-  const promotions = product.promotions ?? [];
-  const featuredPromotion = promotions[0];
-  const promoItems = [
-    ...(featuredPromotion?.benefits?.filter(Boolean) ?? []),
-    ...(featuredPromotion?.description ? [featuredPromotion.description] : []),
-  ].slice(0, 4);
-  const quickSpecs = popupSpecs(product);
-  const popupWidth = 390;
-  const viewportWidth = typeof window === "undefined" ? 1440 : window.innerWidth;
-  const viewportHeight = typeof window === "undefined" ? 900 : window.innerHeight;
-  const openLeft = anchor.right + popupWidth + 16 > viewportWidth;
-  const left = openLeft
-    ? Math.max(12, anchor.left - popupWidth - 12)
-    : Math.min(viewportWidth - popupWidth - 12, anchor.right + 12);
-  const top = Math.max(12, Math.min(anchor.top, viewportHeight - 560));
-
-  return (
-    <aside
-      className="pointer-events-none fixed z-[95] hidden w-[390px] animate-[popup-enter_180ms_ease-out] overflow-hidden rounded-[18px] border border-slate-200 bg-white text-slate-800 shadow-[0_24px_70px_-28px_rgba(15,23,42,0.55)] md:block"
-      style={{ left, top }}
-      aria-label={`Thông tin nhanh ${product.title}`}
-    >
-      <header className="bg-gradient-to-r from-primary-600 to-primary-400 px-4 py-3.5 text-white">
-        <h3 className="text-[15px] font-extrabold leading-6">{product.title}</h3>
-      </header>
-
-      {featuredPromotion ? (
-        <section className="mx-2 mt-2 border border-red-300 bg-white">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#e53935] to-[#f36b3c] px-3 py-2 text-sm font-black uppercase tracking-wide text-white [clip-path:polygon(0_0,100%_0,88%_100%,0_100%)]">
-            <Gift size={15} className="shrink-0" />
-            Khuyến mại
-          </div>
-          <div className="space-y-2 px-3 pb-3 pt-3 text-[15px] leading-6 text-slate-700">
-            <p className="font-bold text-slate-800">{featuredPromotion.title}</p>
-            {promoItems.map((item, index) => (
-              <div key={`${item}-${index}`} className="flex gap-2">
-                <span className="mt-1 text-[12px] leading-none text-slate-700">✦</span>
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <div className="space-y-2 px-4 py-3">
-        {quickSpecs.map((spec) => (
-          <div key={`${spec.label}-${spec.value}`} className="flex gap-2 text-[15px] leading-6 text-slate-700">
-            <Check size={16} className="mt-1 shrink-0 rounded-full bg-accent-500 p-[2px] text-white" strokeWidth={3} />
-            <span>
-              <strong>{spec.label}:</strong> {spec.value}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <footer className="px-4 pb-4 pt-1">
-        {product.compareAtPrice ? (
-          <p className="text-[15px] text-slate-700">
-            Giá niêm yết:{" "}
-            <span className="font-semibold text-slate-400 line-through">{product.compareAtPrice}</span>
-          </p>
-        ) : null}
-
-        <div className="mt-1 flex items-end justify-between gap-3">
-          <p className="text-[15px] text-slate-700">
-            Giá khuyến mại:{" "}
-            <strong className="text-[18px] font-extrabold text-red-600">{product.price || "Liên hệ"}</strong>
-          </p>
-
-          {product.discountBadge ? (
-            <span className="inline-flex h-12 min-w-12 items-center justify-center rounded-full border-2 border-amber-300 bg-gradient-to-br from-amber-400 to-accent-500 px-2 text-sm font-black text-white shadow-sm">
-              {product.discountBadge}
-            </span>
-          ) : null}
-        </div>
-      </footer>
-    </aside>
-  );
-}
-
-export function QuickInfoProductCard({
-  product,
-  onCompare,
-}: {
-  product: CatalogProduct;
-  onCompare?: (product: CatalogProduct) => void;
-}) {
-  return (
-    <ProductQuickInfoTrigger product={product}>
-      <ProductCard
-        product={product}
-        onCompare={onCompare}
-        className="h-full home-category-product-card"
-      />
-    </ProductQuickInfoTrigger>
-  );
-}
-
-export function ProductQuickInfoTrigger({
-  product,
-  children,
-  className = "relative h-full",
-}: {
-  product: CatalogProduct;
-  children: ReactNode;
-  className?: string;
-}) {
-  const popupContext = useContext(ProductPopupContext);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const show = () => {
-    if (!wrapperRef.current) return;
-    popupContext?.showPopup(product, wrapperRef.current.getBoundingClientRect());
-  };
-
-  return (
-    <div
-      ref={wrapperRef}
-      className={className}
-      onClickCapture={(event) => {
-        if (
-          event.target instanceof Element &&
-          event.target.closest("a[href], button, [data-product-card-actions]")
-        ) {
-          popupContext?.hidePopup(true);
-        }
-      }}
-      onPointerMove={(event) => {
-        if (
-          event.pointerType === "mouse" &&
-          event.target instanceof Element &&
-          event.target.closest("[data-product-card-actions]")
-        ) {
-          popupContext?.hidePopup(true);
-        }
-      }}
-      onPointerEnter={(event) => {
-        if (event.pointerType === "mouse") show();
-      }}
-      onPointerLeave={(event) => {
-        if (event.pointerType === "mouse") popupContext?.hidePopup();
-      }}
-    >
-      {children}
-    </div>
-  );
 }
 
 // Tabs lọc thương hiệu/danh mục trong thanh section đã gỡ theo redesign 30/07

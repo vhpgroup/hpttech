@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import type { RelatedAIProduct } from "@/lib/ai-search/mock-data";
-import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
+import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
 
 type RelatedProductsProps = {
   products: RelatedAIProduct[];

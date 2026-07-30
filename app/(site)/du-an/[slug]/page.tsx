@@ -14,7 +14,7 @@ import {
   type PublicProject,
 } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
-import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
+import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
 import { PayloadRichText } from "@/components/rich-text/PayloadRichText";
 
 export const revalidate = 300;

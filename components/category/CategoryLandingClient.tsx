@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { startTransition, useState } from "react";
 import { ChevronDown, Filter, SlidersHorizontal, X } from "lucide-react";
-import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
+import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
 import { ProductCard } from "@/components/product/ProductCard";
 import type { CatalogProduct } from "@/lib/catalog";
 import type { ProductListFacets } from "@/lib/catalog-payload";

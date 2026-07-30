@@ -157,3 +157,27 @@
   }
 }
 
+
+/* Popup thông tin nhanh sản phẩm (components/product/ProductQuickInfoPopup.tsx)
+   — hai hướng trượt vào tùy popup mở bên phải hay bên trái card. */
+@keyframes popup-enter-right {
+  from {
+    opacity: 0;
+    transform: translateX(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes popup-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}

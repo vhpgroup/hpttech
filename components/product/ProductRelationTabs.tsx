@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
 import type { CatalogProduct } from "@/lib/catalog";
 import { ProductCard } from "@/components/product/ProductCard";
-import { ProductQuickInfoTrigger } from "@/components/home/HomeCategoryCarouselsClient";
+import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
 
 export type ProductRelationSection = {
   id: "similar" | "same-brand" | "related";
