@@ -41,7 +41,9 @@ export const HPT_DATA = {
     { name: "Thiết bị mạng", icon: "network" },
     { name: "Thiết bị văn phòng", icon: "printer" },
     { name: "Thiết bị hội nghị", icon: "video" },
-    { name: "Camera & An ninh", icon: "cctv" },
+    // Tên khớp CMS root "Camera & Giám sát" (camera-giam-sat) để nav map ra slug
+    // → mục sidebar thành LANDING THẬT /camera-giam-sat (63 SP) thay vì placeholder.
+    { name: "Camera & Giám sát", icon: "cctv" },
     { name: "Thiết bị giáo dục", icon: "graduation-cap" },
     { name: "Phần mềm bản quyền", icon: "badge-check" },
     { name: "Thiết bị hình ảnh", icon: "image", slug: "thiet-bi-hinh-anh" },
