@@ -30,16 +30,23 @@ type FooterColumn = {
 // Mọi href dưới đây đều là trang thật đã verify HTTP 200 trên production (30/07/2026).
 const footerColumns: FooterColumn[] = [
   {
+    // Mirror menu trục sidebar (HPT_DATA/CategoryPanel): chỉ các mục có slug category
+    // thật ("link chuẩn") — cùng tên, cùng icon, cùng đích với sidebar. Các mục mồ côi
+    // (slug rỗng: hội nghị, camera & an ninh, giáo dục, lưu trữ, dịch vụ, số hóa,
+    // máy chiếu, UPS) KHÔNG đưa vào footer cho tới khi có category thật.
     title: "Sản phẩm",
     links: [
-      { label: "Máy tính & Laptop", href: "/laptop-may-tinh-xach-tay", iconSrc: `${R2}/icon-danh-muc-laptop-van-phong.png` },
-      { label: "Máy scan & Số hóa", href: "/may-scan", iconSrc: `${R2}/icon-danh-muc-may-scan.png` },
-      { label: "Máy in & Vật tư", href: "/may-in", iconSrc: `${R2}/icon-danh-muc-may-in.png` },
-      { label: "Server & Storage", href: "/may-chu-server", iconSrc: `${R2}/icon-danh-muc-pc-may-chu.png` },
+      { label: "Máy scan", href: "/may-scan", iconSrc: `${R2}/icon-danh-muc-may-scan.png` },
+      { label: "Máy in", href: "/may-in", iconSrc: `${R2}/icon-danh-muc-may-in.png` },
+      { label: "Máy Photocopy", href: "/may-photocopy", iconSrc: `${R2}/icon-danh-muc-photocopy.png` },
+      { label: "Laptop Gaming - Đồ Họa", href: "/laptop-gaming-do-hoa", iconSrc: `${R2}/icon-danh-muc-laptop-gaming.png` },
+      { label: "Laptop văn phòng", href: "/laptop", iconSrc: `${R2}/icon-danh-muc-laptop-van-phong.png` },
+      { label: "Máy tính đồng bộ - Máy chủ", href: "/may-tinh-dong-bo-may-chu", iconSrc: `${R2}/icon-danh-muc-pc-may-chu.png` },
       { label: "Thiết bị mạng", href: "/thiet-bi-mang", iconSrc: `${R2}/icon-danh-muc-thiet-bi-mang.png` },
-      { label: "Firewall & Bảo mật", href: "/thiet-bi-firewall", iconSrc: `${R2}/icon-footer-bao-mat.png` },
-      { label: "Camera giám sát", href: "/camera-giam-sat", iconSrc: `${R2}/icon-danh-muc-camera-an-ninh.png` },
-      { label: "Máy photocopy", href: "/may-photocopy", iconSrc: `${R2}/icon-danh-muc-photocopy.png` },
+      { label: "Thiết bị văn phòng", href: "/thiet-bi-van-phong", iconSrc: `${R2}/icon-danh-muc-thiet-bi-van-phong.png` },
+      { label: "Phần mềm bản quyền", href: "/phan-mem-ban-quyen", iconSrc: `${R2}/icon-danh-muc-phan-mem.png` },
+      { label: "Thiết bị hình ảnh", href: "/thiet-bi-hinh-anh", iconSrc: `${R2}/icon-danh-muc-so-hoa.png` },
+      { label: "Mực in & Phụ kiện", href: "/muc-in-phu-kien", iconSrc: `${R2}/icon-danh-muc-muc-in.png` },
     ],
   },
   {
