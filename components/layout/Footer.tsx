@@ -13,14 +13,13 @@ const HPT_HEADQUARTERS = "Trụ sở: SB04 Vinhomes Marina, phường An Biên, 
 const HPT_OFFICE_CITIES = "Hải Phòng · Hà Nội · TP. Hồ Chí Minh · Cần Thơ · Thanh Hóa · Quảng Ngãi";
 
 // Icon 3D phong cách Fluent, tự host trên Payload Media R2 (same-origin, không cần remotePatterns).
-// Bộ icon-danh-muc-* / icon-cam-ket-* có sẵn từ PR #50/#51; bộ icon-footer-* upload 30/07 (media id 13923–13938).
+// 30/07: cả 4 cột link bỏ icon (user chốt chữ trơn đồng bộ) — R2 chỉ còn dùng cho stats + khối liên hệ.
+// Không xoá icon nào trên R2: sidebar/mega-menu vẫn dùng bộ icon-danh-muc-*.
 const R2 = "/api/r2-media";
 
 type FooterLink = {
   label: string;
   href: string;
-  // Optional: cột "Sản phẩm" cố tình không dùng icon (user chốt 30/07) → link chữ trơn.
-  iconSrc?: string;
 };
 
 type FooterColumn = {
@@ -35,8 +34,6 @@ const footerColumns: FooterColumn[] = [
     // thật ("link chuẩn") — cùng tên, cùng đích với sidebar. Các mục mồ côi
     // (slug rỗng: hội nghị, camera & an ninh, giáo dục, lưu trữ, dịch vụ, số hóa,
     // máy chiếu, UPS) KHÔNG đưa vào footer cho tới khi có category thật.
-    // 30/07: bỏ icon 3D ở cột này theo yêu cầu user → link chữ trơn (không set iconSrc).
-    // Bộ icon-danh-muc-* vẫn được sidebar/mega-menu dùng, không xoá khỏi R2.
     title: "Sản phẩm",
     links: [
       { label: "Máy scan", href: "/may-scan" },
@@ -55,42 +52,34 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Giải pháp",
     links: [
-      { label: "Giải pháp số hóa tài liệu", href: "/giai-phap", iconSrc: `${R2}/icon-danh-muc-so-hoa.png` },
-      { label: "Giải pháp hạ tầng CNTT", href: "/dich-vu", iconSrc: `${R2}/icon-danh-muc-dich-vu.png` },
-      { label: "Giải pháp an ninh mạng", href: "/thiet-bi-firewall", iconSrc: `${R2}/icon-footer-bao-mat.png` },
-      { label: "Giải pháp cho cơ quan nhà nước", href: "/du-an", iconSrc: `${R2}/icon-footer-co-quan-nha-nuoc.png` },
-      {
-        label: "Giải pháp cho doanh nghiệp",
-        href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
-        iconSrc: `${R2}/icon-footer-doanh-nghiep.png`,
-      },
+      { label: "Giải pháp số hóa tài liệu", href: "/giai-phap" },
+      { label: "Giải pháp hạ tầng CNTT", href: "/dich-vu" },
+      { label: "Giải pháp an ninh mạng", href: "/thiet-bi-firewall" },
+      { label: "Giải pháp cho cơ quan nhà nước", href: "/du-an" },
+      { label: "Giải pháp cho doanh nghiệp", href: "/ho-tro-khach-hang-du-an-doanh-nghiep" },
     ],
   },
   {
     title: "Về HPT",
     links: [
-      { label: "Về HPT Tech", href: "/ve-hpt", iconSrc: `${R2}/icon-footer-ve-hpt.png` },
-      { label: "Dự án tiêu biểu", href: "/du-an", iconSrc: `${R2}/icon-footer-du-an.png` },
-      { label: "Hồ sơ năng lực", href: "/ve-hpt#linh-vuc", iconSrc: `${R2}/icon-footer-ho-so-nang-luc.png` },
-      { label: "Đối tác & Thương hiệu", href: "/thuong-hieu", iconSrc: `${R2}/icon-footer-doi-tac.png` },
-      { label: "Tin tức", href: "/tin-tuc", iconSrc: `${R2}/icon-footer-tin-tuc.png` },
-      { label: "Tuyển dụng", href: "/tuyen-dung", iconSrc: `${R2}/icon-footer-tuyen-dung.png` },
-      { label: "Liên hệ", href: "/lien-he", iconSrc: `${R2}/icon-footer-lien-he.png` },
+      { label: "Về HPT Tech", href: "/ve-hpt" },
+      { label: "Dự án tiêu biểu", href: "/du-an" },
+      { label: "Hồ sơ năng lực", href: "/ve-hpt#linh-vuc" },
+      { label: "Đối tác & Thương hiệu", href: "/thuong-hieu" },
+      { label: "Tin tức", href: "/tin-tuc" },
+      { label: "Tuyển dụng", href: "/tuyen-dung" },
+      { label: "Liên hệ", href: "/lien-he" },
     ],
   },
   {
     title: "Hỗ trợ",
     links: [
-      { label: "Hướng dẫn mua hàng", href: "/huong-dan-mua-hang", iconSrc: `${R2}/icon-footer-mua-hang.png` },
-      { label: "Chính sách bảo hành đổi trả", href: "/chinh-sach-bao-hanh-doi-tra", iconSrc: `${R2}/icon-footer-bao-hanh.png` },
-      { label: "Chính sách giao hàng", href: "/chinh-sach-giao-hang", iconSrc: `${R2}/icon-cam-ket-giao-hang.png` },
-      { label: "Chính sách bảo mật", href: "/chinh-sach-bao-mat", iconSrc: `${R2}/icon-footer-khoa-bao-mat.png` },
-      { label: "Chính sách mua trả góp", href: "/chinh-sach-mua-tra-gop", iconSrc: `${R2}/icon-footer-tra-gop.png` },
-      {
-        label: "Hỗ trợ khách hàng dự án",
-        href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
-        iconSrc: `${R2}/icon-cam-ket-ho-tro.png`,
-      },
+      { label: "Hướng dẫn mua hàng", href: "/huong-dan-mua-hang" },
+      { label: "Chính sách bảo hành đổi trả", href: "/chinh-sach-bao-hanh-doi-tra" },
+      { label: "Chính sách giao hàng", href: "/chinh-sach-giao-hang" },
+      { label: "Chính sách bảo mật", href: "/chinh-sach-bao-mat" },
+      { label: "Chính sách mua trả góp", href: "/chinh-sach-mua-tra-gop" },
+      { label: "Hỗ trợ khách hàng dự án", href: "/ho-tro-khach-hang-du-an-doanh-nghiep" },
     ],
   },
 ];
@@ -241,18 +230,8 @@ function FooterColumnBlock({ column }: { column: FooterColumn }) {
       <ul className="mt-6 space-y-3.5">
         {column.links.map((link) => (
           <li key={link.label}>
-            <Link className="footer-link group flex items-center gap-3" href={link.href}>
-              {link.iconSrc ? (
-                <Image
-                  src={link.iconSrc}
-                  alt=""
-                  aria-hidden="true"
-                  width={26}
-                  height={26}
-                  loading="lazy"
-                  className="h-[26px] w-[26px] shrink-0 object-contain transition group-hover:scale-110"
-                />
-              ) : null}
+            {/* Giữ flex items-center như bản đã duyệt (anchor block-level → gạch chân hover ::after chạy full-width như cũ) */}
+            <Link className="footer-link flex items-center" href={link.href}>
               <span className="leading-5">{link.label}</span>
             </Link>
           </li>
