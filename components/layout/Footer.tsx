@@ -1,39 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Award,
-  BadgeCheck,
-  Briefcase,
-  Building2,
-  Cctv,
-  ChevronUp,
-  ClipboardList,
-  Copy,
-  CreditCard,
-  FileText,
-  Headphones,
-  Landmark,
-  Laptop,
-  Layers,
-  Lock,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Network,
-  Newspaper,
-  Phone,
-  Printer,
-  ScanLine,
-  Server,
-  Shield,
-  ShieldCheck,
-  ShoppingCart,
-  Trophy,
-  Truck,
-  Users,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, ChevronUp, Mail, MapPin, Phone } from "lucide-react";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref } from "@/lib/site-settings";
 
@@ -45,12 +12,14 @@ const HPT_PUBLIC_PHONE = "+84 967 286 889";
 const HPT_HEADQUARTERS = "Trụ sở: SB04 Vinhomes Marina, phường An Biên, TP. Hải Phòng";
 const HPT_OFFICE_CITIES = "Hải Phòng · Hà Nội · TP. Hồ Chí Minh · Cần Thơ · Thanh Hóa · Quảng Ngãi";
 
-type FooterIcon = React.ComponentType<{ className?: string; size?: number }>;
+// Icon 3D phong cách Fluent, tự host trên Payload Media R2 (same-origin, không cần remotePatterns).
+// Bộ icon-danh-muc-* / icon-cam-ket-* có sẵn từ PR #50/#51; bộ icon-footer-* upload 30/07 (media id 13923–13938).
+const R2 = "/api/r2-media";
 
 type FooterLink = {
   label: string;
   href: string;
-  icon: FooterIcon;
+  iconSrc: string;
 };
 
 type FooterColumn = {
@@ -63,65 +32,65 @@ const footerColumns: FooterColumn[] = [
   {
     title: "Sản phẩm",
     links: [
-      { label: "Máy tính & Laptop", href: "/laptop-may-tinh-xach-tay", icon: Laptop },
-      { label: "Máy scan & Số hóa", href: "/may-scan", icon: ScanLine },
-      { label: "Máy in & Vật tư", href: "/may-in", icon: Printer },
-      { label: "Server & Storage", href: "/may-chu-server", icon: Server },
-      { label: "Thiết bị mạng", href: "/thiet-bi-mang", icon: Network },
-      { label: "Firewall & Bảo mật", href: "/thiet-bi-firewall", icon: ShieldCheck },
-      { label: "Camera giám sát", href: "/camera-giam-sat", icon: Cctv },
-      { label: "Máy photocopy", href: "/may-photocopy", icon: Copy },
+      { label: "Máy tính & Laptop", href: "/laptop-may-tinh-xach-tay", iconSrc: `${R2}/icon-danh-muc-laptop-van-phong.png` },
+      { label: "Máy scan & Số hóa", href: "/may-scan", iconSrc: `${R2}/icon-danh-muc-may-scan.png` },
+      { label: "Máy in & Vật tư", href: "/may-in", iconSrc: `${R2}/icon-danh-muc-may-in.png` },
+      { label: "Server & Storage", href: "/may-chu-server", iconSrc: `${R2}/icon-danh-muc-pc-may-chu.png` },
+      { label: "Thiết bị mạng", href: "/thiet-bi-mang", iconSrc: `${R2}/icon-danh-muc-thiet-bi-mang.png` },
+      { label: "Firewall & Bảo mật", href: "/thiet-bi-firewall", iconSrc: `${R2}/icon-footer-bao-mat.png` },
+      { label: "Camera giám sát", href: "/camera-giam-sat", iconSrc: `${R2}/icon-danh-muc-camera-an-ninh.png` },
+      { label: "Máy photocopy", href: "/may-photocopy", iconSrc: `${R2}/icon-danh-muc-photocopy.png` },
     ],
   },
   {
     title: "Giải pháp",
     links: [
-      { label: "Giải pháp số hóa tài liệu", href: "/giai-phap", icon: FileText },
-      { label: "Giải pháp hạ tầng CNTT", href: "/dich-vu", icon: Layers },
-      { label: "Giải pháp an ninh mạng", href: "/thiet-bi-firewall", icon: Shield },
-      { label: "Giải pháp cho cơ quan nhà nước", href: "/du-an", icon: Landmark },
+      { label: "Giải pháp số hóa tài liệu", href: "/giai-phap", iconSrc: `${R2}/icon-danh-muc-so-hoa.png` },
+      { label: "Giải pháp hạ tầng CNTT", href: "/dich-vu", iconSrc: `${R2}/icon-danh-muc-dich-vu.png` },
+      { label: "Giải pháp an ninh mạng", href: "/thiet-bi-firewall", iconSrc: `${R2}/icon-footer-bao-mat.png` },
+      { label: "Giải pháp cho cơ quan nhà nước", href: "/du-an", iconSrc: `${R2}/icon-footer-co-quan-nha-nuoc.png` },
       {
         label: "Giải pháp cho doanh nghiệp",
         href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
-        icon: Briefcase,
+        iconSrc: `${R2}/icon-footer-doanh-nghiep.png`,
       },
     ],
   },
   {
     title: "Về HPT",
     links: [
-      { label: "Về HPT Tech", href: "/ve-hpt", icon: Building2 },
-      { label: "Dự án tiêu biểu", href: "/du-an", icon: Trophy },
-      { label: "Hồ sơ năng lực", href: "/ve-hpt#linh-vuc", icon: ClipboardList },
-      { label: "Đối tác & Thương hiệu", href: "/thuong-hieu", icon: Award },
-      { label: "Tin tức", href: "/tin-tuc", icon: Newspaper },
-      { label: "Tuyển dụng", href: "/tuyen-dung", icon: Users },
-      { label: "Liên hệ", href: "/lien-he", icon: MessageCircle },
+      { label: "Về HPT Tech", href: "/ve-hpt", iconSrc: `${R2}/icon-footer-ve-hpt.png` },
+      { label: "Dự án tiêu biểu", href: "/du-an", iconSrc: `${R2}/icon-footer-du-an.png` },
+      { label: "Hồ sơ năng lực", href: "/ve-hpt#linh-vuc", iconSrc: `${R2}/icon-footer-ho-so-nang-luc.png` },
+      { label: "Đối tác & Thương hiệu", href: "/thuong-hieu", iconSrc: `${R2}/icon-footer-doi-tac.png` },
+      { label: "Tin tức", href: "/tin-tuc", iconSrc: `${R2}/icon-footer-tin-tuc.png` },
+      { label: "Tuyển dụng", href: "/tuyen-dung", iconSrc: `${R2}/icon-footer-tuyen-dung.png` },
+      { label: "Liên hệ", href: "/lien-he", iconSrc: `${R2}/icon-footer-lien-he.png` },
     ],
   },
   {
     title: "Hỗ trợ",
     links: [
-      { label: "Hướng dẫn mua hàng", href: "/huong-dan-mua-hang", icon: ShoppingCart },
-      { label: "Hướng dẫn đặt hàng Flash Sale", href: "/huong-dan-dat-hang-flash-sale", icon: Zap },
-      { label: "Chính sách bảo hành đổi trả", href: "/chinh-sach-bao-hanh-doi-tra", icon: BadgeCheck },
-      { label: "Chính sách giao hàng", href: "/chinh-sach-giao-hang", icon: Truck },
-      { label: "Chính sách bảo mật", href: "/chinh-sach-bao-mat", icon: Lock },
-      { label: "Chính sách mua trả góp", href: "/chinh-sach-mua-tra-gop", icon: CreditCard },
+      { label: "Hướng dẫn mua hàng", href: "/huong-dan-mua-hang", iconSrc: `${R2}/icon-footer-mua-hang.png` },
+      { label: "Hướng dẫn đặt hàng Flash Sale", href: "/huong-dan-dat-hang-flash-sale", iconSrc: `${R2}/icon-footer-flash-sale.png` },
+      { label: "Chính sách bảo hành đổi trả", href: "/chinh-sach-bao-hanh-doi-tra", iconSrc: `${R2}/icon-footer-bao-hanh.png` },
+      { label: "Chính sách giao hàng", href: "/chinh-sach-giao-hang", iconSrc: `${R2}/icon-cam-ket-giao-hang.png` },
+      { label: "Chính sách bảo mật", href: "/chinh-sach-bao-mat", iconSrc: `${R2}/icon-footer-khoa-bao-mat.png` },
+      { label: "Chính sách mua trả góp", href: "/chinh-sach-mua-tra-gop", iconSrc: `${R2}/icon-footer-tra-gop.png` },
       {
         label: "Hỗ trợ khách hàng dự án",
         href: "/ho-tro-khach-hang-du-an-doanh-nghiep",
-        icon: Headphones,
+        iconSrc: `${R2}/icon-cam-ket-ho-tro.png`,
       },
     ],
   },
 ];
 
 const stats = [
-  { value: "10+", label: "Năm kinh nghiệm", icon: BadgeCheck },
-  { value: "500+", label: "Dự án & đơn hàng", icon: Trophy },
-  { value: "100%", label: "Hàng chính hãng", icon: ShieldCheck },
-  { value: "Hỗ trợ", label: "Tư vấn & kỹ thuật 24/7", icon: Headphones },
+  { value: "20+", label: "Năm kinh nghiệm", iconSrc: `${R2}/icon-footer-kinh-nghiem.png` },
+  { value: "500+", label: "Dự án & đơn hàng", iconSrc: `${R2}/icon-footer-du-an.png` },
+  { value: "100%", label: "Hàng chính hãng", iconSrc: `${R2}/icon-cam-ket-chinh-hang.png` },
+  { value: "Hỗ trợ", label: "Tư vấn & kỹ thuật 24/7", iconSrc: `${R2}/icon-cam-ket-ho-tro.png` },
 ];
 
 export default function Footer({ settings }: { settings: Required<PublicSiteSettings> }) {
@@ -158,9 +127,9 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
           </p>
 
           <div className="mt-7 grid grid-cols-4 gap-3">
-            {stats.map(({ value, label, icon: Icon }) => (
+            {stats.map(({ value, label, iconSrc }) => (
               <div key={label}>
-                <Icon className="text-sky-300" size={26} strokeWidth={1.8} />
+                <Image src={iconSrc} alt="" aria-hidden="true" width={30} height={30} loading="lazy" className="h-[30px] w-[30px] object-contain" />
                 <strong className="mt-2 block text-lg font-bold leading-6 text-white">{value}</strong>
                 <span className="mt-0.5 block text-[11px] leading-4 text-slate-100/70">{label}</span>
               </div>
@@ -190,7 +159,7 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
           <h3 className="footer-heading mt-6">Hệ thống văn phòng</h3>
           <p className="mt-3 text-sm leading-6 text-slate-100/80">{HPT_OFFICE_CITIES}</p>
           <Link
-            href="/lien-he"
+            href="/he-thong-showroom"
             className="mt-4 inline-flex items-center gap-2 rounded-lg border border-sky-300/60 px-4 py-2 text-sm font-medium text-sky-100 transition hover:-translate-y-0.5 hover:border-sky-300 hover:bg-white/10"
           >
             Xem chi tiết hệ thống văn phòng
@@ -262,19 +231,24 @@ function FooterColumnBlock({ column }: { column: FooterColumn }) {
         {column.title}
       </h3>
       <ul className="mt-6 space-y-3.5">
-        {column.links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <li key={link.label}>
-              <Link className="footer-link group flex items-center gap-3" href={link.href}>
-                <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.08] text-sky-200 transition group-hover:bg-sky-400/25 group-hover:text-white">
-                  <Icon size={16} aria-hidden="true" />
-                </span>
-                <span className="leading-5">{link.label}</span>
-              </Link>
-            </li>
-          );
-        })}
+        {column.links.map((link) => (
+          <li key={link.label}>
+            <Link className="footer-link group flex items-center gap-3" href={link.href}>
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.1] transition group-hover:bg-white/[0.22]">
+                <Image
+                  src={link.iconSrc}
+                  alt=""
+                  aria-hidden="true"
+                  width={24}
+                  height={24}
+                  loading="lazy"
+                  className="h-6 w-6 object-contain transition group-hover:scale-110"
+                />
+              </span>
+              <span className="leading-5">{link.label}</span>
+            </Link>
+          </li>
+        ))}
       </ul>
     </nav>
   );
