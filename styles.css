@@ -2655,9 +2655,9 @@ main {
   position: fixed;
   right: max(8px, env(safe-area-inset-right));
   bottom: clamp(86px, 14vh, 182px);
-  width: clamp(340px, 30vw, 430px);
+  width: clamp(320px, 24vw, 370px);
   max-width: calc(100vw - 16px);
-  height: min(620px, calc(100dvh - 112px));
+  height: min(520px, calc(100dvh - 112px));
   max-height: calc(100vh - 112px);
   border-radius: 20px;
   background: #fff;
@@ -2737,7 +2737,7 @@ main {
 }
 
 .support-chatbot-head {
-  min-height: 74px;
+  min-height: 64px;
   padding: 0 14px;
   display: flex;
   align-items: center;
@@ -2801,7 +2801,7 @@ main {
 }
 
 .support-chatbot-body {
-  height: calc(100% - 74px);
+  height: calc(100% - 64px);
   padding: 14px 12px 12px;
   display: flex;
   flex-direction: column;
@@ -3620,7 +3620,7 @@ svg {
     bottom: 84px;
     width: auto;
     max-width: none;
-    height: min(560px, calc(100dvh - 100px));
+    height: min(500px, calc(100dvh - 100px));
     max-height: calc(100vh - 100px);
     border-radius: 18px;
   }
