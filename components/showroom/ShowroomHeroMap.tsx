@@ -63,6 +63,8 @@ interface LeafletMap {
   remove(): void;
   scrollWheelZoom: { enable(): void };
   dragging: { disable(): void };
+  /** Control attribution mặc định — dùng để bỏ prefix "Leaflet". */
+  attributionControl: { setPrefix(prefix: string | false): unknown };
 }
 
 interface LeafletStatic {
@@ -161,13 +163,9 @@ const SHM_CSS = `
   linear-gradient(0deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 10%),
   rgba(222,237,255,.14)}
 
-/* mái hiên sọc storefront — dấu ấn kế thừa minh họa cũ */
-.shm-awning{position:absolute;top:0;left:0;right:0;z-index:850;pointer-events:none}
-.shm-awning-stripes{display:block;height:16px;background:repeating-linear-gradient(90deg,var(--shm-navy) 0 34px,#fff 34px 68px)}
-.shm-awning-scallops{display:block;height:9px;margin-top:-1px;background:
-  radial-gradient(9px 9px at 17px 0,var(--shm-navy) 8px,rgba(0,0,0,0) 9px) 0 0/68px 9px repeat-x,
-  radial-gradient(9px 9px at 17px 0,#fff 8px,rgba(0,0,0,0) 9px) 34px 0/68px 9px repeat-x;
-  filter:drop-shadow(0 2px 2px rgba(11,42,99,.15))}
+/* attribution tối giản: giữ © OSM/CARTO theo giấy phép nhưng kín đáo */
+.shm-root .leaflet-control-attribution{background:rgba(255,255,255,.6);font-size:9px;line-height:1.6;color:#8195b8;padding:0 6px;border-radius:6px 0 0 0}
+.shm-root .leaflet-control-attribution a{color:#8195b8;text-decoration:none}
 
 /* mây trôi trang trí */
 .shm-cloud{position:absolute;z-index:860;pointer-events:none;opacity:.95;animation:shm-drift 12s ease-in-out infinite alternate}
@@ -239,6 +237,9 @@ export default function ShowroomHeroMap({ stores, phone, email, hours, days }: P
         if (disposed || !el.isConnected) return;
 
         map = L.map(el, { scrollWheelZoom: false, zoomControl: false });
+        // Bỏ prefix "Leaflet" — chỉ giữ dòng © OpenStreetMap © CARTO tối giản
+        // (bắt buộc theo giấy phép tile, style thu nhỏ trong SHM_CSS).
+        map.attributionControl.setPrefix(false);
         L.control.zoom({ position: "bottomright" }).addTo(map);
         L.tileLayer(TILE_URL, { maxZoom: 19, subdomains: "abcd", attribution: TILE_ATTRIBUTION }).addTo(map);
 
@@ -329,11 +330,6 @@ export default function ShowroomHeroMap({ stores, phone, email, hours, days }: P
       />
 
       <div className="shm-scrim" aria-hidden="true" />
-
-      <div className="shm-awning" aria-hidden="true">
-        <span className="shm-awning-stripes" />
-        <span className="shm-awning-scallops" />
-      </div>
 
       <span className="shm-cloud shm-c1" aria-hidden="true">
         <svg width="92" height="32" viewBox="0 0 96 34" fill="#fff">

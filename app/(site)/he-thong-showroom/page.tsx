@@ -178,59 +178,61 @@ export default async function ShowroomPage() {
   };
 
   return (
-    <main className="pb-14 pt-3">
+    <main className="pb-14">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(storesSchema) }}
       />
 
+      {/* HERO — full-bleed tràn màn hình, sát menu (nằm ngoài shell bo góc,
+          đồng bộ với 3 dải header full-bleed trong styles.css): bản đồ tổng
+          tương tác thay minh họa tĩnh — trụ sở chính Hải Phòng (pin đỏ ★,
+          pulse) + 5 chi nhánh (pin xanh, nhãn tên tỉnh). Tiêu đề + CTA giữ
+          nguyên, server-render cho SEO; bản đồ là lớp nền client
+          (components/showroom/ShowroomHeroMap). */}
+      <section className="relative h-[620px] overflow-hidden bg-[#e7f0fd] lg:h-[640px]">
+        <ShowroomHeroMap
+          stores={STORES.map((store) => ({
+            id: store.id,
+            chip: store.chip,
+            label: store.label,
+            address: store.address,
+            lat: store.lat,
+            lng: store.lng,
+            hq: Boolean(store.hq),
+          }))}
+          phone={phone}
+          email={settings.email}
+          hours={HOURS}
+          days={DAYS}
+        />
+        {/* data-shm-overlay: bản đồ đo chiều cao khối này để chừa khoảng trời khi fitBounds. */}
+        <div
+          data-shm-overlay
+          className="pointer-events-none relative z-20 px-4 pt-9 text-center lg:pt-11"
+        >
+          <h1 className="text-2xl font-black tracking-tight text-[#0b2a63] sm:text-3xl lg:text-[38px]">
+            HỆ THỐNG SHOWROOM HPT TECH
+          </h1>
+          <p className="mt-1.5 text-sm font-semibold text-[#3d5878] lg:text-[15.5px]">
+            6 showroom trên toàn quốc — trải nghiệm thiết bị văn phòng &amp; giải pháp số hóa cho
+            doanh nghiệp
+          </p>
+          <a
+            href="#hai-phong"
+            className="pointer-events-auto mt-3.5 inline-flex h-11 items-center rounded-lg bg-[#da2127] px-6 text-sm font-extrabold tracking-wider text-white shadow-[0_10px_24px_rgba(218,33,39,0.32)] transition hover:bg-[#c11d23]"
+          >
+            XEM NGAY
+          </a>
+          <p className="mt-3 text-xs font-semibold text-[#3d5878]">
+            Nhấp vào ghim trên bản đồ để xem địa chỉ, giờ làm việc &amp; chỉ đường từng showroom
+          </p>
+        </div>
+      </section>
+
       {/* Căn giữa bằng div bọc: global CSS có `main { margin: 0 }` nên không
           đặt mx-auto trực tiếp trên <main> (bị đè do thứ tự ưu tiên layer). */}
-      <div className="mx-auto w-[var(--shell-width)] overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
-        {/* HERO — bản đồ tổng tương tác full-width thay minh họa tĩnh: trụ sở
-            chính Hải Phòng (pin đỏ ★, pulse) + 5 chi nhánh (pin xanh, nhãn tên
-            tỉnh). Tiêu đề + CTA giữ nguyên, server-render cho SEO; bản đồ là
-            lớp nền client (components/showroom/ShowroomHeroMap). */}
-        <section className="relative h-[620px] overflow-hidden bg-[#e7f0fd] lg:h-[640px]">
-          <ShowroomHeroMap
-            stores={STORES.map((store) => ({
-              id: store.id,
-              chip: store.chip,
-              label: store.label,
-              address: store.address,
-              lat: store.lat,
-              lng: store.lng,
-              hq: Boolean(store.hq),
-            }))}
-            phone={phone}
-            email={settings.email}
-            hours={HOURS}
-            days={DAYS}
-          />
-          {/* data-shm-overlay: bản đồ đo chiều cao khối này để chừa khoảng trời khi fitBounds. */}
-          <div
-            data-shm-overlay
-            className="pointer-events-none relative z-20 px-4 pt-9 text-center lg:pt-11"
-          >
-            <h1 className="text-2xl font-black tracking-tight text-[#0b2a63] sm:text-3xl lg:text-[38px]">
-              HỆ THỐNG SHOWROOM HPT TECH
-            </h1>
-            <p className="mt-1.5 text-sm font-semibold text-[#3d5878] lg:text-[15.5px]">
-              6 showroom trên toàn quốc — trải nghiệm thiết bị văn phòng &amp; giải pháp số hóa cho
-              doanh nghiệp
-            </p>
-            <a
-              href="#hai-phong"
-              className="pointer-events-auto mt-3.5 inline-flex h-11 items-center rounded-lg bg-[#da2127] px-6 text-sm font-extrabold tracking-wider text-white shadow-[0_10px_24px_rgba(218,33,39,0.32)] transition hover:bg-[#c11d23]"
-            >
-              XEM NGAY
-            </a>
-            <p className="mt-3 text-xs font-semibold text-[#3d5878]">
-              Nhấp vào ghim trên bản đồ để xem địa chỉ, giờ làm việc &amp; chỉ đường từng showroom
-            </p>
-          </div>
-        </section>
-
+      <div className="mx-auto mt-5 w-[var(--shell-width)] overflow-hidden rounded-2xl border border-slate-200 shadow-sm">
         {/* CHIP ĐIỀU HƯỚNG 6 THÀNH PHỐ */}
         <nav
           aria-label="Danh sách showroom"
