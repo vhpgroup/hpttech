@@ -101,11 +101,13 @@ const stats = [
 
 export default function Footer({ settings }: { settings: Required<PublicSiteSettings> }) {
   const phone = HPT_PUBLIC_PHONE;
+  // Luôn hiện đủ 3 kênh. YouTube chưa có URL (user chốt 30/07: hiện icon, link để trống)
+  // → SocialLink tự xử lý href rỗng thành "#"; điền URL vào Site Settings là link sống ngay.
   const socialLinks = [
     { href: settings.facebook, label: "Facebook", logoSrc: "/assets/icons/facebook.svg" },
     { href: settings.youtube, label: "YouTube", logoSrc: "/assets/icons/youtube.svg" },
     { href: settings.zalo, label: "Zalo", logoSrc: "/assets/icons/zalo.png" },
-  ].filter((item) => Boolean(item.href) && item.href.startsWith("http"));
+  ];
 
   return (
     <footer
@@ -259,15 +261,15 @@ function FooterColumnBlock({ column }: { column: FooterColumn }) {
 }
 
 function SocialLink({ href, label, logoSrc }: { href: string; label: string; logoSrc: string }) {
+  const isExternal = href.startsWith("http");
   return (
     <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={isExternal ? href : "#"}
+      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : { "aria-disabled": true })}
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-12px_rgba(255,255,255,0.7)]"
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_8px_20px_-10px_rgba(2,6,23,0.6)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(255,255,255,0.55)]"
     >
-      <Image src={logoSrc} alt="" width={23} height={23} className="h-6 w-6 object-contain" aria-hidden="true" />
+      <Image src={logoSrc} alt="" width={28} height={28} className="h-7 w-7 object-contain" aria-hidden="true" />
     </a>
   );
 }
