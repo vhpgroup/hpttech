@@ -195,9 +195,6 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
             <Link className="footer-link" href="/chinh-sach-bao-mat">
               Chính sách bảo mật
             </Link>
-            <Link className="footer-link" href="/sitemap.xml">
-              Sitemap
-            </Link>
           </nav>
           <a
             href="https://online.gov.vn/"
