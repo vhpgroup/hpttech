@@ -195,13 +195,16 @@ export default function CategoryLandingClient({
         <button
           type="button"
           aria-label="Đóng bộ lọc"
-          className="fixed inset-0 z-30 cursor-default bg-transparent"
+          className="fixed inset-0 z-10 cursor-default bg-transparent"
           onClick={() => setOpenFilter(null)}
         />
       ) : null}
 
-      {/* THANH BỘ LỌC ngang (kiểu An Phát) — chỉ chứa bộ lọc CỦA danh mục này. */}
-      <div className="relative z-40 mt-5 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
+      {/* THANH BỘ LỌC ngang (kiểu An Phát) — chỉ chứa bộ lọc CỦA danh mục này.
+          z-20 (và overlay bắt-click z-10 ở trên) phải nằm DƯỚI hệ panel danh mục
+          header (overlay xám z-30 / band z-31 / panel z-32 trong styles.css) —
+          z-40 cũ làm thanh lọc xuyên thủng lớp phủ khi mở "Danh mục sản phẩm". */}
+      <div className="relative z-20 mt-5 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm">
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="inline-flex items-center gap-1.5 pr-1 text-xs font-black uppercase tracking-wide text-slate-800">
             <Filter size={15} /> Bộ lọc
