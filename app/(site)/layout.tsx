@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "../globals.css";
 import { Geist, Inter } from "next/font/google";
+import { CategoryMenuProvider } from "@/components/layout/CategoryMenu";
 import DesktopStage from "@/components/layout/DesktopStage";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -87,15 +88,19 @@ export default async function SiteLayout({
             <QuoteProvider>
               <ProductInfoPopupLayer>
                 <DesktopStage>
-                  <Header
-                    settings={settings}
-                    categoryMenu={
-                      <CategoryPanel categories={categoryNav} panelId="headerCategoryList" />
-                    }
-                  />
-                  <Navbar />
-                  {children}
-                  <Footer settings={settings} />
+                  {/* Provider giữ state mở/đóng panel danh mục dùng chung giữa
+                      nút "Danh mục sản phẩm" (Navbar) và panel thả xuống (Header). */}
+                  <CategoryMenuProvider>
+                    <Header
+                      settings={settings}
+                      categoryMenu={
+                        <CategoryPanel categories={categoryNav} panelId="headerCategoryList" />
+                      }
+                    />
+                    <Navbar />
+                    {children}
+                    <Footer settings={settings} />
+                  </CategoryMenuProvider>
                 </DesktopStage>
                 <GlobalCompareDock />
                 <FloatingContactDockLoader settings={settings} />

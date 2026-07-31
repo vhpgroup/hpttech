@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   FileText,
@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import HeaderCartButton from "@/components/cart/HeaderCartButton";
+import { useCategoryMenu } from "@/components/layout/CategoryMenu";
 import TechSupportPopover from "@/components/layout/TechSupportPopover";
 import type { PublicSiteSettings } from "@/lib/content-payload";
 import { phoneHref, quoteMailHref } from "@/lib/site-settings";
@@ -46,34 +47,17 @@ export default function Header({
   categoryMenu?: ReactNode;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // Panel danh mục kiểu GearVN: bấm nút → panel hiện đúng vị trí sidebar chuẩn
-  // (cột trái shell, ngay dưới nav), phần còn lại của trang phủ xám.
-  const [catMenuOpen, setCatMenuOpen] = useState(false);
+  // Panel danh mục kiểu GearVN: bấm nút "Danh mục sản phẩm" ở nav navy →
+  // panel hiện đúng vị trí sidebar chuẩn (cột trái shell, ngay dưới nav),
+  // phần còn lại của trang phủ xám. State mở/đóng nằm trong CategoryMenuProvider
+  // (dùng chung với nút kích hoạt trong Navbar); đóng bằng Esc / đổi route /
+  // khóa scroll đều do provider lo.
+  const { open: catMenuOpen, setOpen: setCatMenuOpen } = useCategoryMenu();
   const router = useRouter();
-  const pathname = usePathname();
   const phone = settings.hotline || settings.phone;
 
-  // Đóng panel danh mục khi điều hướng sang trang khác.
-  useEffect(() => {
-    setCatMenuOpen(false);
-  }, [pathname]);
-
-  // Khi panel mở: khóa scroll nền + đóng bằng phím Esc.
-  useEffect(() => {
-    if (!catMenuOpen) return;
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setCatMenuOpen(false);
-    };
-    document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [catMenuOpen]);
-
   // Ô tìm kiếm header: tìm toàn site → /san-pham?search=<kw>.
-  // (Chọn theo danh mục đã chuyển sang nút "Danh mục" riêng bên cạnh.)
+  // (Điều hướng theo danh mục nằm ở nút "Danh mục sản phẩm" trên nav navy.)
   // Vẫn giữ action/method GET làm fallback khi JS tắt.
   function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -120,19 +104,6 @@ export default function Header({
           />
         </Link>
 
-        <div className="header-cat desktop-only">
-          <button
-            type="button"
-            className={`header-cat-btn${catMenuOpen ? " open" : ""}`}
-            aria-expanded={catMenuOpen}
-            aria-controls="headerCategoryPanel"
-            onClick={() => setCatMenuOpen((open) => !open)}
-          >
-            <Menu size={17} strokeWidth={2.5} />
-            Danh mục
-          </button>
-        </div>
-
         <form
           className="search desktop-only"
           role="search"
@@ -173,7 +144,8 @@ export default function Header({
         </div>
       </header>
 
-      {/* Panel danh mục kiểu GearVN: overlay xám + panel ở vị trí sidebar chuẩn.
+      {/* Panel danh mục kiểu GearVN: overlay xám + panel ở vị trí sidebar chuẩn,
+          thả xuống ngay dưới nút "Danh mục sản phẩm" của nav navy (CatalogMenuButton).
           Đặt ngoài .main-header để absolute không neo vào header (mobile sticky). */}
       {catMenuOpen ? (
         <>
