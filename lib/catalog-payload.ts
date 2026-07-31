@@ -18,6 +18,7 @@ import {
   HOME_DEVICE_TYPES,
   homeDeviceTypeOf,
   isHomeDeviceType,
+  type HomeDeviceType,
 } from "@/lib/home-category-sections";
 
 type PayloadProductDoc = Record<string, unknown>;
@@ -109,7 +110,8 @@ export type ProductSearchParams = {
   /** "category": facet (Danh mục/Thương hiệu) scope theo nhánh danh mục đang xem —
    * dùng cho landing /danh-muc. Mặc định: facet toàn catalog (hành vi /san-pham cũ). */
   facetScope?: "category" | "global";
-  sort?: "best" | "price-asc" | "price-desc" | "newest" | "popular";
+  /** "info-first": SP có giá bán thật lên trước (khu trưng bày trang chủ) — không phơi ra URL. */
+  sort?: "best" | "price-asc" | "price-desc" | "newest" | "popular" | "info-first";
   priceMin?: string;
   priceMax?: string;
   /** Lọc máy scan theo khổ giấy tối đa: A4 | A3 | A2 | A1 | A0 */
@@ -951,6 +953,133 @@ function toProductListData(
   };
 }
 
+// --- Ưu tiên SP CÓ GIÁ + THÔNG TIN ĐẦY ĐỦ cho khu trưng bày trang chủ (31/07) ---
+// Card "Liên hệ"/thiếu ảnh không được đứng chắn trước card có giá, đủ thông tin.
+
+/** Giá bán thật = priceValue > 0 (offer) hoặc chuỗi giá legacy có số tiền (không phải "Liên hệ"). */
+function hasRealPrice(product: CatalogProduct) {
+  if (typeof product.priceValue === "number" && product.priceValue > 0) return true;
+  const price = (product.price || "").trim();
+  if (!price) return false;
+  const normalized = price
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  if (normalized === "lien he") return false;
+  return price.replace(/[^\d]/g, "").length >= 4;
+}
+
+/** Điểm đầy đủ thông tin: có giá (4) > có ảnh (2) > có mô tả/spec (1). */
+function homeInfoScore(product: CatalogProduct) {
+  let score = 0;
+  if (hasRealPrice(product)) score += 4;
+  if (product.image || product.images?.length) score += 2;
+  if ((product.specs?.length || 0) >= 2 || product.detail) score += 1;
+  return score;
+}
+
+/**
+ * Xếp SP điểm cao lên trước; cùng điểm giữ nguyên thứ tự nguồn (tie-break theo
+ * index nên ổn định tuyệt đối): khu thiết bị = hàng mới về trước, khu danh mục =
+ * thứ tự SQL "info-first". Giá (4đ) luôn thắng ảnh+spec (tối đa 3đ) → SP có giá
+ * không bao giờ bị SP "Liên hệ" vượt mặt.
+ */
+function rankHomeProductsByInfo(products: CatalogProduct[]) {
+  return products
+    .map((product, index) => ({ index, product, score: homeInfoScore(product) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map((entry) => entry.product);
+}
+
+/**
+ * Chọn ID pool trang chủ cho 1 nhóm thiết bị: SP CÓ GIÁ BÁN đứng trước (giá nằm ở
+ * product_offers qua variant — payload.find không sort theo quan hệ này được nên
+ * phải xuống SQL, tái dùng đúng lateral join `pricing` của trang tìm kiếm).
+ * Trong từng nhóm giá vẫn xếp hàng mới về trước (created_at desc — bất biến,
+ * an toàn với batch-sửa dữ liệu, giữ nguyên bài học 14/07).
+ */
+const HOME_DEVICE_POOL_IDS_SQL = `
+  select p.id
+  from products p
+  join product_types pt on pt.id = p.product_type_id
+  left join lateral (
+    select coalesce(o.promotion_price, o.price) as effective_price
+    from product_variants v
+    left join product_offers o on o.variant_id = v.id
+    where v.product_id = p.id
+      and (v.is_primary = true or v.status = 'active')
+      and (o.sale_status is null or o.sale_status in ('active', 'contact'))
+    order by v.is_primary desc nulls last, o.updated_at desc nulls last
+    limit 1
+  ) pricing on true
+  where p.status = 'published' and p._status = 'published' and pt.code = $1
+  order by (pricing.effective_price is not null and pricing.effective_price > 0) desc, p.created_at desc
+  limit $2
+`;
+
+/**
+ * Docs pool trang chủ cho 1 nhóm thiết bị. Ưu tiên đường SQL (có giá lên trước);
+ * thiếu pg pool hoặc SQL lỗi thì lui về query Payload cũ (mới về trước) — trang chủ
+ * không bao giờ xấu hơn hành vi trước thay đổi này.
+ */
+async function loadHomeDeviceTypeDocs(
+  payload: Awaited<ReturnType<typeof getPayloadClient>>,
+  code: HomeDeviceType,
+): Promise<PayloadProductDoc[]> {
+  const pool = getPgPool();
+  if (pool) {
+    try {
+      const idsResult = await pool.query<{ id: string | number }>(HOME_DEVICE_POOL_IDS_SQL, [
+        code,
+        HOME_POOL_PER_DEVICE_TYPE,
+      ]);
+      const ids = idsResult.rows.map((row) => row.id);
+      if (!ids.length) return [];
+      const res = await payload.find({
+        collection: "products",
+        depth: 1,
+        limit: ids.length,
+        where: {
+          and: [
+            { status: { equals: "published" } },
+            { _status: { equals: "published" } },
+            { id: { in: ids } },
+          ],
+        },
+      });
+      const order = new Map(ids.map((id, index) => [String(id), index]));
+      return (res.docs as unknown as PayloadProductDoc[])
+        .slice()
+        .sort((a, b) => (order.get(String(a.id)) ?? 0) - (order.get(String(b.id)) ?? 0));
+    } catch (error) {
+      // Ghi log trực tiếp (KHÔNG qua handlePayloadReadError — chế độ strict sẽ throw
+      // và chặn mất đường lui) rồi rơi xuống query Payload bên dưới.
+      console.error(
+        `[home-device-pool:${code}] ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+  }
+
+  return payload
+    .find({
+      collection: "products",
+      depth: 1,
+      limit: HOME_POOL_PER_DEVICE_TYPE,
+      // Sắp theo SP MỚI NHẤT (ngày tạo) — hàng mới về lên trang chủ.
+      // Dùng createdAt thay vì updatedAt để các đợt batch-sửa dữ liệu
+      // không làm sản phẩm cũ nhảy lên đầu khu trưng bày.
+      sort: "-createdAt",
+      where: {
+        and: [
+          { status: { equals: "published" } },
+          { _status: { equals: "published" } },
+          { "productType.code": { equals: code } },
+        ],
+      },
+    })
+    .then((res) => res.docs as unknown as PayloadProductDoc[]);
+}
+
 async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT): Promise<CatalogProduct[]> {
   const safeLimit = Math.max(1, Math.min(limit, 500));
   const localProducts = loadLocalCatalogFixtures().slice(0, safeLimit);
@@ -962,28 +1091,12 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
     // PC ~400 lượt) chiếm trọn 500 suất "mới cập nhật nhất" → mục Máy scan trang chủ
     // chỉ còn 1 phụ kiện. Query theo từng loại đảm bảo khu nào cũng luôn đủ hàng,
     // bất kể nhóm nào (kể cả chính scanner/printer) vừa được ghi hàng loạt.
-    const perTypeResults = await Promise.all(
-      HOME_DEVICE_TYPES.map((code) =>
-        payload.find({
-          collection: "products",
-          depth: 1,
-          limit: HOME_POOL_PER_DEVICE_TYPE,
-          // Sắp theo SP MỚI NHẤT (ngày tạo) — hàng mới về lên trang chủ.
-          // Dùng createdAt thay vì updatedAt để các đợt batch-sửa dữ liệu
-          // không làm sản phẩm cũ nhảy lên đầu khu trưng bày.
-          sort: "-createdAt",
-          where: {
-            and: [
-              { status: { equals: "published" } },
-              { _status: { equals: "published" } },
-              { "productType.code": { equals: code } },
-            ],
-          },
-        }),
-      ),
+    // Từ 31/07: trong mỗi nhóm, SP CÓ GIÁ được chọn và xếp trước (SQL info-first).
+    const perTypeDocs = await Promise.all(
+      HOME_DEVICE_TYPES.map((code) => loadHomeDeviceTypeDocs(payload, code)),
     );
 
-    const docs = perTypeResults.flatMap((res) => res.docs as unknown as PayloadProductDoc[]);
+    const docs = perTypeDocs.flat();
     const productIDs = docs
       .map((doc) => doc.id)
       .filter((id): id is string | number => typeof id === "string" || typeof id === "number");
@@ -994,7 +1107,8 @@ async function loadHomeProductsFromPayload(limit = DEFAULT_HOME_PRODUCTS_LIMIT):
         doc.id !== undefined ? projections.get(String(doc.id)) : undefined,
       ),
     );
-    const selected = selectHomeProducts(products, safeLimit);
+    // Ưu tiên SP có giá + thông tin đầy đủ lên trước, rồi mới chia khu/quota.
+    const selected = selectHomeProducts(rankHomeProductsByInfo(products), safeLimit);
     const payloadSlugs = new Set(selected.map((product) => product.slug));
 
     return [...selected, ...localProducts.filter((product) => !payloadSlugs.has(product.slug))]
@@ -1031,8 +1145,13 @@ async function loadHomeCategorySectionProducts(): Promise<CatalogProduct[]> {
         const page = await loadProductSearchPageFromPayload({
           category: section.categorySlug,
           limit: HOME_CATEGORY_SECTION_POOL,
+          // Ưu tiên SP có giá bán lên trước trong khu trưng bày (31/07).
+          sort: "info-first",
         });
-        return page.products.map((product) => ({ ...product, homeSection: section.id }));
+        return rankHomeProductsByInfo(page.products).map((product) => ({
+          ...product,
+          homeSection: section.id,
+        }));
       } catch (error) {
         handlePayloadReadError(`home-category-section:${section.id}`, error);
         return [] as CatalogProduct[];
@@ -1539,6 +1658,12 @@ function productSearchOrder(sort?: ProductSearchParams["sort"]) {
   if (sort === "price-desc") return "effective_price desc nulls last, p.updated_at desc";
   if (sort === "newest") return "p.updated_at desc, p.created_at desc";
   if (sort === "popular") return "p.review_count desc nulls last, p.view_count desc nulls last, p.updated_at desc";
+  // "info-first" (khu trưng bày trang chủ, yêu cầu 31/07): SP có GIÁ BÁN THẬT
+  // (offer active/contact với số tiền > 0) đứng trước SP "Liên hệ"/chưa có giá;
+  // trong từng nhóm giữ nguyên thứ tự "best" hiện hành.
+  if (sort === "info-first") {
+    return "(effective_price is not null and effective_price > 0) desc, p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
+  }
   return "p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
 }
 
