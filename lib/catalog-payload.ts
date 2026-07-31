@@ -605,11 +605,27 @@ function mediaURL(value: unknown) {
   }
   if ("url" in value && typeof value.url === "string") return value.url;
   if ("filename" in value && typeof value.filename === "string") {
+    const updatedAt = (value as Record<string, unknown>).updatedAt;
     const generated = mediaPublicURL(value.filename);
-    if (generated) return generated;
-    return mediaProxyURL(value.filename);
+    if (generated) return withMediaVersion(generated, updatedAt);
+    return withMediaVersion(mediaProxyURL(value.filename), updatedAt);
   }
   return undefined;
+}
+
+// Gắn ?v=<updatedAt> cho nhánh dựng URL từ filename (khi media doc chưa có sẵn `url`).
+// Cùng lý do với r2MediaURL trong collections/Media.ts: URL phải đổi khi nội dung file
+// đổi, nếu không Next.js Image Optimizer sẽ phục vụ bản cache cũ rất lâu.
+function withMediaVersion(url: string, updatedAt: unknown) {
+  const raw =
+    updatedAt instanceof Date
+      ? updatedAt.getTime()
+      : typeof updatedAt === "string" && updatedAt
+        ? Date.parse(updatedAt)
+        : Number.NaN;
+  if (!Number.isFinite(raw)) return url;
+  const version = Math.floor(raw / 1000).toString(36);
+  return url.includes("?") ? `${url}&v=${version}` : `${url}?v=${version}`;
 }
 
 function localMediaFileExists(filename: string) {
