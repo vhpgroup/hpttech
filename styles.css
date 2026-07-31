@@ -417,39 +417,11 @@ main {
   object-fit: contain;
 }
 
-/* ===== Nút "Danh mục" + panel thả xuống kiểu GearVN (desktop) =====
-   Bấm nút → CategoryPanel hiện ĐÚNG vị trí sidebar chuẩn (cột trái shell,
-   ngay dưới nav — thẳng khối "Danh mục sản phẩm"), phần còn lại phủ xám. */
-.header-cat {
-  margin-right: 14px;
-}
-
-.header-cat-btn {
-  height: 48px;
-  padding: 0 18px;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  background: #da2028;
-  color: #ffffff;
-  border: 0;
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.header-cat-btn:hover,
-.header-cat-btn.open {
-  background: #b81a22;
-}
-
-.header-cat-btn.open {
-  box-shadow: 0 0 0 3px rgba(218, 32, 40, 0.25);
-}
-
+/* ===== Panel danh mục thả xuống kiểu GearVN (desktop) =====
+   Kích hoạt bằng nút "Danh mục sản phẩm" — khối đỏ đầu nav navy, nút danh mục
+   DUY NHẤT của site (xem .catalog-trigger; nút "Danh mục" đỏ cũ trên header
+   đã gộp về đây). Bấm nút → CategoryPanel hiện ĐÚNG vị trí sidebar chuẩn
+   (cột trái shell, ngay dưới nav — thẳng khối trigger), phần còn lại phủ xám. */
 .header-cat-overlay {
   position: fixed;
   inset: 0;
@@ -478,18 +450,29 @@ main {
   box-shadow: 0 30px 70px rgba(2, 10, 28, 0.35);
 }
 
+/* ===== Ô tìm kiếm header (desktop) =====
+   Dáng viên thuốc (pill) chiếm trọn khoảng giữa header sau khi nút "Danh mục"
+   đỏ được gộp xuống nav: nền xám xanh dịu, focus chuyển nền trắng + viền xanh
+   + quầng sáng; nút tìm là pill gradient xanh đặt lọt trong khung. Mép trái ô
+   thẳng hàng ranh giới khối "Danh mục sản phẩm" / "Trang chủ" của nav dưới
+   (slot logo rộng đúng --catalog-width). */
 .search {
   flex: 1;
-  max-width: 730px;
+  max-width: 760px;
   min-width: 0;
   height: 48px;
-  margin-right: 20px;
-  border: 2px solid var(--blue);
-  border-radius: 10px;
+  margin-right: 24px;
+  border: 1.5px solid #d8e1ef;
+  border-radius: 999px;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   overflow: hidden;
-  background: #ffffff;
+  background: #f3f6fb;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.search:hover {
+  border-color: #bccbe4;
 }
 
 .search input,
@@ -501,28 +484,42 @@ main {
 }
 
 .search input::placeholder {
-  color: #8195b3;
+  color: #7f93b2;
 }
 
 .search input {
   flex: 1 1 0%;
   min-width: 0;
-  padding: 0 14px;
+  align-self: stretch;
+  padding: 0 10px 0 20px;
+  font-size: 14px;
 }
 
 .search:focus-within {
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+  background: #ffffff;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
 .search button[type="submit"] {
-  width: 56px;
-  background: var(--blue);
+  flex: 0 0 auto;
+  width: 62px;
+  height: 38px;
+  margin-right: 4px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
   color: #ffffff;
-  transition: background 0.18s ease;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
 }
 
 .search button[type="submit"]:hover {
-  background: var(--color-primary-700);
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-800));
+  box-shadow: 0 5px 14px rgba(29, 78, 216, 0.34);
+}
+
+.search button[type="submit"]:active {
+  transform: scale(0.96);
 }
 
 .search button,
@@ -889,8 +886,7 @@ main {
   justify-content: center;
 }
 
-.nav a,
-.catalog-trigger {
+.nav a {
   position: relative;
   display: flex;
   align-items: center;
@@ -905,8 +901,7 @@ main {
   transition: color 200ms ease, background 200ms ease, box-shadow 200ms ease;
 }
 
-.nav a::after,
-.catalog-trigger::after {
+.nav a::after {
   content: "";
   position: absolute;
   left: 22px;
@@ -921,25 +916,59 @@ main {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.nav a:hover,
-.catalog-trigger:hover {
+.nav a:hover {
   color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-.nav a:hover::after,
-.catalog-trigger:hover::after {
+.nav a:hover::after {
   opacity: 1;
   transform: scaleX(1);
 }
 
+/* Nút "Danh mục sản phẩm" — nút danh mục DUY NHẤT của site (đã gộp nút
+   "Danh mục" đỏ cũ trên header về đây). Khối đỏ gradient nối tiếp dải topbar
+   đỏ phía trên; bấm → panel danh mục thả xuống NGAY DƯỚI nút, thẳng cột
+   sidebar chuẩn. Chevron xoay 180° khi panel mở. */
 .catalog-trigger {
   width: var(--catalog-width);
   flex: 0 0 var(--catalog-width);
-  background: var(--blue);
-  border-radius: 0;
+  display: flex;
+  align-items: center;
   justify-content: flex-start;
+  gap: 9px;
+  padding: 0 14px 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(118deg, var(--hpt-red), var(--hpt-red-dark));
+  color: #ffffff;
+  font-family: inherit;
+  text-transform: uppercase;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.catalog-trigger:hover {
+  background: linear-gradient(118deg, #e63238, var(--hpt-red));
+}
+
+.catalog-trigger.open {
+  background: var(--hpt-red-dark);
+  box-shadow: inset 0 4px 10px rgba(2, 10, 28, 0.28);
+}
+
+.catalog-trigger-chevron {
+  margin-left: auto;
+  opacity: 0.9;
+  transition: transform 0.18s ease;
+}
+
+.catalog-trigger.open .catalog-trigger-chevron {
+  transform: rotate(180deg);
 }
 
 main {
@@ -3243,8 +3272,9 @@ svg {
     font-size: 12.5px;
   }
 
-  .header-cat-btn {
-    padding: 0 14px;
+  .catalog-trigger {
+    padding: 0 10px 0 12px;
+    font-size: 11.5px;
   }
 }
 

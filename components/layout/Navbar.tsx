@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { List } from "lucide-react";
+import { CatalogMenuButton } from "@/components/layout/CategoryMenu";
 
 const navLinks = [
   { href: "/san-pham", label: "Sản phẩm" },
@@ -15,9 +15,10 @@ const navLinks = [
 export default function Navbar() {
   return (
     <nav className="nav desktop-only">
-      <Link className="catalog-trigger" href="/san-pham">
-        <List size={18} /> Danh mục sản phẩm
-      </Link>
+      {/* Nút danh mục DUY NHẤT của site: bấm → panel danh mục thả xuống
+          (gộp từ nút "Danh mục" đỏ cũ trên header). Link tới trang /san-pham
+          vẫn còn ngay bên cạnh qua mục "Sản phẩm". */}
+      <CatalogMenuButton />
       <Link className="nav-home" href="/">
         Trang chủ
       </Link>
