@@ -110,7 +110,9 @@ export type ProductSearchParams = {
   /** "category": facet (Danh mục/Thương hiệu) scope theo nhánh danh mục đang xem —
    * dùng cho landing /danh-muc. Mặc định: facet toàn catalog (hành vi /san-pham cũ). */
   facetScope?: "category" | "global";
-  /** "info-first": SP có giá bán thật lên trước (khu trưng bày trang chủ) — không phơi ra URL. */
+  /** "info-first": SP có giá bán thật lên trước — từ 31/07 đây cũng là hành vi
+   * mặc định của "best" (landing + /san-pham + tìm kiếm); giữ alias để khu
+   * trang chủ khai báo tường minh. Không phơi ra URL. */
   sort?: "best" | "price-asc" | "price-desc" | "newest" | "popular" | "info-first";
   priceMin?: string;
   priceMax?: string;
@@ -1658,13 +1660,12 @@ function productSearchOrder(sort?: ProductSearchParams["sort"]) {
   if (sort === "price-desc") return "effective_price desc nulls last, p.updated_at desc";
   if (sort === "newest") return "p.updated_at desc, p.created_at desc";
   if (sort === "popular") return "p.review_count desc nulls last, p.view_count desc nulls last, p.updated_at desc";
-  // "info-first" (khu trưng bày trang chủ, yêu cầu 31/07): SP có GIÁ BÁN THẬT
-  // (offer active/contact với số tiền > 0) đứng trước SP "Liên hệ"/chưa có giá;
-  // trong từng nhóm giữ nguyên thứ tự "best" hiện hành.
-  if (sort === "info-first") {
-    return "(effective_price is not null and effective_price > 0) desc, p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
-  }
-  return "p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
+  // Mặc định "best" (kiêm alias "info-first" của khu trang chủ, 31/07): SP có
+  // GIÁ BÁN THẬT (offer active/contact với số tiền > 0) đứng trước SP "Liên hệ"/
+  // chưa có giá, rồi mới đến review/độ mới — đồng bộ landing /<slug>, /san-pham,
+  // kết quả tìm kiếm với khu trưng bày trang chủ. Sort user TỰ CHỌN (giá tăng/
+  // giảm, mới nhất, phổ biến) ở trên giữ nguyên hành vi.
+  return "(effective_price is not null and effective_price > 0) desc, p.review_count desc nulls last, p.updated_at desc, p.created_at desc";
 }
 
 // --- Tìm kiếm KHÔNG PHÂN BIỆT DẤU (accent-insensitive) ---------------------
