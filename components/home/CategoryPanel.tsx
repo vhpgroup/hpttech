@@ -698,6 +698,35 @@ const imagingMegaColumns: MegaColumn[] = [
   },
 ];
 
+// Slug danh mục cha nhóm camera & giám sát (khớp categories.slug trong CMS).
+const CAMERA_PARENT_SLUG = "camera-giam-sat";
+
+// Mega-menu "Camera & Giám sát" — 2 trục theo khảo sát 2026-08-01 (62 SP published).
+const cameraMegaColumns: MegaColumn[] = [
+  {
+    // Trục 1 — DANH MỤC THẬT (category): nhóm sản phẩm.
+    // "Đầu ghi Camera" (dau-ghi-camera) đang 0 SP — thêm lại khi có hàng.
+    title: "Theo nhóm sản phẩm",
+    links: [
+      { label: "Camera quan sát", href: buildProductFilterHref({ category: "camera-quan-sat" }) },
+      { label: "Camera hội nghị PTZ", href: buildProductFilterHref({ category: "camera-hoi-nghi" }) },
+      { label: "Ổ cứng Camera", href: buildProductFilterHref({ category: "o-cung-camera" }) },
+      { label: "Phụ kiện Camera", href: buildProductFilterHref({ category: "phu-kien-camera" }) },
+    ],
+  },
+  {
+    // Trục 2 — BỘ LỌC theo hãng (field brand). Chỉ liệt kê hãng ≥4 SP (theo khảo sát 2026-08-01).
+    title: "Theo hãng",
+    links: [
+      { label: "Tenveo", href: buildProductFilterHref({ category: CAMERA_PARENT_SLUG, brand: "Tenveo" }) },
+      { label: "Western Digital", href: buildProductFilterHref({ category: CAMERA_PARENT_SLUG, brand: "Western Digital" }) },
+      { label: "Seagate", href: buildProductFilterHref({ category: CAMERA_PARENT_SLUG, brand: "Seagate" }) },
+      { label: "Imou", href: buildProductFilterHref({ category: CAMERA_PARENT_SLUG, brand: "Imou" }) },
+      { label: "EZVIZ", href: buildProductFilterHref({ category: CAMERA_PARENT_SLUG, brand: "EZVIZ" }) },
+    ],
+  },
+];
+
 function categoryLandingHref(category: { name: string; slug?: string }) {
   // Landing page rút gọn /<slug> của danh mục (kiểu An Phát).
   // Mục nav CHƯA có category trong CMS (không slug — vd Máy chiếu, UPS, Lưu trữ...)
@@ -737,6 +766,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "thiết bị hình ảnh") {
     return imagingMegaColumns;
+  }
+  if (nameKey === "camera & giám sát" || nameKey === "camera & an ninh") {
+    return cameraMegaColumns;
   }
 
   if (!category.children.length) {
