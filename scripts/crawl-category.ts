@@ -72,7 +72,7 @@ function classifyCategoryProduct(
     ? commonProductTypeCode(productName) || categoryType
     : categoryType || commonProductTypeCode(productName);
   if (detected === "camera") {
-    return { categoryName: "Camera & An ninh", productType: "camera" };
+    return { categoryName: "Camera & Giám sát", productType: "camera" };
   }
   if (detected === "networking") {
     return { categoryName: "Thiết bị mạng", productType: "networking" };

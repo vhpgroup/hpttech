@@ -774,7 +774,7 @@ const CATEGORY_ICON_BY_NAME: Record<string, string> = {
   "thiết bị mạng": "thiet-bi-mang",
   "thiết bị văn phòng": "thiet-bi-van-phong",
   "thiết bị hội nghị": "hoi-nghi",
-  "camera & an ninh": "camera-an-ninh",
+  "camera & giám sát": "camera-an-ninh",
   "thiết bị giáo dục": "giao-duc",
   "phần mềm bản quyền": "phan-mem",
   "linh kiện & phụ kiện": "linh-kien",
