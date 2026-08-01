@@ -32,7 +32,7 @@ const footerColumns: FooterColumn[] = [
   {
     // Mirror menu trục sidebar (HPT_DATA/CategoryPanel): chỉ các mục có slug category
     // thật ("link chuẩn") — cùng tên, cùng đích với sidebar. Các mục mồ côi
-    // (slug rỗng: hội nghị, camera & an ninh, giáo dục, lưu trữ, dịch vụ, số hóa,
+    // (slug rỗng: hội nghị, giáo dục, lưu trữ, dịch vụ, số hóa,
     // máy chiếu, UPS) KHÔNG đưa vào footer cho tới khi có category thật.
     title: "Sản phẩm",
     links: [
@@ -44,6 +44,7 @@ const footerColumns: FooterColumn[] = [
       { label: "Máy tính đồng bộ - Máy chủ", href: "/may-tinh-dong-bo-may-chu" },
       { label: "Thiết bị mạng", href: "/thiet-bi-mang" },
       { label: "Thiết bị văn phòng", href: "/thiet-bi-van-phong" },
+      { label: "Camera & Giám sát", href: "/camera-giam-sat" },
       { label: "Phần mềm bản quyền", href: "/phan-mem-ban-quyen" },
       { label: "Thiết bị hình ảnh", href: "/thiet-bi-hinh-anh" },
       { label: "Mực in & Phụ kiện", href: "/muc-in-phu-kien" },

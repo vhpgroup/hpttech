@@ -41,7 +41,7 @@ export const HPT_DATA = {
     { name: "Thiết bị mạng", icon: "network" },
     { name: "Thiết bị văn phòng", icon: "printer" },
     { name: "Thiết bị hội nghị", icon: "video" },
-    { name: "Camera & An ninh", icon: "cctv" },
+    { name: "Camera & Giám sát", icon: "cctv", slug: "camera-giam-sat" },
     { name: "Thiết bị giáo dục", icon: "graduation-cap" },
     { name: "Phần mềm bản quyền", icon: "badge-check" },
     { name: "Thiết bị hình ảnh", icon: "image", slug: "thiet-bi-hinh-anh" },
