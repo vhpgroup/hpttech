@@ -51,7 +51,10 @@ export function ProductRelationTabs({ sections, allProductsHref = "/san-pham" }:
   return (
     <section className="mt-6 rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="tablist">
+        {/* Mobile cho tab xuống dòng thay vì cuộn ngang ẩn scrollbar — nhãn
+            "SẢN PHẨM CÙNG HÃNG" trước đây bị cắt đúng mép màn hình, không có
+            dấu hiệu nào cho biết còn cuộn được (audit 03/08). */}
+        <div className="scrollbar-none -mx-1 flex flex-wrap gap-2 overflow-x-auto px-1 pb-1 sm:flex-nowrap" role="tablist">
           {sections.map((section) => {
             const isActive = section.id === activeSection.id;
 

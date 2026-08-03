@@ -24,7 +24,10 @@ export function ProductDetailTabs({ sections }: ProductDetailTabsProps) {
 
   return (
     <section className="rounded-[20px] bg-white p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)] ring-1 ring-slate-200/60 sm:p-5 lg:p-6">
-      <div className="scrollbar-none -mx-1 mb-6 flex gap-2 overflow-x-auto px-1 pb-1">
+      {/* Mobile cho tab xuống dòng để thấy đủ mọi tab — hàng cuộn ngang ẩn
+          scrollbar trông như bị cắt cụt, không ai biết còn tab phía sau
+          (audit 03/08). Từ sm trở lên giữ hàng ngang cuộn như cũ. */}
+      <div className="scrollbar-none -mx-1 mb-6 flex flex-wrap gap-2 overflow-x-auto px-1 pb-1 sm:flex-nowrap">
         {availableSections.map((section) => {
           const isActive = section.id === activeTab;
 
