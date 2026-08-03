@@ -144,6 +144,27 @@ export default function Header({
         </div>
       </header>
 
+      {/* Thanh tìm kiếm mobile/tablet: sticky ngay dưới header. Site thương mại
+          điện tử hàng nghìn SKU nhưng header mobile trước đây không có ô tìm
+          kiếm nào — muốn tìm phải biết mở hamburger (audit 03/08). */}
+      <form
+        className="mobile-search-bar mobile-only"
+        role="search"
+        action="/san-pham"
+        method="get"
+        onSubmit={handleSearchSubmit}
+      >
+        <input
+          name="search"
+          type="search"
+          placeholder="Tìm sản phẩm, thương hiệu, mã SP..."
+          aria-label="Tìm sản phẩm"
+        />
+        <button type="submit" aria-label="Tìm kiếm">
+          <Search size={18} />
+        </button>
+      </form>
+
       {/* Panel danh mục kiểu GearVN: overlay xám + panel ở vị trí sidebar chuẩn,
           thả xuống ngay dưới nút "Danh mục sản phẩm" của nav navy (CatalogMenuButton).
           Đặt ngoài .main-header để absolute không neo vào header (mobile sticky). */}
