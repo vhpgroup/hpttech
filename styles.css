@@ -3627,9 +3627,11 @@ svg {
     background: #03111f;
   }
 
-  main {
-    background: #020a1c;
-  }
+  /* KHÔNG set background cho <main> ở đây: rule un-layered thắng mọi utility
+     bg-* của từng trang (Tailwind v4 đặt utility trong @layer, mà style ngoài
+     layer luôn thắng bất kể specificity) — từng làm /tin-tuc chữ tối trên nền
+     tối vì bg-white bị đè (03/08). Nền navy mobile đã có body + .site-shell lo;
+     trang nào cần nền riêng tự khai bg-* trên <main>. */
 
   .hero-section {
     --hero-shell-height: auto;
