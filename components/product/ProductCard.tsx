@@ -139,10 +139,12 @@ export function ProductCard({ product, className, isComparing = false, onCompare
           </Link>
         </h3>
 
-        {/* Đánh giá luôn hiển thị (kể cả 0 sao) + tình trạng kho gọn về một dòng meta */}
-        <div className="mt-1.5 flex items-center justify-between gap-2">
+        {/* Đánh giá luôn hiển thị (kể cả 0 sao) + tình trạng kho gọn về một dòng meta.
+            flex-wrap để badge kho rơi xuống dòng thay vì bị overflow-hidden của card
+            cắt cụt thành "C…" trong lưới 2 cột mobile (audit 03/08). */}
+        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
           <ProductRating rating={product.rating} reviewCount={product.reviewCount} />
-          <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", stock.className)}>
+          <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium", stock.className)}>
             <span className={cn("h-1.5 w-1.5 rounded-full", stock.dotClassName)} aria-hidden />
             {stock.label}
           </span>
@@ -167,20 +169,22 @@ export function ProductCard({ product, className, isComparing = false, onCompare
           {promotionCount > 0 ? <p className="mt-1 text-xs text-slate-600">{promotionCount} khuyến mại</p> : null}
         </div>
 
-        {/* Một CTA chính + nút so sánh dạng icon — thay cho cụm 3 hành động cũ */}
+        {/* Một CTA chính + nút so sánh dạng icon — thay cho cụm 3 hành động cũ.
+            Card lưới 2 cột mobile chỉ rộng ~140-165px: chữ CTA hạ xuống text-xs,
+            ẩn icon giỏ hàng dưới sm để nhãn không gãy thành 2 dòng. */}
         <div className="mt-auto flex items-center gap-2 pt-3">
           {product.price ? (
             <AddToCartButton
               product={product}
               label="Thêm vào giỏ"
               ariaLabel={`Thêm ${product.title} vào giỏ`}
-              className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-600 text-[13px] font-semibold text-white transition hover:bg-red-700"
+              className="flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-red-600 text-xs font-semibold text-white transition hover:bg-red-700 sm:text-[13px] [&>svg]:hidden sm:[&>svg]:block"
             />
           ) : (
             <button
               type="button"
               onClick={() => openQuote(product)}
-              className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-slate-300 text-[13px] font-semibold text-slate-800 transition hover:border-red-600 hover:text-red-600"
+              className="flex h-10 min-w-0 flex-1 items-center justify-center rounded-xl border border-slate-300 px-1 text-xs font-semibold leading-tight text-slate-800 transition hover:border-red-600 hover:text-red-600 sm:text-[13px]"
             >
               Nhận báo giá nhanh
             </button>

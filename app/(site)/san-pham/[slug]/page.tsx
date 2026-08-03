@@ -18,6 +18,7 @@ import { absoluteURL, pageMetadata } from "@/lib/seo";
 import { helpLinks } from "@/lib/help-links";
 import { normalizeSiteSettings, phoneHref, quoteMailHref } from "@/lib/site-settings";
 import { ProductDetailTabs, type ProductDetailTab } from "@/components/product/ProductDetailTabs";
+import { ProductAsideCollapse } from "@/components/product/ProductAsideCollapse";
 import { ProductImageGallery } from "@/components/product/ProductImageGallery";
 import ProductPricingSection from "@/components/product/ProductPricingSection";
 import { ProductSpecTable } from "@/components/product/ProductSpecTable";
@@ -420,17 +421,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
         phoneHref={phoneHref(phone)}
       />
 
-      <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1.5 text-sm text-slate-500">
+      {/* Breadcrumb một dòng cuộn ngang: trước đây flex để wrap làm "Trang chủ" /
+          "Sản phẩm" gãy mỗi cụm thành 2 dòng và hàng bị cắt ở mép phải trên
+          mobile (audit 03/08). */}
+      <nav
+        aria-label="Breadcrumb"
+        className="scrollbar-none mb-5 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap pb-1 text-sm text-slate-500"
+      >
         <Link href="/" className="transition-colors hover:text-slate-800">
           Trang chủ
         </Link>
-        <ChevronRight size={14} className="text-slate-300" />
+        <ChevronRight size={14} className="shrink-0 text-slate-300" />
         <Link href="/san-pham" className="transition-colors hover:text-slate-800">
           Sản phẩm
         </Link>
         {categoryTrail.map((item) => (
           <span key={item.slug} className="inline-flex items-center gap-1.5">
-            <ChevronRight size={14} className="text-slate-300" />
+            <ChevronRight size={14} className="shrink-0 text-slate-300" />
             <Link
               href={`/san-pham?category=${encodeURIComponent(item.slug)}`}
               className="truncate transition-colors hover:text-slate-800"
@@ -439,8 +446,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </Link>
           </span>
         ))}
-        <ChevronRight size={14} className="text-slate-300" />
-        <span className="truncate font-medium text-slate-900">{product.title}</span>
+        <ChevronRight size={14} className="shrink-0 text-slate-300" />
+        <span className="max-w-[68vw] truncate font-medium text-slate-900 md:max-w-[480px]">{product.title}</span>
       </nav>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(300px,340px)] xl:items-start">
@@ -466,69 +473,73 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         <aside className="space-y-4 xl:sticky xl:top-24">
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-primary-600 px-4 py-3">
-              <h2 className="text-sm font-bold uppercase text-white">Cam kết HPT Tech</h2>
+          <ProductAsideCollapse>
+            <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+              <div className="bg-primary-600 px-4 py-3">
+                <h2 className="text-sm font-bold uppercase text-white">Cam kết HPT Tech</h2>
+              </div>
+              <ul className="space-y-2 px-4 py-4">
+                {[
+                  "Xuất hóa đơn VAT đầy đủ cho doanh nghiệp",
+                  "Hàng mới 100% - nguyên seal",
+                  "Bảo hành 12 tháng",
+                  "Giao hàng toàn quốc, hỗ trợ kỹ thuật",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
+                    <Check size={16} className="mt-0.5 shrink-0 text-accent-600" strokeWidth={3} />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="space-y-2 px-4 py-4">
-              {[
-                "Xuất hóa đơn VAT đầy đủ cho doanh nghiệp",
-                "Hàng mới 100% - nguyên seal",
-                "Bảo hành 12 tháng",
-                "Giao hàng toàn quốc, hỗ trợ kỹ thuật",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
-                  <Check size={16} className="mt-0.5 shrink-0 text-accent-600" strokeWidth={3} />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-primary-500 px-4 py-3">
-              <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>
+            <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+              <div className="bg-primary-500 px-4 py-3">
+                <h2 className="text-sm font-bold uppercase text-white">Trợ giúp</h2>
+              </div>
+              <div className="space-y-2 px-4 py-4">
+                {helpLinks.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-start gap-2 text-sm leading-5 text-slate-700 transition-colors hover:text-primary-600"
+                  >
+                    <Check size={16} className="mt-0.5 shrink-0 text-accent-600" strokeWidth={3} />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2 px-4 py-4">
-              {helpLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-start gap-2 text-sm leading-5 text-slate-700 transition-colors hover:text-primary-600"
-                >
-                  <Check size={16} className="mt-0.5 shrink-0 text-accent-600" strokeWidth={3} />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
 
-          <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
-            <div className="bg-primary-500 px-4 py-3">
-              <h2 className="text-sm font-bold uppercase text-white">Mua hàng nhanh chóng, tiện lợi</h2>
+            <div className="overflow-hidden rounded-xl bg-white shadow-[0_16px_34px_-28px_rgba(15,23,42,0.24)] ring-1 ring-slate-200/70">
+              <div className="bg-primary-500 px-4 py-3">
+                <h2 className="text-sm font-bold uppercase text-white">Mua hàng nhanh chóng, tiện lợi</h2>
+              </div>
+              <div className="space-y-2 px-4 py-4">
+                {quickBuyItems.map((item) => (
+                  <div key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2 px-4 py-4">
-              {quickBuyItems.map((item) => (
-                <div key={item} className="flex items-start gap-2 text-sm leading-5 text-slate-700">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-600" />
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <ProductSupportContactBlock title="Tư vấn khách hàng" contacts={consultantItems} />
+            <ProductSupportContactBlock title="Tư vấn khách hàng" contacts={consultantItems} />
 
-          <ProductSupportContactBlock title="Hỗ trợ kỹ thuật" contacts={technicalSupportItems} />
+            <ProductSupportContactBlock title="Hỗ trợ kỹ thuật" contacts={technicalSupportItems} />
+          </ProductAsideCollapse>
         </aside>
       </section>
 
       <ProductRelationTabs sections={relationSections} />
 
       <div className="mt-8">
+        {/* Chip nền trắng để link đọc được trên cả nền navy mobile lẫn nền
+            sáng desktop — trước đây chữ slate-500 chìm hẳn vào nền tối. */}
         <Link
           href="/san-pham"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-primary-600"
+          className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200 transition-colors hover:text-primary-600 hover:ring-primary-300"
         >
           <ArrowLeft size={15} />
           Quay lại danh sách sản phẩm

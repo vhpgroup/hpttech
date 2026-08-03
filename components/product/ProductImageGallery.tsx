@@ -106,8 +106,12 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
         </div>
       ) : null}
 
+      {/* Dưới lg wrapper là flex-col (trục chính = dọc): flex-1 khi đó đặt
+          flex-basis:0 cho CHIỀU CAO và ghi đè h-[360px] → khung ảnh chính sập
+          về 0, ảnh sản phẩm biến mất trên mobile (audit 03/08). Chỉ bật flex-1
+          từ lg trở lên khi wrapper đã chuyển sang flex-row. */}
       <div
-        className="group relative order-1 h-[360px] flex-1 overflow-hidden rounded-[20px] bg-slate-50 sm:h-[400px] xl:h-[460px]"
+        className="group relative order-1 h-[360px] overflow-hidden rounded-[20px] bg-slate-50 sm:h-[400px] lg:flex-1 xl:h-[460px]"
         onMouseEnter={() => setIsZoomed(true)}
         onMouseLeave={() => setIsZoomed(false)}
       >
