@@ -137,8 +137,18 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
             ))}
           </div>
 
-          <h3 className="footer-heading mt-8">Trụ sở &amp; Văn phòng</h3>
+          <h3 className="footer-heading mt-8">Trụ sở &amp; Văn phòng HPT</h3>
           <ul className="mt-4 space-y-2.5 text-sm leading-6 text-slate-100/85">
+            {/* Khối pháp nhân: tên công ty + MST chung một mục (01/08, user chốt:
+                đổi tiêu đề, bỏ email, thêm tên công ty + mã số thuế). */}
+            <li className="flex gap-3">
+              <Image src={`${R2}/icon-footer-doanh-nghiep.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
+              <span>
+                <span className="font-medium text-white/95">{HPT_LEGAL_NAME}</span>
+                <br />
+                MST: {HPT_TAX_CODE}
+              </span>
+            </li>
             <li className="flex gap-3">
               <Image src={`${R2}/icon-footer-dia-chi.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <span>{HPT_HEADQUARTERS}</span>
@@ -147,12 +157,6 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
               <Image src={`${R2}/icon-footer-dien-thoai.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <a href={phoneHref(phone)} className="footer-link">
                 0967 286 889
-              </a>
-            </li>
-            <li className="flex gap-3">
-              <Image src={`${R2}/icon-footer-email.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
-              <a href={`mailto:${settings.email}`} className="footer-link">
-                {settings.email}
               </a>
             </li>
           </ul>
