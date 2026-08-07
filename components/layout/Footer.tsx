@@ -154,16 +154,17 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
               <Image src={`${R2}/icon-footer-dia-chi.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <span>{HPT_HEADQUARTERS}</span>
             </li>
+            {/* 07/08: thứ tự user chốt — hai địa chỉ (trụ sở, chi nhánh) đi liền nhau,
+                hotline nằm cuối khối. */}
+            <li className="flex gap-3">
+              <Image src={`${R2}/icon-footer-dia-chi.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
+              <span>{HPT_BRANCH_HCM}</span>
+            </li>
             <li className="flex gap-3">
               <Image src={`${R2}/icon-footer-dien-thoai.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <a href={phoneHref(phone)} className="footer-link">
                 0967 286 889
               </a>
-            </li>
-            {/* 07/08: user chốt bổ sung chi nhánh HCM ngay dưới trụ sở + hotline. */}
-            <li className="flex gap-3">
-              <Image src={`${R2}/icon-footer-dia-chi.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
-              <span>{HPT_BRANCH_HCM}</span>
             </li>
           </ul>
 
