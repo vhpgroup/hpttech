@@ -10,7 +10,7 @@ const HPT_LEGAL_NAME = "Công ty TNHH Đầu tư Xây dựng và Thiết bị C�
 const HPT_TAX_CODE = "0202253444";
 const HPT_PUBLIC_PHONE = "+84 967 286 889";
 const HPT_HEADQUARTERS = "Trụ sở: SB04 Vinhomes Marina, phường An Biên, TP. Hải Phòng";
-const HPT_BRANCH_HCM = "Chi nhánh Hồ Chí Minh: 156/3/1 Đường Vườn Lài, Khu phố 2, phường An Phú Đông, TP. Hồ Chí Minh";
+const HPT_BRANCH_HCM = "Chi nhánh Hồ Chí Minh: 74 Núi Thành, Phường Tân Bình, TP. Hồ Chí Minh";
 const HPT_OFFICE_CITIES = "Hải Phòng · Hà Nội · TP. Hồ Chí Minh · Cần Thơ · Thanh Hóa · Quảng Ngãi";
 
 // Icon 3D phong cách Fluent, tự host trên Payload Media R2 (same-origin, không cần remotePatterns).
