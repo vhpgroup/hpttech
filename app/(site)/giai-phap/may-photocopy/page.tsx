@@ -111,8 +111,8 @@ export default async function PhotocopierSolutionsPage() {
             Chọn nhanh máy photocopy chính hãng theo bối cảnh sử dụng. HPT Tech tư vấn cấu hình, báo giá dự án, xuất VAT, giao hàng và hỗ trợ toàn quốc.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <a href="tel:0967286889" className="inline-flex h-12 items-center rounded-md bg-accent-500 px-5 text-sm font-bold text-white transition hover:bg-accent-600">
-              Gọi tư vấn 0967286889
+            <a href="tel:0918871414" className="inline-flex h-12 items-center rounded-md bg-accent-500 px-5 text-sm font-bold text-white transition hover:bg-accent-600">
+              Gọi tư vấn 0918871414
             </a>
             <Link href="/may-photocopy" className="inline-flex h-12 items-center rounded-md border border-border bg-white px-5 text-sm font-bold text-primary-700 transition hover:border-primary-300">
               Xem danh mục máy photocopy

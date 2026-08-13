@@ -74,7 +74,7 @@ export default function AboutRedesign() {
       a.remove();
       note.className = "cf-note ok";
       note.textContent =
-        "Đã ghi nhận yêu cầu của bạn. Nếu trình duyệt không mở email, vui lòng gọi 0967 286 889 hoặc gửi về info@hpttech.vn.";
+        "Đã ghi nhận yêu cầu của bạn. Nếu trình duyệt không mở email, vui lòng gọi 0918 87 14 14 hoặc gửi về info@hpttech.vn.";
       cf?.reset();
     };
     cf?.addEventListener("submit", onSubmit);
@@ -560,7 +560,7 @@ export default function AboutRedesign() {
         <h2>Đăng ký nhận tư vấn giải&nbsp;pháp</h2>
         <p>HPT TECH sẵn sàng khảo sát nhu cầu và đề xuất phương án triển khai phù hợp cho cơ quan, tổ chức và doanh nghiệp của bạn — hoàn toàn miễn phí.</p>
         <div className="cta-contacts">
-          <a className="cc-item" href="tel:0967286889"><img src="/ve-hpt/icon-51.png" alt="" /><span><small>Hotline tư vấn</small><b>0967 286 889</b></span></a>
+          <a className="cc-item" href="tel:0918871414"><img src="/ve-hpt/icon-51.png" alt="" /><span><small>Hotline tư vấn</small><b>0918 87 14 14</b></span></a>
           <a className="cc-item" href="mailto:info@hpttech.vn"><img src="/ve-hpt/icon-52.png" alt="" /><span><small>Email</small><b>info@hpttech.vn</b></span></a>
           <div className="cc-item"><img src="/ve-hpt/icon-53.png" alt="" /><span><small>Giờ làm việc</small><b>8:00 – 17:30 (T2–T7)</b></span></div>
         </div>

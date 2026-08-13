@@ -251,7 +251,7 @@ Tài liệu lỗi thời: README.md (mô tả prototype cũ) và docs/vercel-neo
 HPT Tech — Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT. B2B, bán chính hãng
 100%, xuất hóa đơn VAT, giá tốt cho doanh nghiệp, giao toàn quốc. Mạnh ở máy
 scan/máy in chuyên dụng cao cấp mà bán lẻ phổ thông không có: Fujitsu, Kodak, ROWE, CZUR,
-Microtek, Panasonic. Liên hệ: hotline 0967286889, email kinhoanh@hpttech.vn. Khi
+Microtek, Panasonic. Liên hệ: hotline 0918871414, email kinhoanh@hpttech.vn. Khi
 viết nội dung/CTA, hướng tới khách doanh nghiệp (số lượng, dự án, số hóa tài liệu), luôn
 nhấn mạnh tư vấn + báo giá + hotline.
 

@@ -8,7 +8,7 @@ const HPT_LOGO_SRC = "/assets/logo/hptlogo.png";
 const HPT_BCT_BADGE_SRC = "/assets/logo/bctn.png";
 const HPT_LEGAL_NAME = "Công ty TNHH Đầu tư Xây dựng và Thiết bị Công nghệ HPT";
 const HPT_TAX_CODE = "0202253444";
-const HPT_PUBLIC_PHONE = "+84 967 286 889";
+const HPT_PUBLIC_PHONE = "+84 918 871 414";
 const HPT_HEADQUARTERS = "Trụ sở: SB04 Vinhomes Marina, phường An Biên, TP. Hải Phòng";
 const HPT_BRANCH_HCM = "Chi nhánh Hồ Chí Minh: 74 Núi Thành, Phường Tân Bình, TP. Hồ Chí Minh";
 const HPT_OFFICE_CITIES = "Hải Phòng · Hà Nội · TP. Hồ Chí Minh · Cần Thơ · Thanh Hóa · Quảng Ngãi";
@@ -163,7 +163,7 @@ export default function Footer({ settings }: { settings: Required<PublicSiteSett
             <li className="flex gap-3">
               <Image src={`${R2}/icon-footer-dien-thoai.png`} alt="" aria-hidden="true" width={20} height={20} loading="lazy" className="mt-0.5 h-5 w-5 shrink-0 object-contain" />
               <a href={phoneHref(phone)} className="footer-link">
-                0967 286 889
+                0918 87 14 14
               </a>
             </li>
           </ul>

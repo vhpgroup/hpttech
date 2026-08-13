@@ -313,8 +313,8 @@ export function GiaiPhapHub({ scan, solutions }: GiaiPhapHubProps) {
           <p className="mt-3 max-w-2xl text-primary-50">
             HPT Tech tư vấn cấu hình thiết bị, hồ sơ dự án, VAT và phương án triển khai theo khối lượng tài liệu thực tế.
           </p>
-          <a href="tel:0967286889" className="mt-5 inline-flex h-12 items-center rounded-md bg-accent-500 px-5 text-sm font-bold text-white transition hover:bg-accent-600">
-            Gọi hotline 0967286889
+          <a href="tel:0918871414" className="mt-5 inline-flex h-12 items-center rounded-md bg-accent-500 px-5 text-sm font-bold text-white transition hover:bg-accent-600">
+            Gọi hotline 0918871414
           </a>
         </div>
       </section>

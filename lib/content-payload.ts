@@ -1417,7 +1417,7 @@ HPT cung cấp đầy đủ dải máy scan Microtek phục vụ số hóa tài 
 
 ### Vì sao chọn HPT Tech?
 
-HPT Tech đồng hành cùng doanh nghiệp từ tư vấn, triển khai đến bảo trì - cam kết hàng chính hãng 100%, xuất hóa đơn VAT, giao hàng và lắp đặt trên toàn quốc. Liên hệ hotline **0967286889** để được tư vấn cấu hình và báo giá máy scan Microtek chính hãng.`,
+HPT Tech đồng hành cùng doanh nghiệp từ tư vấn, triển khai đến bảo trì - cam kết hàng chính hãng 100%, xuất hóa đơn VAT, giao hàng và lắp đặt trên toàn quốc. Liên hệ hotline **0918871414** để được tư vấn cấu hình và báo giá máy scan Microtek chính hãng.`,
   },
   {
     brand: "TP-Link Omada & VIGI",
@@ -1459,7 +1459,7 @@ TP-Link được ghi nhận là nhà cung cấp sản phẩm WiFi số 1 ("No.1 
 
 ### Vì sao chọn HPT Tech?
 
-Là đối tác chính thức, HPT Tech tư vấn trọn gói giải pháp mạng Omada và giám sát VIGI cho doanh nghiệp - cam kết chính hãng 100%, xuất hóa đơn VAT, giao và lắp đặt toàn quốc. Liên hệ hotline **0967286889** để được khảo sát và báo giá.`,
+Là đối tác chính thức, HPT Tech tư vấn trọn gói giải pháp mạng Omada và giám sát VIGI cho doanh nghiệp - cam kết chính hãng 100%, xuất hóa đơn VAT, giao và lắp đặt toàn quốc. Liên hệ hotline **0918871414** để được khảo sát và báo giá.`,
   },
   {
     brand: "Joyusing",
@@ -1498,7 +1498,7 @@ Sản phẩm Joyusing phù hợp cho trường học, cơ quan hành chính và 
 
 ### Vì sao chọn HPT Tech?
 
-HPT Tech cung cấp thiết bị Joyusing chính hãng kèm dịch vụ trọn gói cho trường học và doanh nghiệp - cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0967286889** để được tư vấn và báo giá.`,
+HPT Tech cung cấp thiết bị Joyusing chính hãng kèm dịch vụ trọn gói cho trường học và doanh nghiệp - cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0918871414** để được tư vấn và báo giá.`,
   },
   {
     brand: "TTR Entertainment",
@@ -1538,7 +1538,7 @@ HPT Tech được ủy quyền phân phối **full series** - toàn bộ danh m�
 
 ### Vì sao chọn HPT Tech?
 
-Với ủy quyền phân phối full series, HPT Tech là đầu mối tin cậy cung cấp thiết bị TTR Entertainment chính hãng tại Việt Nam - cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0967286889** để được tư vấn và báo giá.`,
+Với ủy quyền phân phối full series, HPT Tech là đầu mối tin cậy cung cấp thiết bị TTR Entertainment chính hãng tại Việt Nam - cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0918871414** để được tư vấn và báo giá.`,
   },
 ];
 

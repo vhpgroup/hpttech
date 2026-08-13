@@ -349,11 +349,11 @@ export function extractAnphatDescriptionHTML(
   const decoded = decodeHTML(raw)
     .replace(/An Phát Computer/gi, "HPT Tech")
     .replace(/An Phát/gi, "HPT Tech")
-    .replace(/1900\.0323(?:\s*phím\s*\d+)?/gi, "0967 286 889")
-    .replace(/1900\s*0323(?:\s*\(phím\s*\d+\))?/gi, "0967 286 889")
+    .replace(/1900\.0323(?:\s*phím\s*\d+)?/gi, "0918 87 14 14")
+    .replace(/1900\s*0323(?:\s*\(phím\s*\d+\))?/gi, "0918 87 14 14")
     .replace(
       /<p\b[^>]*>(?:(?!<\/p>)[\s\S])*?Nếu bạn có bất kỳ thắc mắc(?:(?!<\/p>)[\s\S])*?<\/p>/i,
-      `<p><strong>Nếu bạn cần tư vấn về ${cleanText(productName)}, hãy liên hệ HPT Tech (Hotline: 0967 286 889) để được hỗ trợ nhanh chóng.</strong></p>`,
+      `<p><strong>Nếu bạn cần tư vấn về ${cleanText(productName)}, hãy liên hệ HPT Tech (Hotline: 0918 87 14 14) để được hỗ trợ nhanh chóng.</strong></p>`,
     );
 
   const cleaned = stripUnsafeDescriptionHtml(decoded);
