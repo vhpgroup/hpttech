@@ -7,6 +7,7 @@ const pseoLandingPagesMigrationName = "20260701_082156_pseo_landing_pages";
 const desktopServerCatalogMigrationName = "20260707_101500_add_desktop_server_catalog";
 const photocopierSpecsMigrationName = "20260727_100000_normalize_photocopier_specs";
 const imagingProductTypeMigrationName = "20260729_100000_add_imaging_product_type";
+const usersApiKeyMigrationName = "20260813_060000_users_enable_api_key";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -1129,6 +1130,38 @@ async function applyImagingProductType(client) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 20260813 — Bật API Key cho collection `users` (auth.useAPIKey = true).
+// Payload sinh 3 cột từ base field của apiKey. Tên cột do `to-snake-case`
+// (dep của @payloadcms/db-postgres) quyết định, KHÔNG phải snake_case thường:
+//   enableAPIKey -> enable_a_p_i_key   (mỗi chữ HOA liên tiếp thành 1 đoạn)
+//   apiKey       -> api_key
+//   apiKeyIndex  -> api_key_index
+// Đã đối chiếu bằng chính thư viện đó; các cột auth sẵn có khớp quy tắc này
+// (loginAttempts -> login_attempts, lockUntil -> lock_until).
+// ADD COLUMN IF NOT EXISTS -> idempotent, chạy lại an toàn. Không đụng dữ liệu
+// user hiện có: cột mới để NULL, không tài khoản nào bị bật key tự động.
+async function applyUsersApiKey(client) {
+  await client.query("BEGIN");
+  try {
+    await client.query(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "enable_a_p_i_key" boolean;`);
+    await client.query(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "api_key" varchar;`);
+    await client.query(`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "api_key_index" varchar;`);
+    await client.query(`
+      INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+      SELECT '${usersApiKeyMigrationName}', 0, now(), now()
+      WHERE NOT EXISTS (
+        SELECT 1 FROM "payload_migrations" WHERE "name" = '${usersApiKeyMigrationName}'
+      );
+    `);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${usersApiKeyMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function main() {
   const client = new Client({ connectionString });
 
@@ -1141,6 +1174,7 @@ async function main() {
     await applyDesktopServerCatalogMigration(client);
     await applyPhotocopierSpecsNormalization(client);
     await applyImagingProductType(client);
+    await applyUsersApiKey(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;
