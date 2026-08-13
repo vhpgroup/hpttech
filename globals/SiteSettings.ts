@@ -39,7 +39,7 @@ export const SiteSettings: GlobalConfig = {
     { name: "companyName", label: "Tên công ty", type: "text", defaultValue: "HPT Tech" },
     { name: "phone", label: "Số điện thoại", type: "text", defaultValue: "0918871414" },
     { name: "hotline", label: "Hotline", type: "text", defaultValue: "0918871414" },
-    { name: "email", label: "Email", type: "text", defaultValue: "lienhe@hpttech.vn" },
+    { name: "email", label: "Email", type: "text", defaultValue: "bach.pv@hpttech.vn" },
     {
       name: "address",
       label: "Địa chỉ",

@@ -35,7 +35,7 @@ anh THAT trong ban deploy (CDN cache duoc, next/image toi uu duoc) nhung git chi
 
 ## So lieu da chot (KHONG doi)
 20+ nam kinh nghiem · 100+ du an · **20+ nhan su & chuyen gia** · **5+ chung chi quoc te**
-MST 0202253444 · Hotline 0918 87 14 14 · info@hpttech.vn
+MST 0202253444 · Hotline 0918 87 14 14 · bach.pv@hpttech.vn
 
 ## Nguon do hoa
 Logo doi tac & huy hieu: Wikimedia Commons · Icon 3D: Microsoft Fluent Emoji (MIT) · Anh tru so: tu lieu HPT

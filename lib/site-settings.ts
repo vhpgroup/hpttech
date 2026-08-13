@@ -4,7 +4,7 @@ export const defaultSiteSettings: Required<PublicSiteSettings> = {
   companyName: "HPT Tech",
   phone: "0918871414",
   hotline: "0918871414",
-  email: "lienhe@hpttech.vn",
+  email: "bach.pv@hpttech.vn",
   address: "Tư vấn và triển khai cho doanh nghiệp",
   facebook: "https://www.facebook.com/hpttechnologystore/",
   zalo: "https://zalo.me/0918871414",

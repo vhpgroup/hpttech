@@ -80,7 +80,7 @@ export const SITE_PAGES: Record<SitePageSlug, SitePage> = {
     description:
       "Gửi nhu cầu báo giá, tư vấn thiết bị hoặc triển khai giải pháp để đội ngũ HPT Tech phản hồi.",
     ctaLabel: "Gửi email báo giá",
-    ctaHref: "mailto:lienhe@hpttech.vn?subject=Yêu cầu tư vấn HPT Tech",
+    ctaHref: "mailto:bach.pv@hpttech.vn?subject=Yêu cầu tư vấn HPT Tech",
   },
   chat: {
     slug: "chat",
