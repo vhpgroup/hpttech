@@ -36,7 +36,7 @@ type QuoteRequest = {
 const HPT_INFO = {
   company: "CÔNG TY TNHH ĐẦU TƯ XÂY DỰNG VÀ THIẾT BỊ CÔNG NGHỆ HPT",
   address: "SB.04 khu đô thị Vinhomes Marina, P. An Biên, TP. Hải Phòng",
-  phone: "0967286889",
+  phone: "0918871414",
   website: "www.hpttech.vn",
   taxCode: "0202253444",
   bankOwner: "CÔNG TY TNHH ĐẦU TƯ XÂY DỰNG VÀ THIẾT BỊ CÔNG NGHỆ HPT",

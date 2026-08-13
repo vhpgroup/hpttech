@@ -202,11 +202,11 @@ export function LandingTemplateA({ doc, products }: LandingTemplateAProps) {
                   <ArrowRight size={17} />
                 </a>
                 <a
-                  href="tel:0967286889"
+                  href="tel:0918871414"
                   className="inline-flex h-12 items-center gap-2 rounded-md border border-border bg-white px-5 text-sm font-bold text-ink transition hover:border-primary-300 hover:text-primary-700"
                 >
                   <PhoneCall size={17} />
-                  0967 286 889
+                  0918 87 14 14
                 </a>
               </div>
               <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2">

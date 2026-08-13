@@ -2,12 +2,12 @@ import type { PublicSiteSettings } from "@/lib/content-payload";
 
 export const defaultSiteSettings: Required<PublicSiteSettings> = {
   companyName: "HPT Tech",
-  phone: "0967286889",
-  hotline: "0967286889",
+  phone: "0918871414",
+  hotline: "0918871414",
   email: "lienhe@hpttech.vn",
   address: "Tư vấn và triển khai cho doanh nghiệp",
   facebook: "https://www.facebook.com/hpttechnologystore/",
-  zalo: "https://zalo.me/0967286889",
+  zalo: "https://zalo.me/0918871414",
   youtube: "",
   googleMapsTitle: "Vị trí HPT Tech",
   googleMapsEmbedUrl:
@@ -18,7 +18,7 @@ export const defaultSiteSettings: Required<PublicSiteSettings> = {
   footerNote: "Thiết bị văn phòng, máy scan, máy in và giải pháp số hóa tài liệu cho doanh nghiệp.",
 };
 
-const publicPhone = "0967286889";
+const publicPhone = "0918871414";
 
 export function normalizeSiteSettings(settings?: PublicSiteSettings | null): Required<PublicSiteSettings> {
   const normalized = {

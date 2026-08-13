@@ -11,7 +11,7 @@ Mỗi hãng dưới đây gồm 2 phần:
 - Nếu dán cả đoạn mà không tự convert: dán dạng văn bản thuần rồi bôi chọn từng dòng và chọn Heading 2 / Heading 3 / Bullet list / Quote tương ứng theo cấu trúc bên dưới.
 - `##` = Heading 2, `###` = Heading 3. Không dùng Heading 1 trong content (H1 đã là tiêu đề trang).
 
-Mọi nội dung đã viết sẵn theo đúng dữ liệu trên giấy chứng nhận. Hotline dùng trong bài: **0967286889**.
+Mọi nội dung đã viết sẵn theo đúng dữ liệu trên giấy chứng nhận. Hotline dùng trong bài: **0918871414**.
 
 ## 1) Microtek — Nhà phân phối độc quyền
 
@@ -48,7 +48,7 @@ HPT cung cấp đầy đủ dải máy scan Microtek phục vụ số hóa tài 
 
 ### Vì sao chọn HPT Tech?
 
-HPT Tech đồng hành cùng doanh nghiệp từ tư vấn, triển khai đến bảo trì — cam kết hàng chính hãng 100%, xuất hóa đơn VAT, giao hàng và lắp đặt trên toàn quốc. Liên hệ hotline **0967286889** để được tư vấn cấu hình và báo giá máy scan Microtek chính hãng.
+HPT Tech đồng hành cùng doanh nghiệp từ tư vấn, triển khai đến bảo trì — cam kết hàng chính hãng 100%, xuất hóa đơn VAT, giao hàng và lắp đặt trên toàn quốc. Liên hệ hotline **0918871414** để được tư vấn cấu hình và báo giá máy scan Microtek chính hãng.
 ```
 
 ## 2) TP-Link (Omada & VIGI) — Đối tác chính thức
@@ -85,7 +85,7 @@ TP-Link được ghi nhận là nhà cung cấp sản phẩm WiFi số 1 ("No.1 
 
 ### Vì sao chọn HPT Tech?
 
-Là đối tác chính thức, HPT Tech tư vấn trọn gói giải pháp mạng Omada và giám sát VIGI cho doanh nghiệp — cam kết chính hãng 100%, xuất hóa đơn VAT, giao và lắp đặt toàn quốc. Liên hệ hotline **0967286889** để được khảo sát và báo giá.
+Là đối tác chính thức, HPT Tech tư vấn trọn gói giải pháp mạng Omada và giám sát VIGI cho doanh nghiệp — cam kết chính hãng 100%, xuất hóa đơn VAT, giao và lắp đặt toàn quốc. Liên hệ hotline **0918871414** để được khảo sát và báo giá.
 ```
 
 ## 3) Joyusing — Nhà phân phối ủy quyền
@@ -120,7 +120,7 @@ Sản phẩm Joyusing phù hợp cho trường học, cơ quan hành chính và 
 
 ### Vì sao chọn HPT Tech?
 
-HPT Tech cung cấp thiết bị Joyusing chính hãng kèm dịch vụ trọn gói cho trường học và doanh nghiệp — cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0967286889** để được tư vấn và báo giá.
+HPT Tech cung cấp thiết bị Joyusing chính hãng kèm dịch vụ trọn gói cho trường học và doanh nghiệp — cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0918871414** để được tư vấn và báo giá.
 ```
 
 ## 4) TTR Entertainment — Nhà phân phối ủy quyền
@@ -155,7 +155,7 @@ HPT Tech được ủy quyền phân phối **full series** — toàn bộ danh 
 
 ### Vì sao chọn HPT Tech?
 
-Với ủy quyền phân phối full series, HPT Tech là đầu mối tin cậy cung cấp thiết bị TTR Entertainment chính hãng tại Việt Nam — cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0967286889** để được tư vấn và báo giá.
+Với ủy quyền phân phối full series, HPT Tech là đầu mối tin cậy cung cấp thiết bị TTR Entertainment chính hãng tại Việt Nam — cam kết chính hãng 100%, xuất hóa đơn VAT, giao hàng toàn quốc. Liên hệ hotline **0918871414** để được tư vấn và báo giá.
 ```
 
 > Ghi chú: thông tin sản phẩm TTR được viết ở mức khái quát do giấy chứng nhận chỉ nêu "full series". Khi có danh mục sản phẩm cụ thể từ hãng, có thể bổ sung phần "Dòng sản phẩm" cho chi tiết hơn.

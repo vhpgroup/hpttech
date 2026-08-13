@@ -64,10 +64,10 @@ export default async function ThietBiHinhAnhPage({ searchParams }: PageProps) {
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <a
-                href="tel:0967286889"
+                href="tel:0918871414"
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 text-sm font-bold text-white transition hover:bg-primary-700"
               >
-                <PhoneCall size={16} /> Gọi tư vấn: 0967 286 889
+                <PhoneCall size={16} /> Gọi tư vấn: 0918 87 14 14
               </a>
               <Link
                 href="/san-pham"

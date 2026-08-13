@@ -37,8 +37,8 @@ export const SiteSettings: GlobalConfig = {
   },
   fields: [
     { name: "companyName", label: "Tên công ty", type: "text", defaultValue: "HPT Tech" },
-    { name: "phone", label: "Số điện thoại", type: "text", defaultValue: "0967286889" },
-    { name: "hotline", label: "Hotline", type: "text", defaultValue: "0967286889" },
+    { name: "phone", label: "Số điện thoại", type: "text", defaultValue: "0918871414" },
+    { name: "hotline", label: "Hotline", type: "text", defaultValue: "0918871414" },
     { name: "email", label: "Email", type: "text", defaultValue: "lienhe@hpttech.vn" },
     {
       name: "address",
@@ -47,7 +47,7 @@ export const SiteSettings: GlobalConfig = {
       defaultValue: "Tư vấn và triển khai cho doanh nghiệp",
     },
     { name: "facebook", label: "Facebook", type: "text", defaultValue: "https://www.facebook.com/solarangelx9/" },
-    { name: "zalo", label: "Zalo", type: "text", defaultValue: "https://zalo.me/0967286889" },
+    { name: "zalo", label: "Zalo", type: "text", defaultValue: "https://zalo.me/0918871414" },
     { name: "youtube", label: "YouTube", type: "text" },
     { name: "googleMapsTitle", label: "Tiêu đề Google Maps", type: "text", defaultValue: "Vị trí HPT Tech" },
     {

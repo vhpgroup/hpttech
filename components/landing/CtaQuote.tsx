@@ -59,7 +59,7 @@ export function CtaQuote({ industry, landingPath, products, title }: CtaQuotePro
       setState("sent");
     } catch {
       setState("error");
-      setError("Không kết nối được hệ thống. Vui lòng gọi hotline 0967286889 để được tư vấn ngay.");
+      setError("Không kết nối được hệ thống. Vui lòng gọi hotline 0918871414 để được tư vấn ngay.");
     }
   };
 
