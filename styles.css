@@ -1645,10 +1645,10 @@ main {
   margin-bottom: 0;
   padding: 8px 14px 8px 20px;
   gap: 12px;
-  border: 1px solid #dbe3f0;
+  border: none;
   border-bottom: 0;
   border-radius: 12px 12px 0 0;
-  background: #fff;
+  background: #1b8f2e;
   box-shadow: 0 8px 20px rgba(15, 45, 83, 0.06);
 }
 
@@ -1656,7 +1656,7 @@ main {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #0f172a;
+  color: #fff;
   font-size: 20px;
 }
 
@@ -1667,7 +1667,7 @@ main {
   height: 22px;
   flex: 0 0 auto;
   border-radius: 999px;
-  background: #da2028;
+  background: #fff;
 }
 
 .home-featured-bar .tabs {
@@ -1677,19 +1677,19 @@ main {
 .home-featured-bar .tabs button {
   height: 34px;
   padding: 0 14px;
-  border: 1px solid #dbe3f0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  background: #f8fafc;
-  color: #29415f;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
   font-size: 13px;
   font-weight: 800;
   box-shadow: none;
 }
 
 .home-featured-bar .tabs button.active {
-  border-color: #9cc8ff;
-  background: #eaf3ff;
-  color: #064db1 !important;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff !important;
 }
 
 .home-featured-bar .product-search {
@@ -1700,7 +1700,7 @@ main {
 }
 
 .home-featured-bar > a {
-  color: #da2028;
+  color: #fff;
 }
 
 .home-featured-grid {
@@ -1729,10 +1729,10 @@ main {
   display: flex;
   align-items: center;
   gap: 18px;
-  border: 1px solid #dbe3f0;
+  border: none;
   border-bottom: 0;
   border-radius: 12px 12px 0 0;
-  background: #fff;
+  background: #1b8f2e;
   box-shadow: 0 8px 20px rgba(15, 45, 83, 0.06);
 }
 
@@ -1742,7 +1742,7 @@ main {
   align-items: center;
   gap: 12px;
   flex: 0 0 auto;
-  color: #0f172a;
+  color: #fff;
   font-size: 20px;
   font-weight: 900;
   letter-spacing: -0.02em;
@@ -1767,10 +1767,10 @@ main {
   height: 34px;
   padding: 0 13px;
   flex: 0 0 auto;
-  border: 1px solid #dbe3f0;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  background: #f8fafc;
-  color: #29415f;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -1780,9 +1780,9 @@ main {
 
 .home-category-tabs button:hover,
 .home-category-tabs button.active {
-  border-color: #8bc0ff;
-  background: #eaf3ff;
-  color: #064db1;
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
   transform: translateY(-1px);
 }
 
@@ -1813,7 +1813,7 @@ main {
   align-items: center;
   gap: 4px;
   flex: 0 0 auto;
-  color: #da2028;
+  color: #fff;
   font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
