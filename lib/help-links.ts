@@ -8,6 +8,10 @@ export const helpLinks = [
     href: "/huong-dan-mua-hang",
   },
   {
+    label: "Tra cứu bảo hành",
+    href: "/tra-cuu-bao-hanh",
+  },
+  {
     label: "Chính sách bảo hành đổi trả",
     href: "/chinh-sach-bao-hanh-doi-tra",
   },
