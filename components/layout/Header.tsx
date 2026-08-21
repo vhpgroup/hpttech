@@ -33,6 +33,7 @@ const navLinks = [
   { href: "/thuong-hieu", label: "Đối tác" },
   { href: "/dich-vu", label: "Dịch vụ" },
   { href: "/tin-tuc", label: "Tin tức" },
+  { href: "/tra-cuu-bao-hanh", label: "Tra cứu bảo hành" },
   { href: "/ve-hpt", label: "Về HPT" },
   { href: "/tuyen-dung", label: "Tuyển dụng" },
   { href: "/lien-he", label: "Liên hệ" },
@@ -79,6 +80,12 @@ export default function Header({
             <Image src={`${R2_ICON}icon-topbar-gio-lam-viec.png`} alt="" aria-hidden="true" width={16} height={16} />
             8:00 - 17:30
           </span>
+          {/* Nút tra cứu bảo hành (kiểu anphatpc): icon máy in + label, CSS topbar
+              tự nhuộm trắng icon + underline khi hover như các mục bên cạnh. */}
+          <Link href="/tra-cuu-bao-hanh">
+            <Image src={`${R2_ICON}icon-topbar-tra-cuu-bao-hanh.png`} alt="" aria-hidden="true" width={16} height={16} />
+            Tra cứu bảo hành
+          </Link>
           <TechSupportPopover />
         </div>
       </div>
