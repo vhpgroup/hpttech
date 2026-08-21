@@ -8,6 +8,7 @@ const desktopServerCatalogMigrationName = "20260707_101500_add_desktop_server_ca
 const photocopierSpecsMigrationName = "20260727_100000_normalize_photocopier_specs";
 const imagingProductTypeMigrationName = "20260729_100000_add_imaging_product_type";
 const usersApiKeyMigrationName = "20260813_060000_users_enable_api_key";
+const warrantiesMigrationName = "20260821_080000_add_warranties";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -1162,6 +1163,66 @@ async function applyUsersApiKey(client) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 20260821 — Collection `warranties` (Phiếu bảo hành) cho trang /tra-cuu-bao-hanh.
+// Collection KHÔNG bật versions/drafts nên chỉ có 1 bảng chính. Cấu trúc SQL
+// bám sát mẫu Payload sinh cho quote_requests (xem quoteRequestsSQL phía trên):
+// bảng + cột warranties_id trong payload_locked_documents_rels (khóa document
+// khi mở trong Admin) + index cho 3 trường tra cứu. Tên cột theo to-snake-case:
+//   serialNumber -> serial_number, ehsmtCode -> ehsmt_code, ... (không có
+//   chuỗi chữ HOA liên tiếp nên snake_case thường). Idempotent, chạy lại an toàn.
+const warrantiesSQL = `
+CREATE TABLE IF NOT EXISTS "warranties" (
+  "id" serial PRIMARY KEY NOT NULL,
+  "serial_number" varchar NOT NULL,
+  "customer_name" varchar NOT NULL,
+  "customer_phone" varchar,
+  "ehsmt_code" varchar,
+  "sku" varchar,
+  "product_name" varchar NOT NULL,
+  "start_date" timestamp(3) with time zone NOT NULL,
+  "warranty_months" numeric NOT NULL,
+  "end_date" timestamp(3) with time zone,
+  "voided" boolean DEFAULT false,
+  "note" varchar,
+  "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "warranties_id" integer;
+
+DO $$ BEGIN
+  ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_warranties_fk" FOREIGN KEY ("warranties_id") REFERENCES "public"."warranties"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+CREATE INDEX IF NOT EXISTS "warranties_serial_number_idx" ON "warranties" USING btree ("serial_number");
+CREATE INDEX IF NOT EXISTS "warranties_customer_name_idx" ON "warranties" USING btree ("customer_name");
+CREATE INDEX IF NOT EXISTS "warranties_ehsmt_code_idx" ON "warranties" USING btree ("ehsmt_code");
+CREATE INDEX IF NOT EXISTS "warranties_updated_at_idx" ON "warranties" USING btree ("updated_at");
+CREATE INDEX IF NOT EXISTS "warranties_created_at_idx" ON "warranties" USING btree ("created_at");
+CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_warranties_id_idx" ON "payload_locked_documents_rels" USING btree ("warranties_id");
+
+INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+SELECT '${warrantiesMigrationName}', 0, now(), now()
+WHERE NOT EXISTS (
+  SELECT 1 FROM "payload_migrations" WHERE "name" = '${warrantiesMigrationName}'
+);
+`;
+
+async function applyWarrantiesMigration(client) {
+  await client.query("BEGIN");
+  try {
+    await client.query(warrantiesSQL);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${warrantiesMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function main() {
   const client = new Client({ connectionString });
 
@@ -1175,6 +1236,7 @@ async function main() {
     await applyPhotocopierSpecsNormalization(client);
     await applyImagingProductType(client);
     await applyUsersApiKey(client);
+    await applyWarrantiesMigration(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;
