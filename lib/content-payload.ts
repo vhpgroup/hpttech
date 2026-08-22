@@ -824,7 +824,30 @@ function filterLocalPostsForPage(posts: PublicPost[], options: Required<Pick<Get
   );
 }
 
+const getCachedPostsPageFromPayload = unstable_cache(
+  loadPostsPageFromPayload,
+  ["posts-page"],
+  { revalidate: 300, tags: ["posts:list"] },
+);
+
+// Trang danh sách tin tức (/tin-tuc): bọc tầng dữ liệu trong unstable_cache thay vì
+// truy vấn Payload/Postgres mỗi request. Tag "posts:list" đồng bộ với hook afterChange/
+// afterDelete của collection Posts (app/api/revalidate) nên tin đăng/sửa được làm mới
+// ngay, revalidate 300 chỉ là backstop. Route vẫn dynamic (đọc searchParams) → response
+// vẫn no-store, nhưng cold render rẻ hơn hẳn vì không còn round-trip DB. Truyền args dạng
+// vị trí để cache key ổn định, cùng kiểu getProductSearchPageFromPayload.
 export async function getPostsPageFromPayload(options: GetPostsPageOptions = {}): Promise<PublicPostsPage> {
+  return getCachedPostsPageFromPayload(options.page, options.limit, options.type, options.q, options.sort);
+}
+
+async function loadPostsPageFromPayload(
+  pageArg?: number,
+  limitArg?: number,
+  typeArg?: string,
+  qArg?: string,
+  sortArg?: "newest" | "oldest",
+): Promise<PublicPostsPage> {
+  const options: GetPostsPageOptions = { page: pageArg, limit: limitArg, type: typeArg, q: qArg, sort: sortArg };
   const page = clampPositiveInteger(options.page, 1, 100000);
   const limit = clampPositiveInteger(options.limit, 12, 48);
   const sort = options.sort === "oldest" ? "oldest" : "newest";
