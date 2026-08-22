@@ -7,8 +7,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "predev": "node scripts/extract-ve-hpt-assets.cjs",
-    "prebuild": "node scripts/extract-ve-hpt-assets.cjs",
+    "predev": "node scripts/extract-ve-hpt-assets.cjs && node scripts/extract-favicon-assets.cjs",
+    "prebuild": "node scripts/extract-ve-hpt-assets.cjs && node scripts/extract-favicon-assets.cjs",
     "build": "node scripts/build-with-heartbeat.cjs",
     "cron:create-news": "tsx scripts/cron-create-news.ts",
     "payload": "payload",
