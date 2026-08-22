@@ -33,12 +33,19 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteURL()),
+  // Favicon PHAI vuong va canh la boi so cua 48px thi Google moi chap nhan.
+  // Truoc day ca 3 khai bao deu tro ve /assets/logo/hptlogo.png (1661x1007, ~624KB) —
+  // logo ngang nen Google tu choi, ket qua tim kiem hien icon qua dia cau mac dinh.
+  // Bo icon vuong duoi day sinh boi scripts/extract-favicon-assets.cjs (predev/prebuild).
   icons: {
     icon: [
-      { url: "/assets/logo/hptlogo.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/assets/logo/icon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/assets/logo/icon-96.png", type: "image/png", sizes: "96x96" },
+      { url: "/assets/logo/icon-192.png", type: "image/png", sizes: "192x192" },
     ],
-    shortcut: "/assets/logo/hptlogo.png",
-    apple: "/assets/logo/hptlogo.png",
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/assets/logo/apple-icon.png", sizes: "180x180" }],
   },
   verification: {
     google: "uSw_FL3iLj0w-MjCqh8DQI1aPEKi6g0ozC-KgHFxUls",

@@ -14,3 +14,10 @@ dev-server*.log
 
 # generated: asset trang Ve HPT (giai ma tu scripts/ve-hpt-assets-data.json)
 public/ve-hpt/
+
+# generated: favicon vuong cho Google (giai ma tu scripts/favicon-assets-data.json)
+public/favicon.ico
+public/assets/logo/icon-48.png
+public/assets/logo/icon-96.png
+public/assets/logo/icon-192.png
+public/assets/logo/apple-icon.png
