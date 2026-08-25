@@ -20,6 +20,7 @@ import {
   getStaticPageFromPayload,
 } from "@/lib/content-payload";
 import { getCategoryBreadcrumbTrail } from "@/lib/catalog-payload";
+import { getCategorySeoContentFromPayload } from "@/lib/category-seo-content";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
 import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
@@ -133,11 +134,20 @@ export async function generateMetadata({ params }: PageProps) {
     const trail = await getCategoryBreadcrumbTrail(slug);
     const leaf = trail.length ? trail[trail.length - 1] : null;
     if (leaf) {
-      return pageMetadata({
-        title: `${leaf.name} chính hãng, giá tốt`,
-        description: `${leaf.name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc. Tư vấn kỹ thuật tận nơi cho doanh nghiệp.`,
+      // Nhân viên content có thể ghi đè title/description trong Danh mục →
+      // Nội dung SEO danh mục → Ghi đè SEO. Bỏ trống thì dùng mặc định bên dưới.
+      const seoContent = await getCategorySeoContentFromPayload(leaf.slug);
+      const metadata = pageMetadata({
+        title: seoContent?.seo.title || `${leaf.name} chính hãng, giá tốt`,
+        description:
+          seoContent?.seo.description ||
+          `${leaf.name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc. Tư vấn kỹ thuật tận nơi cho doanh nghiệp.`,
         path: `/${encodeURIComponent(leaf.slug)}`,
       });
+
+      return seoContent?.seo.noIndex
+        ? { ...metadata, robots: { index: false, follow: true } }
+        : metadata;
     }
   }
 
