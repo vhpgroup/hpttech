@@ -84,6 +84,7 @@ Scraper – phân loại PC/Server	npm run test:desktop-server-classify	lib/scra
 Import sản phẩm	npm run test:bulk-import	lib/*import-export*, products:bulk-import
 AI profile sản phẩm	npm run test:ai-profile	lib/ai/**, ProductAIMetadata
 Catalog (audit độ sẵn sàng)	npm run payload:audit-catalog	toàn catalog trước khi publish
+Đồng bộ migration deploy	npm run test:migrations-sync	scripts/apply-startup-migrations.cjs vs migrations/. FAIL khi có migration trong migrations/ mà chưa thêm vào startup script (xem mục 8.1) — chạy sau MỌI thay đổi schema
 Nội dung SEO danh mục	npm run test:category-seo	lib/category-seo-toc.ts, khối bài SEO + mục lục "Xem nhanh" ở landing /<slug>. Khóa hợp đồng: mục lục luôn khớp anchor thật, anchor không đổi khi người viết sửa số thứ tự, khối tự ẩn khi chưa có nội dung
 Desktop stage	npm run test:desktop-stage	Khóa hợp đồng layout fluid: container co giãn căn giữa, không transform scale, --shell-width co giãn, không ghim 1440px cứng (đọc script để rõ phạm vi)
 PR đụng nhiều domain → chạy tất cả verifier liên quan, không chỉ một.
@@ -172,6 +173,30 @@ npx payload generate:types
 # hoặc qua script alias — cần "--" để truyền subcommand:
 npm run payload -- generate:types
 Rồi commit payload-types.ts đã regenerate. Tuyệt đối không sửa tay file này.
+
+8.1. Đổi schema: PHẢI sửa HAI chỗ (bài học từ sự cố 26/08)
+Repo có HAI cơ chế schema và chúng KHÔNG tự đồng bộ:
+
+migrations/ + migrations/index.ts — Payload CLI, dùng cho DB local
+(npm run payload -- migrate).
+scripts/apply-startup-migrations.cjs — một khối SQL hardcode chạy MỖI LẦN
+container khởi động (nixpacks.toml [start] và Dockerfile CMD đều gọi nó trước khi
+start server). ĐÂY là thứ quyết định schema trên PROD — thư mục migrations/ KHÔNG
+được đọc khi deploy.
+Chỉ thêm vào migrations/ mà quên startup script = prod thiếu cột → payload.find()
+trên collection đó lỗi → handlePayloadReadError nuốt lỗi (vì VERCEL_ENV không set trên
+Coolify/VPS, xem mục 9) → trang liên quan 404 hoặc rỗng IM LẶNG, log không báo gì rõ.
+Ngày 26/08 đúng chuỗi này đã làm sập TOÀN BỘ landing danh mục /<slug> sau khi deploy
+group seoContent: nav trang chủ vẫn hiện (mega-menu dựng khung từ HPT_DATA.categories
+static, carousel lấy link từ dữ liệu sản phẩm qua raw SQL) nên trông như bình thường.
+
+Quy tắc: mỗi thay đổi schema → thêm cả 2 chỗ, rồi chạy npm run test:migrations-sync
+(verifier sẽ FAIL nếu thiếu nửa nào). Mẫu khối trong startup script: const
+<ten>MigrationName, const <ten>SQL (kết thúc bằng INSERT vào payload_migrations),
+async function apply<Ten>(client), rồi gọi trong main().
+
+Khuyến nghị vận hành: đặt PAYLOAD_STRICT_READS=true trên prod. Nếu bật, lỗi schema
+lệch sẽ nổ ra thành lỗi rõ ràng ngay thay vì 404 im lặng — dễ phát hiện hơn nhiều.
 
 Products.ts rất lớn và là trung tâm (variants, offers, inventory, AI metadata là các
 collection riêng liên kết tới nó). Đọc kỹ trước khi đổi cấu trúc sản phẩm.
