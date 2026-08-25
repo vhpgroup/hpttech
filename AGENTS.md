@@ -84,6 +84,7 @@ Scraper – phân loại PC/Server	npm run test:desktop-server-classify	lib/scra
 Import sản phẩm	npm run test:bulk-import	lib/*import-export*, products:bulk-import
 AI profile sản phẩm	npm run test:ai-profile	lib/ai/**, ProductAIMetadata
 Catalog (audit độ sẵn sàng)	npm run payload:audit-catalog	toàn catalog trước khi publish
+Nội dung SEO danh mục	npm run test:category-seo	lib/category-seo-toc.ts, khối bài SEO + mục lục "Xem nhanh" ở landing /<slug>. Khóa hợp đồng: mục lục luôn khớp anchor thật, anchor không đổi khi người viết sửa số thứ tự, khối tự ẩn khi chưa có nội dung
 Desktop stage	npm run test:desktop-stage	Khóa hợp đồng layout fluid: container co giãn căn giữa, không transform scale, --shell-width co giãn, không ghim 1440px cứng (đọc script để rõ phạm vi)
 PR đụng nhiều domain → chạy tất cả verifier liên quan, không chỉ một.
 

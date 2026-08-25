@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { SubpageBreadcrumb } from "@/components/layout/SubpageHeader";
 import CategoryLandingClient from "@/components/category/CategoryLandingClient";
+import { CategorySeoContent } from "@/components/category/CategorySeoContent";
+import { getCategorySeoContentFromPayload } from "@/lib/category-seo-content";
 import {
   getCategoryBreadcrumbTrail,
   getProductSearchPageFromPayload,
@@ -79,7 +81,20 @@ export async function renderCategoryLanding(slug: string, searchParams: LandingS
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const parsed = parseLandingSearchParams(leaf.slug, resolvedSearchParams);
-  const result = await getProductSearchPageFromPayload(parsed);
+  const [result, seoContent] = await Promise.all([
+    getProductSearchPageFromPayload(parsed),
+    getCategorySeoContentFromPayload(leaf.slug),
+  ]);
+
+  // Bài SEO chỉ hiện ở TRANG GỐC của danh mục (không lọc, không phân trang, không
+  // tìm kiếm). Trang đã lọc/trang 2+ là biến thể của cùng nội dung — nhân bản bài
+  // ở đó sẽ tạo duplicate content và làm loãng tín hiệu về URL canonical.
+  // Dùng !(page > 1) thay vì page <= 1: page rác (?page=abc) cho NaN, mà NaN <= 1
+  // là false → khối SEO bị ẩn oan ở chính trang gốc.
+  const isPristineLanding =
+    !(parsed.page > 1) &&
+    !parsed.search &&
+    !Object.entries(resolvedSearchParams).some(([key, value]) => key !== "page" && Boolean(firstParam(value)));
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -127,6 +142,12 @@ export async function renderCategoryLanding(slug: string, searchParams: LandingS
           totalProducts={result.totalProducts}
         />
       </Suspense>
+
+      {seoContent && isPristineLanding ? (
+        <div className="px-4 sm:px-6">
+          <CategorySeoContent categoryName={leaf.name} content={seoContent} />
+        </div>
+      ) : null}
     </main>
   );
 }

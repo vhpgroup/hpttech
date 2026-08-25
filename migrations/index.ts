@@ -1,6 +1,7 @@
 import * as migration_20260626_041300_add_certifications from './20260626_041300_add_certifications';
 import * as migration_20260701_082156_pseo_landing_pages from './20260701_082156_pseo_landing_pages';
 import * as migration_20260707_101500_add_desktop_server_catalog from './20260707_101500_add_desktop_server_catalog';
+import * as migration_20260826_031500_add_category_seo_content from './20260826_031500_add_category_seo_content';
 
 export const migrations = [
   {
@@ -17,5 +18,10 @@ export const migrations = [
     up: migration_20260707_101500_add_desktop_server_catalog.up,
     down: migration_20260707_101500_add_desktop_server_catalog.down,
     name: '20260707_101500_add_desktop_server_catalog'
+  },
+  {
+    up: migration_20260826_031500_add_category_seo_content.up,
+    down: migration_20260826_031500_add_category_seo_content.down,
+    name: '20260826_031500_add_category_seo_content'
   },
 ];

@@ -44,6 +44,7 @@
     "test:home-grouping": "tsx scripts/verify-home-category-grouping.ts",
     "test:landing-brand": "tsx scripts/verify-landing-brand-facet.ts",
     "test:quote": "tsx scripts/verify-quote-totals.ts",
+    "test:category-seo": "tsx scripts/verify-category-seo-content.ts",
     "test:design-tokens": "node scripts/verify-design-tokens.cjs"
   },
   "dependencies": {

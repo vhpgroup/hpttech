@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { categorySeoContentField } from "../lib/payload/fields/category-seo-content.ts";
 import { seoField } from "../lib/payload/fields/seo.ts";
 import { revalidateCollection, revalidateCollectionDelete } from "../lib/payload/hooks/revalidate.ts";
 import { formatSlug } from "../lib/payload/utils/slugify.ts";
@@ -72,5 +73,6 @@ export const Categories: CollectionConfig = {
       defaultValue: 0,
     },
     seoField,
+    categorySeoContentField,
   ],
 };
