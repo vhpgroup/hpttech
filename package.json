@@ -45,6 +45,7 @@
     "test:landing-brand": "tsx scripts/verify-landing-brand-facet.ts",
     "test:quote": "tsx scripts/verify-quote-totals.ts",
     "test:category-seo": "tsx scripts/verify-category-seo-content.ts",
+    "test:migrations-sync": "node scripts/verify-startup-migrations-sync.cjs",
     "test:design-tokens": "node scripts/verify-design-tokens.cjs"
   },
   "dependencies": {

@@ -9,6 +9,7 @@ const photocopierSpecsMigrationName = "20260727_100000_normalize_photocopier_spe
 const imagingProductTypeMigrationName = "20260729_100000_add_imaging_product_type";
 const usersApiKeyMigrationName = "20260813_060000_users_enable_api_key";
 const warrantiesMigrationName = "20260821_080000_add_warranties";
+const categorySeoContentMigrationName = "20260826_031500_add_category_seo_content";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -1211,6 +1212,54 @@ WHERE NOT EXISTS (
 );
 `;
 
+// Group `seoContent` trên collection Categories (khối bài SEO ở landing /<slug>).
+// Categories KHÔNG bật versions.drafts nên không cần bảng _categories_v song song.
+const categorySeoContentSQL = `
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_enabled" boolean DEFAULT true;
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_heading" varchar;
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_show_toc" boolean DEFAULT true;
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_toc_title" varchar DEFAULT 'Xem nhanh';
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_body" jsonb;
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_seo_title" varchar;
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_seo_description" varchar;
+ALTER TABLE "categories" ADD COLUMN IF NOT EXISTS "seo_content_seo_no_index" boolean DEFAULT false;
+
+CREATE TABLE IF NOT EXISTS "categories_seo_content_faqs" (
+  "_order" integer NOT NULL,
+  "_parent_id" integer NOT NULL,
+  "id" varchar PRIMARY KEY NOT NULL,
+  "question" varchar,
+  "answer" varchar
+);
+
+DO $$ BEGIN
+  ALTER TABLE "categories_seo_content_faqs" ADD CONSTRAINT "categories_seo_content_faqs_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+CREATE INDEX IF NOT EXISTS "categories_seo_content_faqs_order_idx" ON "categories_seo_content_faqs" USING btree ("_order");
+CREATE INDEX IF NOT EXISTS "categories_seo_content_faqs_parent_id_idx" ON "categories_seo_content_faqs" USING btree ("_parent_id");
+
+INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+SELECT '${categorySeoContentMigrationName}', 0, now(), now()
+WHERE NOT EXISTS (
+  SELECT 1 FROM "payload_migrations" WHERE "name" = '${categorySeoContentMigrationName}'
+);
+`;
+
+async function applyCategorySeoContent(client) {
+  await client.query("BEGIN");
+  try {
+    await client.query(categorySeoContentSQL);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${categorySeoContentMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function applyWarrantiesMigration(client) {
   await client.query("BEGIN");
   try {
@@ -1237,6 +1286,7 @@ async function main() {
     await applyImagingProductType(client);
     await applyUsersApiKey(client);
     await applyWarrantiesMigration(client);
+    await applyCategorySeoContent(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;
