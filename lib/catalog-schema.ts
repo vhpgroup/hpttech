@@ -10,6 +10,7 @@ export const PRODUCT_TYPE_OPTIONS = [
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "Mực in & phụ kiện", value: "ink" },
   { label: "Thiết bị mạng", value: "networking" },
+  { label: "Thiết bị IoT & Công nghiệp", value: "iot" },
   { label: "Camera & Giám sát", value: "camera" },
   { label: "Thiết bị hình ảnh", value: "imaging" },
   { label: "PC đồng bộ", value: "desktop-pc" },

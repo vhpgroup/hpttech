@@ -2,6 +2,7 @@ import * as migration_20260626_041300_add_certifications from './20260626_041300
 import * as migration_20260701_082156_pseo_landing_pages from './20260701_082156_pseo_landing_pages';
 import * as migration_20260707_101500_add_desktop_server_catalog from './20260707_101500_add_desktop_server_catalog';
 import * as migration_20260826_031500_add_category_seo_content from './20260826_031500_add_category_seo_content';
+import * as migration_20260828_090000_add_iot_product_type from './20260828_090000_add_iot_product_type';
 
 export const migrations = [
   {
@@ -23,5 +24,10 @@ export const migrations = [
     up: migration_20260826_031500_add_category_seo_content.up,
     down: migration_20260826_031500_add_category_seo_content.down,
     name: '20260826_031500_add_category_seo_content'
+  },
+  {
+    up: migration_20260828_090000_add_iot_product_type.up,
+    down: migration_20260828_090000_add_iot_product_type.down,
+    name: '20260828_090000_add_iot_product_type'
   },
 ];

@@ -10,6 +10,7 @@ const imagingProductTypeMigrationName = "20260729_100000_add_imaging_product_typ
 const usersApiKeyMigrationName = "20260813_060000_users_enable_api_key";
 const warrantiesMigrationName = "20260821_080000_add_warranties";
 const categorySeoContentMigrationName = "20260826_031500_add_category_seo_content";
+const iotProductTypeMigrationName = "20260828_090000_add_iot_product_type";
 const connectionString = process.env.DATABASE_URI || process.env.POSTGRES_URL;
 
 if (!connectionString) {
@@ -1260,6 +1261,52 @@ async function applyCategorySeoContent(client) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// 20260828 — Thêm loại sản phẩm IoT độc lập với "networking".
+// Dùng profile `iot` với mảng `specs[]` linh hoạt ở giai đoạn catalog đầu; chưa
+// tạo các cột thông số cố định khi dữ liệu hãng chưa được crawl/chuẩn hóa đầy đủ.
+// ALTER TYPE phải chạy ngoài transaction; các câu còn lại được bọc transaction.
+async function applyIotProductType(client) {
+  await client.query(`alter type "enum_product_types_code" add value if not exists 'iot'`);
+  await client.query(`alter type "enum_products_spec_profile" add value if not exists 'iot'`);
+  await client.query(
+    `alter type "enum__products_v_version_spec_profile" add value if not exists 'iot'`,
+  );
+
+  await client.query("BEGIN");
+  try {
+    await client.query(`
+      INSERT INTO "product_types" ("code", "name", "description", "schema_version", "status", "updated_at", "created_at")
+      VALUES (
+        'iot',
+        'Thiết bị IoT & Công nghiệp',
+        'Mô-đun IoT, gateway, thiết bị truyền dữ liệu và giải pháp IoT năng lượng mặt trời cho doanh nghiệp.',
+        1,
+        'active',
+        now(),
+        now()
+      )
+      ON CONFLICT ("code") DO UPDATE SET
+        "name" = excluded."name",
+        "description" = excluded."description",
+        "schema_version" = excluded."schema_version",
+        "status" = excluded."status",
+        "updated_at" = now();
+
+      INSERT INTO "payload_migrations" ("name", "batch", "updated_at", "created_at")
+      SELECT '${iotProductTypeMigrationName}', 0, now(), now()
+      WHERE NOT EXISTS (
+        SELECT 1 FROM "payload_migrations" WHERE "name" = '${iotProductTypeMigrationName}'
+      );
+    `);
+    await client.query("COMMIT");
+    console.log(`[startup-migrations] Applied ${iotProductTypeMigrationName}.`);
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw error;
+  }
+}
+
 async function applyWarrantiesMigration(client) {
   await client.query("BEGIN");
   try {
@@ -1287,6 +1334,7 @@ async function main() {
     await applyUsersApiKey(client);
     await applyWarrantiesMigration(client);
     await applyCategorySeoContent(client);
+    await applyIotProductType(client);
   } catch (error) {
     console.error("[startup-migrations] Failed.", error);
     process.exitCode = 1;

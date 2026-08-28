@@ -25,6 +25,7 @@ const specProfileOptions = [
   { label: "Photocopy", value: "photocopier" },
   { label: "Laptop", value: "laptop" },
   { label: "Thiết bị mạng", value: "networking" },
+  { label: "Thiết bị IoT & Công nghiệp", value: "iot" },
   { label: "Camera", value: "camera" },
   { label: SOFTWARE_CATEGORY_NAME, value: "software" },
   { label: "PC đồng bộ", value: "desktop-pc" },
