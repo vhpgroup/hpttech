@@ -18,6 +18,7 @@ import { getProductCategoryNavFromPayload } from "@/lib/catalog-payload";
 import { pageMetadata, siteURL } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
 import { ProductInfoPopupLayer } from "@/components/product/ProductQuickInfoPopup";
+import CoreWebVitalsTracker from "@/components/analytics/CoreWebVitalsTracker";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -88,6 +89,7 @@ export default async function SiteLayout({
                 gtag('config', '${googleAnalyticsId}');
               `}
             </Script>
+            <CoreWebVitalsTracker />
           </>
         ) : null}
         <div className={`${inter.variable} ${geist.variable} site-shell`}>

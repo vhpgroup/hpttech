@@ -1,0 +1,221 @@
+{
+  "method": "Chrome desktop lab audit; 1440x900; fresh page context; 7-second settle. INP proxy is max Event Timing duration after safe visible button interactions, not CrUX INP p75.",
+  "measuredAt": "2026-08-28T01:24:06.478Z",
+  "results": [
+    {
+      "type": "Homepage",
+      "url": "https://hpttech.vn/",
+      "status": 200,
+      "lcpMs": 1836,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Category",
+      "url": "https://hpttech.vn/may-scan",
+      "status": 200,
+      "lcpMs": 960,
+      "cls": 0,
+      "interactionEventMaxMs": 64,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Category",
+      "url": "https://hpttech.vn/may-in",
+      "status": 200,
+      "lcpMs": 944,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Category",
+      "url": "https://hpttech.vn/may-photocopy",
+      "status": 200,
+      "lcpMs": 1124,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Category",
+      "url": "https://hpttech.vn/may-scan-chuyen-dung",
+      "status": 200,
+      "lcpMs": 788,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Category",
+      "url": "https://hpttech.vn/may-tinh-dong-bo-may-chu",
+      "status": 200,
+      "lcpMs": 860,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/may-scan-ricoh-fi-7480",
+      "status": 200,
+      "lcpMs": 1288,
+      "cls": 0,
+      "interactionEventMaxMs": 64,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/may-scan-epson-ds-1630",
+      "status": 200,
+      "lcpMs": 616,
+      "cls": 0,
+      "interactionEventMaxMs": 64,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/may-quet-xerox-d35",
+      "status": 200,
+      "lcpMs": 656,
+      "cls": 0,
+      "interactionEventMaxMs": 64,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/camera-ptz-tenveo-tevo-nv20u",
+      "status": 200,
+      "lcpMs": 732,
+      "cls": 0,
+      "interactionEventMaxMs": 40,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/canon-eos-r3-body",
+      "status": 200,
+      "lcpMs": 624,
+      "cls": 0,
+      "interactionEventMaxMs": 64,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/bo-chuyen-doi-khong-day-tp-link-tl-wn881nd-pci-express-chuan-n-toc-do-300mb",
+      "status": 200,
+      "lcpMs": 712,
+      "cls": 0,
+      "interactionEventMaxMs": 40,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/huong-dan-ky-thuat/huong-dan-quet-bai-thi-va-phieu-tra-loi-trac-nghiem-hang-loat-giu-dung-thu-tu-tung-phong-thi-voi-may-scan-canon-dr-m260",
+      "status": 200,
+      "lcpMs": 556,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/huong-dan-ky-thuat/huong-dan-in-va-sao-chup-tai-lieu-kho-a3-ngay-tai-van-phong-voi-hp-laserjet-mfp-m433a",
+      "status": 200,
+      "lcpMs": 676,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/giai-phap-so-hoa/so-hoa-tai-lieu/so-hoa-ho-so-ngay-tai-quay-tiep-nhan-voi-may-scan-mang-kodak-scan-station-710",
+      "status": 200,
+      "lcpMs": 772,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/huong-dan-ky-thuat/huong-dan-to-chuc-day-chuyen-so-hoa-hang-chuc-nghin-trang-moi-ngay-voi-may-scan-a3-ricoh-fi-6800",
+      "status": 200,
+      "lcpMs": 836,
+      "cls": 0,
+      "interactionEventMaxMs": 40,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/huong-dan-ky-thuat/huong-dan-chong-nap-kep-va-bao-duong-bo-nap-giay-khi-so-hoa-ho-so-cu-voi-may-scan-kodak-alaris-s2040",
+      "status": 200,
+      "lcpMs": 652,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/huong-dan-ky-thuat/huong-dan-in-thang-hoa-len-ao-dong-phuc-va-qua-tang-bang-may-brother-sp-1",
+      "status": 200,
+      "lcpMs": 592,
+      "cls": 0,
+      "interactionEventMaxMs": 64,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "News",
+      "url": "https://hpttech.vn/tin-tuc/giai-phap-so-hoa/so-hoa-tai-lieu/so-hoa-hang-nghin-chung-tu-giao-dich-moi-ngay-o-phong-nghiep-vu-voi-may-scan-sec-canon-cr-190i-ii",
+      "status": 200,
+      "lcpMs": 536,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    },
+    {
+      "type": "Product",
+      "url": "https://hpttech.vn/san-pham/om-system-m-zuiko-digital-ed-9-18mm-f4-0-5-6-ii-blk",
+      "status": 200,
+      "lcpMs": 952,
+      "cls": 0,
+      "interactionEventMaxMs": 56,
+      "interactionEvents": 6,
+      "error": null
+    }
+  ],
+  "replacedExcludedUrl": {
+    "url": "https://hpttech.vn/san-pham/sophos-intercept-x",
+    "status": 404,
+    "reason": "URL listed in sitemap but not a valid product page at audit time; excluded from 20-page sample."
+  },
+  "replacedExcludedUrls": [
+    {
+      "url": "https://hpttech.vn/san-pham/sophos-intercept-x",
+      "status": 404
+    },
+    {
+      "url": "https://hpttech.vn/san-pham/sony-fe-400-800mm-f6-3-8-0-g-oss-sel400800g",
+      "status": 404
+    }
+  ]
+}
