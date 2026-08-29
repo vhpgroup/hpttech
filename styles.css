@@ -1052,8 +1052,9 @@ body:has(.home-page) .site-shell {
   gap: 10px;
   color: #12325f;
   border-bottom: 1px solid #dbe8f8;
-  font-size: 14px;
-  line-height: 1;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.35;
   transition: color 200ms ease, background 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
