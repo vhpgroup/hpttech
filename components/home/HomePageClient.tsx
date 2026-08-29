@@ -26,7 +26,7 @@ export default function HomePageClient({
   quoteEmail,
 }: HomePageClientProps) {
   return (
-    <main>
+    <main className="home-page">
       <HomeHeroClient banners={initialBanners} categories={categories} />
       <TrustStrip />
       <HomeProductShowcaseClient products={initialProducts} quoteEmail={quoteEmail} />

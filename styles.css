@@ -975,6 +975,26 @@ main {
   background: var(--bg);
 }
 
+body:has(.home-page),
+body:has(.home-page) .site-shell {
+  background-color: var(--bg);
+  background-image: url("https://hpttech.vn/api/r2-media/backgroud.jpg");
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.home-page {
+  background: transparent;
+}
+
+.home-page .hero-section,
+.home-page .brand-strip,
+.home-page .solutions {
+  background: transparent;
+}
+
 .hero-section {
   --hero-gap: 10px;
   --hero-card-gap: 10px;
@@ -3625,6 +3645,11 @@ svg {
 
   .site-shell {
     background: #03111f;
+  }
+
+  body:has(.home-page),
+  body:has(.home-page) .site-shell {
+    background-attachment: scroll;
   }
 
   /* KHÔNG set background cho <main> ở đây: rule un-layered thắng mọi utility
