@@ -46,7 +46,7 @@ export const HPT_DATA = {
     { name: "Phần mềm bản quyền", icon: "badge-check" },
     { name: "Thiết bị hình ảnh", icon: "image", slug: "thiet-bi-hinh-anh" },
     { name: "Mực in & Phụ kiện", icon: "droplets" },
-    { name: "Lưu trữ & Backup", icon: "hard-drive" },
+    { name: "Thiết bị IoT & Công nghiệp", icon: "network", slug: "thiet-bi-iot-cong-nghiep" },
     { name: "Dịch vụ kỹ thuật", icon: "wrench" },
     { name: "Giải pháp số hóa", icon: "workflow" },
     { name: "Máy chiếu", icon: "projector" },

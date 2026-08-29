@@ -814,7 +814,7 @@ const CATEGORY_ICON_BY_NAME: Record<string, string> = {
   "máy scan": "may-scan",
   "mực in & phụ kiện": "muc-in",
   "mực in & vật tư": "muc-in",
-  "lưu trữ & backup": "luu-tru",
+  "thiết bị iot & công nghiệp": "thiet-bi-mang",
   "dịch vụ kỹ thuật": "dich-vu",
   "giải pháp số hóa": "so-hoa",
   "máy photocopy": "photocopy",
