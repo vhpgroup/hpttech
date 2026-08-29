@@ -537,6 +537,20 @@ const officeLaptopMegaColumns: MegaColumn[] = [
     ],
   },
 ];
+// Mega-menu "Thiết bị IoT & Công nghiệp" — 3 danh mục lá thật trong CMS.
+// Không dùng fallback tự chia mỗi danh mục thành một cột, vì fallback sẽ sinh
+// các tiêu đề chung chung "Nhóm 2" và "Nhóm 3" khi root có đúng 3 children.
+const iotIndustrialMegaColumns: MegaColumn[] = [
+  {
+    title: "Danh mục IoT & Công nghiệp",
+    links: [
+      { label: "Mô-đun IoT", href: buildProductFilterHref({ category: "mo-dun-iot" }) },
+      { label: "Thiết bị IoT", href: buildProductFilterHref({ category: "thiet-bi-iot" }) },
+      { label: "IoT năng lượng mặt trời", href: buildProductFilterHref({ category: "iot-nang-luong-mat-troi" }) },
+    ],
+  },
+];
+
 
 // Mega-menu "Thiết bị mạng" — 4 nhóm theo bản chất thiết bị (cây danh mục thật 3 tầng).
 // Mỗi cột: "Tất cả …" trỏ danh mục cấp 2 (gom cả nhóm qua filter 2/3 tầng) + các danh mục lá cấp 3.
@@ -760,6 +774,9 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   }
   if (nameKey === "laptop văn phòng") {
     return officeLaptopMegaColumns;
+  }
+  if (nameKey === "thiết bị iot & công nghiệp" || nameKey === "thiết bị iot - công nghiệp") {
+    return iotIndustrialMegaColumns;
   }
   if (nameKey === "thiết bị mạng") {
     return networkMegaColumns;
