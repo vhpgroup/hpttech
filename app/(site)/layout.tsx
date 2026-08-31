@@ -7,6 +7,7 @@ import DesktopStage from "@/components/layout/DesktopStage";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
 import Navbar from "@/components/layout/Navbar";
+import SiteSideBanners from "@/components/layout/SiteSideBanners";
 import SiteJsonLd from "@/components/seo/SiteJsonLd";
 import FloatingContactDockLoader from "@/components/FloatingContactDockLoader";
 import GlobalCompareDock from "@/components/GlobalCompareDock";
@@ -107,6 +108,7 @@ export default async function SiteLayout({
                       }
                     />
                     <Navbar />
+                    <SiteSideBanners />
                     {children}
                     <Footer settings={settings} />
                   </CategoryMenuProvider>

@@ -989,11 +989,11 @@ body:has(.home-page) .site-shell {
   background: transparent;
 }
 
-.home-side-ads {
+.site-side-ads {
   display: none;
 }
 
-.home-side-ad {
+.site-side-ad {
   position: fixed;
   top: 154px;
   z-index: 12;
@@ -1004,22 +1004,22 @@ body:has(.home-page) .site-shell {
   box-shadow: 0 18px 42px rgba(2, 10, 28, 0.18);
 }
 
-.home-side-ad-left {
+.site-side-ad-left {
   left: max(8px, calc(((100vw - var(--desktop-stage-width)) / 2 - 200px) / 2));
 }
 
-.home-side-ad-right {
+.site-side-ad-right {
   right: max(8px, calc(((100vw - var(--desktop-stage-width)) / 2 - 200px) / 2));
 }
 
-.home-side-ad img {
+.site-side-ad img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 @media (min-width: 1856px) {
-  .home-side-ads {
+  .site-side-ads {
     display: block;
   }
 }
