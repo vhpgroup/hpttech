@@ -542,7 +542,7 @@ function ProductListInner({
           ...(categoryTrail ?? []).map((item) => ({
             label: item.name,
             // Link về danh mục (bỏ mọi bộ lọc) — cho phép quay lên cấp cây danh mục.
-            href: `/san-pham?category=${encodeURIComponent(item.slug)}`,
+            href: `/${encodeURIComponent(item.slug)}`,
           })),
           // Các bộ lọc mega-menu đang bật → mỗi cái một mắt (mắt cuối = trang hiện tại).
           ...activeFilterCrumbs,

@@ -72,14 +72,18 @@ function parseLandingSearchParams(
  * Landing danh mục tại URL rút gọn /<slug> (giống An Phát). Trả null nếu slug
  * không phải danh mục (để caller thử tiếp / notFound / scaffold).
  */
-export async function renderCategoryLanding(slug: string, searchParams: LandingSearchParams) {
+export async function renderCategoryLanding(
+  slug: string,
+  searchParams: LandingSearchParams,
+  forcedSearchParams?: Record<string, string | string[] | undefined>,
+) {
   const trail = await getCategoryBreadcrumbTrail(slug);
   const leaf = trail.length ? trail[trail.length - 1] : null;
   if (!leaf) return null;
   // Vào bằng tên/slug chưa chuẩn → về URL canonical rút gọn.
   if (leaf.slug !== slug) redirect(`/${encodeURIComponent(leaf.slug)}`);
 
-  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const resolvedSearchParams = forcedSearchParams || (searchParams ? await searchParams : {});
   const parsed = parseLandingSearchParams(leaf.slug, resolvedSearchParams);
   const [result, seoContent] = await Promise.all([
     getProductSearchPageFromPayload(parsed),
@@ -92,7 +96,7 @@ export async function renderCategoryLanding(slug: string, searchParams: LandingS
   // Dùng !(page > 1) thay vì page <= 1: page rác (?page=abc) cho NaN, mà NaN <= 1
   // là false → khối SEO bị ẩn oan ở chính trang gốc.
   const isPristineLanding =
-    !(parsed.page > 1) &&
+    !((parsed.page ?? 1) > 1) &&
     !parsed.search &&
     !Object.entries(resolvedSearchParams).some(([key, value]) => key !== "page" && Boolean(firstParam(value)));
 

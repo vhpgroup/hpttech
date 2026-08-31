@@ -600,7 +600,7 @@ function mediaURL(value: unknown) {
     if (isLocalServer) {
       return localMediaFileExists(value.filename)
         ? `/api/media/file/${encodeURIComponent(value.filename)}`
-        : undefined;
+        : mediaPublicURL(value.filename) || undefined;
     }
   }
   if ("url" in value && typeof value.url === "string") return value.url;

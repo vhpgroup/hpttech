@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { List } from "lucide-react";
 import type { ProductCategoryNavItem } from "@/lib/catalog-payload";
+import { buildCleanProductBrandHref, buildCleanProductFilterHref } from "@/lib/product-filter-seo-routes";
 
 type MegaColumn = {
   title: string;
@@ -43,6 +44,59 @@ function buildProductFilterHref(options: {
   cspeed?: string;
   cfeat?: string;
 }) {
+  const hasOnlyBrandFilter =
+    Boolean(options.category && options.brand) &&
+    !options.size &&
+    !options.speed &&
+    !options.feature &&
+    !options.func &&
+    !options.pspeed &&
+    !options.pfeat &&
+    !options.lic &&
+    !options.aud &&
+    !options.fb &&
+    !options.mau &&
+    !options.orig &&
+    !options.cpu &&
+    !options.ram &&
+    !options.gpu &&
+    !options.sc &&
+    !options.line &&
+    !options.ccolor &&
+    !options.cspeed &&
+    !options.cfeat;
+  if (hasOnlyBrandFilter) {
+    const cleanHref = buildCleanProductBrandHref(options.category, options.brand);
+    if (cleanHref) return cleanHref;
+  }
+
+  const singleFilterEntries = [
+    ["size", options.size],
+    ["speed", options.speed],
+    ["feature", options.feature],
+    ["func", options.func],
+    ["pspeed", options.pspeed],
+    ["pfeat", options.pfeat],
+    ["lic", options.lic],
+    ["aud", options.aud],
+    ["fb", options.fb],
+    ["mau", options.mau],
+    ["orig", options.orig],
+    ["cpu", options.cpu],
+    ["ram", options.ram],
+    ["gpu", options.gpu],
+    ["sc", options.sc],
+    ["line", options.line],
+    ["ccolor", options.ccolor],
+    ["cspeed", options.cspeed],
+    ["cfeat", options.cfeat],
+  ].filter((entry): entry is [string, string] => Boolean(entry[1]));
+  if (options.category && !options.brand && singleFilterEntries.length === 1) {
+    const [key, value] = singleFilterEntries[0];
+    const cleanHref = buildCleanProductFilterHref(options.category, key, value);
+    if (cleanHref) return cleanHref;
+  }
+
   const params = new URLSearchParams();
   if (options.brand) params.set("brand", options.brand);
   if (options.size) params.set("size", options.size);

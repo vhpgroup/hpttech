@@ -28,16 +28,28 @@ function missingR2Config() {
   );
 }
 
+function fallbackMediaURL(filename: string) {
+  const base =
+    process.env.MEDIA_PUBLIC_URL ||
+    process.env.R2_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  if (!base) return undefined;
+  return `${base.replace(/\/$/, "")}/${encodeURIComponent(filename)}`;
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ filename: string }> },
 ) {
+  const { filename } = await params;
+  const key = decodeURIComponent(filename);
+
   if (missingR2Config()) {
+    const fallback = fallbackMediaURL(key);
+    if (fallback) return NextResponse.redirect(fallback);
     return NextResponse.json({ error: "R2 is not configured." }, { status: 500 });
   }
 
-  const { filename } = await params;
-  const key = decodeURIComponent(filename);
   const bucket = process.env.R2_BUCKET;
   try {
     const response = await getClient().send(
@@ -57,6 +69,8 @@ export async function GET(
       },
     });
   } catch {
+    const fallback = fallbackMediaURL(key);
+    if (fallback) return NextResponse.redirect(fallback);
     return new Response(null, { status: 404 });
   }
 }
@@ -65,12 +79,15 @@ export async function HEAD(
   _request: Request,
   { params }: { params: Promise<{ filename: string }> },
 ) {
+  const { filename } = await params;
+  const key = decodeURIComponent(filename);
+
   if (missingR2Config()) {
+    const fallback = fallbackMediaURL(key);
+    if (fallback) return NextResponse.redirect(fallback);
     return new Response(null, { status: 500 });
   }
 
-  const { filename } = await params;
-  const key = decodeURIComponent(filename);
   const bucket = process.env.R2_BUCKET;
   try {
     const response = await getClient().send(
@@ -87,6 +104,8 @@ export async function HEAD(
       },
     });
   } catch {
+    const fallback = fallbackMediaURL(key);
+    if (fallback) return NextResponse.redirect(fallback);
     return new Response(null, { status: 404 });
   }
 }

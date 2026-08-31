@@ -296,7 +296,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 3 + index,
         name: item.name,
-        item: absoluteURL(`/san-pham?category=${encodeURIComponent(item.slug)}`),
+        item: absoluteURL(`/${encodeURIComponent(item.slug)}`),
       })),
       {
         "@type": "ListItem",
@@ -439,7 +439,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <span key={item.slug} className="inline-flex items-center gap-1.5">
             <ChevronRight size={14} className="shrink-0 text-slate-300" />
             <Link
-              href={`/san-pham?category=${encodeURIComponent(item.slug)}`}
+              href={`/${encodeURIComponent(item.slug)}`}
               className="truncate transition-colors hover:text-slate-800"
             >
               {item.name}

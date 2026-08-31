@@ -19,8 +19,15 @@ import {
   getSolutionsFromPayload,
   getStaticPageFromPayload,
 } from "@/lib/content-payload";
-import { getCategoryBreadcrumbTrail } from "@/lib/catalog-payload";
+import {
+  getCategoryBreadcrumbTrail,
+  getProductSearchPageFromPayload,
+} from "@/lib/catalog-payload";
 import { getCategorySeoContentFromPayload } from "@/lib/category-seo-content";
+import {
+  findCleanProductBrandRoute,
+  findCleanProductFilterRoute,
+} from "@/lib/product-filter-seo-routes";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings, phoneHref } from "@/lib/site-settings";
 import { ProductQuickInfoTrigger } from "@/components/product/ProductQuickInfoPopup";
@@ -45,6 +52,26 @@ function decodeSlugParam(raw: string) {
   } catch {
     return raw;
   }
+}
+
+function firstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function hasIndexableQueryParams(params: Record<string, string | string[] | undefined>) {
+  return Object.entries(params).some(([key, value]) => key !== "page" && Boolean(firstSearchParam(value)));
+}
+
+async function renderCleanProductBrandLanding(slug: string, searchParams: PageProps["searchParams"]) {
+  const route = findCleanProductBrandRoute(slug);
+  if (!route) return null;
+  return renderCategoryLanding(route.category, searchParams, { brand: route.brand });
+}
+
+async function renderCleanProductFilterLanding(slug: string, searchParams: PageProps["searchParams"]) {
+  const route = findCleanProductFilterRoute(slug);
+  if (!route) return null;
+  return renderCategoryLanding(route.category, searchParams, { [route.param]: route.value });
 }
 
 export default async function ContentPage({ params, searchParams }: PageProps) {
@@ -74,6 +101,12 @@ export default async function ContentPage({ params, searchParams }: PageProps) {
     : fallbackPage;
 
   if (!page) {
+    const cleanBrandLanding = await renderCleanProductBrandLanding(slug, searchParams);
+    if (cleanBrandLanding) return cleanBrandLanding;
+
+    const cleanFilterLanding = await renderCleanProductFilterLanding(slug, searchParams);
+    if (cleanFilterLanding) return cleanFilterLanding;
+
     // Không phải trang tĩnh → thử LANDING DANH MỤC rút gọn /<slug> (kiểu An Phát).
     const landing = await renderCategoryLanding(slug, searchParams);
     if (landing) return landing;
@@ -112,9 +145,53 @@ export default async function ContentPage({ params, searchParams }: PageProps) {
   );
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params, searchParams }: PageProps) {
   const { slug: rawSlug } = await params;
   const slug = decodeSlugParam(rawSlug);
+  const cleanBrandRoute = findCleanProductBrandRoute(slug);
+  if (cleanBrandRoute) {
+    const [trail, result] = await Promise.all([
+      getCategoryBreadcrumbTrail(cleanBrandRoute.category),
+      getProductSearchPageFromPayload({
+        page: 1,
+        category: cleanBrandRoute.category,
+        facetScope: "category",
+        brand: cleanBrandRoute.brand,
+        sort: "best",
+      }),
+    ]);
+    const leaf = trail.length ? trail[trail.length - 1] : null;
+    const categoryName = leaf?.name || cleanBrandRoute.category;
+    const metadata = pageMetadata({
+      title: `${categoryName} ${cleanBrandRoute.brand} chính hãng, giá tốt`,
+      description: `${categoryName} ${cleanBrandRoute.brand} chính hãng tại HPT Tech, báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc cho doanh nghiệp.`,
+      path: cleanBrandRoute.href,
+    });
+    return result.totalProducts < 3 ? { ...metadata, robots: { index: false, follow: true } } : metadata;
+  }
+
+  const cleanFilterRoute = findCleanProductFilterRoute(slug);
+  if (cleanFilterRoute) {
+    const [trail, result] = await Promise.all([
+      getCategoryBreadcrumbTrail(cleanFilterRoute.category),
+      getProductSearchPageFromPayload({
+        page: 1,
+        category: cleanFilterRoute.category,
+        facetScope: "category",
+        [cleanFilterRoute.param]: cleanFilterRoute.value,
+        sort: "best",
+      }),
+    ]);
+    const leaf = trail.length ? trail[trail.length - 1] : null;
+    const categoryName = leaf?.name || cleanFilterRoute.category;
+    const metadata = pageMetadata({
+      title: `${categoryName} ${cleanFilterRoute.titlePart} chính hãng, giá tốt`,
+      description: `${categoryName} ${cleanFilterRoute.titlePart} chính hãng tại HPT Tech, báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc cho doanh nghiệp.`,
+      path: cleanFilterRoute.href,
+    });
+    return result.totalProducts < 3 ? { ...metadata, robots: { index: false, follow: true } } : metadata;
+  }
+
   if (slug === "ve-hpt") {
     const aboutPage = await getAboutPageFromPayload();
     return pageMetadata({
@@ -144,8 +221,9 @@ export async function generateMetadata({ params }: PageProps) {
           `${leaf.name} chính hãng tại HPT Tech — báo giá nhanh, xuất hóa đơn VAT, giao hàng toàn quốc. Tư vấn kỹ thuật tận nơi cho doanh nghiệp.`,
         path: `/${encodeURIComponent(leaf.slug)}`,
       });
+      const resolvedSearchParams = searchParams ? await searchParams : {};
 
-      return seoContent?.seo.noIndex
+      return seoContent?.seo.noIndex || hasIndexableQueryParams(resolvedSearchParams)
         ? { ...metadata, robots: { index: false, follow: true } }
         : metadata;
     }

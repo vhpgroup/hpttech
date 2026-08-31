@@ -96,8 +96,7 @@ const stats = [
 
 export default function Footer({ settings }: { settings: Required<PublicSiteSettings> }) {
   const phone = HPT_PUBLIC_PHONE;
-  // Luôn hiện đủ 3 kênh. YouTube chưa có URL (user chốt 30/07: hiện icon, link để trống)
-  // → SocialLink tự xử lý href rỗng thành "#"; điền URL vào Site Settings là link sống ngay.
+  // Luôn hiện đủ 3 kênh. Kênh chưa có URL vẫn hiện icon nhưng không render link rỗng.
   const socialLinks = [
     { href: settings.facebook, label: "Facebook", logoSrc: "/assets/icons/facebook.svg" },
     { href: settings.youtube, label: "YouTube", logoSrc: "/assets/icons/youtube.svg" },
@@ -255,15 +254,29 @@ function FooterColumnBlock({ column }: { column: FooterColumn }) {
 }
 
 function SocialLink({ href, label, logoSrc }: { href: string; label: string; logoSrc: string }) {
-  const isExternal = href.startsWith("http");
+  const cleanHref = href.trim();
+  const isExternal = /^https?:\/\//i.test(cleanHref);
+  const className =
+    "inline-flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_8px_20px_-10px_rgba(2,6,23,0.6)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(255,255,255,0.55)]";
+  const icon = <Image src={logoSrc} alt="" width={28} height={28} className="h-7 w-7 object-contain" aria-hidden="true" />;
+
+  if (!isExternal) {
+    return (
+      <span className={`${className} opacity-55`} title={`${label} chưa cấu hình`}>
+        {icon}
+      </span>
+    );
+  }
+
   return (
     <a
-      href={isExternal ? href : "#"}
-      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : { "aria-disabled": true })}
+      href={cleanHref}
+      target="_blank"
+      rel="noopener noreferrer"
       aria-label={label}
-      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_8px_20px_-10px_rgba(2,6,23,0.6)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_rgba(255,255,255,0.55)]"
+      className={className}
     >
-      <Image src={logoSrc} alt="" width={28} height={28} className="h-7 w-7 object-contain" aria-hidden="true" />
+      {icon}
     </a>
   );
 }

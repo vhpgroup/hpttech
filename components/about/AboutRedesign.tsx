@@ -108,7 +108,7 @@ export default function AboutRedesign() {
     </g>
   </svg>
   <div className="wrap">
-    <div className="breadcrumb"><a href="#">Trang chủ</a><span>›</span><span className="cur">Giới thiệu</span></div>
+    <div className="breadcrumb"><a href="/">Trang chủ</a><span>›</span><span className="cur">Giới thiệu</span></div>
     <div className="hero-grid">
       <div>
         <div className="kicker on-dark"><span className="tri"><i></i><i></i><i></i></span> Giới thiệu HPT Technology</div>

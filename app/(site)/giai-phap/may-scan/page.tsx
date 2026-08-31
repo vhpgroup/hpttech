@@ -113,7 +113,7 @@ export default async function ScannerSolutionsPage() {
             <a href="tel:0918871414" className="inline-flex h-12 items-center rounded-md bg-accent-500 px-5 text-sm font-bold text-white transition hover:bg-accent-600">
               Gọi tư vấn 0918871414
             </a>
-            <Link href="/san-pham?category=may-scan" className="inline-flex h-12 items-center rounded-md border border-border bg-white px-5 text-sm font-bold text-primary-700 transition hover:border-primary-300">
+            <Link href="/may-scan" className="inline-flex h-12 items-center rounded-md border border-border bg-white px-5 text-sm font-bold text-primary-700 transition hover:border-primary-300">
               Xem danh mục máy scan
             </Link>
           </div>

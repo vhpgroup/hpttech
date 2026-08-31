@@ -16,7 +16,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
           <h2 className="text-lg font-bold text-slate-950">Sản phẩm liên quan khác ({products.length})</h2>
           <p className="text-sm text-slate-500">Các lựa chọn scan tài liệu gần cùng phân khúc.</p>
         </div>
-        <Link href="/san-pham?category=Máy%20scan" className="inline-flex items-center gap-1 text-sm font-bold text-primary-700">
+        <Link href="/may-scan" className="inline-flex items-center gap-1 text-sm font-bold text-primary-700">
           Xem tất cả
           <ArrowRight size={16} />
         </Link>

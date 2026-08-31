@@ -22,6 +22,15 @@ function mediaPath(filename: string) {
   return path.resolve(process.cwd(), "media", safeName);
 }
 
+function fallbackMediaURL(filename: string) {
+  const base =
+    process.env.MEDIA_PUBLIC_URL ||
+    process.env.R2_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
+  if (!base) return undefined;
+  return `${base.replace(/\/$/, "")}/${encodeURIComponent(filename)}`;
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ filename: string }> },
@@ -40,6 +49,8 @@ export async function GET(
       },
     });
   } catch {
+    const fallback = fallbackMediaURL(safeName);
+    if (fallback) return NextResponse.redirect(fallback);
     return NextResponse.json({ error: "Media file not found." }, { status: 404 });
   }
 }
@@ -62,6 +73,8 @@ export async function HEAD(
       },
     });
   } catch {
+    const fallback = fallbackMediaURL(safeName);
+    if (fallback) return NextResponse.redirect(fallback);
     return new Response(null, { status: 404 });
   }
 }
