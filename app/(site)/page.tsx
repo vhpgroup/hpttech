@@ -5,7 +5,7 @@ import {
   getProductCategoryNavFromPayload,
 } from "@/lib/catalog-payload";
 import { toHomeCardProduct } from "@/lib/home-category-sections";
-import { getBannersFromPayload, getLatestPostsFromPayload, getSiteSettingsFromPayload, getSolutionsFromPayload } from "@/lib/content-payload";
+import { getBannersFromPayload, getLatestPostsFromPayload, getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
 import { normalizeSiteSettings } from "@/lib/site-settings";
 
@@ -18,13 +18,12 @@ export const metadata = pageMetadata({
 });
 
 export default async function HomePage() {
-  const [products, categorySectionProducts, categories, banners, solutions, rawSettings, posts] =
+  const [products, categorySectionProducts, categories, banners, rawSettings, posts] =
     await Promise.all([
       getHomeProductsFromPayload(),
       getHomeCategorySectionProducts(),
       getProductCategoryNavFromPayload(),
       getBannersFromPayload(),
-      getSolutionsFromPayload(),
       getSiteSettingsFromPayload(),
       getLatestPostsFromPayload(4),
     ]);
@@ -40,7 +39,6 @@ export default async function HomePage() {
         categorySectionProducts={categorySectionProducts.map(toHomeCardProduct)}
         categories={categories}
         initialBanners={banners}
-        initialSolutions={solutions}
         initialPosts={posts}
         quoteEmail={settings.email}
       />
