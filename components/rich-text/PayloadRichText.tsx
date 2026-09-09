@@ -1,6 +1,9 @@
 import type { ComponentProps } from "react";
+import React from "react";
 import { RichText } from "@payloadcms/richtext-lexical/react";
+import type { SerializedLexicalNode } from "lexical";
 import { getPayloadClient } from "@/lib/payload";
+import { textColorStyleByKey } from "@/lib/payload/rich-text/text-color-palette";
 
 type PayloadRichTextProps = {
   className?: string;
@@ -28,6 +31,12 @@ const baseClassName = [
 
 type RichTextRecord = Record<string, unknown>;
 type MediaLookup = Map<string, RichTextRecord>;
+type SerializedTextNodeWithColor = SerializedLexicalNode & {
+  $?: {
+    color?: string;
+  };
+  text?: string;
+};
 
 function isRecord(value: unknown): value is RichTextRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -118,6 +127,21 @@ function sanitizeRichTextData(value: unknown, mediaLookup: MediaLookup): unknown
   return next;
 }
 
+const richTextConverters: ComponentProps<typeof RichText>["converters"] = ({
+  defaultConverters,
+}) => ({
+  ...defaultConverters,
+  text: (args) => {
+    const node = args.node as SerializedTextNodeWithColor;
+    const renderedText =
+      typeof defaultConverters.text === "function" ? defaultConverters.text(args) : node.text;
+    const color = node.$?.color;
+    const style = color ? textColorStyleByKey.get(color) : undefined;
+
+    return style ? <span style={style}>{renderedText}</span> : renderedText;
+  },
+});
+
 export async function PayloadRichText({ className, data }: PayloadRichTextProps) {
   if (!data || typeof data !== "object") return null;
 
@@ -130,6 +154,7 @@ export async function PayloadRichText({ className, data }: PayloadRichTextProps)
     <RichText
       data={safeData as ComponentProps<typeof RichText>["data"]}
       className={[baseClassName, className].filter(Boolean).join(" ")}
+      converters={richTextConverters}
     />
   );
 }

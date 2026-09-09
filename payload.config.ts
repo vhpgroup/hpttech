@@ -5,6 +5,7 @@ import {
   EXPERIMENTAL_TableFeature,
   FixedToolbarFeature,
   lexicalEditor,
+  TextStateFeature,
   UploadFeature,
 } from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
@@ -47,6 +48,7 @@ import { Warranties } from "./collections/Warranties.ts";
 import { EnterpriseServices } from "./collections/EnterpriseServices.ts";
 import { EnterpriseSupportPage } from "./globals/EnterpriseSupportPage.ts";
 import { seedEnterpriseServices } from "./lib/payload/seed-enterprise-services.ts";
+import { textColorStateValues } from "./lib/payload/rich-text/text-color-palette.ts";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -153,6 +155,11 @@ export default buildConfig({
             order: 10,
             type: "buttons",
           },
+        },
+      }),
+      TextStateFeature({
+        state: {
+          color: textColorStateValues,
         },
       }),
       EXPERIMENTAL_TableFeature(),

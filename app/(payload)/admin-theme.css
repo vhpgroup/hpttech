@@ -20,6 +20,16 @@
   --hpt-danger: #ef4444;
   --hpt-success: #22c55e;
   --hpt-warning: #f59e0b;
+  --color-primary-500: var(--hpt-primary);
+  --color-primary-700: var(--hpt-primary-d);
+  --color-primary-900: #312e81;
+  --color-accent-500: var(--hpt-warning);
+  --color-accent-600: var(--hpt-warning);
+  --color-accent-700: #b45309;
+  --color-success: var(--hpt-success);
+  --color-warning: var(--hpt-warning);
+  --color-danger: var(--hpt-danger);
+  --color-ink: var(--hpt-text);
 
   --hpt-sidebar: #080c18;
   --hpt-sidebar-2: #0e1428;
@@ -360,6 +370,92 @@ a {
 
 .rich-text-lexical--show-gutter > .rich-text-lexical__wrap > .editor-container > .editor-scroller > .editor > .ContentEditable__root {
   padding-left: 3.5rem;
+}
+
+.toolbar-popup__dropdown-textState {
+  min-width: 38px;
+  position: relative;
+}
+
+.toolbar-popup__dropdown-textState > svg {
+  display: none;
+}
+
+.toolbar-popup__dropdown-textState::before {
+  content: "A";
+  display: inline-flex;
+  min-width: 16px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.toolbar-popup__dropdown-textState::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 11px;
+  height: 3px;
+  width: 15px;
+  border-radius: 999px;
+  background: var(--color-primary-700);
+}
+
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink),
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) {
+  display: grid;
+  width: 220px;
+  grid-template-columns: repeat(6, 26px);
+  gap: 5px;
+  padding: 8px;
+}
+
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item,
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item {
+  display: grid;
+  height: 26px;
+  width: 26px;
+  min-width: 26px;
+  place-items: center;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 3px;
+  background: var(--theme-elevation-0);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, white 50%, transparent);
+  padding: 0;
+}
+
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item:hover,
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item.active,
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item:hover,
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item.active {
+  outline: 2px solid var(--color-primary-700);
+  outline-offset: 1px;
+}
+
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item-clear-style,
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item-clear-style {
+  grid-column: 1 / -1;
+  display: flex;
+  width: 100%;
+  min-width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  border: 0;
+  box-shadow: none;
+  padding: 7px 8px;
+}
+
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item .icon,
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item .icon {
+  height: 16px;
+  width: 16px;
+}
+
+.toolbar-popup__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item:not(.toolbar-popup__dropdown-item-clear-style) .text,
+.fixed-toolbar__dropdown-items:has(.toolbar-popup__dropdown-item-ink) .toolbar-popup__dropdown-item:not(.toolbar-popup__dropdown-item-clear-style) .text {
+  display: none;
 }
 
 .field-type.textarea textarea {
@@ -2060,6 +2156,16 @@ table {
   --hpt-danger: #d92d20;
   --hpt-success: #039855;
   --hpt-warning: #dc6803;
+  --color-primary-500: var(--hpt-primary);
+  --color-primary-700: var(--hpt-primary-d);
+  --color-primary-900: #1e3a8a;
+  --color-accent-500: #f97316;
+  --color-accent-600: var(--hpt-warning);
+  --color-accent-700: #c2410c;
+  --color-success: var(--hpt-success);
+  --color-warning: var(--hpt-warning);
+  --color-danger: var(--hpt-danger);
+  --color-ink: var(--hpt-text);
   --hpt-sidebar: #ffffff;
   --hpt-sidebar-2: #ffffff;
   --hpt-sidebar-text: #344054;
