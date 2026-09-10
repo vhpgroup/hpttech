@@ -83,7 +83,11 @@ export async function renderCategoryLanding(
   // Vào bằng tên/slug chưa chuẩn → về URL canonical rút gọn.
   if (leaf.slug !== slug) redirect(`/${encodeURIComponent(leaf.slug)}`);
 
-  const resolvedSearchParams = forcedSearchParams || (searchParams ? await searchParams : {});
+  // Clean SEO landing (vd /may-scan-canon) ép brand/category nhưng vẫn phải giữ
+  // query từ URL như page, sort và price filters. Dùng forcedSearchParams trực
+  // tiếp sẽ làm SSR luôn nhận page mặc định 1 cho mọi URL ?page=2.
+  const requestedSearchParams = searchParams ? await searchParams : {};
+  const resolvedSearchParams = { ...requestedSearchParams, ...forcedSearchParams };
   const parsed = parseLandingSearchParams(leaf.slug, resolvedSearchParams);
   const [result, seoContent] = await Promise.all([
     getProductSearchPageFromPayload(parsed),
