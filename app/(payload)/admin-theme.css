@@ -29,6 +29,7 @@
   --color-success: var(--hpt-success);
   --color-warning: var(--hpt-warning);
   --color-danger: var(--hpt-danger);
+  --color-hpt-red: #da2127;
   --color-ink: var(--hpt-text);
 
   --hpt-sidebar: #080c18;
@@ -2165,6 +2166,7 @@ table {
   --color-success: var(--hpt-success);
   --color-warning: var(--hpt-warning);
   --color-danger: var(--hpt-danger);
+  --color-hpt-red: #da2127;
   --color-ink: var(--hpt-text);
   --hpt-sidebar: #ffffff;
   --hpt-sidebar-2: #ffffff;

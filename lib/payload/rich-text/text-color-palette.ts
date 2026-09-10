@@ -93,6 +93,13 @@ export const textColorOptions: TextColorOption[] = [
     css: { color: "var(--color-danger)" },
   },
   {
+    key: "hpt-red",
+    label: "Đỏ HPT",
+    group: "theme",
+    swatch: "var(--color-hpt-red)",
+    css: { color: "var(--color-hpt-red)" },
+  },
+  {
     key: "standard-red",
     label: "Đỏ",
     group: "standard",
