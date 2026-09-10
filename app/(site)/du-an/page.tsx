@@ -1,6 +1,7 @@
 import { ProjectsPageClient } from "@/components/projects/ProjectsPageClient";
-import { getProjectsFromPayload } from "@/lib/content-payload";
+import { getProjectsFromPayload, getSiteSettingsFromPayload } from "@/lib/content-payload";
 import { pageMetadata } from "@/lib/seo";
+import { normalizeSiteSettings } from "@/lib/site-settings";
 
 export const revalidate = 300;
 
@@ -21,12 +22,17 @@ type ProjectsPageProps = {
 };
 
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
-  const [projects, params] = await Promise.all([getProjectsFromPayload(), searchParams]);
+  const [projects, settings, params] = await Promise.all([
+    getProjectsFromPayload(),
+    getSiteSettingsFromPayload().then(normalizeSiteSettings),
+    searchParams,
+  ]);
   const page = Number.parseInt(params.page || "1", 10);
 
   return (
     <ProjectsPageClient
       projects={projects}
+      phone={settings.hotline || settings.phone}
       initialCategory={params["danh-muc"] || params["linh-vuc"]}
       initialIndustry={params["linh-vuc"]}
       initialQuery={params.q}

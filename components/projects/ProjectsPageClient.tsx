@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import ProjectHeroMap from "@/components/projects/ProjectHeroMap";
 import type { PublicProject } from "@/lib/content-payload";
 import { cn } from "@/lib/cn";
 
@@ -33,6 +34,8 @@ type SortValue = "newest" | "oldest";
 
 type ProjectsPageClientProps = {
   projects: PublicProject[];
+  /** Hotline hiển thị trong popup bản đồ hero. */
+  phone?: string;
   initialCategory?: string;
   initialIndustry?: string;
   initialQuery?: string;
@@ -215,6 +218,7 @@ function ProjectCard({ project }: { project: PublicProject }) {
 
 export function ProjectsPageClient({
   projects,
+  phone,
   initialCategory,
   initialIndustry,
   initialQuery,
@@ -318,38 +322,7 @@ export function ProjectsPageClient({
         <span>Dự án</span>
       </nav>
 
-      <section className="relative overflow-hidden rounded-t-[28px] bg-primary-900 text-white shadow-[0_24px_80px_rgba(4,27,61,0.22)]">
-        <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
-          <Image
-            src="/assets/anhcongty/mattruoc.jpg"
-            alt="Mặt trước showroom HPT Tech"
-            fill
-            priority
-            sizes="680px"
-            className="object-cover object-[50%_28%] opacity-70"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-900 via-primary-900/75 to-primary-900/20" />
-        </div>
-        <div className="relative max-w-3xl px-6 py-12 sm:px-10 lg:py-16">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-yellow-300">Dự án tiêu biểu</p>
-          <h1 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">
-            Dự án tiêu biểu đã triển khai cho khối Nhà nước, Tài chính, Ngân hàng và Doanh nghiệp lớn
-          </h1>
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-primary-50/90 sm:text-base">
-            HPT Tech cung cấp thiết bị CNTT, máy scan, giải pháp số hóa tài liệu và hạ tầng công nghệ cho các đơn vị yêu cầu cao về tiến độ, bảo mật và năng lực triển khai.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a href="#project-list" className="inline-flex items-center gap-2 rounded-md bg-yellow-400 px-5 py-3 text-sm font-extrabold text-primary-900 transition hover:bg-yellow-300">
-              Xem dự án tiêu biểu
-              <ArrowRight size={16} />
-            </a>
-            <Link href="/lien-he" className="inline-flex items-center gap-2 rounded-md border border-white/35 bg-white/5 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-white/10">
-              Liên hệ tư vấn hồ sơ thầu
-              <ClipboardCheck size={16} />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ProjectHeroMap phone={phone} />
 
       <section className="grid overflow-hidden rounded-b-[26px] border border-t-0 border-slate-200 bg-white shadow-sm md:grid-cols-4">
         <StatCard iconSrc="/assets/logo/adward.png" value="10+" label="Năm kinh nghiệm triển khai" />
