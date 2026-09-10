@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { HPT_DATA } from "@/lib/data";
-import type { PublicPost, PublicSolution } from "@/lib/content-payload";
+import type { PublicPost } from "@/lib/content-payload";
 
 const NEWS_FALLBACK_IMAGE = "/assets/commercial-blocks/solution.jpg";
 
@@ -64,13 +64,7 @@ function PostLink({
   );
 }
 
-export default function HomeStaticSections({
-  solutions,
-  posts,
-}: {
-  solutions: PublicSolution[];
-  posts?: PublicPost[];
-}) {
+export default function HomeStaticSections({ posts }: { posts?: PublicPost[] }) {
   const newsCards =
     posts && posts.length > 0
       ? posts.map((post) => ({
@@ -82,76 +76,36 @@ export default function HomeStaticSections({
       : HPT_DATA.posts;
 
   return (
-    <>
-      <section className="brand-strip" id="brands">
-        <h2>Đối tác công nghệ hàng đầu</h2>
-        <div id="brandLogos">
-          {HPT_DATA.brands.map((brand) => (
-            <span key={brand.name}>
-              <Image src={`/${brand.logo}`} alt={brand.name} width={96} height={40} sizes="96px" />
-              <b>{brand.name}</b>
-            </span>
-          ))}
-        </div>
-      </section>
+    <section className="news" id="news">
+      <div className="section-head">
+        <h2>Tin tức & tiêu điểm</h2>
+        <Link href="/tin-tuc">
+          Xem tất cả <ArrowRight size={16} />
+        </Link>
+      </div>
 
-      <section className="solutions" id="solutions">
-        <div className="solution-intro">
-          <h2>Giải pháp doanh nghiệp</h2>
-          <p>
-            HPT Tech cung cấp các giải pháp công nghệ toàn diện, giúp doanh nghiệp tối ưu vận hành
-            và bứt phá thành công.
-          </p>
-          <a href="https://hpttech.vn/aboutus/" target="_blank" rel="noreferrer">
-            Xem tất cả giải pháp <ArrowRight size={16} />
-          </a>
-        </div>
-
-        <div className="solution-grid" id="solutionGrid">
-          {solutions.map((sol) => (
-            <article key={sol.title} className="solution-card">
-              <i data-lucide={sol.icon} />
-              <h3>{sol.title}</h3>
-              <p>{sol.description}</p>
-              <a href="/giai-phap">
-                Xem chi tiết <ArrowRight size={16} />
-              </a>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="news" id="news">
-        <div className="section-head">
-          <h2>Tin tức & tiêu điểm</h2>
-          <Link href="/tin-tuc">
-            Xem tất cả <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        <div className="news-grid" id="newsGrid">
-          {newsCards.map((post) => (
-            <article key={post.href} className="post-card">
-              <PostLink href={post.href} ariaLabel={post.title}>
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  width={360}
-                  height={200}
-                  sizes="(max-width: 767px) 100vw, 360px"
-                  unoptimized={post.image.startsWith("/api/")}
-                />
-              </PostLink>
-              <div className="post-info">
-                <time className="post-date">{post.date}</time>
-                <h3>
-                  <PostLink href={post.href}>{post.title}</PostLink>
-                </h3>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-    </>
+      <div className="news-grid" id="newsGrid">
+        {newsCards.map((post) => (
+          <article key={post.href} className="post-card">
+            <PostLink href={post.href} ariaLabel={post.title}>
+              <Image
+                src={post.image}
+                alt={post.title}
+                width={360}
+                height={200}
+                sizes="(max-width: 767px) 100vw, 360px"
+                unoptimized={post.image.startsWith("/api/")}
+              />
+            </PostLink>
+            <div className="post-info">
+              <time className="post-date">{post.date}</time>
+              <h3>
+                <PostLink href={post.href}>{post.title}</PostLink>
+              </h3>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   );
 }
