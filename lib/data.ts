@@ -49,7 +49,7 @@ export const HPT_DATA = {
     { name: "Thiết bị IoT & Công nghiệp", icon: "network", slug: "thiet-bi-iot-cong-nghiep" },
     { name: "Dịch vụ kỹ thuật", icon: "wrench" },
     { name: "Giải pháp số hóa", icon: "workflow" },
-    { name: "Máy chiếu", icon: "projector" },
+    { name: "Thiết bị âm thanh", icon: "video", slug: "thiet-bi-am-thanh" },
     { name: "UPS & Nguồn điện", icon: "battery-charging" },
   ] as { name: string; icon: string; slug?: string }[],
   productTabs: ["Nổi bật", "Máy scan", "Máy in", "Thiết bị văn phòng", "HP", "Brother"],

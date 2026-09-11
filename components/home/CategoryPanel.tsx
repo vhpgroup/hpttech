@@ -797,7 +797,7 @@ const cameraMegaColumns: MegaColumn[] = [
 
 function categoryLandingHref(category: { name: string; slug?: string }) {
   // Landing page rút gọn /<slug> của danh mục (kiểu An Phát).
-  // Mục nav CHƯA có category trong CMS (không slug — vd Máy chiếu, UPS, Lưu trữ...)
+  // Mục nav CHƯA có category trong CMS (không slug — vd UPS, Lưu trữ...)
   // → về catalog tổng thay vì phát URL tên-encode 404.
   if (!category.slug) return "/san-pham";
   return `/${encodeURIComponent(category.slug)}`;
@@ -890,6 +890,7 @@ const CATEGORY_ICON_BY_NAME: Record<string, string> = {
   "giải pháp số hóa": "so-hoa",
   "máy photocopy": "photocopy",
   "máy chiếu": "may-chieu",
+  "thiết bị âm thanh": "hoi-nghi",
 };
 
 const CATEGORY_ICON_BY_KEY: Record<string, string> = {
