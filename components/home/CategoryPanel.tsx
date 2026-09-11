@@ -803,6 +803,12 @@ function categoryLandingHref(category: { name: string; slug?: string }) {
   return `/${encodeURIComponent(category.slug)}`;
 }
 
+const AUDIO_MEGA_COLUMN_TITLES = [
+  "Hệ thống âm thanh & truyền thanh",
+  "Thiết bị âm thanh & hạ tầng",
+  "Loa phát thanh công suất lớn",
+];
+
 function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   const nameKey = category.name.trim().toLowerCase();
   if (nameKey === "máy scan") {
@@ -849,11 +855,12 @@ function buildMegaColumns(category: ProductCategoryNavItem): MegaColumn[] {
   const columnCount = Math.min(3, category.children.length);
   const chunkSize = Math.ceil(category.children.length / columnCount);
   const columns: MegaColumn[] = [];
+  const columnTitles = nameKey === "thiết bị âm thanh" ? AUDIO_MEGA_COLUMN_TITLES : undefined;
 
   for (let index = 0; index < category.children.length; index += chunkSize) {
     const chunk = category.children.slice(index, index + chunkSize);
     columns.push({
-      title: index === 0 ? category.name : `Nhóm ${columns.length + 1}`,
+      title: columnTitles?.[columns.length] ?? (index === 0 ? category.name : `Nhóm ${columns.length + 1}`),
       links: chunk.map((child) => ({
         label: child.name,
         href: categoryLandingHref(child),
